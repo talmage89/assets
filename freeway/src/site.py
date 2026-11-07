@@ -35,6 +35,36 @@ def along(src,name,p,s,u,zoff=0,yaw=0,parent=None):
     point=p.xyz(s,u,zoff);a=math.degrees(math.atan2(p.frame(s)[1][0],p.frame(s)[1][1]))
     return clone(src,name,point,-a+yaw,parent)
 
+def rail_run(lib,name,points):
+    """Continuous 12 ft 6 in post-pitch panels with lap joints and vertical posts.
+
+    Each copied mesh follows the local grade by shear, rather than pitching its
+    posts or leaving horizontal stair steps between panels on the ramp.
+    """
+    points=list(map(Vector,points));lengths=[0.]
+    for a,b in zip(points,points[1:]):lengths.append(lengths[-1]+math.hypot(b.x-a.x,b.y-a.y))
+    def sample(distance):
+        for j in range(len(lengths)-1):
+            if distance<=lengths[j+1]:
+                t=(distance-lengths[j])/(lengths[j+1]-lengths[j]);return points[j].lerp(points[j+1],max(0,min(1,t)))
+        return points[-1]
+    result=[];segments=[(0.,7.62,'GuardrailEnd')]
+    a=7.62
+    while a+3.81<=lengths[-1]:segments.append((a,a+3.81,'WBeam'));a+=3.81
+    for index,(a,b,kind) in enumerate(segments):
+        middle=(a+b)/2;pt=sample(middle);delta=sample(min(lengths[-1],middle+.5))-sample(max(0,middle-.5));span=math.hypot(delta.x,delta.y)
+        normal=Vector((delta.y,-delta.x,0)).normalized();pt+=normal*4.9;pt.z-=.12
+        ob=clone(lib[kind],name+'_%03d'%index,pt,math.degrees(math.atan2(-delta.x,delta.y)));slope=delta.z/span
+        for mesh in ob.children_recursive:
+            if mesh.type!='MESH':continue
+            mesh.data=mesh.data.copy();normals=[n.vector.copy() for n in mesh.data.corner_normals]
+            for v in mesh.data.vertices:v.co.z+=v.co.y*slope
+            mesh.data.update()
+            for f in mesh.data.polygons:f.use_smooth=True
+            mesh.data.normals_split_custom_set([Vector((n.x,n.y-slope*n.z,n.z)).normalized() for n in normals])
+        result.append(ob)
+    return result
+
 def town(p):
     rt=Q.root('TownContext',module_kind='context');rng=random.Random(p.seed);ground=7.0 if p.kind=='diamond' else 0
     b=Q.Batch('Town native-surface streets',rt)
@@ -47,11 +77,11 @@ def town(p):
             b.surface([(x+side*6.,-p.length/2,ground+.16),(x+side*7.524,-p.length/2,ground+.175),(x+side*7.524,p.length/2,ground+.175),(x+side*6.,p.length/2,ground+.16)],'Concrete')
     house=[load('build/context/Ranch.glb'),load('build/context/Cape.glb')]
     # Different lot arrangement, orientation and side access in each seed.
-    for i in range(18 if p.kind=='diamond' else 26):
-        side=(-1,1)[i%2];s=((i//2)-4.5)*31 if p.kind=='diamond' else ((i//2)-6)*35+17
-        if p.kind=='diamond' and abs(s)<28:continue
+    lot_rows=(-120.,-88.,-56.,56.,88.,120.) if p.kind=='diamond' else tuple((i-6)*35. for i in range(13))
+    for i in range(len(lot_rows)*2):
+        side=(-1,1)[i%2];s=lot_rows[i//2]
         u=side*(143 if p.kind=='diamond' else (90 if side>0 else 78))
-        point=list(p.center(s));point[0]+=u;point[2]=ground+.16
+        point=list(p.center(s));point[0]+=u;point[2]=ground
         clone(house[i%2],'Lot_'+str(i),point,90 if side>0 else -90,rt)
         # Driveway touches the native street and the house frontage.
         roadx=xs[0 if side<0 else 1];xa,xb=sorted([roadx+side*3.66,point[0]-side*6.])
@@ -59,24 +89,33 @@ def town(p):
     for lib in house:delete(lib)
     # A modest commercial parcel fronts the arterial in the diamond.
     if p.kind=='diamond':
-        gas=load('build/context/Gas.glb');clone(gas,'ArterialGasStation',(170,45,ground+.05),180,rt);delete(gas)
-    # Four intact native botanical crowns; no generated replacement trees.
+        gas=load('build/context/Gas.glb');clone(gas,'ArterialConvenienceStore',(170,30,ground),0,rt);delete(gas)
+        b.surface([(151,17,ground+.025),(189,17,ground+.025),(189,34,ground+.025),(151,34,ground+.025)],'Asphalt')
+        b.surface([(181,8.4,ground+.025),(187,8.4,ground+.025),(187,24,ground+.025),(181,24,ground+.025)],'Asphalt')
+        b.surface([(160.6,33.8,ground+.04),(179.4,33.8,ground+.04),(179.4,35.5,ground+.04),(160.6,35.5,ground+.04)],'Concrete')
+        for x in range(153,187,3):
+            b.surface([(x,27,ground+.032),(x+.10,27,ground+.032),(x+.10,33,ground+.032),(x,33,ground+.032)],'White')
+    # Native botanical crowns; the diamond reserves its budget for the store.
     tree=[load('build/context/TreeOak.glb'),load('build/context/TreeMaple.glb')]
     placements=[(-48,-62),(49,48),(-154,115),(156,-110)] if p.kind=='diamond' else [(-45,-75),(49,-120),(-48,62),(50,138)]
-    for i,(x,y) in enumerate(placements[:2]):
+    for i,(x,y) in enumerate(placements if p.kind=='soundwall' else placements[:1]):
         c=p.center(y);clone(tree[i%2],'NativeTree_'+str(i),(c[0]+x,c[1],ground),rng.uniform(0,360),rt)
     for lib in tree:delete(lib)
     utility=load('build/context/Utility.glb')
+    bpy.context.view_layer.update()
+    wire_sockets={ob.name.split('__Socket_')[-1].split('.')[0]:utility.matrix_world.inverted()@ob.matrix_world.translation for ob in utility.children_recursive if '__Socket_' in ob.name}
     poles=[]
     for i in range(7):
         x=130 if p.kind=='diamond' else 73;y=(i-3)*42.672
         c=p.center(y);poles.append((c[0]+x,c[1],ground));clone(utility,'JointUsePole_'+str(i),poles[-1],0,rt)
     delete(utility)
     for a,c in zip(poles,poles[1:]):
-        for x,z,r in [(-.975,10.0,.005),(0,10.14,.005),(.975,10.,.005),(0,7.94,.004),(0,6.62,.0185)]:
+        for key,r in [('Primary_A',.0050546),('Primary_B',.0050546),('Primary_C',.0050546),('Neutral',.0040132),('CommPhone',.0185)]:
+            socket=wire_sockets.get(key)
+            if socket is None:continue
             pts=[]
             for j in range(17):
-                t=j/16;pts.append((a[0]+x+(c[0]-a[0])*t,a[1]+(c[1]-a[1])*t,a[2]+z-.65*4*t*(1-t)))
+                t=j/16;pts.append((a[0]+socket.x+(c[0]-a[0])*t,a[1]+socket.y+(c[1]-a[1])*t,a[2]+socket.z-.65*4*t*(1-t)))
             b.tube(pts,r,'DarkSteel',4)
     b.finish();return rt
 
@@ -85,10 +124,10 @@ def traffic(p):
     locations=[(1,0,-26),(-1,1,32),(1,1,-80),(-1,0,88),(1,0,128),(-1,1,-134),(1,1,235),(-1,0,-238)]
     if p.kind=='soundwall':locations=[(1,1,-22),(-1,0,40),(1,0,-94),(-1,1,122),(1,1,180),(-1,0,-210),(1,0,277),(-1,1,-300)]
     for i,(side,lane,s) in enumerate(locations[:6]):
-        ob=along(hero if i==0 else templates[i%2],'Traffic_'+str(i),p,s,p.lane(side,lane),.025,180 if side>0 else 0,rt)
+        ob=along(hero if i==0 else templates[i%2],'Traffic_'+str(i),p,s,p.lane(side,lane),0,180 if side>0 else 0,rt)
         # Vehicle source floor is ground Z=0. Give the whole vehicle the road's
         # actual bank; wheel/plane contact is independently ray measured later.
-        ob.rotation_euler.y=math.atan(p.bank if p.bank else -side*.02)
+        ob.rotation_euler.y=math.atan(side*p.bank if p.bank else -.02)
     for lib in [*templates,hero]:delete(lib)
     return rt
 
@@ -112,7 +151,7 @@ def row_fence(p):
         u=side*(106 if p.kind=='diamond' else 40.)
         for s in seq(-p.length/2,p.length/2,3.048):
             x,y,z=p.xyz(s,u);z=7.0 if p.kind=='diamond' else 0
-            b.tube([(x,y,z),(x,y,z+1.83)],.024,'Steel',4)
+            b.tube([(x,y,z),(x,y,z+1.83)],.024,'Steel',4,caps=False)
         chain=seq(-p.length/2,p.length/2,6.096)
         for a,c in zip(chain,chain[1:]):
             x0,y0,_=p.xyz(a,u);x1,y1,_=p.xyz(c,u);z=7.0 if p.kind=='diamond' else 0

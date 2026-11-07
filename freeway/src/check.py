@@ -54,6 +54,13 @@ def base_checks():
         assert all(math.isfinite(v) for vert in ob.data.vertices for v in vert.co)
         assert max(abs(v-1) for v in ob.scale)<1e-5,(ob.name,ob.scale)
         ob.data.calc_loop_triangles();triangles+=len(ob.data.loop_triangles)
+        if ob.get('context_surface_kind'):
+            expected=Vector(ob['context_expected_local_normal'])
+            for f in ob.data.loop_triangles:
+                a,b,c=[ob.data.vertices[v].co for v in f.vertices]
+                n=(b-a).cross(c-a).normalized()
+                assert n.dot(expected)>.999,('Reversed native context skin',ob.name)
+                if ob['context_surface_kind']=='roof':assert n.z>.05
         for f in ob.data.loop_triangles:
             if f.area<1e-12:world_area_degenerate+=1
         if ob.data.uv_layers:
@@ -78,12 +85,22 @@ def modules():
         pts=vertices(bpy.context.scene.objects);stats['bounds']=[[float(op(p[k] for p in pts)) for k in range(3)] for op in (min,max)]
         stats['gltf_bytes']=path.stat().st_size;stats['bin_bytes']=path.with_suffix('.bin').stat().st_size
         stats['bundle_sha256']=bundle(path);report[n]=stats
+        if n in ('MedianF','WBeam','GuardrailEnd','CableBay','PierBent','PrestressedGirder24'):
+            volume=0.
+            for ob in bpy.context.scene.objects:
+                if ob.type!='MESH':continue
+                ob.data.calc_loop_triangles()
+                for f in ob.data.loop_triangles:
+                    a,b,c=[ob.matrix_world@ob.data.vertices[v].co for v in f.vertices]
+                    volume+=a.dot(b.cross(c))/6
+            stats['signed_closed_component_volume_m3']=volume
+            assert volume>0,('Inward manufactured sections',n,volume)
         if n=='MedianF':
             assert abs(stats['bounds'][1][2]-.8128)<1e-5
             tree=bvh(bpy.context.scene.objects)
             # Rays through the slot and adjacent solid prove an actual opening.
-            assert tree.ray_cast(Vector((-1,0,.10)),Vector((1,0,0)),2)[0] is None
-            assert tree.ray_cast(Vector((-1,.30,.10)),Vector((1,0,0)),2)[0] is not None
+            assert tree.ray_cast(Vector((-1,0,.04)),Vector((1,0,0)),2)[0] is None
+            assert tree.ray_cast(Vector((-1,.30,.04)),Vector((1,0,0)),2)[0] is not None
         if n=='WBeam':
             steel=vertices(bpy.context.scene.objects,{'Freeway_Form_Steel'})
             stats['measured_rail_top_m']=max(v.z for v in steel)
@@ -93,17 +110,22 @@ def modules():
             concrete=bvh(bpy.context.scene.objects,{'Freeway_Form_Bridge'})
             samples=[]
             for x in (-23.6,-.65,.65,23.6):
-                for y in (-8.22,-5.48,-2.74,0,2.74,5.48,8.22):
+                for y in (-9.144,-6.096,-3.048,0,3.048,6.096,9.144):
                     padtop=ray(rubber,x,y,6.)
-                    # A downward ray from inside girder lower flange finds its
-                    # bottom? Use upward casting from pad top for actual gap.
-                    hit=concrete.ray_cast(padtop+Vector((0,0,.0001)),Vector((0,0,1)),1)[0]
+                    # Separate BVHs: cast downward from inside the lower flange
+                    # to its underside, then compare with actual pad top.
+                    hit=concrete.ray_cast(Vector((x,y,6.0)),Vector((0,0,-1)),1)[0]
                     assert hit is not None,('Unsupported girder',x,y)
                     samples.append(float(hit.z-padtop.z))
-            # Pads at pier X ±.65 sit under the flat near-end flange; camber
-            # leaves <2 mm source gap, reported rather than called contact.
             stats['bearing_top_to_girder_gap_m']=dict(min=min(samples),max=max(samples),samples=len(samples))
-            assert max(samples)<.006
+            assert max(abs(v) for v in samples)<.00002
+            all_surfaces=bvh(bpy.context.scene.objects)
+            origin=Vector((0,9.5,7.22))
+            inner=all_surfaces.ray_cast(origin,Vector((0,-1,0)),3)[0]
+            outer=all_surfaces.ray_cast(origin,Vector((0,1,0)),3)[0]
+            assert inner is not None and outer is not None
+            stats['measured_walk_clear_width_m']=outer.y-inner.y
+            assert abs(stats['measured_walk_clear_width_m']-1.524)<2e-5
     return report
 
 def scene(seed):
@@ -155,6 +177,22 @@ def scene(seed):
         if 'Ramp' in ob.name:assert grade<.05 and radius>100,(grade,radius)
     assert len(paths)==(8 if seed==101 else 4),len(paths)
     stats['driving_paths']=paths;stats['bundle_sha256']=bundle(path)
+    contacts=[]
+    for ob in bpy.context.scene.objects:
+        if ob.type!='MESH' or not ('Tire_' in ob.name or 'Hatch__Wheel_' in ob.name):continue
+        pts=[ob.matrix_world@v.co for v in ob.data.vertices]
+        # Inspect the lower part of each actual delivered tire, not its hub
+        # transform or a claimed nominal radius.
+        low=min(p.z for p in pts);candidates=[p for p in pts if p.z<low+.09]
+        gaps=[]
+        for point in candidates:
+            h=roadtree.ray_cast(Vector((point.x,point.y,30)),Vector((0,0,-1)),60)[0]
+            if h is not None:gaps.append(float(point.z-h.z))
+        if gaps:contacts.append(dict(wheel=ob.name,minimum_gap_m=min(gaps)))
+    stats['traffic_wheel_surface_contacts']=contacts
+    assert len(contacts)==24,len(contacts)
+    assert min(r['minimum_gap_m'] for r in contacts)>-.03,contacts
+    assert max(r['minimum_gap_m'] for r in contacts)<.04,contacts
     stats['gltf_bytes']=path.stat().st_size;stats['bin_bytes']=path.with_suffix('.bin').stat().st_size
     # Ordinary glTF material allocation deduplicated by actual image URI/hash.
     d=json.loads(path.read_text());image_rows=[]
@@ -163,7 +201,9 @@ def scene(seed):
         q=(path.parent/im['uri']).resolve();assert q.is_file();assert not im['uri'].startswith(('data:','/','http'))
         with Image.open(q) as f:w,h=f.size
         image_rows.append(dict(uri=im['uri'],size=[w,h],bytes=q.stat().st_size,sha256=hashlib.sha256(q.read_bytes()).hexdigest(),estimated_bc_mips_mib=w*h*4/3/2**20))
-    stats['images']=image_rows;stats['materials']=len(d.get('materials',[]));stats['compressed_images_mib']=sum(r['estimated_bc_mips_mib'] for r in image_rows)
+    unique={r['sha256']:r for r in image_rows}
+    stats['images']=image_rows;stats['materials']=len(d.get('materials',[]));stats['unique_images']=len(unique)
+    stats['compressed_images_mib']=sum(r['estimated_bc_mips_mib'] for r in unique.values())
     return stats
 
 def main():

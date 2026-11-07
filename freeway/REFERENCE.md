@@ -21,7 +21,7 @@ FHWA explanations and the period state-DOT material, not claimed as read.
 | Diamond / curved stretch | 1,600 / 1,000 m modeled length, plus far continuations | Full acceleration lanes fit inside the diamond, not compressed to fit a picture |
 | Diamond terminal axes | X ±78 m on the arterial | Authored spacing, distinct from ramp length; USGS 2002 photo supplies plan comparison |
 | Ramp | 16 ft travel width, 4/6 ft inner/outer shoulder | Authored generous single-ramp envelope; terminal branches flare for turning |
-| Ramp vertical profile | −.28 m freeway throat to +7.35 m terminal, first 10% held at low grade, then cubic vertical curve | Original grade profile; actual path gradient and plan radii are measured in `build/check.json` |
+| Ramp vertical profile | −.207264 m freeway throat to +7.35 m terminal, first 10% follows the mainline crossfall plane, then cubic vertical curve | Original grade profile; actual path gradient and plan radii are measured in `build/check.json` |
 | Speed-change lane | 3.6576 m, 366 m parallel length + 91.44 m taper | TxDOT acceleration/gap-acceptance discussion; generous authored length, not a traffic-volume calculation |
 | Recoverable cut slopes | Approximately 1:4 outside the ditch where space allows | FHWA explanation of AASHTO Roadside Design Guide; the ramp wedges and paved abutment slopes have different geometry |
 | Shoulder ditch / inlets | .36 m nominal depression, 600 × 900 mm inlet | Authored construction choices; grates have actual open bars |
@@ -47,8 +47,8 @@ an original plain state marker. No Interstate shield appears in an asset.
 | --- | --- |
 | Jointed concrete | 4.572 m / 15 ft transverse spacing; 12 mm visible joint, longitudinal joints on lane boundaries; placement-owned retrofit patch groups |
 | Milled shoulder strip | .4064 × .1778 m / 16 × 7 in envelopes at .3048 m / 12 in pitch, .3048 m off travel edge; represented by cards at this form gate |
-| F barrier | .8128 m / 32 in high; .6096 m / 24 in base, .1524 m / 6 in top; 3 in toe / 10 in slope break; 6.096 m bay, actual .3048 m drainage opening |
-| W-beam | 2.66 mm sheet, 311.15 mm face envelope, 83 mm depth; 31 in steel top, 1.905 m post centers; rail has two shells and edge returns |
+| F barrier | .8128 m / 32 in high; .6096 m / 24 in base, .1524 m / 6 in top; 3 in toe / 10 in slope break; 6.096 m bay, authored .3048 × .0762 m / 12 × 3 in drainage opening |
+| W-beam | 2.66 mm sheet, 311.15 mm face envelope, 83 mm depth; 31 in steel top, 1.905 m post centers; 3.81 m bay pitch / 4.1148 m rail including laps; rail has two shells and edge returns |
 | Blockout | 203.2 × 152.4 × 355.6 mm; top slightly above steel top, as a separate timber component |
 | Generic end treatment | 7.62 m inspection module; energy-absorbing head, weakened-post form, ground strut and tension cable; no named proprietary terminal copied or certification implied |
 | Cable | Three 19 mm envelopes at .53 / .68 / .83 m, 6.096 m bay; attachment clips and small self-weight sag |
@@ -70,7 +70,7 @@ to look-dev, rather than additional silhouette triangles.
 The arterial is a five-lane 11 ft / 3.3528 m street. Two 24 m spans carry
 the **21.336 m / 70 ft** deck, with sidewalks, inner parapets and an outer
 safety fence. Deck crown is 2%; the center is +7.35 m and nominal soffit is
-+7.10 m. Seven girders per span sit at 2.74 m centers. The traditional
++7.10 m. Seven girders per span sit at 3.048 m centers. The traditional
 54 in / 1.3716 m AASHTO IV envelope uses .6604 m flanges and a .2032 m web;
 this is not the newer Tx54 profile.
 

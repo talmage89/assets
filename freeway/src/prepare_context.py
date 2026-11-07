@@ -25,10 +25,22 @@ def native(name,path,target):
     rt=bpy.data.objects.new(name,None);bpy.context.scene.collection.objects.link(rt);parts=[]
     for ob in obs:
         if ob.type!='MESH':continue
+        if name=='Gas' and not ob.name.startswith(('Store__Mesh','Entry_Left__Mesh','Entry_Right__Mesh','ServiceDoor__Mesh')):continue
         me=bpy.data.meshes.new_from_object(ob.evaluated_get(dg),depsgraph=dg,preserve_all_data_layers=True)
         me.transform(ob.matrix_world);copy=bpy.data.objects.new(name+'__'+ob.name,me);bpy.context.scene.collection.objects.link(copy);copy.parent=rt;parts.append(copy)
     for ob in obs:bpy.data.objects.remove(ob,do_unlink=True)
     total=sum(sum(len(p.vertices)-2 for p in ob.data.polygons) for ob in parts)
+    assert total>0,('Empty native context selection',name,path)
+    envelope=None
+    if name in ('Ranch','Cape'):
+        sys.path.insert(0,str(HERE));import house_context
+        envelope=house_context.extract(parts)
+        metadata=json.loads((ROOT/Path(path).with_suffix('.json')).read_text())
+        for ob in parts:bpy.data.objects.remove(ob,do_unlink=True)
+        parts=house_context.skins(rt,metadata,*envelope)
+        parts.extend(house_context.fixtures(rt,metadata))
+        export(Path('build/context')/(name+'.glb'),[rt,*parts])
+        return dict(source=path,source_triangles=total,context_triangles=sum(sum(len(p.vertices)-2 for p in ob.data.polygons) for ob in parts),target='native plan envelope',scope='Exact native roof/wall/opening plans and canonical tiles; simple distance casings, doors and porch supports. No generic triangle collapse.')
     for ob in parts:
         # Preserve alpha cards in trees. House silhouettes and vehicle wheels
         # keep their topology at this modest distance-preview reduction.
@@ -36,6 +48,13 @@ def native(name,path,target):
         if target and total>target and not (name.startswith('Tree') and alpha):
             reference=bpy.data.objects.new('Freeway local normal reference',ob.data.copy());bpy.context.collection.objects.link(reference)
             reference.matrix_world=ob.matrix_world.copy()
+            # Delivered weather/atlas boundaries duplicate vertices. Collapse
+            # on that triangle soup deletes isolated roof patches. Weld the
+            # coincident geometry first; loop UV seams remain independent.
+            import bmesh
+            bm=bmesh.new();bm.from_mesh(ob.data)
+            bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-6)
+            bm.normal_update();bm.to_mesh(ob.data);bm.free()
             mod=ob.modifiers.new('Freeway context simplification','DECIMATE');mod.ratio=target/total
             G.apply(ob)
             # Keep the original library's compound surface shading rather than
@@ -54,6 +73,9 @@ def native(name,path,target):
         if bad:
             bmesh.ops.delete(bm,geom=bad,context='FACES');bm.to_mesh(ob.data)
         bm.free()
+    if envelope:
+        metadata=json.loads((ROOT/Path(path).with_suffix('.json')).read_text())
+        parts.extend(house_context.skins(rt,metadata,*envelope))
     export(Path('build/context')/(name+'.glb'),[rt,*parts])
     return dict(source=path,source_triangles=total,context_triangles=sum(sum(len(p.vertices)-2 for p in ob.data.polygons) for ob in parts),target=target,scope='Local derivative for distant checkpoint context; original untouched')
 
@@ -67,7 +89,10 @@ def signal():
         q.M[key]=q.image_mat('Freeway_Signal_'+key,folder/file,emit=3 if key=='lit' else 0,alpha=key in ('lit','off'))
     for key in ('panel','record'):q.M[key]=q.mat('Form_'+key,(.1,.1,.1))
     rt=equipment.mast('NativeSignalMast',(0,0,0),0,plan.PLANS[201]);q.finalize_meshes()
+    total=sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in bpy.context.scene.objects if o.type=='MESH')
     for ob in list(bpy.context.scene.objects):
+        if ob.type=='MESH' and not ob.get('signal_lens'):
+            mod=ob.modifiers.new('Freeway terminal context LOD','DECIMATE');mod.ratio=3500/total;G.apply(ob)
         if ob.type=='MESH' and not ob.data.uv_layers:world_uv(ob,1.)
         if ob.type=='MESH':
             import bmesh
@@ -98,10 +123,10 @@ def main():
     rows={}
     for name,path,n in [
         ('Hatch','cars/export/AlderH120.glb',5500),('SUV','cars/export/AlderX220.glb',5500),
-        ('HeroHatch','cars/export/AlderH120.glb',18000),
+        ('HeroHatch','cars/export/AlderH120.glb',None),
         ('Ranch','houses/export/HearthfieldRanch-11.gltf',5000),('Cape','houses/export/HearthfieldCape-31.gltf',5000),
         ('TreeOak','trees/export/PinOak.glb',3200),('TreeMaple','trees/export/RedMaple.glb',3200),
-        ('Ground','ground/export/Ground.glb',None),('Gas','commercial/export/CommercialGas-101.gltf',2800)]:
+        ('Ground','ground/export/Ground.glb',None),('Gas','commercial/export/CommercialGas-101.gltf',None)]:
         rows[name]=native(name,path,n)
     Path('build/context/report.json').write_text(json.dumps(rows,indent=2))
 if __name__=='__main__':main()

@@ -23,8 +23,8 @@ def cameras():
     diamond,di=balance('diamond-2002',[430,42,455,60])
     definitions={
         'guide_2008':dict(title='Guide panel proportions / 2008 freeway photograph',photo=highway,crop=[0,350,2726,1785],
-            location=(2,-190,1.8),target=(-1,-155,7),lens=45,camera_height_m=(1.8,.6),lens_bounds_mm=(24,70),
-            landmarks=[dict(world=(x,-155.852,z),pixel=px) for x,z,px in [(-8.5,9.23,(472,566)),(-1.5,9.23,(1153,565)),(-1.5,6.49,(1153,812)),(-8.5,6.49,(472,812))]],
+            location=(13.1,-395,1.8),target=(10.1,-360,7),lens=45,camera_height_m=(1.8,.6),lens_bounds_mm=(24,70),
+            landmarks=[dict(world=(x,-360.852,z),pixel=px) for x,z,px in [(2.6,9.23,(472,566)),(9.6,9.23,(1153,565)),(9.6,6.49,(1153,812)),(2.6,6.49,(472,812))]],
             source='export/Freeway-101.gltf',limitations='Four coplanar panel corners, estimated dimensions and lens; six photographed lanes versus four modeled. Compare sign form and mounted scale, not roadway capacity.'),
         'bearing_2008':dict(title='Bearing-seat and cap plane / FHWA 2008 bridge',photo=bridge,crop=[0,0,2816,2112],
             location=(5,0,4.8),target=(0,-7,5.0),lens=45,lens_bounds_mm=(24,100),
@@ -38,6 +38,7 @@ def cameras():
     rows={}
     for name,definition in definitions.items():
         rows[name]=calibrate(definition);rows[name]['source']=definition['source'];rows[name]['limitations']=definition['limitations']
+        rows[name]['lens_status']='Feature-fit estimate; photographic EXIF may exist, but equivalent focal length and site dimensions are not calibrated'
         rows[name]['shot'].update(sun_direction=(.2,.2,-1),sun_energy=5,exposure=-.35)
         print(name,'RMS',round(rows[name]['residual_rms_pixels'],3),'lens',round(rows[name]['shot']['lens'],2))
     Path('build/cameras.json').write_text(json.dumps(rows,indent=2))

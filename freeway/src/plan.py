@@ -65,13 +65,14 @@ def plan(seed):
 def ramp_points(p,side,entry=False,n=96):
     """Opposing half-diamonds; northbound is east of the median.
 
-    280 m curving branch plus explicit 366 m parallel acceleration / 180 m
-    deceleration and 91.44 m tapers. Stops are at the arterial's edge.
+    264 m station extent plus explicit 366 m parallel speed-change lanes
+    and 91.44 m tapers. Stops are at the arterial's edge.
     """
     start=side*(16 if entry else -280)
     end=side*(280 if entry else -16)
-    u0=p.terminal if entry else p.edge+2.5
-    u1=p.edge+2.5 if entry else p.terminal
+    low_u=p.edge-RIGHT+LANE/2
+    u0=p.terminal if entry else low_u
+    u1=low_u if entry else p.terminal
     rows=[]
     for i in range(n+1):
         t=i/n;q=t*t*(3-2*t)
@@ -82,7 +83,9 @@ def ramp_points(p,side,entry=False,n=96):
         # vertical ramp curve starts beyond that shared pavement throat.
         travel=1-t if entry else t
         v=max(0,min(1,(travel-.10)/.90));v=v*v*(3-2*v)
-        z=-.28+(BRIDGE_Z+.28)*v
+        # Until the vertical curve starts, follow the mainline crossfall plane
+        # as the branch moves laterally. This prevents a lip in the shared throat.
+        z=-.02*(abs(u)-p.median/2)+(BRIDGE_Z+.02*(p.terminal-p.median/2))*v
         rows.append((u,s,z))
     return rows
 

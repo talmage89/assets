@@ -25,7 +25,7 @@ Additional read-only primary sources (HTML, not downloaded):
 - [FHWA full-depth repair design](https://www.fhwa.dot.gov/pavement/concrete/full3.cfm), public domain: repairs end at joints where possible; repair locations in this generator are placement-owned.
 - [WSDOT 1999 bridge barrier memorandum](https://www.wsdot.wa.gov/eesc/bridge/designmemos/08-1999.htm), WSDOT: 32 in F-shape major-highway bridge rail.
 - [WSDOT archived barrier plan library](https://wsdot.wa.gov/engineering-standards/all-manuals-and-standards/plan-sheet-library/traffic-barrier-tb), WSDOT: Type 31 introduced in 2009; older installations retain earlier rail heights. This family depicts maintenance in 2012.
-- [TxDOT bridge standards](https://www.dot.state.tx.us/insdtdot/orgchart/cmd/cserve/standard/bridge-e.htm), TxDOT: prestressed I-girder construction. Our 54 in generic AASHTO Type III section and 24 m spans are authored using the traditional section envelope, not the later Tx54 profile or a load-rated design.
+- [TxDOT bridge standards](https://www.dot.state.tx.us/insdtdot/orgchart/cmd/cserve/standard/bridge-e.htm), TxDOT: prestressed I-girder construction. Our 54 in generic AASHTO Type IV section and 24 m spans are authored using the traditional section envelope, not the later Tx54 profile or a load-rated design.
 - [GDOT sound barrier standard plans](https://mydocs.dot.ga.gov/info/gdotpubs/ConstructionStandardsAndDetails/Forms/AllItems.aspx), GDOT, N-3 dated 23 March 2009: post/panel construction and foundations. Panel span and height here are explicitly authored.
 
 Font: installed **DejaVu Sans, Condensed Bold**, Bitstream Vera/DejaVu open

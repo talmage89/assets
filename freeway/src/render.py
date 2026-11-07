@@ -29,17 +29,17 @@ def shots(seed):
         'above':dict(location=(-275,-430,365),target=(0,0,0),lens=35,aspect=1.5,overlay=True),
         'alignment':dict(location=(-850,-1300,1000),target=(0,0,0),lens=40,aspect=1.5,overlay=True),
         'barrier':dict(location=(3.3,-53,1.23),target=(0,-49,.40),lens=50,aspect=1.5),
-        'guardrail_end':dict(location=(9.7,-88.5,1.30),target=(14,-80,.45),lens=48,aspect=1.5),
-        'sign_structure':dict(location=(-2,-197,2.8),target=(0,-155,7.6),lens=40,aspect=1.5),
+        'guardrail_end':dict(location=(10,-291,1.25),target=(16.6,-275,.35),lens=48,aspect=1.5),
+        'sign_structure':dict(location=(6,-405,2.8),target=(6,-360,7.6),lens=40,aspect=1.5),
         'pier_girders':dict(location=(8,-15,1.65),target=(0,1.5,5.65),lens=36,aspect=1.5),
-        'gore':dict(location=(22,-267,1.65),target=(15.8,-239,.38),lens=45,aspect=1.5),
+        'gore':dict(location=(22,-251,1.65),target=(14.2,-221,.38),lens=45,aspect=1.5),
         'terminal':dict(location=(55,-34,9.0),target=(78,0,9.5),lens=40,aspect=1.5)}
     return {
         'hero':dict(location=(15.,-75,2.45),target=(4,65,3.35),lens=40,aspect=1.78),
         'above':dict(location=(-230,-335,280),target=(25,0,1),lens=35,aspect=1.5,overlay=True),
         'alignment':dict(location=(-650,-780,630),target=(35,0,1),lens=40,aspect=1.5,overlay=True),
         'sound_wall':dict(location=(24,-5,2.2),target=(31,9,2.4),lens=45,aspect=1.5),
-        'cable_median':dict(location=(3,-26,2.2),target=(0,-17,1.95),lens=45,aspect=1.5)}
+        'cable_median':dict(location=(3,-26,2.2),target=(0,-17,1.52),lens=45,aspect=1.5)}
 
 def overlay(path,cam,width,height):
     from PIL import Image,ImageDraw,ImageFont
@@ -64,6 +64,9 @@ def render(source,out,width,samples,engine,names=None,custom=None,seed=101):
     result={}
     for name,v in views.items():
         if names and name not in names:continue
+        if v.get('stage_floor'):
+            bpy.ops.mesh.primitive_plane_add(size=v['stage_floor']['size'],location=v['stage_floor']['location'])
+            floor=bpy.context.object;ma=bpy.data.materials.new('Temporary inspection stage');ma.diffuse_color=(.14,.15,.14,1);floor.data.materials.append(ma)
         cam.location=v['location'];cam.rotation_euler=(Vector(v['target'])-cam.location).to_track_quat('-Z','Y').to_euler();cam.data.lens=v.get('lens',40)
         if v.get('roll'):cam.rotation_euler.rotate_axis('Z',v['roll'])
         sc.render.resolution_x=width;sc.render.resolution_y=round(width/v.get('aspect',1.5));sc.render.resolution_percentage=100
@@ -86,13 +89,13 @@ def scale(out,width,samples,engine):
     import importlib.util
     spec=importlib.util.spec_from_file_location('freeway_site',HERE/'site.py');s=importlib.util.module_from_spec(spec);spec.loader.exec_module(s)
     bpy.ops.wm.read_factory_settings(use_empty=True);source=Path('export/modules/GuardrailEnd.gltf');bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
-    c=s.load('build/context/Hatch.glb');c.location=(-3.6,.6,0)
+    c=s.load('build/context/HeroHatch.glb');c.location=(-3.6,.6,0)
     for ob in human():ob.location+=Vector((1.8,-1.2,0))
     ma=Q.constant('Scale stage',(.16,.17,.16),.9);Q.M['Stage']=ma
     b=Q.Batch('Scale floor');b.face([(-200,-200,-.005),(200,-200,-.005),(200,200,-.005),(-200,200,-.005)],'Stage');b.finish()
     cam=setup(samples,engine);sc=bpy.context.scene;cam.location=(10,-13,5.8);cam.rotation_euler=(Vector((-1,0,.7))-cam.location).to_track_quat('-Z','Y').to_euler();cam.data.lens=45
     sc.render.resolution_x=width;sc.render.resolution_y=round(width/1.5);out=Path(out);out.mkdir(parents=True,exist_ok=True);sc.render.filepath=str((out/'scale.png').resolve());bpy.ops.render.render(write_still=True)
-    (out/'scale.json').write_text(json.dumps(dict(source=str(source),bundle_sha256=bundle(source),human_height_m=1.8,car='Native Alder H120 / local 5481-triangle context copy',engine=engine),indent=2))
+    (out/'scale.json').write_text(json.dumps(dict(source=str(source),bundle_sha256=bundle(source),human_height_m=1.8,car='Original full-resolution Alder H120, unchanged geometry',engine=engine),indent=2))
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--source',default='export/Freeway-101.gltf');ap.add_argument('--out',default='renders/checkpoint/101');ap.add_argument('--width',type=int,default=1200);ap.add_argument('--samples',type=int,default=32);ap.add_argument('--engine',default='CYCLES');ap.add_argument('--shots',nargs='+');ap.add_argument('--seeds',nargs='+',type=int,default=[101,202]);ap.add_argument('--scale',action='store_true');ap.add_argument('--camera-file');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])

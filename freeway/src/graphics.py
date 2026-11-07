@@ -8,7 +8,7 @@ from PIL import Image,ImageDraw,ImageFont
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from kit.fonts import find_font
 FONT=find_font('DejaVu Sans','Condensed Bold')
-PANELS=['advance','exit','through','hollow','speed','mile','chevron','wrong','route','exitSmall']
+PANELS=['advance','exit','through','gore_exit','speed','mile','chevron','wrong','mile_south','exitSmall']
 
 def generate():
     size=2048;im=Image.new('RGB',(size,size),(8,77,46));d=ImageDraw.Draw(im)
@@ -25,7 +25,7 @@ def generate():
             text(x+162,y+90,'LARK',25,(16,22,20));text(x+162,y+178,'47',107,(16,22,20))
             text(x+618,y+117,'NORTH',58);text(x+610,y+231,'Alder Junction',68)
             # 2009 through lane arrow: down-pointing block arrow, original points.
-            for ax in (350,770):d.polygon([(x+ax-20,y+291),(x+ax+20,y+291),(x+ax+20,y+328),(x+ax+55,y+328),(x+ax,y+377),(x+ax-55,y+328),(x+ax-20,y+328)],fill=(232,236,222))
+            for ax in (244,779):d.polygon([(x+ax-20,y+291),(x+ax+20,y+291),(x+ax+20,y+328),(x+ax+55,y+328),(x+ax,y+377),(x+ax-55,y+328),(x+ax-20,y+328)],fill=(232,236,222))
         elif name=='speed':
             d.rectangle((x+8,y+8,x+1016,y+392),fill=(226,226,213),outline=(22,24,22),width=12)
             text(x+512,y+75,'SPEED',66,(18,20,18));text(x+512,y+153,'LIMIT',66,(18,20,18));text(x+512,y+297,'60',160,(18,20,18))
@@ -41,6 +41,24 @@ def generate():
             d.rectangle((x+8,y+8,x+1016,y+392),fill=(225,228,214),outline=(20,24,21),width=8)
             text(x+512,y+68,'LARK',68,(20,24,21));text(x+512,y+246,'47',220,(20,24,21))
         else:text(x+512,y+200,'EXIT 14',140)
+    # Regulatory/mile/gore charts are rasterized at their *physical aspect*
+    # before packing; their square or tall panel must not squeeze the letters.
+    def packed(name,canvas):
+        i=PANELS.index(name);x=(i%2)*1024;y=(i//2)*400
+        im.paste(canvas.resize((1008,384),Image.Resampling.LANCZOS),(x+8,y+8))
+    def label(canvas,word,xy,size,color):
+        ImageDraw.Draw(canvas).text(xy,word,font=ImageFont.truetype(FONT,size),fill=color,anchor='mm')
+    card=Image.new('RGB',(300,400),(226,226,213));dd=ImageDraw.Draw(card);dd.rounded_rectangle((4,4,295,395),12,outline=(18,20,18),width=7)
+    for word,yy,size in [('SPEED',64,45),('LIMIT',126,45),('60',280,155)]:label(card,word,(150,yy),size,(18,20,18))
+    packed('speed',card)
+    for name,direction in [('mile','NORTH'),('mile_south','SOUTH')]:
+        card=Image.new('RGB',(100,400),(8,77,46));dd=ImageDraw.Draw(card);dd.rounded_rectangle((3,3,96,396),5,outline=(232,236,222),width=2)
+        for word,yy,size in [(direction,34,17),('MILE',105,24),('28',206,59),('.4',310,48)]:label(card,word,(50,yy),size,(232,236,222))
+        packed(name,card)
+    card=Image.new('RGB',(400,400),(232,236,222));dd=ImageDraw.Draw(card);dd.ellipse((12,12,388,388),fill=(151,11,8));dd.rectangle((60,175,340,225),fill=(232,236,222))
+    label(card,'DO NOT',(200,106),57,(232,236,222));label(card,'ENTER',(200,298),71,(232,236,222));packed('wrong',card)
+    card=Image.new('RGB',(400,320),(8,77,46));dd=ImageDraw.Draw(card);dd.rounded_rectangle((4,4,396,316),12,outline=(232,236,222),width=5)
+    label(card,'EXIT',(200,75),79,(232,236,222));dd.line([(128,254),(285,143)],fill=(232,236,222),width=27);dd.polygon([(228,134),(309,126),(296,205)],fill=(232,236,222));packed('gore_exit',card)
     folder=Path('textures/checkpoint');folder.mkdir(parents=True,exist_ok=True)
     im.save(folder/'T_Freeway_Signs.png')
     Path('build/sign-charts.json').write_text(json.dumps({name:rect(name) for name in PANELS},indent=2))

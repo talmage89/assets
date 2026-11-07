@@ -74,7 +74,10 @@ def road(p,name,s0,s1,mark=True,bank=None):
             for s in seq(s0,s1-.3048,.3048):
                 u=side*(edge+auxiliary(p,s)+.3048+.4064/2)
                 patch(b,p,s,s+.1778,u-.2032,u+.2032,'Drain',.001)
-    b.finish();Q.socket(rt,'S',p.center(s0));Q.socket(rt,'N',p.center(s1))
+    b.finish()
+    for label,s in [('S',s0),('N',s1)]:
+        snap=Q.socket(rt,label,p.center(s),forward_blender=list(p.frame(s)[1]))
+        snap.rotation_euler.z=-math.atan2(p.frame(s)[1][0],p.frame(s)[1][1])
     return rt
 
 def ramp(p,name,side,entry=False):
@@ -88,15 +91,23 @@ def ramp(p,name,side,entry=False):
             n=Vector((d.y,-d.x,0));return n
         na,nc=cross(a,i),cross(c,i+1)
         def pp(v,n,u,extra=0):
-            pt=Vector(v)+n*u;pt.z-=abs(u)*.02;pt.z+=extra
+            pt=Vector(v)+n*u
             # Shoulder clipping at the merge removes duplicated mainline faces.
             if abs(v[1])>228 and abs(pt.x)<p.edge+.01:
                 pt.x=side*(p.edge+.01)
+            effective=(pt-Vector(v)).dot(n)
+            pt.z=v[2]-effective*.02+extra
             return pt
-        left=-3.6576;right=4.2672
-        b.surface([pp(a,na,left),pp(a,na,right),pp(c,nc,right),pp(c,nc,left)],'Asphalt')
-        for u,ma in [(-2.4384,'Yellow'),(2.4384,'White')]:
-            b.surface([pp(a,na,u-LINE/2,.006),pp(a,na,u+LINE/2,.006),pp(c,nc,u+LINE/2,.006),pp(c,nc,u-LINE/2,.006)],ma)
+        def half(index):
+            travel=(len(pts)-1-index)/(len(pts)-1) if entry else index/(len(pts)-1)
+            return 1.8288+.6096*min(1,travel/.15)
+        ha,hc=half(i),half(i+1)
+        left=-(ha+1.2192);right=ha+1.8288
+        b.surface([pp(a,na,left),pp(a,na,right),pp(c,nc,hc+1.8288),pp(c,nc,-hc-1.2192)],'Asphalt')
+        for direction,ma in [(-1,'Yellow'),(1,'White')]:
+            ua,uc=direction*ha,direction*hc
+            if direction<0 and min(abs((Vector(a)+na*ua).x),abs((Vector(c)+nc*uc).x))<p.edge+.10:continue
+            b.surface([pp(a,na,ua-LINE/2,.006),pp(a,na,ua+LINE/2,.006),pp(c,nc,uc+LINE/2,.006),pp(c,nc,uc-LINE/2,.006)],ma)
     b.finish();Q.curve(rt,name,pts);Q.socket(rt,'Start',pts[0]);Q.socket(rt,'End',pts[-1]);return rt
 
 def terrain(p):
@@ -130,6 +141,9 @@ def terrain(p):
     for a,c in [(-p.length/2-1800,-p.length/2),(p.length/2,p.length/2+1800)]:
         for side in (-1,1):
             b.surface([p.xyz(a,side*p.median/2),p.xyz(a,side*p.edge),p.xyz(c,side*p.edge),p.xyz(c,side*p.median/2)],p.pavement)
+        for side in (-1,1):
+            lift=-.50 if p.kind=='soundwall' else -.006
+            b.surface([p.xyz(a,side*p.median/2,-.02),p.xyz(a,0,lift),p.xyz(c,0,lift),p.xyz(c,side*p.median/2,-.02)],'Lawn' if p.kind=='soundwall' else 'Concrete')
         for u0,u1 in [(-2400,-p.edge),(p.edge,2400)]:
             ground=7.0 if p.kind=='diamond' else 0
             points=[p.xyz(a,u0),p.xyz(a,u1),p.xyz(c,u1),p.xyz(c,u0)]

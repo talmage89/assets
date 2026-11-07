@@ -54,7 +54,7 @@ class Batch:
     def box(self,center,size,role='Concrete'):
         x,y,z=center;a,b,c=[v/2 for v in size]
         vs=[(x+sx*a,y+sy*b,z+sz*c) for sx,sy,sz in [(-1,-1,-1),(-1,-1,1),(-1,1,-1),(-1,1,1),(1,-1,-1),(1,-1,1),(1,1,-1),(1,1,1)]]
-        for face in [(0,4,6,2),(1,3,7,5),(0,1,5,4),(2,6,7,3),(0,2,3,1),(4,5,7,6)]:self.face([vs[i] for i in face],role)
+        for face in [(0,4,6,2),(1,3,7,5),(0,1,5,4),(2,6,7,3),(0,2,3,1),(4,5,7,6)]:self.face([vs[i] for i in reversed(face)],role)
 
     def tube(self,points,radius,role='Steel',sides=8,caps=True):
         pts=list(map(Vector,points));rings=[]
@@ -82,13 +82,16 @@ class Batch:
     def extrude(self,section,stations,role='Bridge',axis='Y',caps=True):
         """Closed manufactured section. Stations may carry cross-section camber."""
         rings=[]
+        area=sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(section,section[1:]+section[:1]))
+        reverse=(area>0) if axis=='Y' else (area<0)
+        def add(points):self.face(list(reversed(points)) if reverse else points,role)
         for sta in stations:
             s,h=sta if isinstance(sta,tuple) else (sta,0)
             rings.append([(s,u,v+h) if axis=='X' else (u,s,v+h) for u,v in section])
         for a,b in zip(rings,rings[1:]):
-            for j in range(len(section)):self.face([a[j],a[(j+1)%len(a)],b[(j+1)%len(b)],b[j]],role)
+            for j in range(len(section)):add([a[j],a[(j+1)%len(a)],b[(j+1)%len(b)],b[j]])
         if caps:
-            self.face(list(reversed(rings[0])),role);self.face(rings[-1],role)
+            add(list(reversed(rings[0])));add(rings[-1])
 
     def finish(self):
         me=bpy.data.meshes.new(self.name);me.from_pydata(self.v,[],self.f);me.update()

@@ -7,7 +7,7 @@ def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 def share(path):
     path=Path(path);d=json.loads(path.read_text())
-    folders=[ROOT/'ground/textures/ship',ROOT/'cars/textures/ship',ROOT/'cars/textures/hatch/ship',ROOT/'cars/textures/suv/ship',ROOT/'houses/export/textures',ROOT/'trees/textures/ship',ROOT/'trees/textures/oak/ship',ROOT/'commercial/textures/ship',Path('textures/checkpoint').resolve()]
+    folders=[ROOT/'ground/textures/ship',ROOT/'cars/textures/ship',ROOT/'cars/textures/hatch/ship',ROOT/'cars/textures/suv/ship',ROOT/'houses/export/textures',ROOT/'trees/textures/ship',ROOT/'trees/textures/oak/ship',ROOT/'commercial/textures/ship',ROOT/'commercial/export/textures',Path('textures/checkpoint').resolve()]
     known={sha(p):p for folder in folders for p in folder.glob('*.png')}
     shared=Path('export/shared');shared.mkdir(parents=True,exist_ok=True);rows=[]
     for im in d.get('images',[]):
@@ -30,6 +30,10 @@ def share(path):
         if mat.get('name','').startswith('FreewayFenceForm'):
             mat['alphaMode']='MASK';mat['alphaCutoff']=.40;mat['doubleSided']=True
     path.write_text(json.dumps(d,separators=(',',':'))+'\n')
+    # The exporter needed these temporary copies only while writing its JSON.
+    # All delivered URIs now point at canonical maps or the shared hash cache.
+    import shutil
+    shutil.rmtree(path.parent/'staging',ignore_errors=True)
     return rows
 
 def bundle(path):

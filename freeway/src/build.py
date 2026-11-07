@@ -1,5 +1,6 @@
 """Build the family and both places; export before any image judgment."""
 import argparse,sys,json,math,hashlib
+from dataclasses import replace
 from pathlib import Path
 import bpy
 from mathutils import Vector
@@ -17,7 +18,7 @@ def export(path,roots):
         for ob in [rt,*rt.children_recursive]:
             if ob.type!='CURVE':ob.select_set(True)
     bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',use_selection=True,
-        export_yup=True,export_extras=True,export_animations=False,export_skins=False,export_tangents=True,
+        export_yup=True,export_extras=True,export_animations=False,export_skins=False,export_tangents=False,
         export_texture_dir='staging',export_image_format='AUTO',export_shared_accessors=True,
         export_all_vertex_colors=False,export_vertex_color='NAME',export_vertex_color_name='Tint')
     images=share(path)
@@ -56,29 +57,45 @@ def scene(p,lib):
             for entry in (False,True):
                 roots.append(roads.ramp(p,'Ramp_%s_%s'%(side,'On' if entry else 'Off'),side,entry))
                 pts=ramp_points(p,side,entry)
-                for j in range(1,len(pts)-1,3):
-                    point=Vector(pts[j]);d=Vector(pts[j+1])-Vector(pts[j-1]);n=Vector((d.y,-d.x,0)).normalized()
-                    point+=n*4.9;point.z-=.08
-                    roots.append(site.clone(lib['WBeam'],'RampRail_%s_%s_%03d'%(side,entry,j),point,math.degrees(math.atan2(-d.x,d.y))))
+                roots.extend(site.rail_run(lib,'RampRail_%s_%s'%(side,entry),pts))
                 # Physical nose in the widening gore, behind painted chevrons.
                 if not entry:
-                    roots.append(site.clone(lib['GoreAttenuator'],'GoreNose_'+str(side),(side*15.5,-side*241.,-.12),0 if side>0 else 180))
+                    roots.append(site.clone(lib['GoreAttenuator'],'GoreNose_'+str(side),(side*14.2,-side*224.,-.07),0 if side>0 else 180))
                     b=Q.Batch('Gore chevrons '+str(side));rt=Q.root('GorePaint_'+str(side),module_kind='gore');b.rt=rt
+                    def point(s,u,lift=0):
+                        t=(280-abs(s))/264;q=t*t*(3-2*t)
+                        low=p.edge-RIGHT+LANE/2;edge=low+(p.terminal-low)*q-3.6576
+                        v=max(0,min(1,(t-.1)/.9));v=v*v*(3-2*v)
+                        center=low+(p.terminal-low)*q
+                        hz=-.02*(center-p.median/2)+(BRIDGE_Z+.02*(p.terminal-p.median/2))*v+.073152
+                        main=-.02*(p.edge-p.median/2)
+                        h=main+(hz-main)*max(0,min(1,(u-p.edge)/max(.01,edge-p.edge)))
+                        return (side*u,s,h+lift),edge
+                    for a,c in zip(roads.seq(190,232,3),roads.seq(190,232,3)[1:]):
+                        aa,ae=point(-side*a,0);cc,ce=point(-side*c,0)
+                        b.surface([point(-side*a,p.edge)[0],point(-side*a,ae)[0],point(-side*c,ce)[0],point(-side*c,p.edge)[0]],'Asphalt')
                     for j in range(9):
-                        s=-side*(246-j*2.2);outer=15.0+j*.40
-                        b.face([p.xyz(s,side*12.9,.009),p.xyz(s+.65,side*12.9,.009),p.xyz(s+1.8,side*outer,.009),p.xyz(s+1.15,side*outer,.009)],'White')
+                        s=-side*(218-j*2.2);outer=15.5+j*.40
+                        b.surface([point(s,12.9,.007)[0],point(s+side*.65,12.9,.007)[0],point(s+side*1.8,outer,.007)[0],point(s+side*1.15,outer,.007)[0]],'White')
+                    b.box((side*14.2,-side*224,-.12),(1.2,6.,.10),'Bridge')
                     b.finish();roots.append(rt)
         for side in (-1,1):
-            roots.append(site.clone(lib['SignTruss'],'GuideTruss_'+str(side),(0,-side*155,0),0 if side>0 else 180))
-            roots.append(site.clone(lib['GuardrailEnd'],'ShoulderEnd_'+str(side),(side*14.0,-side*80,-.24),0 if side>0 else 180))
+            guide=site.clone(lib['SignTruss'],'GuideTruss_'+str(side),(0,-side*360,0),0 if side>0 else 180)
+            # Both panels face the same-direction carriageway. The advance
+            # structure stands upstream of the gore, within the added lane.
+            for panel in guide.children:
+                if panel.get('replaceable_panel'):
+                    panel.location.x=6.1 if panel.get('legend')=='through' else 14.0 if panel.get('legend')=='exitSmall' else 12.5
+            roots.append(guide)
         roots.append(site.row_fence(p))
     else:
         # Wide, grassy median and cable system are a visibly different section.
         median=Q.root('WideMedian',module_kind='terrain');b=Q.Batch('WideMedian__Mesh',median)
         for a,c in zip(roads.seq(-p.length/2,p.length/2,12.),roads.seq(-p.length/2,p.length/2,12.)[1:]):
-            b.face([p.xyz(a,-p.median/2,-.02),p.xyz(a,p.median/2,-.02),p.xyz(c,p.median/2,-.02),p.xyz(c,-p.median/2,-.02)],'Lawn')
+            for side in (-1,1):
+                b.surface([p.xyz(a,side*p.median/2,-.02),p.xyz(a,0,-.50),p.xyz(c,0,-.50),p.xyz(c,side*p.median/2,-.02)],'Lawn')
         b.finish();roots.append(median)
-        for i,s in enumerate(roads.seq(-p.length/2+3.048,p.length/2-3.048,6.096)):roots.append(site.along(lib['CableBay'],'MedianCable_%03d'%i,p,s,0))
+        for i,s in enumerate(roads.seq(-p.length/2+3.048,p.length/2-3.048,6.096)):roots.append(site.along(lib['CableBay'],'MedianCable_%03d'%i,p,s,0,-.50))
         for side in (-1,1):
             for i,s in enumerate(roads.seq(-p.length/2+3.048,p.length/2-3.048,6.096)):
                 point=list(p.xyz(s,side*31));point[2]=0
@@ -100,9 +117,19 @@ def scene(p,lib):
             b.beam(point,(point[0],point[1],point[2]+1.05),.045,'White',.02)
             b.box((point[0],point[1]-.025,point[2]+.95),(.07,.025,.15),'Yellow')
         for s,legend,w,h in [(-65.,'speed',.9144,1.2192),(180.,'mile',.3048,1.2192)]:
+            if side<0 and legend=='mile':legend='mile_south'
             point=p.xyz(s*side,side*(p.edge+2.0));rr=Q.root('RoadSign_'+str(side)+'_'+legend,point,furniture)
             bb=Q.Batch(rr.name+'__Post',rr);bb.beam((0,0,0),(0,0,3.2),.055,'Steel',.055);bb.finish()
             pieces.sign_face(rr.name+'__Panel',w,h,legend,rr,(0,-.04,2.4));rr.rotation_euler.z=0 if side>0 else math.pi
+        if p.kind=='diamond':
+            for offset in (-4.9,4.9):
+                rr=Q.root('TerminalDoNotEnter_'+str(side)+'_'+str(offset),(side*p.terminal+offset,-side*22,7.35),furniture)
+                bb=Q.Batch(rr.name+'__Post',rr);bb.beam((0,0,-.15),(0,0,3.0),.055,'Steel',.055);bb.box((0,0,-.075),(.30,.30,.15),'Bridge');bb.finish()
+                pieces.sign_face(rr.name+'__Panel',.9144,.9144,'wrong',rr,(0,-.04,2.65));rr.rotation_euler.z=math.pi if side>0 else 0
+            rr=Q.root('GroundExit_'+str(side),(side*16.,-side*211.,.07),furniture)
+            bb=Q.Batch(rr.name+'__Posts',rr)
+            for x in (-.50,.50):bb.beam((x,0,-.10),(x,0,3.0),.065,'Steel',.065)
+            bb.finish();pieces.sign_face(rr.name+'__Panel',1.524,1.2192,'gore_exit',rr,(0,-.04,2.5));rr.rotation_euler.z=0 if side>0 else math.pi
     b.finish();roots.append(furniture)
     roots.extend([site.town(p),site.traffic(p)])
     return roots
@@ -111,8 +138,8 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--seeds',nargs='+',type=int,default=[101,202]);ap.add_argument('--out',default='build/Freeway.blend');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
     bpy.ops.wm.read_factory_settings(use_empty=True);palette();lib={r.name:r for r in pieces.library()}
     # Standalone road modules demonstrate straight, curve and bank transition.
-    for name,p in [('RoadStraight',plan(101)),('RoadCurve',plan(202))]:lib[name]=roads.road(p,name,-18.288,18.288)
-    lib['RoadBankTransition']=roads.road(plan(202),'RoadBankTransition',-18.288,18.288,bank=(-.02,-.04))
+    for name,p in [('RoadStraight',plan(101)),('RoadCurve',replace(plan(202),grade=0.))]:lib[name]=roads.road(p,name,-18.288,18.288)
+    lib['RoadBankTransition']=roads.road(replace(plan(202),grade=0.),'RoadBankTransition',-18.288,18.288,bank=(-.02,-.025))
     lib['RampBranch']=roads.ramp(plan(101),'RampBranch',1,False)
     rows={n:describe(r) for n,r in lib.items()}
     for n,r in lib.items():export('export/modules/'+n+'.gltf',[r])
@@ -125,6 +152,12 @@ def main():
         p=plan(seed);roots=scene(p,lib);report=export('export/Freeway-'+str(seed)+'.gltf',roots)
         report.update(plan=p.data(),parts={r.name:describe(r) for r in roots})
         Path('build/scene-'+str(seed)+'.json').write_text(json.dumps(report,indent=2))
+        # Native Blender curves survive in a rebuildable per-scene source.
+        # Only the reusable construction library is hidden in that source.
+        templates={ob:(ob.hide_render,ob.hide_viewport) for r in lib.values() for ob in [r,*r.children_recursive]}
+        for ob in templates:ob.hide_render=True;ob.hide_viewport=True
+        bpy.ops.wm.save_as_mainfile(filepath=str(Path('build/Freeway-'+str(seed)+'.blend').resolve()))
+        for ob,(render_hidden,viewport_hidden) in templates.items():ob.hide_render=render_hidden;ob.hide_viewport=viewport_hidden
         print('FREEWAY SCENE',seed,report['triangles'],'triangles',flush=True)
         for r in roots:site.delete(r)
     Path('build/modules.json').write_text(json.dumps(rows,indent=2))

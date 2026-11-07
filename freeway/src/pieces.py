@@ -13,9 +13,9 @@ def barrier(name='MedianF',length=6.096,scupper=True):
     rt=Q.root(name,module_kind='barrier');b=Q.Batch(name+'__Mesh',rt)
     if scupper:
         # Actual opening through the lower toe; not a painted black rectangle.
-        a=.1524;c=.254
+        a=.1524;c=.0762
         b.extrude(F_SHAPE,[-length/2,-a],'Barrier');b.extrude(F_SHAPE,[a,length/2],'Barrier')
-        upper=[(-.127,c),(.127,c),(.0762,.8128),(-.0762,.8128)]
+        upper=[(-.3048,c),(.3048,c),(.127,.254),(.0762,.8128),(-.0762,.8128),(-.127,.254)]
         b.extrude(upper,[-a,a],'Barrier')
     else:b.extrude(F_SHAPE,[-length/2,length/2],'Barrier')
     # Recessed end joint represented by a real 8 mm assembly gap on placement.
@@ -28,8 +28,10 @@ def guardrail(name='WBeam',length=3.81,terminal=False):
     sec=[(.0,z-.155575),(-.066,z-.127),(-.083,z-.076),(-.016,z),(-.083,z+.076),(-.066,z+.127),(.0,z+.155575)]
     # Two shells and hems make the 2.66 mm stamped sheet visible at its ends.
     sec=sec+[(x+.00266,h) for x,h in reversed(sec)]
-    b.extrude(sec,[-length/2,length/2],'Steel')
-    for y in (-length/4,length/4):
+    lap=0 if terminal else .1524
+    b.extrude(sec,[-length/2-lap,length/2+lap],'Steel')
+    post_count=round(length/1.905)
+    for y in [-(post_count-1)*1.905/2+j*1.905 for j in range(post_count)]:
         # I-section W6 post, with timber/composite blockout bearing on its web.
         b.box((.28,y,.36),(.006,.102,.72),'Steel')
         for xx in (.206,.354):b.box((xx,y,.36),(.008,.152,.72),'Steel')
@@ -137,7 +139,9 @@ def attenuator(name='GoreAttenuator'):
 def girder(name='PrestressedGirder24',length=23.49):
     rt=Q.root(name,module_kind='bridge_girder');b=Q.Batch(name+'__Mesh',rt)
     b.extrude(GIRDER,[(-length/2+length*j/24,.018*math.sin(math.pi*j/24)) for j in range(25)],'Bridge',axis='X')
-    b.finish();Q.socket(rt,'W',(-length/2,0,0));Q.socket(rt,'E',(length/2,0,0));return rt
+    b.finish()
+    for label,x in [('W',-length/2),('E',length/2)]:Q.socket(rt,label,(x,0,0)).rotation_euler.z=-math.pi/2
+    return rt
 
 def pier(name='PierBent'):
     rt=Q.root(name,module_kind='bridge_pier');b=Q.Batch(name+'__Mesh',rt)
@@ -176,14 +180,15 @@ def bridge(name='Overpass'):
     for side in (-1,1):
         x0,x1=(.16,23.65) if side>0 else (-23.65,-.16)
         for yi in range(7):
-            y=(yi-3)*2.74
+            y=(yi-3)*3.048
             beam=girder(name+'__Girder_%s_%s'%(side,yi),x1-x0);beam.parent=rt;beam.location=((x0+x1)/2,y,gb)
             for x in (side*.65,side*23.6):
-                b.box((x,y,gb-.075),(.68,.58,.15),'Rubber')
+                camber=.018*math.sin(math.pi*(x-x0)/(x1-x0))
+                b.box((x,y,gb-.075+camber/2),(.68,.58,.15+camber),'Rubber')
                 b.box((x,y,gb-.16),(.78,.68,.02),'Steel')
         for x in (side*1.55,side*22.7):
             # End diaphragms between webs, above bearing/seat level.
-            for j in range(6):b.box((x,(j-2.5)*2.74,6.42),(.22,2.53,.90),'Bridge')
+            for j in range(6):b.box((x,(j-2.5)*3.048,6.42),(.22,2.8448,.90),'Bridge')
     # Deck segments have real top crown and thickened sidewalk strips.
     for j in range(24):
         xa=-24+j*2;xb=xa+2
@@ -193,18 +198,19 @@ def bridge(name='Overpass'):
             b.face([(xa,yb,deck_bottom),(xb,yb,deck_bottom),(xb,ya,deck_bottom),(xa,ya,deck_bottom)],'Bridge')
     for side in (-1,1):
         # Pedestrian walk, F parapet, 8 ft safety fence on outer rail.
-        for y in (side*8.65,side*10.40):
-            base=BRIDGE_Z-.02*8.382
-            b.extrude([(y+u,base+v) for u,v in F_SHAPE],[-24,24],'Barrier',axis='X')
-        for x in range(-24,25,2):b.tube([(x,side*10.4,7.95),(x,side*10.4,10.0)],.025,'Steel',8)
-        for h in (8.0,9.,10.):b.tube([(-24,side*10.4,h),(24,side*10.4,h)],.020,'Steel',6)
+        base=BRIDGE_Z-.02*8.382
+        inner=side*8.6868;outer=side*10.5918
+        b.extrude([(inner+u,base+v) for u,v in F_SHAPE],[-24,24],'Barrier',axis='X')
+        b.box((0,outer,base+.30),(48,.1524,.60),'Bridge')
+        for x in range(-24,25,2):b.tube([(x,outer,base+.59),(x,outer,base+2.44)],.025,'Steel',8)
+        for h in (base+.60,base+1.52,base+2.44):b.tube([(-24,outer,h),(24,outer,h)],.020,'Steel',6)
         # Safety fence diamond wire at 150 mm spacing; construction checkpoint
         # uses coarse wires. Final will reuse chain-link alpha instead.
         for x in [i*.30-24 for i in range(161)]:
             for dx in (-1.8,1.8):
                 end=min(24,max(-24,x+dx))
                 if abs(end-x)<.01:continue
-                b.tube([(x,side*10.40,8.0),(end,side*10.40,8+abs(end-x)/1.8*2)],.003,'DarkSteel',3)
+                b.tube([(x,outer,base+.60),(end,outer,base+.60+abs(end-x)/1.8*1.84)],.003,'DarkSteel',3)
         # Scupper throat, vertical drain and outlet, attached to the fascia.
         for x in (-16,16):
             b.box((x,side*8.40,7.18),(.40,.22,.09),'Drain')
@@ -214,7 +220,8 @@ def bridge(name='Overpass'):
         b.box((s*27,0,7.15),(6.,21.336,.24),'Bridge')
         b.box((s*24.05,0,7.325),(.05,20.8,.05),'Joint')
         for side in (-1,1):b.box((0,side*10.668,7.10),(48,.08,.42),'Bridge')
-    b.finish();Q.socket(rt,'W',(-30,0,7.35));Q.socket(rt,'E',(30,0,7.35))
+    b.finish()
+    for label,x in [('W',-30),('E',30)]:Q.socket(rt,label,(x,0,7.35)).rotation_euler.z=-math.pi/2
     Q.socket(rt,'PierBearing',(0,0,seat),'bearing_top');return rt
 
 def library():
