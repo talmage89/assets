@@ -182,7 +182,9 @@ def build(config):
                     proxy=bool(spec.get('proxy')),projection_m=max_error*2,composite_alpha=bool(spec.get('static_shell')),atlas_sampling=spec.get('atlas_sampling'))
                 baked.save(path)
                 report=json.loads(cache.read_text());report['recipe']=recipe;cache.write_text(json.dumps(report,indent=2)+'\n')
-        else:doc.save(path,image_paths=textures(doc,out,spec.get('texture_size')))
+        else:
+            pool=(root/cfg['shared_textures']).resolve() if cfg.get('shared_textures') else out
+            doc.save(path,image_paths=textures(doc,pool,spec.get('texture_size')))
         stats=Document(path).stats()
         target=spec.get('target_triangles',round(manifest['levels'][0]['triangles']*spec['ratio']))
         row=dict(level=li,path=filename,screen_height=switch,pixels_1080=switch*1080,

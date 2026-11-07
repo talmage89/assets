@@ -194,6 +194,30 @@ def main():
     assert m['resident']['passed'] and m['resident']['proxy_texture_gpu_bytes']==0
     assert Document(source).dependencies()==before
     assert m['levels'][1]['triangles']<m['levels'][0]['triangles']
+    # Independently placed kinds share one physical external copy of embedded
+    # source maps, in addition to the canonical runtime image binding.
+    embedded=Document(source);raw=embedded.image(0)
+    bi=len(embedded.buffers);embedded.buffers.append(raw)
+    vi=len(embedded.data['bufferViews'])
+    embedded.data['bufferViews'].append(dict(buffer=bi,byteOffset=0,byteLength=len(raw)))
+    embedded.data['images'][0]=dict(bufferView=vi,mimeType='image/png',name='SharedMap')
+    embedded_source=root/'embedded-source.glb';embedded.save(embedded_source)
+    immutable=Document(embedded_source).dependencies();resolved=[]
+    for kind in ('first','second'):
+        pool_config=root/'src'/('lod-pool-'+kind+'.json')
+        pool_config.write_text(json.dumps(dict(kind='map-pool '+kind,source=embedded_source.name,
+            output='export/lod/'+kind,shared_textures='export/lod-shared',screen_space=True,
+            levels=[dict(ratio=.5,screen_height=.2)])))
+        build(pool_config);check(pool_config,False)
+        manifest=json.loads((root/'export/lod'/kind/'manifest.json').read_text())
+        output=Document(root/'export/lod'/kind/manifest['levels'][1]['path'])
+        resolved.append(output.resolve(output.data['images'][0]['uri']))
+        assert output.image(0)==raw
+        assert manifest['resident']['proxy_texture_gpu_bytes']==0
+    assert resolved[0]==resolved[1]
+    assert len(list((root/'export/lod-shared/textures').glob('*.png')))==1
+    assert Document(embedded_source).dependencies()==immutable
+
     # A reusable module must move with its selected placement root. Static
     # consolidation cannot leave geometry behind at the scene's inspection pose.
     import copy
