@@ -455,7 +455,8 @@ def main():
     assert min(shell_volumes(*union.arrays(union.data['meshes'][0]['primitives'][0])))>0
     d=Document(source);r=proxy(d,150,.075)
     assert r['triangles']<=150 and not r['topology']['boundary_edges'] and not r['topology']['nonmanifold_edges'],r
-    path=out/'proxy.gltf';result=bake(d,source,path,128,proxy=True,projection_m=.08);d.save(path)
+    path=out/'proxy.gltf';result=bake(d,source,path,128,proxy=True,projection_m=.08,supersample=2);d.save(path)
+    assert result['size']==128 and result['bake_size']==256 and result['supersample']==2,result
     delivered=Document(path);stats=delivered.stats()
     assert stats['materials']==stats['draw_calls']==1 and len(stats['images'])==6,stats
     assert all(i['size']==[128,128] for i in stats['images'])

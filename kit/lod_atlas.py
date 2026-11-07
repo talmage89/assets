@@ -93,8 +93,8 @@ def _restore_materials(doc,receipt):
     doc.parents={c:i for i,n in enumerate(nodes) for c in n.get('children',[])}
 
 
-def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False,atlas_sampling=None):
-    if proxy or composite_alpha:return _bake(doc,source,path,size,proxy=proxy,projection_m=projection_m,composite_alpha=composite_alpha,atlas_sampling=atlas_sampling)
+def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False,atlas_sampling=None,supersample=1):
+    if proxy or composite_alpha:return _bake(doc,source,path,size,proxy=proxy,projection_m=projection_m,composite_alpha=composite_alpha,atlas_sampling=atlas_sampling,supersample=supersample)
     from tempfile import TemporaryDirectory
     original=Document(source);materials=original.data.get('materials',[]);target_materials=doc.data.get('materials',[])
     material_map={}
@@ -108,7 +108,7 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     try:
         with TemporaryDirectory(prefix='lod-atlas-',dir=scratch) as folder:
             staged=Path(folder)/'source.gltf';original.save(staged)
-            report=_bake(doc,staged,path,size,projection_m=projection_m,atlas_sampling=atlas_sampling)
+            report=_bake(doc,staged,path,size,projection_m=projection_m,atlas_sampling=atlas_sampling,supersample=supersample)
     finally:_restore_materials(doc,receipt)
     report.update(source_sha256=digest(source),material_isolation=True)
     dest=Path(path).parent/(Path(path).stem+'-maps')
@@ -116,12 +116,16 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     return report
 
 
-def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False,atlas_sampling=None):
+def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False,atlas_sampling=None,supersample=1):
     """Replace charts/maps, keeping near-level material response and pivots.
 
     doc extras on each mesh node contain lod_sources (original node indices).
     Source import is read-only. All derived maps are local to the new level.
     """
+    if type(supersample) is not int or supersample not in (1,2,4):
+        raise ValueError('Atlas supersampling must be 1, 2 or 4')
+    if supersample>1 and size*supersample>2048:
+        raise ValueError('Supersampled LOD bakes are capped at 2048 to bound memory')
     from kit import gpu
     source=Path(source);path=Path(path);dest=path.parent/(path.stem+'-maps');dest.mkdir(parents=True,exist_ok=True)
     original=Document(source)
@@ -179,6 +183,7 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
     if not targets or not high:raise ValueError('Empty atlas projection')
     from kit.lod_layout import unwrap
     layout_report=unwrap(targets,high,original,size,projection_m/1.5,normal_angle=30 if proxy else 1,sampling=atlas_sampling)
+    ship_size=size;size*=supersample
     for p,attrs,faces,ob,matrix in records:
         uv=np.empty((len(ob.data.loops),2),np.float32);ob.data.uv_layers.active.data.foreach_get('uv',uv.ravel());uv[:,1]=1-uv[:,1]
         # Corner expansion deliberately preserves hard normals and other data.
@@ -384,6 +389,9 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
     if has_coatnormal:coatnormal/=np.maximum(np.linalg.norm(coatnormal,axis=2,keepdims=True),1e-20)
     files={}
     for name,a in [('BaseColor',np.concatenate([linear_to_srgb(base),alpha],axis=2)),('ORM',orm),('Normal',normal*.5+.5)]+([('Emission',linear_to_srgb(emission/strength))] if has_emission else [])+([('Transmission',np.repeat(transmission,3,axis=2))] if has_transmission else [])+([('Clearcoat',clearcoat)] if has_clearcoat else [])+([('CoatNormal',coatnormal*.5+.5)] if has_coatnormal else []):
+        if supersample>1:
+            from kit.downsample import filter_pixels
+            a=filter_pixels(a,ship_size,name,alpha_mode='independent')
         f=dest/f'T_{path.stem}_{name}.png';write_png(f,np.clip(a,0,1));files[name]=f
     oldmaterials=copy.deepcopy(doc.data.get('materials',[]))
     doc.data['images']=[dict(name=k,uri=os.path.relpath(v,doc.path.parent)) for k,v in files.items()]
@@ -434,9 +442,11 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
         for _,_,p in doc.primitives():p['material']=0
     report.update(source_shading_frame=source_frame_receipt,layout=layout_report,baked_channels=list(channels),used_underlay=underlay,source_sha256=digest(source),size=size,projection_m=projection_m,isolated_groups=len(used),
                   uv_covered_texels=int(mask.sum()),zero_alpha_interior_texels=int(np.count_nonzero(interior & (arrays['Alpha'][:,:,0]<.01))),
+                  bake_size=size,supersample=supersample,
                   maps={k:dict(bytes=v.stat().st_size,sha256=digest(v)) for k,v in files.items()})
+    report['size']=ship_size
     (dest/'bake.json').write_text(json.dumps(report,indent=2)+'\n')
-    print('LOD ATLAS',path.stem,size,report,flush=True)
+    print('LOD ATLAS',path.stem,ship_size,report,flush=True)
     return report
 
 
