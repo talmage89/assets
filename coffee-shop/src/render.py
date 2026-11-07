@@ -157,8 +157,10 @@ def main():
             allowed=set([keep]+list(keep.children_recursive))
             for ob in sc.objects:
                 if ob.type=='MESH' and ob not in allowed and not ob.hide_render:ob.hide_render=True;hidden.append(ob)
-            isolation_floor=model.box('Isolated chair floor',(p['tables'][1]['x'],p['tables'][1]['y'],p['grade']-.04),(18,18,.08),studio.studio_mat('Chair neutral floor',(.22,.22,.21),.9),0)
+            isolation_floor=model.box('Isolated chair floor',(p['tables'][1]['x'],p['tables'][1]['y'],p['grade']-.04),(200,200,.08),studio.studio_mat('Chair neutral floor',(.22,.22,.21),.9),0)
         if key=='scale':
+            for o in sc.objects:
+                if o.type=='MESH' and o.name.startswith('Parked ') and not o.hide_render:o.hide_render=True;hidden.append(o)
             human=studio.human()
             for o in human:o.location+=Vector((-1.2,-2.0,p['grade']))
         rec=match['shot'] if match else shots(p)[key]
@@ -168,6 +170,7 @@ def main():
         camera(rec['location'],rec['target'],rec.get('lens',40),rec.get('ortho'))
         if match and rec.get('roll'):sc.camera.rotation_euler.rotate_axis('Z',rec['roll'])
         meta={'isolated_export_node':'Table_02_Chair_1'} if key=='chair' else {}
+        if key=='scale':meta['omitted_for_scale']='parked context vehicles; cafe dimensions unchanged'
         meta['finish_stage']='original charts + meter-valued height' if a.source_finish else 'exported baked PBR'
         if key=='above':
             meta['routes']=[dict(**route,screen=projection([(x,y,p['grade']+.02) for x,y in [(route['rect'][0],route['rect'][2]),(route['rect'][1],route['rect'][2]),(route['rect'][1],route['rect'][3]),(route['rect'][0],route['rect'][3])]],sc.camera)) for route in p['routes']]
@@ -181,7 +184,7 @@ def main():
         if isolation_floor:bpy.data.objects.remove(isolation_floor,do_unlink=True)
     if not a.matches and 'scale' in a.shots.split(','):
         bpy.ops.wm.read_factory_settings(use_empty=True);imported('export/CoffeeShopPieces.gltf');lighting();sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width*.72);sc.render.resolution_percentage=100;sc.render.image_settings.file_format='PNG'
-        model.box('Piece sheet floor',(4.3,4.5,-.04),(17,18,.08),studio.studio_mat('Sheet neutral floor',(.22,.22,.21),.9),0)
+        model.box('Piece sheet floor',(4.3,4.5,-.04),(200,200,.08),studio.studio_mat('Sheet neutral floor',(.22,.22,.21),.9),0)
         rec=dict(location=(14,-19,17),target=(4.3,4.8,.9),lens=44,ortho=18);cam=camera(rec['location'],rec['target'],44,18)
         labels=[dict(name=o.get('piece'),screen=projection([tuple(o.matrix_world.translation+Vector((0,-.55,.03)))],cam)[0]) for o in sc.objects if o.get('piece')]
         render(a.out/'pieces.png',rec,'export/CoffeeShopPieces.gltf',dict(labels=labels))

@@ -32,15 +32,15 @@ def prepare():
         landmarks=[('left window head', [left,0,3.15],[432,211]),('right window head',[right,0,3.15],[782,340]),('left window sill',[left,0,.51],[432,582]),('right window sill',[right,0,.51],[782,500])],sun_elevation=45,sun_azimuth=-112),
       'umbrella':dict(seed=117,title='Coffea, 2008 / umbrella span and furniture scale',photo='coffea-2008',neutral=[265,1124,326,1140],location=[2.8,-8.5,1.7],target=[0,-3.66,1.6],lens=42,
         landmarks=[('canopy left',[-1.3822,-3.66,1.94],[150,704]),('canopy right',[1.3822,-3.66,1.94],[900,748]),('canopy crown',[0,-3.66,2.565],[544,584]),('front rim',[0,-5.0422,1.94],[539,721]),('pole at ground',[0,-3.66,0],[505,1210])],sun_elevation=46,sun_azimuth=-135),
-      'pad':dict(seed=339,title='Lakeview Brew, 2008 / converted pad and patio',photo='brew-2008',neutral=[373,551,400,562],location=[-18,-24,1.65],target=[0,1,1.7],lens=40,
-        landmarks=[('front glazing left head',[-4.93,0,2.75],[427,468]),('front glazing right head',[4.93,0,2.75],[624,494]),('front glazing left sill',[-4.93,0,.27],[426,577]),('front glazing right sill',[4.93,0,.27],[629,587]),('left roof front',[-5.4864,0,3.66],[411,434]),('right roof front',[5.4864,0,3.66],[675,465])],sun_elevation=54,sun_azimuth=-126),
+      'pad':dict(seed=339,title='Lakeview Brew, 2008 / folded metal roof and patio',photo='brew-2008',neutral=[373,551,400,562],location=[18,-28,1.65],target=[0,1,1.7],lens=40,
+        landmarks=[('front glazing left head',[-4.93,0,2.75],[214,466]),('front glazing right head',[4.93,0,2.75],[402,462]),('front glazing left sill',[-4.93,0,.27],[214,554]),('front glazing right sill',[4.93,0,.27],[402,568]),('left front eave',[-5.4864,0,3.70],[161,447]),('right front eave',[5.4864,0,3.70],[429,448])],sun_elevation=54,sun_azimuth=-56),
       'daily-use':dict(seed=117,title='Fair Grinds, June 2008 / occupied sidewalk and canopy shade',photo='fair-2008',neutral=[274,1030,298,1050],location=[-7,-5,1.65],target=[1,-.5,2],lens=35,
-        landmarks=[('near canopy rib at wall',[left,0,3.52],[341,480]),('near canopy rib at eave',[left,-1.42,3.14],[764,480]),('middle canopy rib at wall',[(left+right)/2,0,3.52],[455,647]),('middle canopy rib at eave',[(left+right)/2,-1.42,3.14],[704,648])],sun_elevation=52,sun_azimuth=-125),
+        landmarks=[('near canopy rib at wall',[left,0,3.52],[341,480]),('near canopy rib at eave',[left,-1.42,3.14],[764,480]),('middle canopy rib at wall',[(left+right)/2,0,3.52],[455,647]),('middle canopy rib at eave',[(left+right)/2,-1.42,3.14],[704,648]),('near wall ground estimate behind gate',[left,0,0],[341,1128]),('middle wall ground estimate behind patrons',[(left+right)/2,0,0],[455,1015])],sun_elevation=52,sun_azimuth=-125),
     }
     results={}
     for name,c in configs.items():
         photo,wb=balance(c['photo'],c['neutral']);im=Image.open(photo)
-        crop=[300,125,930,675] if name=='downtown' else [95,505,965,1333] if name=='umbrella' else [280,460,840,1180] if name=='daily-use' else [115,345,855,650]
+        crop=[300,125,930,675] if name=='downtown' else [95,505,965,1333] if name=='umbrella' else [240,440,1000,1230] if name=='daily-use' else [115,345,855,650]
         m=dict(title=c['title'],photo=photo,crop=crop,location=c['location'],target=c['target'],lens=c['lens'],exposure=-1,
             lens_bounds_mm=[22,70],camera_height_m=[1.65,.75],landmarks=[dict(name=n,world=xyz,pixel=uv) for n,xyz,uv in c['landmarks']])
         result=calibrate(m);result.update(seed=c['seed'],white_balance=wb,sun_elevation=c['sun_elevation'],sun_azimuth=c['sun_azimuth'],feature_names=[r[0] for r in c['landmarks']],limits='Authored original design differs from photograph; positions and dimensions of photographed objects are estimated. Framing is not proof of matching albedo or construction.')

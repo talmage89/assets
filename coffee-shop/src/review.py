@@ -40,7 +40,7 @@ def main():
     im.save(folder/'piece-sheet.jpg',quality=94)
     all_images=[];captions={}
     for seed in (117,228,339):
-        for shot in ('hero','above','layout','counter','table','chair','awning','scale','walkup'):
+        for shot in ('hero','above','layout','site','counter','table','chair','awning','scale','walkup'):
             p=folder/str(seed)/(shot+('.jpg' if shot=='layout' else '.png'))
             if p.exists():all_images.append(p);captions[str(p)]=str(seed)+' / '+shot
     all_images.append(folder/'piece-sheet.jpg')

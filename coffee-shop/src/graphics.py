@@ -27,7 +27,7 @@ def quick(folder=Path('build/atlas')):
     for i,(name,(color,r,m)) in enumerate(COLORS.items()):
         x=i*80;y=1950;d.rectangle((x,y,x+78,2047),fill=color);od.rectangle((x,y,x+78,2047),fill=(255,round(r*255),round(m*255)))
         layout[name]=[(x+30)/N,1-2000/N,(x+48)/N,1-1980/N]
-    serif=str(find_font('DejaVu Serif','Bold'));sans=str(find_font('DejaVu Sans','Book'))
+    serif=str(find_font('DejaVu Serif','Bold'));sans=str(find_font('DejaVu Sans','Book'));boldsans=str(find_font('DejaVu Sans','Bold'))
     def text(s,rect,size=48,color='#e2d9bf',font=sans):
         x,y,xx,yy=rect;f=ImageFont.truetype(font,size)
         while d.textbbox((0,0),s,font=f)[2]>xx-x-24:f=ImageFont.truetype(font,max(6,f.size-1))
@@ -36,7 +36,9 @@ def quick(folder=Path('build/atlas')):
         d.rectangle(rect,fill=bg);x,y,xx,yy=rect;layout[key]=[x/N,1-yy/N,xx/N,1-y/N];return rect
     for i,(name,sub,pal) in enumerate(v for values in IDENTITIES.values() for v in values):
         x=(i%2)*1024+8;y=(i//2)*210+8;rect=cell(name,(x,y,x+1000,y+190),COLORS[pal][0]);d.rectangle((x+9,y+9,x+991,y+181),outline='#a38f62',width=3)
-        text(name,(x+25,y+10,x+975,y+126),78,font=serif);text(sub,(x+25,y+128,x+975,y+181),31)
+        face=boldsans if pal in ('teal','rust') else sans if pal in ('wine','ochre') else serif
+        title=name.title() if pal in ('wine','ochre') else name
+        text(title,(x+25,y+10,x+975,y+126),78,font=face);text(sub,(x+25,y+128,x+975,y+181),31)
     for i,title in enumerate(('COFFEE','ESPRESSO','FROM THE OVEN')):
         x=10+i*680;y=652;cell('menu'+str(i),(x,y,x+660,y+440),'#242b26')
         text(title,(x+18,y+8,x+642,y+78),46)
@@ -136,6 +138,13 @@ def generate(folder=Path('build/atlas')):
         # Oxidized exposed yarn retains the pigment's hue as it lightens.
         arr[:,:,:3]=np.uint8(rgb*.72+np.array((173,165,139))*.28)
         bc.paste(Image.fromarray(arr),(x,y));ImageDraw.Draw(orm).rectangle((x,y,x+w,y+h),fill=(255,232,0));layout[key+'_faded']=[(x+8)/n,1-(y+h-8)/n,(x+w-8)/n,1-(y+8)/n]
+    # The large oak chart freed its original cell. Use it for foot-zone
+    # abrasion: steel revealed only in the lowest 30–40 mm of a chair leg.
+    x,y,w,h=1176,1448,272,180;yy,xx=np.mgrid[:h,:w];u=xx/(w-1);v=1-yy/(h-1)
+    chip=(v<(.055+.045*np.sin(u*19)**2))&(np.sin(u*43+v*17)>.20)&(rng.random((h,w))>.22)
+    arr=np.empty((h,w,4),np.uint8);arr[:]=(32,35,34,255);arr[chip,:3]=(112,111,100)
+    bc.paste(Image.fromarray(arr),(x,y));o=np.empty((h,w,3),np.uint8);o[:]=(255,163,0);o[chip]=(240,124,225);orm.paste(Image.fromarray(o),(x,y));height[y:y+h,x:x+w]-=chip*.005
+    layout['leg_wear']=[(x+8)/n,1-(y+h-8)/n,(x+w-8)/n,1-(y+8)/n]
     for key,im in [('BaseColor',bc),('ORM',orm)]:im.save(folder/f'T_CoffeeShop_{key}.png')
     Image.fromarray(np.uint16(np.clip(height,0,1)*65535)).save(folder/'T_CoffeeShop_Height.png')
     (folder/'layout.json').write_text(json.dumps(layout,indent=2)+'\n')

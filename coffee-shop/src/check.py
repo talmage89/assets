@@ -1,6 +1,6 @@
 """Independent export measurements, clear routes, resource reuse and repeat.
 
-Form checkpoint checks do not claim baked unique UVs or final wear quality.
+This geometry audit is separate from the PBR/shared-chart and visual audits.
 """
 import hashlib
 import json
@@ -163,7 +163,7 @@ def main():
     if Path('build/photo-calibration.json').exists():
         from kit.photo_match import verify
         verify('build/photo-calibration.json')
-    report=dict(status='form-stage export/resource/scale audit',shops=rows,pieces=pieces,accessible_knee_space=knee,preserved_existing_files=preserved,unique_images=len(image_uris),resources=resources,image_bytes=sum(Path(p).stat().st_size for p in image_uris),same_scene_image_counts=[before,after],limits='Reused charts overlap intentionally; quick swatch charts are not a unique baked UV atlas. Material finish, wear and full swept-door certification remain later gates.')
+    report=dict(status='look-dev exported geometry/resource/scale audit',shops=rows,pieces=pieces,accessible_knee_space=knee,preserved_existing_files=preserved,unique_images=len(image_uris),resources=resources,image_bytes=sum(Path(p).stat().st_size for p in image_uris),same_scene_image_counts=[before,after],limits='Shared manufacture/print charts overlap intentionally and are audited separately. Look and age require native photographic critique. Full opening-link kinematics and swept-door clearance are not certified.')
     Path('build/check.json').write_text(json.dumps(report,indent=2)+'\n');print('COFFEE CHECK',[(r['seed'],r['triangles']) for r in rows])
 
 

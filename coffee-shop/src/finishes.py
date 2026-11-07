@@ -25,12 +25,15 @@ def stock(root,key):
             def f(p,face):
                 a=.18*math.exp(-((p.z-.045)/.037)**2);return (1-a,1-a*.8,1-a*.6)
             tint(ob,f)
-            # Selected bottom leg faces reveal steel through the coating.
-            uv=ob.data.uv_layers.active;a,b,c,d=G.LAYOUT['steel']
+            # Remap existing leg faces; texture V follows actual local height.
+            # This leaves the accepted 2,156 triangles entirely unchanged.
+            uv=ob.data.uv_layers.active;a,b,c,d=G.LAYOUT['leg_wear'];roles=json.loads(ob['cafe_roles']);semantic=ob.data.attributes['CafeRole']
             for face in ob.data.polygons:
-                z=sum(ob.data.vertices[i].co.z for i in face.vertices)/len(face.vertices)
-                if .022<z<.070 and abs(face.normal.z)<.7 and face.index%7==0:
-                    for li in face.loop_indices:uv.data[li].uv=((a+c)/2,(b+d)/2)
+                ps=[ob.data.vertices[i].co for i in face.vertices];lo=min(p.z for p in ps);hi=max(p.z for p in ps)
+                if roles[semantic.data[face.index].value]=='black' and lo<.030 and hi>.15 and abs(face.normal.z)<.8:
+                    old=G.LAYOUT['black']
+                    for li in face.loop_indices:
+                        q=ob.data.vertices[ob.data.loops[li].vertex_index].co;u=(uv.data[li].uv.x-old[0])/(old[2]-old[0]);uv.data[li].uv=(a+u*(c-a),b+(q.z-lo)/(hi-lo)*(d-b))
 
 def flat_mark(batch,x,y,z,w,d,key,angle=0):
     a=math.radians(angle);verts=[]
@@ -41,14 +44,14 @@ def flat_mark(batch,x,y,z,w,d,key,angle=0):
 def paving_age(ob,p):
     rng=random.Random(p['seed']+817);sites=[]
     for t in p['tables']:
-        for j in range(3):sites.append((t['x']+rng.uniform(-.52,.52),t['y']+rng.uniform(-.44,.44),rng.uniform(.24,.42),rng.uniform(.20,.38),rng.uniform(.15,.32)))
+        for j in range(3):sites.append((t['x']+rng.uniform(-.52,.52),t['y']+rng.uniform(-.44,.44),rng.uniform(.34,.56),rng.uniform(.28,.46),rng.uniform(.24,.40)))
     sites.extend((p['entry'][0]+rng.uniform(-.32,.32),-.35-j*.30,.28,.43,.13) for j in range(4))
     attr=ob.data.color_attributes['Tint'];age={'downtown':.9,'strip':1.0,'pad':.85}[p['kind']]
     for face in ob.data.polygons:
         for li in face.loop_indices:
             q=ob.data.vertices[ob.data.loops[li].vertex_index].co
             stain=sum(s*math.exp(-(((q.x-x)/w)**2+((q.y-y)/d)**2)**1.3) for x,y,w,d,s in sites)
-            stain=min(.43,stain*age)*(.85+.15*math.sin(q.x*27+q.y*18)**2)
+            stain=min(.50,stain*age)*(.85+.15*math.sin(q.x*27+q.y*18)**2)
             edge=.09*math.exp(-abs(q.y)/.13) if p['kind']=='downtown' else 0
             shade=1-stain-edge;attr.data[li].color=(shade,shade*(1-.018*stain),shade*(1-.05*stain),1)
 

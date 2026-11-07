@@ -127,7 +127,9 @@ def parking(p,pad=False):
     # Drive aisle and a clear raised pedestrian landing connect to the street.
     for yy in (edge-5.9,edge-10.5):paint((-2.3,yy,.003),(.3,yy,.003),.30)
     for xx in ((-16,35) if not pad else (-17,16.5)):
-        iy=edge-10.5 if not pad else -11.0
+        # The pad's east island sits by the walk approach, clear of the
+        # cross-lot photographic sight line and the accepted side patio.
+        iy=edge-10.5 if not pad else (-6.5 if xx>0 else -11.0)
         island(xx,iy,2.5,6,0)
         instance(REPO/'street-light/export/StreetLight.glb','Parking light',(xx,iy,.15),90)
     if pad:
@@ -161,7 +163,7 @@ def parking(p,pad=False):
     for i in range(6):
         filename='HearthfieldRanch-11.gltf' if i%2 else 'HearthfieldCape-34.gltf'
         instance(REPO/'houses/export'/filename,'Rear neighborhood house '+str(i),(-44+i*19,back+16,0))
-    return dict(type='converted bank pad / walk-up' if pad else 'strip-center end cap',lot_bounds_m=lot,stall_count=len(stalls),aisle_width_m=6.096,drive_through=False)
+    return dict(type='converted bank pad / walk-up' if pad else 'strip-center end cap',lot_bounds_m=lot,stall_count=len(stalls),minimum_design_aisle_m=6.096,drive_through=False)
 
 def build(seed,kind):
     bpy.ops.wm.read_factory_settings(use_empty=True);CACHE.clear();M.clear();G.palette()
@@ -177,7 +179,7 @@ def build(seed,kind):
     before=set(bpy.context.scene.objects);bpy.ops.import_scene.gltf(filepath=str(Path(f'export/CoffeeShop-{seed}.gltf').resolve()));obs=set(bpy.context.scene.objects)-before
     for ob in obs:
         if ob.parent not in obs:ob.location.y+=p['depth']/2
-    slab('District ground',(-160,160,-180,150),-.24,'Lawn')
+    slab('District ground',(-1000,1000,-1000,1000),-.24,'Lawn')
     info=downtown(p) if kind=='downtown' else parking(p,kind=='pad')
     for rt in CACHE.values():
         for ob in reversed(G.descendants(rt)):bpy.data.objects.remove(ob,do_unlink=True)
@@ -192,3 +194,11 @@ if __name__=='__main__':
     a=argparse.ArgumentParser();a.add_argument('--seeds',default='117,228,339');a=a.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
     for seed,kind in PROOFS:
         if str(seed) in a.seeds.split(','):build(seed,kind)
+    # Old extracted aliases are rebuildable and must not become a second
+    # resource allocation beside the canonical read-only shipping files.
+    used=set()
+    for docpath in Path('export').rglob('*.gltf'):
+        doc=json.loads(docpath.read_text())
+        used.update((docpath.parent/im['uri']).resolve() for im in doc.get('images',[]) if 'uri' in im)
+    for path in Path('export/textures').glob('*.png'):
+        if path.resolve() not in used:path.unlink()

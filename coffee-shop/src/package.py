@@ -17,7 +17,7 @@ def externalize(source,dest):
     # Reused delivered maps keep their canonical family path. Only our new
     # quick sheet/host lettering is extracted locally, once across all seeds.
     known={}
-    for folder in ['patio-set/textures/ship','street-furniture/export/textures','ground/textures/ship','commercial/export/textures','commercial/textures/ship','downtown/textures/ship','trees/textures/ship','shrubs/textures/ship','houses/textures/ship','cars/textures/ship','street-light/textures/ship']:
+    for folder in ['patio-set/textures/ship','street-furniture/export/textures','ground/textures/ship','commercial/export/textures','commercial/textures/ship','downtown/textures/ship','trees/textures/ship','shrubs/textures/ship','houses/textures/ship','houses/textures/ranch-ship','houses/textures/cape-ship','cars/textures/ship','cars/textures/hatch/ship','cars/textures/suv/ship','street-light/textures/ship']:
         for p in (REPO/folder).glob('*.png'):known[sha(p)]=p
     for folder in ('build/atlas','textures/ship'):
         for p in Path(folder).glob('*.png'):known[sha(p)]=p.resolve()

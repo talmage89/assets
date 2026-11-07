@@ -53,7 +53,7 @@ sites: $(SITE_OUTPUTS)
 $(SITE_OUTPUTS) &: $(CHECKPOINT_OUTPUTS) src/sites.py build/hosts/downtown-left.glb build/hosts/downtown-right.glb build/hosts/downtown-opposite.glb build/hosts/strip-neighbors.glb
 	$(BP) --python src/sites.py
 	@touch build/sites/.stamp
-$(CHECKPOINT_RENDER_OUTPUTS): | sites
+$(CHECKPOINT_RENDER_OUTPUTS): $(SITE_OUTPUTS)
 check: sites
 
 .PHONY: repeat match
@@ -80,3 +80,7 @@ repeat: model
 before-after: render
 	$(PYTHON) src/baseline.py --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) src/compare_views.py
+
+.PHONY: texture-repeat
+texture-repeat: textures/ship/.stamp
+	$(PYTHON) src/texture_repeat.py

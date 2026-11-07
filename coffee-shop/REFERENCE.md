@@ -21,7 +21,7 @@ Neither real trade dress nor photographed people/cars enter the models.
 | --- | --- | --- |
 | Downtown host | Downtown family's cited 20–30 ft interior lots, 80–140 ft depth, 14–16 ft first floor | 30 × 90 ft / **9.144 × 27.432 m**, two floors; 15 ft first-floor datum. Reuses its iron storefront, recessed entry, masonry shell, cornice, sash and rear services. Only the ground-floor tenancy, visible room, sign and awning are replaced |
 | Strip end cap | Commercial family's 20–30 ft bay, 50–80 ft depth comparators; actual stock 55 mm storefront sightlines, 203.2 mm shell | Two 21 ft bays / **12.8016 × 19.5072 m** total, open combined room; stock flat walk canopy and wrapped left end cap. A deeper **6.10 m** private walk accommodates the patio outside the original canopy columns |
-| Freestanding host | Lakeview Brew's 2008 converted pad-building type; Commercial's wall/opening/storefront/coping/RTU helpers | Original **36 × 30 ft / 10.9728 × 9.144 m** small pad; **3.66 m** parapet. A side walk-up window and replacement front infill distinguish the conversion. Its envelope is an estimate, not a surveyed Lakeview footprint |
+| Freestanding host | Lakeview Brew's 2008 converted pad-building type and broad folded-metal roof; Commercial's wall/opening/storefront helpers | Original **36 × 30 ft / 10.9728 × 9.144 m** small pad; new hip eave **3.70 m**, ridge **5.16 m**. A side walk-up window and replacement front infill distinguish the original bank-branch conversion story. Its envelope is an estimate, not a surveyed Lakeview footprint |
 | Room | Rose Nicaud photo: low customer counter, dense equipment behind it, large elevated menus, glazed pastry case, wood joinery | **6.7 / 7.5 / 7.8 m** visible depths; **3.65 / 4.25 / 3.9 m** customer counters. Separate **3.3 m** back bars leave a **.96 m** working aisle. Interior service/access areas beyond these backings are not modeled |
 | Public walking zone | Seattle Director's Rule 4-2011 §5.2: downtown **6 ft** pedestrian zone and **4 ft** visual corridor; 2011 curbside-cafe provisions | **1.870 / 1.880 / 1.900 m** through corridors, drawn and checked on actual imported surfaces. Additional **.940 / 1.000 / .920 m** connectors reach the seating/side route |
 | Curbside buffer | Period Seattle guidance and 18 August 2011 CHS coverage: **3 ft** for parked-car door clearance | Downtown **.9144 m** strip between curb and cafe. The canopy, planter foliage and actual furniture are checked above this strip, rather than checking table centers alone |
@@ -48,10 +48,10 @@ differs from our pad. Lens limits and residuals remain visible in each pair.
 
 Before comparison, neutral-balance assumptions are recorded: Annie's pale
 painted door trim, Coffea's unpainted metal table edge, and Lakeview's pale
-window/base trim. These are assumptions, not gray-card captures. White balance
+window/base trim; Fair Grinds uses exposed unpainted concrete. These are assumptions, not gray-card captures. White balance
 uses linear-channel gains and preserves exposure. The dark steel is not dyed
 blue to match shaded photographic pixels. Final checkpoint heroes retain a
-fixed −1 exposure, a 26° procedural sun and desaturated procedural sky; there
+fixed −.35 exposure, an 18° procedural sun and desaturated procedural sky; there
 is no image environment or exposure-based concrete calibration.
 
 ## Checks and their limits
@@ -82,7 +82,7 @@ valance; welded carriers remain beneath it. This is an original tensioned
 canvas surface, compared with the hanging/scalloped fabric in the period
 references, not a cloth simulation or a traced photographic surface.
 
-Pastries are original hand-sized forms: croissant roughly 110 × 65 × 45 mm,
+Pastries are original hand-sized forms: croissant roughly 120 × 65 × 45 mm,
 muffin about 68 mm diameter × 70 mm, scone about 80 mm across × 36 mm, cookie
 76 mm diameter × 12 mm. Their size is an authored culinary estimate, checked
 against the case shelves and 148 mm saucer, not a manufacturer specification.
@@ -91,7 +91,8 @@ No food scans or photographic texels are used.
 The seeded contexts reuse this repository's dressed Downtown storefronts,
 Commercial tenant bays, cars, house, lights, grates/fixtures and vegetation.
 The Main Street road is 14 m wide with a curbside parking lane; strip/pad
-stalls use a 2.74 m pitch and 5.4 m depth, with a nominal 6.096 m circulation
-aisle. Site layouts are original bounded compositions. The geometric café
+stalls use a 2.74 m pitch and 5.4 m depth. The 6.096 m design minimum is
+separate from the independently measured 7.90 m gap between the marked rows.
+Site layouts are original bounded compositions. The geometric café
 clearance proof still applies to the unchanged accepted seating routes; it
 is not extended into a whole-site parking/permit certification.
