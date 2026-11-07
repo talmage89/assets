@@ -45,17 +45,45 @@ def main():
     before=set(bpy.context.scene.objects)
     rr=.630;cy=S.REAR_AXLE
     theta=np.arcsin((.755-S.HUB)/rr)
-    profile=[(-3.92,2.71),(6.006,2.71),(6.006,.755)]
-    profile += [(cy+rr*np.cos(theta+(np.pi-2*theta)*k/32),S.HUB+rr*np.sin(theta+(np.pi-2*theta)*k/32)) for k in range(33)]+[(-3.92,.755)]
-    G.profile('Uncut body envelope',profile,-S.WIDTH/2,S.WIDTH/2,white,axis='X')
+    # Match the independent windshield rake. A flat 2.71m-high front slab
+    # falsely includes open space between the raked screen and mirror brackets.
+    back=[(6.006,2.71),(6.006,.755)]+[(cy+rr*np.cos(theta+(np.pi-2*theta)*k/32),S.HUB+rr*np.sin(theta+(np.pi-2*theta)*k/32)) for k in range(33)]+[(-3.92,.755),(-3.92,1.88)]
+    def front(x,v,z=None):
+        ax=abs(x)
+        if ax<=1.138:y=-3.998+.273*v+.035*(ax/1.138)**2
+        elif ax<=1.157:y=-3.963+.273*v+.010*(ax-1.138)/.019
+        else:
+            u=min(1,(ax-1.157)/.054);y=(-3.953+.273*v)*(1-u)-3.75*u
+        if ax>=1.1375:
+            z=1.9+.772*v if z is None else z;dx=min(ax-1.1375,1.223-ax);dz=min(z-1.887,2.717-z)
+            chamfer=max(0,.016-dx,.016-dz,.032-dx-dz)
+            y=min(y,-3.85+chamfer)
+        return y
+    stations=[0,.55,1.1,1.1374,1.1375,1.138,1.157,1.17,1.18,1.19,1.20,1.211,S.WIDTH/2]
+    rings=[]
+    for x in sorted(set(stations+[-v for v in stations])):
+        contour=[(front(x,1,z=2.71),2.71)]+back+[(front(x,v),1.9+.772*v) for v in np.linspace(0,1,65)]
+        rings.append([(x,y,z) for y,z in contour])
+    die=G.loft('Uncut body envelope',rings,white)
+    # The skirt is a wall below the actual cabin floor, not a filled block.
+    # Wheel-arch rays may legitimately pass beneath that floor to open space.
+    cavity=G.box('Uncut underfloor negative space',(0,1.043,-.433),(2.392,9.882,3.134),None,0)
+    G.boolean(die,cavity)
     G.loft('Uncut roof envelope',[roof_section(y,d) for y,d in [(-3.92,.20),(-3.78,.085),(-3.56,.015),(-3.38,0),(5.60,0),(5.80,.025),(5.96,.075),(6.006,.115)]],white)
     hood=[]
     for y,w,top,bottom in [(-5.916,.725,1.520,1.060),(-5.87,.755,1.565,1.035),(-5.55,.780,1.642,1.015),(-4.95,.800,1.765,1.045),(-4.38,.825,1.860,1.145),(-3.96,.858,1.888,1.240)]:
         sec=[(-w,bottom),(-w,top-.145),(-w*.98,top-.078),(-w*.91,top-.026),(-w*.76,top),(-w*.42,top+.017),(0,top+.025),(w*.42,top+.017),(w*.76,top),(w*.91,top-.026),(w*.98,top-.078),(w,top-.145),(w,bottom)]
         hood.append([(x,y,z) for x,z in sec])
     G.loft('Uncut hood envelope',hood,white)
-    G.box('Uncut front bumper envelope',(0,S.FRONT+.102,.630),(2.35,.204,.320),white,0)
-    G.box('Uncut rear bumper envelope',(0,S.REAR-.090,.650),(2.43,.180,.300),white,0)
+    # Keep the real open rear of each pressed C section. A filled bounding box
+    # falsely classified wheel vent holes behind its swept corner as body leaks.
+    for front,width,depth,z0,z1 in [(True,2.35,.204,.470,.790),(False,2.43,.180,.500,.800)]:
+        end=S.FRONT if front else S.REAR;direction=1 if front else -1;g=.006;rings=[]
+        for x,back in [(-width/2,.09),(-width/2+.12,.02),(-width/2+.20,0),(width/2-.20,0),(width/2-.12,.02),(width/2,.09)]:
+            y=end+direction*back
+            section=[(y,z0),(y,z1),(y+direction*depth,z1),(y+direction*depth,z1-g),(y+direction*g,z1-g),(y+direction*g,z0+g),(y+direction*depth,z0+g),(y+direction*depth,z0)]
+            rings.append([(x,yy,zz) for yy,zz in section])
+        G.apply(G.bevel(G.loft('Uncut pressed bumper envelope',rings,white),.0015,1))
     for sign in [-1,1]:G.box('Uncut optical molding',(sign*.948,-5.688,1.052),(.400,.185,.365),white,.070,3)
     envelope=list(set(bpy.context.scene.objects)-before)
     for ob in envelope:ob.hide_render=True
