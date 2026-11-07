@@ -94,6 +94,10 @@ Vehicles
   - [Alder S240 sedan](cars/README.md#alder-s240--midsize-sedan): midsize four-door on 18-inch touring tires, with a
     hinged trunk, hexagonal mesh grille and swept lamps.
 
+Recreation
+- [Skateboard](skateboard/README.md): seven-ply street skateboard with cast trucks, urethane wheels and three original
+  graphics, new, a season old and beat.
+
 Trees and shrubs
 - [Trees](trees/README.md): summer street trees with leaf cards and wind weights.
   - [Red maple](trees/README.md#red-maple--summer-delivery): 12.5 m open-grown tree with flaky lower bark.
