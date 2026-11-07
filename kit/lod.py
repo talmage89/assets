@@ -25,6 +25,19 @@ def tool_digests():
     return {name:digest(ROOT/'kit'/name) for name in names}
 
 
+def image_limits(cfg,level):
+    """Complete image gates, with explicit calibrated per-level overrides."""
+    import math
+    defaults=dict(mean=.02,p95=.08,alpha_mae=.05,patch_mean_max=.08,
+                  silhouette_loss=cfg.get('silhouette_loss',.05))
+    overrides={**cfg.get('image_limits',{}),**cfg['levels'][level-1].get('image_limits',{})}
+    if set(overrides)-set(defaults):raise ValueError('Unknown image acceptance metric')
+    result={**defaults,**overrides}
+    if any(not isinstance(v,(int,float)) or not math.isfinite(v) or not 0<=v<=1 for v in result.values()):
+        raise ValueError('Image acceptance limits must be finite fractions in [0, 1]')
+    return result
+
+
 def configuration(path):
     path=Path(path).resolve();cfg=json.loads(path.read_text());root=path.parent.parent
     levels=cfg['levels']

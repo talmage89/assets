@@ -7,11 +7,23 @@ import unittest
 from pathlib import Path
 
 from kit.lod_report import family_residency,checkpoint_markers,block
+from kit.lod import image_limits
 
 ROOT=Path(__file__).resolve().parents[1]
 
 
 class LODFamilyReportTests(unittest.TestCase):
+    def test_calibrated_local_limit_cannot_leak_into_far_level(self):
+        cfg=dict(silhouette_loss=.073,levels=[dict(image_limits=dict(patch_mean_max=.21)),{},{}])
+        self.assertEqual(image_limits(cfg,1),dict(mean=.02,p95=.08,alpha_mae=.05,patch_mean_max=.21,silhouette_loss=.073))
+        self.assertEqual(image_limits(cfg,3)['patch_mean_max'],.08)
+        cfg['image_limits']=dict(mean=.015)
+        self.assertEqual(image_limits(cfg,2)['mean'],.015)
+        self.assertEqual(image_limits(cfg,2)['p95'],.08)
+        for bad in [dict(typo=.1),dict(mean=float('nan')),dict(mean=-.1),dict(mean=1.1)]:
+            cfg['image_limits']=bad
+            with self.assertRaises(ValueError):image_limits(cfg,1)
+
     def test_shared_container_and_images_are_counted_once(self):
         image=dict(sha256='shared',compressed_mip_bytes=1000)
         def chain(a,b):return dict(levels=[dict(level=0,mesh_gpu_bytes=100,images=[image,image]),dict(level=1,mesh_gpu_bytes=a,images=[image]),dict(level=2,mesh_gpu_bytes=b,images=[image])])

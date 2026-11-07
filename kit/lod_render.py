@@ -19,7 +19,7 @@ from mathutils import Vector
 from PIL import Image, ImageDraw
 
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
-from kit.lod import configuration
+from kit.lod import configuration,image_limits
 from kit.lod_io import Document,digest
 
 
@@ -159,8 +159,7 @@ def main():
             # Limits are asset-relative: empty background cannot dilute error.
             # 2% mean RGB, 8% p95 and 5% coverage change allow subpixel AA but
             # reject broad color shifts, obvious faceting and lost leaf masses.
-            limits=cfg.get('image_limits',dict(mean=.02,p95=.08,alpha_mae=.05,patch_mean_max=.08))
-            limits={**limits,'silhouette_loss':cfg.get('silhouette_loss',.05)}
+            limits=image_limits(cfg,li)
             passed=all(metric[k]<=v and adjacent[k]<=v for k,v in limits.items())
             rows.append(dict(level=li,azimuth=az,distance_m=row['distance_m'],reference=metric,
                              adjacent=adjacent,limits=limits,passed=passed,alternative=row.get('alternative')))
