@@ -912,3 +912,41 @@ tree and car silhouettes. The terminal still has a procedural patch rhythm.
 These limits remain explicit; this is approval to render the remaining
 finals, not a claim of photographic equivalence or completed validation.
 
+## Round 4, pass 6: complete exported final set
+
+Color and value: opened all 51 current raw frames at native resolution, the
+labeled module sheet, all eight photographic pairs, three contact sheets,
+the nine earlier fix panels and eight current-handoff panels. Summer turf
+is judged against the concrete-balanced 2002 aerial; the 2008 bridge supplies
+the concrete/runoff comparison, and the guide photo supplies paving and sign
+response. The March 2007 traffic photo has dormant turf: its asphalt neutral
+and traffic density are useful, its grass hue is not a summer target. These
+are approximate field white balances, not calibrated albedo measurements.
+The heroes retain the accepted clear sky, deep shade and highlight rolloff.
+Display RGB clipping is below .002% in both; 101's sampled bridge shade has
+median luma .034 against .397 on the sampled pavement. Those are illuminated
+display values, not material reflectance. The concrete map's median linear
+luma is .229 before vertex deposits and scene light.
+
+Both aerials and the terminal keep the finer card/base transition without
+the rejected dark rectangular islands. Native grass and framing panels show
+the requested changes; the new 101 hero leaves only a foreground band.
+Column streams remain continuous below the accepted cap. Barrier feet and
+joints show spray/road film; wheel response, lane-center deposits, joints and
+native-grain replacement panels remain visible from the hero/road cameras.
+The 4096 source-field inspections and shipped views keep the localized wear;
+fine manufacturing response changes in the bake/downsample. The provenance
+check passes for all 51 frames. This proves current inputs, separately from
+the manual appearance judgment. The independent construction checks also pass.
+
+Still CG: clump/mowing rhythm is strongest in the cable-median close-up and
+terminal; short turf at the gore/rail relies more on the normal-detailed base.
+Lane bands and barrier-joint deposits are more regular than in the photos.
+Concrete manufacture grain is even, zinc grain coarse under raking light,
+and native houses, trees and car bodies repeat. The backlit wall close-up has
+limited material readability; Eevee is flatter with grainier card coverage.
+The photo fits differ in site, season, lane count and bridge construction.
+These are original places, not photographic reconstructions. The requested
+fixes pass the complete visual gate. Gallery assembly may proceed; its final
+commit still waits for the default build and both repeat targets.
+

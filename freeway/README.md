@@ -262,8 +262,8 @@ claim. Current export/image/camera provenance is checked separately.
 all close-ups, 17 individually framed modules, the labeled sheet, human/car
 scale and `contact.jpg`. `renders/final-eevee/101/hero.png` is the Eevee view.
 `renders/final-matches/` contains four photographic comparisons and its contact;
-`renders/final-source-matches/` has the explicitly labeled source-field pairs
-for bake-loss inspection. `renders/fix-crops/` contains nine earlier native
+`renders/final-source-matches/` has separate source-field pairs and stage
+receipts for bake-loss inspection. `renders/fix-crops/` contains nine earlier native
 before/after panels (980–1400 px per side). The latest handoff comparisons in
 `renders/round4-crops/` have 1400 native pixels per side, without enlargement:
 
@@ -299,6 +299,8 @@ remain visible. Grass clump and mowing rhythms, especially the near median
 edge and terminal, remain more procedural than the photographs. Lane wear and
 barrier joint staining remain regular. Broad asphalt variation and fine alpha
 rib/wire parallax remain CG cues at close distance.
+Short turf at the gore and rail relies more on the normal-detailed base.
+Eevee has flatter shade and grainier card coverage than Cycles.
 The supplementary wall close-up is strongly backlit and has limited material
 readability. Raking light makes the zinc grain look coarse in the gore view.
 The bridge's fine manufacture grain remains more uniform than the reference.
