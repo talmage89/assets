@@ -2457,3 +2457,41 @@ source files are unchanged, as are all test inputs: no kit test reads this
 document or these pilot configs. The 34-file source-verified suite remains
 valid. Full canonical pickup/colonial rebuilds and the new literal recipe
 proof are pending, with the pickup far color failure still explicit.
+
+## Pass 65 — canonical station color and junction failures closed
+
+Opened all nine fresh station native strips, all eight whole/detail construction
+views and the contact sheet. Also opened the full 1920px near-side reference
+and reduced frames to inspect the dispenser at its actual size. Fascia value,
+lettering, columns and coverage remain consistent. Close dispenser trim and
+hoses expose coarse/jagged geometry; that loss does not read as a fault in
+the native switch views. No close-view equivalence is claimed.
+
+The chain is 9130/4542/1798 (50.01%/24.88%/9.85% of selected LOD0), with
+4/4/1 materials and 10/10/1 active draws. Both near triangle caps are met.
+All nine rendered comparisons and the captured `make check-lod` pass, including
+the independent UV/frame audit. The far reference means are
+.01049/.01222/.01386, p95 .04863/.05224/.06275 and local maxima remain below
+.057. Lettering and broad column/fascia values agree at the 4.5% switch.
+The corrected cause is switch-capped chart allocation and a 4x antialiased
+field bake filtered into the same 512 atlas, with delivered shading frames;
+lighting, palette and AO are not adjusted to conceal the miss. The prior
+controlled old/new comparison at converged samples remains the cause evidence.
+Whole-chain residency is 90.963 MiB versus LOD0's 87.678 MiB, including the
+complete immutable source container. No near image is added.
+
+The fresh actual-world junction audit tracks all ten reported seams: source
+valence 3, handoff valence 1, selected valence 3, at both near levels. Spatial
+segment tracking finds zero of ten still unmatched. Whole-canopy boundary
+counts are 442 to 298/274; nonmanifold counts 130 to 97/42. This closes the
+reported junctions without calling the inherited construction watertight.
+Current source/level/script receipts are `build/lod-v4/station-final-*.json`.
+
+Recomputed the identical-source persistent-pin inventory using the selected
+final car and house presets. Counts are unchanged from pass 56: pickup unique
+4086 to 2257/2363, colonial 1674 to 552/552. The JSON now records final config
+hashes and actual bounds. The cause columns are overlapping memberships of
+true pins; UV/normal/material membership alone does not freeze a vertex on the
+sliding path. Remaining persistent pins belong to protected optical/alpha/contact
+sets. Initial offer eligibility and later geometry/frame/visibility rejections
+remain separate, as do retained source geometry and refinement triangle costs.
