@@ -18,7 +18,8 @@ def water_reach(p,parent,side,ground):
     This remains presentation context, separate from the 300m game reach.
     Matching the boundary cross-section avoids a flat painted water seam.
     """
-    ys=sorted(side*(p.reach/2+i*10) for i in range(66));nx=20;stride=nx+1
+    distances=[i*1.25 for i in range(17)]+[25,30,40,50]+list(range(60,651,10))
+    ys=sorted(side*(p.reach/2+d) for d in distances);nx=20;stride=nx+1
     rows=[]
     for y in ys:
         l,r=p.water_edges(y)
@@ -39,8 +40,8 @@ def water_reach(p,parent,side,ground):
     b.geom(top+bottom,shell,'water',smooth=True);ob=b.finish()
     flow=ob.data.attributes.new('_FLOW',type='FLOAT_VECTOR',domain='POINT')
     for v,a in zip(ob.data.vertices,flow.data):
-        tx,ty=p.tangent(v.co.y);speed=p.speed(v.co.x,v.co.y)
-        a.vector=(tx*speed,ty*speed,max(0,p.water_z(v.co.y)-p.bed(v.co.x,v.co.y)))
+        vx,vy=p.flow(v.co.x,v.co.y)
+        a.vector=(vx,vy,max(0,p.water_z(v.co.y)-p.bed(v.co.x,v.co.y)))
     ob['presentation_only']=True
 
 
@@ -70,7 +71,7 @@ def join_water(p,parent):
     for face in core.data.polygons:
         for li in face.loop_indices:
             v=core.data.vertices[core.data.loops[li].vertex_index].co
-            tx,ty=p.tangent(v.y)
+            tx,ty=p.flow(v.x,v.y);length=__import__('math').hypot(tx,ty);tx/=length;ty/=length
             uv.data[li].uv=((v.x*ty-v.y*tx)/3.7,(v.x*tx+v.y*ty)/2.2)
     core['core_reach_limits_y_m']=[-p.reach/2,p.reach/2]
     core['presentation_reach_limits_y_m']=[-800,800]
@@ -108,19 +109,19 @@ def add(p,parent):
                 roads.geom([(x,yy,p.road_z(x)-.02*abs(yy)+.003) for x,yy in ((a,y-.05),(c,y-.05),(c,y+.05),(a,y+.05))],[(0,1,2,3)],role,up=True)
     if p.kind=='downtown':
         town=next(o for o in parent.children if o.name=='TownContext')
-        front=town['main_street_front_m']
+        front=town['main_street_offset_m']
         for side in (-1,1):
             for end in (-1,1):
                 for j in range(50):
                     a=end*(150+j*10);c=end*(160+j*10)
                     for x0,x1,role in ((front,front+2,'concrete'),(front+2,front+9.3152,'asphalt'),(front+9.3152,front+11.4,'concrete')):
-                        pts=[(side*x,y,3.775+p.water_z(y)) for x,y in ((x0,a),(x1,a),(x1,c),(x0,c))]
+                        pts=[(p.center(y)+side*(p.halfwidth(y)+x),y,3.775+p.water_z(y)) for x,y in ((x0,a),(x1,a),(x1,c),(x0,c))]
                         roads.geom(pts,[(0,1,2,3)],role,up=True)
                         edge=(3,0) if x0==front else (1,2)
                         if role=='concrete':
                             if side*end<0:edge=edge[::-1]
                             context.paving_skirts(roads,pts,[edge],role)
-                        ground.geom([(side*x,y,3.70+p.water_z(y)) for x,y in ((x0-.1,a),(x1+.1,a),(x1+.1,c),(x0-.1,c))],[(0,1,2,3)],'grass',(.56,.62,.44,1),up=True)
+                        ground.geom([(p.center(y)+side*(p.halfwidth(y)+x),y,3.70+p.water_z(y)) for x,y in ((x0-.1,a),(x1+.1,a),(x1+.1,c),(x0-.1,c))],[(0,1,2,3)],'grass',(.56,.62,.44,1),up=True)
     roads.finish()
     soil=ground.finish()
     tree=BVHTree.FromPolygons([v.co for v in soil.data.vertices],[list(f.vertices) for f in soil.data.polygons],all_triangles=True)
@@ -148,7 +149,7 @@ def add(p,parent):
             doc=__import__('json').loads(path.read_text())
             plan=__import__('json').loads(next(n['extras']['plan'] for n in doc['nodes'] if n.get('extras',{}).get('building')))
             sign=(-1 if i//7 in (0,2) else 1);y=(-1 if i//7<2 else 1)*(156+(i%7)*10.9)
-            x=p.center(y)+sign*(p.halfwidth(y)+11.5+plan['depth']/2)
+            x=p.center(y)+sign*(p.halfwidth(y)+town['main_street_offset_m']-plan['depth']/2)
             context.instance(path,'Town continuation '+str(i),(x,y,seat(x,y)),rt,-90 if sign<0 else 90)
         else:
             context.instance(context.REPO/'school/build/context/houses-ranch.glb','Beyond reach neighbor '+str(i),

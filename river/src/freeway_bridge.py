@@ -155,7 +155,7 @@ def bearing(batch,x,y,z):
     for side in (-1,1):
         yy=y+side*.332
         batch.box((x,yy,z+.225),(.48,.065,.010),'zinc')
-        batch.box((x,yy+side*.027,z+.256),(.48,.010,.072),'zinc')
+        batch.box((x,yy-side*.027,z+.256),(.48,.010,.072),'zinc')
         for dx in (-.19,.19):
             batch.cylinder((x+dx,yy,z+.245),.012,.055,'steel',6)
             batch.cylinder((x+dx,yy,z+.2315),.025,.003,'zinc',6)

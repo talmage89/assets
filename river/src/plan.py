@@ -86,15 +86,22 @@ class Plan:
         # Embankments under each road approach meet the abutment backwall.
         road_fill=max(0,1-max(0,abs(y)-7)/15)
         end_fill=max(0,min(1,(abs(x)-self.length/2-.90)/.12))
+        wing=self.deck_width/2+math.tan(math.radians(30))*max(0,min(5.5,abs(x)-self.length/2-.8))
+        if abs(y)>wing+.3:
+            # Outside the retaining walls the approach fill has a sloping
+            # toe, rather than extending the backwall's vertical soil face.
+            end_fill=max(0,min(1,(abs(x)-self.length/2-.90)/6))
         fill_top=self.road_z(x)-.075-.02*min(abs(y),3.3528)
         if abs(y)>3.3528:fill_top=self.road_z(x)-.06
-        if abs(y)<7.8 and abs(x)<self.length/2+.90:
-            cap=2.1
+        if abs(y)<self.deck_width/2+4 and abs(x)<self.length/2+.90:
+            cap=1.05
             if self.kind=='downtown':
                 edge_distance=abs(x-self.center(y))-self.halfwidth(y)
                 # Keep the low riverwalk clear, then armor a 2H:1V bank
                 # up toward the abutment seat instead of a broad flat void.
-                cap=.50+min(1.65,max(0,edge_distance-4.45)*.5)
+                cap=.50+min(.65,max(0,edge_distance-4.45)*.5)
+            blend=max(0,min(1,(abs(y)-self.deck_width/2)/4))
+            cap+=(3.70-cap if self.kind=='downtown' else 2.15-cap)*blend
             z=min(z,cap)
         if a>1.12 and end_fill>0:z=max(z,2.1+(fill_top-2.1)*road_fill*end_fill)
         if self.kind=='edge' and abs(x)>self.length/2+9:
@@ -122,6 +129,16 @@ class Plan:
         depth=max(.02,self.water_z(y)-self.bed(x,y))
         run=.43/(.65+depth*.48)
         return (run+.75*math.exp(-((y-self.riffle_y)/7)**2))*min(1,depth/.20)
+
+    def flow(self,x,y):
+        tx,ty=self.tangent(y);speed=self.speed(x,y);vx,vy=tx*speed,ty*speed
+        # Sheltered, curling wakes. This is analytic game data, not CFD.
+        for j in range(1,self.spans):
+            dx=x-(-self.length/2+j*self.span);dy=y-(self.deck_width/2+2.2)
+            wake=math.exp(-(dx/1.5)**2-(dy/3)**2)
+            vx=vx*(1-.50*wake)-dy/3*.12*wake
+            vy=vy*(1-.50*wake)+dx/1.5*.12*wake
+        return vx,max(.03,vy)
 
     def data(self): return asdict(self)
 

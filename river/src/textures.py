@@ -20,14 +20,16 @@ def generate(folder=Path('textures/checkpoint')):
     rgb=np.zeros((n,n,4));rgb[:,:,:3]=(.29,.255,.185);rgb[:,:,3]=1
     rgb[:,:,:3]+=((field*.020+grain*.035)[:,:,None])
     height=grain*.0004
-    # Elliptic, irregular pebbles over silt. Deterministic periodic placement.
-    for i in range(1100):
+    # Low-contrast angular clasts over silt. Pebble-sized relief belongs to
+    # this bed map; large quarry stones have their own mineral response.
+    for i in range(650):
         cx,cy=rng.random(2);r=rng.uniform(.004,.022);asp=rng.uniform(.55,1.4)
         dx=(x-cx+.5)%1-.5;dy=(y-cy+.5)%1-.5
-        q=(dx/r)**2+(dy/(r*asp))**2;mask=q<1
-        shade=rng.uniform(.22,.48);tint=np.array((shade*1.04,shade,shade*.88))
-        v=np.sqrt(np.maximum(0,1-q));h=r*.25*v
-        rgb[mask,:3]=tint+v[mask,None]*.025+grain[mask,None]*.018
+        angle=np.arctan2(dy/asp,dx);phase=rng.random()*math.tau
+        q=((dx/r)**2+(dy/(r*asp))**2)*(1+.18*np.sin(angle*5+phase)+.10*np.cos(angle*3-phase))
+        mask=q<1;shade=rng.uniform(.245,.335);tint=np.array((shade*1.04,shade*.95,shade*.80))
+        v=np.minimum(1,np.maximum(0,1-q)*3);h=r*.20*v
+        rgb[mask,:3]=tint+v[mask,None]*.008+grain[mask,None]*.025
         height=np.maximum(height,h)
     Image.fromarray(np.uint8(np.clip(rgb,0,1)*255)).save(folder/'T_RiverBank_BaseColor.png')
     dy,dx=np.gradient(height,2/n)
@@ -42,7 +44,7 @@ def generate(folder=Path('textures/checkpoint')):
         ox=j%2*128;oy=128+j//2*64
         for k in range(120):
             px=rng.uniform(3,124);py=31+math.sin(px*.083+j)*rng.uniform(2,13)+rng.normal(0,6)
-            r=rng.uniform(.5,2.5);alpha=int(rng.uniform(70,230))
+            r=rng.uniform(1.5,4.5);alpha=int(rng.uniform(125,255))
             d.ellipse((ox+px-r,oy+py-r*.55,ox+px+r,oy+py+r*.55),fill=(202,205,181,alpha))
     for j in range(8):
         ox=j%4*128;oy=256+j//4*128
@@ -85,10 +87,11 @@ def generate(folder=Path('textures/checkpoint')):
     # Several wind/current wave trains, with different phases and scales.
     # Integer modes tile exactly without a dominant regular comb.
     rng=np.random.default_rng(381);h=np.zeros((n,n))
-    for i in range(18):
-        kx=int(rng.integers(3,54));ky=int(rng.integers(-24,25))
+    for i in range(24):
+        kx=int(rng.integers(3,36));ky=int(rng.integers(-36,37))
         amplitude=.0007/(1+math.hypot(kx,ky)/18)
-        h+=amplitude*np.sin(2*np.pi*(kx*x+ky*y)+rng.uniform(0,6.28)+.6*np.sin(2*np.pi*(x*2+y*3)+i))
+        phase=1.4*np.sin(2*np.pi*(x*2+y*3)+i)+.5*np.sin(2*np.pi*(y*5-x*3)+i*.73)
+        h+=amplitude*np.sin(2*np.pi*(kx*x+ky*y)+rng.uniform(0,6.28)+phase)
     dy,dx=np.gradient(h,2/n);normal=np.stack((-dx,-dy,np.ones_like(dx)),axis=2)
     normal/=np.linalg.norm(normal,axis=2)[:,:,None]
     Image.fromarray(np.uint8((normal*.5+.5)*255)).save(folder/'T_RiverWater_Normal.png')

@@ -38,6 +38,8 @@ def palette(repo):
         G.M[role]=tiling.material(key,repo/'freeway/textures/ship',tint=True)
     bank=tiling.material('RiverBank',Path('textures/checkpoint'),tint=True)
     bank.use_backface_culling=False;G.M['bank']=bank
+    # Quarry faces use the existing fine mineral field, never the bed's clasts.
+    G.M['riprap']=G.M['bridge_concrete'].copy();G.M['riprap'].name='River_quarry_stone'
     for role,color in [('paint_yellow',(.9,.66,.08)),('paint_white',(1,1,1))]:
         ma=tiling.material('GroundTrim',repo/'ground/textures/ship',alpha=True,tint=False)
         ma.name='River_'+role
@@ -69,17 +71,17 @@ def palette(repo):
     mix=nodes.new('ShaderNodeMixRGB');mix.blend_type='MULTIPLY';mix.inputs[0].default_value=1
     links.new(image.outputs['Color'],mix.inputs[1]);links.new(vc.outputs['Color'],mix.inputs[2]);links.new(mix.outputs[0],bs.inputs['Base Color'])
     G.M['maintenance']=maintenance
-    water=plain('River_water',(.49,.48,.26),.075)
+    water=plain('River_water',(.92,.94,.82),.14)
     b=water.node_tree.nodes.get('Principled BSDF');b.inputs['Transmission Weight'].default_value=1
     b.inputs['IOR'].default_value=1.333
     tex=water.node_tree.nodes.new('ShaderNodeTexImage')
     tex.image=bpy.data.images.load(str(Path('textures/checkpoint/T_RiverWater_Normal.png').resolve()),check_existing=True);tex.image.colorspace_settings.name='Non-Color'
-    nm=water.node_tree.nodes.new('ShaderNodeNormalMap');nm.inputs['Strength'].default_value=.5
+    nm=water.node_tree.nodes.new('ShaderNodeNormalMap');nm.inputs['Strength'].default_value=1.2
     water.node_tree.links.new(tex.outputs['Color'],nm.inputs['Color']);water.node_tree.links.new(nm.outputs['Normal'],b.inputs['Normal'])
     water['river_volume_color']=[.48,.45,.19];water['river_volume_density']=1.55
-    water['river_scatter_color']=[.24,.24,.075];water['river_scatter_density']=.65;water['river_scatter_anisotropy']=.20
+    water['river_scatter_color']=[.70,.80,.35];water['river_scatter_density']=2.;water['river_scatter_anisotropy']=.20
     water['river_flow_attribute']='_FLOW';G.M['water']=water
     water['river_flow_speed_range']=[.15,1.15]
-    water['river_flow_normal_range']=[.12,1.15]
-    water['river_flow_roughness_range']=[.065,.23]
+    water['river_flow_normal_range']=[.35,3.2]
+    water['river_flow_roughness_range']=[.085,.30]
     volume_from_extras(water)

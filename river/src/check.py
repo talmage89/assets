@@ -123,9 +123,10 @@ def construction(seed):
     bed=next(o for o in obs if o.name=='BedBanksFloodplain');tree=bvh(bed);water=next(o for o in obs if o.name=='WaterSurface')
     rail_gaps=[]
     for rail in [o for o in obs if o.type=='MESH' and o.name.startswith('ApproachRail_')]:
-        points=[rail.matrix_world@v.co for v in rail.data.vertices];bottom=min(p.z for p in points)
+        tips=rail.data.attributes.get('_GROUND_TIP');assert tips is not None,('No post-tip semantics',rail.name)
+        points=[rail.matrix_world@v.co for v,tag in zip(rail.data.vertices,tips.data) if tag.value>.5]
+        assert len(points)>=12,('Incomplete post tips',rail.name,len(points))
         for point in points:
-            if point.z>bottom+1e-5:continue
             soil=tree.ray_cast(point+Vector((0,0,1)),Vector((0,0,-1)),2)[0]
             assert soil is not None,('Guardrail post has no soil',rail.name,tuple(point))
             rail_gaps.append(point.z-soil.z)

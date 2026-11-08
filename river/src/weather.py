@@ -14,6 +14,12 @@ def chart(k):
             ((x+128)/512-.002,1-y/512-.002),(x/512+.002,1-y/512-.002)]
 
 
+def wet_chart():
+    # Runoff originates at the top; algae originates at the water. Reversing
+    # this chart makes the wet band fade upward instead of ending in blocks.
+    return [(u,1.75-v) for u,v in chart(0)]
+
+
 def add(p,parent):
     rng=random.Random(940+p.seed);b=G.Batch('TextureDrivenBridgeAge',parent,'bridge')
     bottom=p.deck_z-.32-1.143;seat=bottom-.30;outer=p.deck_width/2-.95
@@ -64,11 +70,11 @@ def add(p,parent):
             for cy in (-p.deck_width*.29,0,p.deck_width*.29):
                 for k in range(32):
                     t=k*math.tau/32;c=(k+1)*math.tau/32
-                    lo=-.03;hi=rng.uniform(.25,.46)
-                    vs=[(x+.602*math.cos(a),cy+.602*math.sin(a),z) for a,z in ((t,lo),(c,lo),(c,hi),(t,hi))]
-                    uv=chart(0);u0=.502+.246*k/32;u1=.502+.246*(k+1)/32
+                    lo=-.03;hi=lambda a:.35+.035*math.sin(a*3+cy)+.025*math.sin(a*7)
+                    vs=[(x+.602*math.cos(a),cy+.602*math.sin(a),z) for a,z in ((t,lo),(c,lo),(c,hi(c)),(t,hi(t)))]
+                    uv=wet_chart();u0=.502+.246*k/32;u1=.502+.246*(k+1)/32
                     uv=[(u0,uv[0][1]),(u1,uv[1][1]),(u1,uv[2][1]),(u0,uv[3][1])]
-                    b.geom(vs,[(0,1,2,3)],'maintenance',(.46,.58,.29,1),uv=uv)
+                    b.geom(vs,[(0,1,2,3)],'maintenance',(.40,.58,.22,1),uv=uv)
                 for k in range(5):
                     # Joint runoff on the front quadrant of the cylinder.
                     t=(22+k)*math.tau/32;c=t+math.tau/32
@@ -96,7 +102,7 @@ def add(p,parent):
                 if hi<=lo:continue
                 normal=stem.matrix_world.to_3x3()@face.normal
                 vs=[(xx+normal.x*.002,yy+normal.y*.002,z) for (xx,yy),z in ((xy[0],lo),(xy[1],lo),(xy[1],hi),(xy[0],hi))]
-                b.geom(vs,[(0,1,2,3)],'maintenance',(.44,.54,.30,1),uv=chart(0))
+                b.geom(vs,[(0,1,2,3)],'maintenance',(.40,.58,.22,1),uv=wet_chart())
         # Cup-like mud nests at protected girder/cap junctions, no floating
         # balls: flattened backs intersect their supporting soffits.
         for k in range(6):
@@ -114,7 +120,7 @@ def add(p,parent):
             for yy,z in ((a,p.water_z(a)-.03),(c,p.water_z(c)-.03),(c,p.water_z(c)+hi),(a,p.water_z(a)+hi)):
                 pts.append((p.center(yy)+side*(p.halfwidth(yy)+.998),yy,z))
             u0=.502+.246*(j%4)/4;u1=u0+.246/4
-            walls.geom(pts,[(0,1,2,3)],'maintenance',(.44,.58,.30,1),uv=[(u0,.752),(u1,.752),(u1,.998),(u0,.998)])
+            walls.geom(pts,[(0,1,2,3)],'maintenance',(.40,.58,.22,1),uv=[(u0,.998),(u1,.998),(u1,.752),(u0,.752)])
         for y in (-33,59):
             pts=[(p.center(yy)+side*(p.halfwidth(yy)+.997),yy,z)
                  for yy,z in ((y-.8,-.02),(y+.8,-.02),(y+.8,.62),(y-.8,.62))]

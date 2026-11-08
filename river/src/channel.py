@@ -11,7 +11,7 @@ BED_TREE=None
 
 def water_surface(p,x,y):
     u=(x-p.center(y))/p.halfwidth(y)
-    return p.water_z(y)+.018*math.sin(x*1.8+y*2.0)*math.exp(-((y-p.riffle_y)/5.5)**2)*max(0,1-u*u)
+    return p.water_z(y)+.040*math.sin(x*1.8+y*2.0)*math.exp(-((y-p.riffle_y)/5.5)**2)*max(0,1-u*u)
 
 
 def water_normal(p,x,y):
@@ -27,7 +27,7 @@ def surface_z(p,x,y):
     return p.bed(x,y)
 
 
-def stone(b,x,y,z,r,rng,role='bank'):
+def stone(b,x,y,z,r,rng,role='riprap'):
     # Low-silhouette angular riprap, individual seating determined by terrain.
     n=5 if r<.22 else 6;phase=rng.random()*6.28;sx=rng.uniform(.8,1.3);sy=rng.uniform(.7,1.2)
     base=[(x+sx*r*math.cos(i*math.tau/n+phase),y+sy*r*math.sin(i*math.tau/n+phase),z-r*.22) for i in range(n)]
@@ -38,6 +38,7 @@ def stone(b,x,y,z,r,rng,role='bank'):
         seated=[]
         for vx,vy,vz in base:
             hit=BED_TREE.ray_cast(Vector((vx,vy,100)),Vector((0,0,-1)),120)[0]
+            if hit is None or abs(hit.z-(z-.04))>r*1.05:return
             seated.append((vx,vy,min(vz,hit.z-.025) if hit is not None else vz))
         base=seated
     v=rng.uniform(.60,1.05);color=(v,v,v*.96,1)
@@ -167,7 +168,7 @@ def water(p,parent):
     ob=b.finish()
     flow=ob.data.attributes.new('_FLOW',type='FLOAT_VECTOR',domain='POINT')
     for v,a in zip(ob.data.vertices,flow.data):
-        tx,ty=p.tangent(v.co.y);speed=p.speed(v.co.x,v.co.y);a.vector=(tx*speed,ty*speed,max(0,p.water_z(v.co.y)-surface_z(p,v.co.x,v.co.y)))
+        vx,vy=p.flow(v.co.x,v.co.y);a.vector=(vx,vy,max(0,p.water_z(v.co.y)-surface_z(p,v.co.x,v.co.y)))
     # A real closed bottom/edge shell makes absorption scale with actual depth.
     volume=G.Batch('WaterVolumeClosure',parent,'water')
     def bottom(v):
@@ -189,12 +190,12 @@ def water(p,parent):
     bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free();ob.data.update()
     flow=ob.data.attributes.get('_FLOW')
     for v,a in zip(ob.data.vertices,flow.data):
-        tx,ty=p.tangent(v.co.y);speed=p.speed(v.co.x,v.co.y)
-        a.vector=(tx*speed,ty*speed,max(0,p.water_z(v.co.y)-surface_z(p,v.co.x,v.co.y)))
+        vx,vy=p.flow(v.co.x,v.co.y)
+        a.vector=(vx,vy,max(0,p.water_z(v.co.y)-surface_z(p,v.co.x,v.co.y)))
     foam=G.Batch('RiffleBrokenFoam',parent,'water');rng=random.Random(p.seed+31)
     for j in range(950):
-        y=rng.gauss(p.riffle_y,3.5);l,r=p.water_edges(y);x=rng.uniform(l+.7,r-.7)
-        length=rng.uniform(.12,.85);w=rng.uniform(.016,.10)
+        y=rng.gauss(p.riffle_y,2.7);l,r=p.water_edges(y);x=rng.uniform(l+.7,r-.7)
+        length=rng.uniform(.30,1.20);w=rng.uniform(.08,.25)
         coords=[(x-length/2,y),(x+length/2,y+.06),(x+length*.30,y+.06+w),(x-length*.4,y+w)]
         uv=foam_chart(j%4)
         foam.geom([(xx,yy,water_surface(p,xx,yy)+.003) for xx,yy in coords],[(0,1,2,3)],'foam',uv=uv)

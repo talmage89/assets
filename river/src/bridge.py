@@ -3,6 +3,7 @@
 The smaller section is from FDOT 20130. Local +X is bridge station.
 """
 import math
+import bpy
 import geometry as G
 from plan import FT
 import freeway_bridge as shared
@@ -165,6 +166,21 @@ def assemble(p,parent):
             ob.location=(s*(p.length/2+4),side*(p.deck_width/2-.20),p.deck_z-.02*3.3528-.008)
             ob.scale.x=s
             ob.scale.y=side
+    # Preserve the native rail profile and top datum. Only the buried post
+    # tips follow actual triangulated soil, which differs from an analytic
+    # bank formula near a retaining-wall transition.
+    from channel import surface_z
+    bpy.context.view_layer.update()
+    for root in [o for o in rt.children if o.name.startswith('ApproachRail_')]:
+        for ob in G.descendants(root):
+            if ob.type!='MESH':continue
+            low=min(v.co.z for v in ob.data.vertices);inv=ob.matrix_world.inverted()
+            tips=ob.data.attributes.new('_GROUND_TIP',type='FLOAT',domain='POINT')
+            for v,tag in zip(ob.data.vertices,tips.data):
+                if abs(v.co.z-low)>1e-5:continue
+                world=ob.matrix_world@v.co;world.z=surface_z(p,world.x,world.y)-.005
+                v.co=inv@world;tag.value=1
+            ob.data.update()
     if p.kind=='downtown':
         plinths=Batch('ParapetLightPedestals',rt)
         for side in (-1,1):
