@@ -777,3 +777,31 @@ the separate source/import equality checks establish serialization only.
 All 69 CPU manufacture/calibration products independently repeat byte for byte.
 This checkpoint does not approve the appearance or the gallery.
 
+## Round 4, pass 2: six exported views (rejected)
+
+Color and value: opened all six native 1000px pass-2 renders: the new 101
+hero, retained hero camera, road view, pier/girders and barrier, plus 202 hero.
+Against the same concrete-neutral 2002 aerial and 2008 bridge, the grass cards
+are still too yellow and bright relative to their base. Dense opaque fans
+make cabbage-like patches; random tile/root positions leave dark islands.
+The compressed base loses too much of the native blade contrast. The 202
+median has a particularly clear smooth strip beside its clumps. This is still
+CG grass, even though the old faceted lighting is gone. No gallery approval.
+
+The new 50mm/2.6 101 composition does reduce the foreground to a band and
+retains the signal queue, gas canopy, storefronts, bridge and freeway. Keep
+that camera. Wheel paths, lane-center oil and panel joints read in the road
+view, with the native-grain replacement slab. Column shafts remain broad,
+nearly clean gradients below the accepted cap streams. The barrier toe is
+darker, but its end-joint deposit is too faint. Their vertex masks alone do
+not supply the fine connected flow visible in the bridge photograph.
+
+Corrections: thinner 90-blade fans, closer pigment to the base, 64 stratified
+roots per tile, restrained tile jitter and upward blade normals; restore more
+native blade luminance contrast. Shrink paving exclusion to the actual card
+footprint. Add the existing runoff chart continuously around each real column
+ring, beginning under the cap, and deepen end-joint grime. The new column skin
+follows the original 32-sided shaft, offset .6mm; it allocates no new image.
+Town/car repetition, broad road-field regularity and uniform concrete grain
+remain other CG cues. Final-size inspection and new crops are still pending.
+

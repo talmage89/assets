@@ -40,28 +40,32 @@ def plant(p,parent):
  templates=[]
  for pattern in range(8):
   b=Q.Batch('Grass clump tile %02d'%pattern)
-  for j in range(32):
-   x=rng.uniform(-.65,.65);y=rng.uniform(-.65,.65);h=rng.uniform(.10,.23)
-   shade=1 if pattern<4 else .88
-   tint=(rng.uniform(.78,1)*shade,rng.uniform(.83,1)*shade,rng.uniform(.65,.87)*shade,1)
+  for j in range(64):
+   # Stratified roots and restrained tile jitter avoid bare islands between
+   # opaque fan silhouettes. Density belongs to the sward, not each fan.
+   x=(j%8-3.5)*.16+rng.uniform(-.045,.045)
+   y=(j//8-3.5)*.16+rng.uniform(-.045,.045);h=rng.uniform(.12,.22)
+   shade=1 if pattern<4 else .93
+   tint=tuple(rng.uniform(.91,1)*shade for _ in range(3))+(1,)
    for angle in (rng.uniform(0,math.pi),rng.uniform(math.pi,math.tau)):
-    d=Vector((math.cos(angle),math.sin(angle),0))*.16;v=Vector((x,y,0))
+    d=Vector((math.cos(angle),math.sin(angle),0))*.14;v=Vector((x,y,0))
     pts=[v-d,v+d,v+d+Vector((.035,0,h)),v-d+Vector((.035,0,h))]
-    u0,v0,u1,v1=rect('weed');b.face(pts,'GrassCard',uv=[(u0,v0),(u1,v0),(u1,v1),(u0,v1)],tint=tint)
+    u0,v0,u1,v1=rect('weed')
+    b.face(pts,'GrassCard',uv=[(u0,v0),(u1,v0),(u1,v1),(u0,v1)],tint=tint,normals=[(0,0,1)]*4)
   ob=b.finish();templates.append(ob)
  # A high-density inspected area fades over 120m into the textured base.
  # No geometry is spent in distant lots or beyond the principal corridor.
  for sindex in range(-140,161):
-  s=sindex*1.30+rng.uniform(-.45,.45)
+  s=sindex*1.30+rng.uniform(-.18,.18)
   for uindex in range(-65,66):
-   u=uindex*1.30+rng.uniform(-.45,.45)
+   u=uindex*1.30+rng.uniform(-.18,.18)
    if p.kind=='diamond' and abs(u)<p.edge+.5:continue
    if p.kind=='soundwall' and not (abs(u)<p.median/2-.35 or p.edge+.5<abs(u)<30):continue
    dist=abs(s+35);density=max(0,min(1,(190-dist)/90))
    if rng.random()>density:continue
    x,y,_=p.xyz(s,u);q,normal,_,_=soil.ray_cast(Vector((x,y,30)),Vector((0,0,-1)),60)
    if q is None:continue
-   probes=((0,0),(1.1,0),(-1.1,0),(0,1.1),(0,-1.1),(.9,.9),(.9,-.9),(-.9,.9),(-.9,-.9))
+   probes=((0,0),(.82,0),(-.82,0),(0,.82),(0,-.82),(.65,.65),(.65,-.65),(-.65,.65),(-.65,-.65))
    if any(paving.ray_cast(Vector((x+dx,y+dy,30)),Vector((0,0,-1)),60)[0] is not None for dx,dy in probes):continue
    limit=43 if p.kind=='diamond' else 28
    tall=abs(u)>limit
@@ -76,7 +80,7 @@ def plant(p,parent):
    # A linked tile is planar at its roots. At a ditch/crest crease, lower it
    # onto the measured earth rather than leaving its downhill edge floating.
    gaps=[]
-   for dx,dy in ((-.9,-.9),(-.9,.9),(.9,-.9),(.9,.9)):
+   for dx,dy in ((-.75,-.75),(-.75,.75),(.75,-.75),(.75,.75)):
     v=ob.location+ob.rotation_quaternion@Vector((dx,dy,0))
     hit=soil.ray_cast(Vector((v.x,v.y,30)),Vector((0,0,-1)),60)[0]
     if hit is not None:gaps.append(v.z-hit.z)

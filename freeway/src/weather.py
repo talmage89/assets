@@ -125,8 +125,8 @@ def construction(root):
                 if root.get('module_kind')=='barrier':
                     # Water enters the actual open end joints and collects
                     # road film toward the toe. Ends retain different phases.
-                    joint=math.exp(-((3.048-abs(v.y))/.22)**2)
-                    value-=joint*(.12+.17*math.exp(-max(0,v.z)/.6))
+                    joint=math.exp(-((3.048-abs(v.y))/.33)**2)
+                    value-=joint*(.46+.17*math.exp(-max(0,v.z)/.6))
                 if ma==Q.M['Steel'] and root.get('module_kind')=='guardrail':
                     value=1.0 if ob.get('maintenance') else .86
                 if root.get('module_kind')=='bridge' and ob.parent and ob.parent.get('module_kind')=='bridge_girder':
@@ -215,5 +215,7 @@ def construction(root):
                 # These older formed repairs have weathered with the shaft;
                 # their slight mix change must not become a white patch stamp.
                 value=tint(Vector(b.v[k]));b.colors[k]=tuple(min(1,v*1.08) for v in value[:3])+(1,)
+    from column_deposits import add
+    add(b)
     b.finish()
     root['bridge_weather_complete']=True

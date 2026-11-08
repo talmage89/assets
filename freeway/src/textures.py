@@ -75,11 +75,11 @@ def maintenance(size):
   elif name=='weed':
    # Rooted fan: each crossed card contains a complete multi-blade clump.
    # This chart was unused by the old individual polygon stems.
-   for j in range(360):
+   for j in range(90):
     x=rng.uniform(w*.18,w*.82);base=w-g-1;y=rng.uniform(w*.23,w*.76)
     lean=rng.uniform(-.30,.30)*w;ww=rng.uniform(.002,.006)*w
     green=rng.uniform(.72,1.15)
-    color=(int(102*green),int(118*green),int(53*green),255)
+    color=(int(98*green),int(111*green),int(64*green),255)
     d.polygon([(x-ww,base),(x+ww,base),(x+lean*.5+ww*.25,(base+y)/2),(x+lean,y),(x+lean*.5-ww*.25,(base+y)/2)],fill=color)
     if j%61==0:
      tip=y-w*.12;d.line([(x,base),(x+lean,tip)],fill=(146,137,78,255),width=max(1,w//220))

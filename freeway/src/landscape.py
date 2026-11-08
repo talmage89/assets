@@ -20,7 +20,7 @@ def field():
  # Keep the fine authored blade values, but compress the native soil/weed
  # contrast. Independent channel normalization turned soil into yellow camo.
  luminance=rgb@np.array([.2126,.7152,.0722],np.float32)
- fine=np.clip((luminance/np.median(luminance))**.35,.78,1.24)
+ fine=np.clip((luminance/np.median(luminance))**.80,.55,1.55)
  rng=np.random.default_rng(381);size=rgb.shape[0]
  def noise(n):
   a=rng.random((n,n),dtype=np.float32)
