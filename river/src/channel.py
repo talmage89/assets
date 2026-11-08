@@ -43,6 +43,7 @@ def terrain(p,parent):
     for side in (-1,1):
         for i in range(460):
             x=side*rng.uniform(p.width*.40,p.length/2+3.0);y=rng.uniform(-9,9)
+            if abs(x)>p.length/2-.8 and abs(y)<7:continue
             z=p.bed(x,y);stone(rocks,x,y,z+.04,rng.uniform(.16,.39),rng)
     for j in range(1,p.spans):
         xx=-p.length/2+j*p.span
@@ -74,7 +75,7 @@ def water(p,parent):
     vs=[v for row in rows for v in row]
     fs=[(i*(nx+1)+j,i*(nx+1)+j+1,(i+1)*(nx+1)+j+1,(i+1)*(nx+1)+j) for i in range(ny) for j in range(nx)]
     b.geom(vs,fs,'water',smooth=True);ob=b.finish()
-    flow=ob.data.attributes.new('Flow',type='FLOAT_VECTOR',domain='POINT')
+    flow=ob.data.attributes.new('_FLOW',type='FLOAT_VECTOR',domain='POINT')
     for v,a in zip(ob.data.vertices,flow.data):
         tx,ty=p.tangent(v.co.y);speed=p.speed(v.co.x,v.co.y);a.vector=(tx*speed,ty*speed,max(0,p.water_z(v.co.y)-p.bed(v.co.x,v.co.y)))
     # A real closed bottom/edge shell makes absorption scale with actual depth.

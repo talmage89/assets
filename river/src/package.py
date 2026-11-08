@@ -34,6 +34,9 @@ def externalize(source,dest):
             if target.exists() and target.read_bytes()!=data:target=local/(digest[:16]+'.png')
             if not target.exists():target.write_bytes(data)
         im.pop('mimeType',None);im['uri']=os.path.relpath(target.resolve(),dest.parent.resolve())
+    for ma in d.get('materials',[]):
+        if ma.get('name')=='River_paint_yellow':ma['pbrMetallicRoughness']['baseColorFactor']=[.9,.66,.08,1]
+        if ma.get('name')=='River_bank_cards':ma.update(alphaMode='MASK',alphaCutoff=.40)
     used=sorted({a['bufferView'] for a in d.get('accessors',[]) if 'bufferView' in a})
     binary=bytearray();views=[];mapping={}
     for old in used:

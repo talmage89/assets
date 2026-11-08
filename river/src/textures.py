@@ -5,7 +5,10 @@ Final high-source manufacture baking is deliberately deferred.
 """
 from pathlib import Path
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
 
 
 def generate(folder=Path('textures/checkpoint')):
@@ -40,7 +43,13 @@ def generate(folder=Path('textures/checkpoint')):
             pts=[(base,oy+126),(base+bend*.40,oy+126-h*.55),(base+bend,oy+126-h)]
             col=(int(rng.uniform(49,90)),int(rng.uniform(61,100)),int(rng.uniform(24,43)),255)
             d.line(pts,fill=col,width=int(rng.integers(1,4)))
-            if j>11 and k%5==0:d.line([pts[2],(pts[2][0]+1,pts[2][1]-14)],fill=(63,43,24,255),width=4)
+            if j in (2,3) and k%5==0:d.line([pts[2],(pts[2][0]+1,pts[2][1]-14)],fill=(63,43,24,255),width=4)
+    # Two tiny plaque legends reuse this same image, outside all plant charts.
+    font=find_font('DejaVu Sans','Book')
+    for y,year in ((0,1974),(60,1968)):
+        d.rectangle((0,y,255,y+55),fill=(47,49,44,255))
+        d.text((128,y+3),'CEDAR RUN',font=ImageFont.truetype(font,22),anchor='mt',fill=(186,184,159,255))
+        d.text((128,y+32),str(year)+'  COUNTY WORKS',font=ImageFont.truetype(font,12),anchor='mt',fill=(171,168,149,255))
     im.save(folder/'T_RiverPlants_BaseColor.png')
     n=512;y,x=np.mgrid[:n,:n]/n
     h=.0025*np.sin(2*np.pi*(x*11+y*4)+.8*np.sin(y*np.pi*6))

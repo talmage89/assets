@@ -52,6 +52,11 @@ def clear_templates():
 def add(p,parent):
     rt=G.root('TownContext',parent=parent);rng=random.Random(p.seed+97)
     native=REPO/'school/build/context'
+    # A few neutral 1.8m people are scale references, on the actual walk.
+    from kit.studio import human
+    for i,x in enumerate((-p.length/2-2,-8,16)):
+        person=G.root('WalkScalePerson_'+str(i),(x+1.03,-4.2672-.24,p.deck_z+.085344),rt)
+        for ob in human():ob.parent=person;ob['river_category']='context';ob.pop('studio',None)
     # Two actual original vehicle bodies, alternating direction and spaced by
     # weekday headways, plus the street behind the river. Static snapshot only.
     for i,x in enumerate(range(-106,115,17 if p.kind=='downtown' else 25)):
@@ -88,6 +93,12 @@ def add(p,parent):
             style='houses-ranch.glb' if i%2 else 'houses-cape.glb'
             instance(native/style,'Floodplain neighbor '+str(i),(x,y,2.20),rt,90 if x>0 else -90)
         instance(native/'furniture.glb','Fishing bench',(-25,34,2.15),rt,90,select='Bench')
+    signs=REPO/'street-signs/export/set/RoadSigns.gltf'
+    if signs.exists():
+        for side in (-1,1):
+            instance(signs,'Native 35mph approach sign '+str(side),
+                     (side*(p.length/2+18),-side*5.4,p.deck_z),rt,
+                     90 if side<0 else -90,select='RoadSign_speed35')
     # Only the delivered native RedMaple and PinOak species. Red maple near
     # water; oak on higher ground. No invented willow or generic new tree.
     veg=G.root('NativeVegetation',parent=parent)

@@ -51,7 +51,7 @@ def fixtures(p,parent):
     if p.kind=='edge':
         # Small worn fishing landing and 12%-slope boat launch into shallow edge.
         y=33;x=p.center(y)-p.halfwidth(y)
-        b.geom([(x-7,y-2,2.10),(x-7,y+2,2.10),(x+.8,y+2,-.12),(x+.8,y-2,-.12)],[(0,1,2,3)],'concrete',(.66,.65,.58,1))
+        b.geom([(x-18,y-2,2.10),(x-18,y+2,2.10),(x+.8,y+2,-.12),(x+.8,y-2,-.12)],[(0,1,2,3)],'concrete',(.66,.65,.58,1))
         G.root('BoatLaunch',(x-5,y,1.55),rt,socket_kind='launch')
         G.root('FishingSpot',(x-2,y+5,.65),rt,socket_kind='fishing')
     b.finish();G.path('RiverbankTrail',trail,rt,'walk')
@@ -71,7 +71,7 @@ def plants(p,parent):
         if math.sin(y*.13+u*19)+math.sin(y*.33-u*8)<-.9:continue
         reed=z<.65 and i%3==0;h=rng.uniform(.55,1.15) if reed else rng.uniform(.15,.45)
         w=h*rng.uniform(.55,1.05);yaw=rng.uniform(0,6.28);dx=math.cos(yaw)*w/2;dy=math.sin(yaw)*w/2
-        k=rng.randrange(12,16) if reed else rng.randrange(12);a=(k%4)/4;c=(k//4)/4
+        k=rng.randrange(14,16) if reed else rng.randrange(12);a=(k%4)/4;c=(k//4)/4
         uv=[(a+.002,c+.002),(a+.248,c+.002),(a+.248,c+.248),(a+.002,c+.248)]
         b.geom([(x-dx,y-dy,z-.02),(x+dx,y+dy,z-.02),(x+dx+.09,y+dy,z+h),(x-dx+.09,y-dy,z+h)],[(0,1,2,3)],'plants',uv=uv)
     b.finish()

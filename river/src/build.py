@@ -11,6 +11,8 @@ import geometry as G
 import materials
 import bridge
 import channel
+import age
+import plaques
 import site as builtin_site
 import importlib.util
 # Python already owns `site`; keep this asset module out of that namespace.
@@ -58,7 +60,8 @@ def crossing(seed):
     bpy.ops.wm.read_factory_settings(use_empty=True);G.M.clear();materials.palette(REPO)
     p=generate(seed);rt=G.root('Crossing_'+str(seed),plan=p.data(),checkpoint='form / quick materials')
     reach=channel.terrain(p,rt);channel.water(p,reach)
-    bridge.assemble(p,rt);site.road(p,rt);site.fixtures(p,rt);site.plants(p,rt)
+    br=bridge.assemble(p,rt);plaques.add(p,br)
+    site.road(p,rt);site.fixtures(p,rt);site.plants(p,rt);age.add(p,rt)
     context.add(p,rt);context.clear_templates()
     # Curves also remain natively editable in the construction scene. Export
     # sockets carry the same sampled paths in extras for stock glTF consumers.
