@@ -38,3 +38,26 @@ measurements extracted from unsurveyed garden photographs.
 Rejected local comparison `common.jpg`: Mike Love, 11 May 2008, CC BY 2.0,
 https://upload.wikimedia.org/wikipedia/commons/a/a0/2008_All_in_Common_community_garden_SanFrancisco_2484449855.jpg .
 Shows ornamental bamboo rather than midsummer food plots; excluded from pairs.
+
+Look-dev plant photographs and additional period summer garden (comparison only):
+
+| File | URL | Author / rights | Use |
+| --- | --- | --- | --- |
+| tomato.jpg | https://extension.umn.edu/sites/extension.umn.edu/files/Solanum-lycopersicum-big-beef-form1-%281%29.jpg | University of Minnesota Extension; individual photographer unspecified on article; copyright retained, local reference only | Dense indeterminate plant; compound drooping leaves, low yellowing, green and ripe fruit. No pixels used in atlas. |
+| squash.jpg | https://extension.umn.edu/sites/extension.umn.edu/files/DSC_8483.JPG | University of Minnesota Extension; photographer unspecified; copyright retained, local reference only | Zucchini mound, silver palmate venation, hollow petioles and flowers under canopy. |
+| bean.jpg | https://extension.umn.edu/sites/extension.umn.edu/files/mg-i5a9543.jpg | University of Minnesota Extension; photographer unspecified; copyright retained, local reference only | Trifoliate leaves, lower senescence and pendant pods. This is a morphology close-up, not a surveyed whole pole-bean habit. |
+| cityhall.jpg | https://upload.wikimedia.org/wikipedia/commons/8/84/Community_garden_at_City_Hall_%284825357400%29.jpg?download=1 | Ruth Hartnup, 18 July 2010, CC BY 2.0 | Third midsummer garden comparison: overlapping crops, silvered wood, shaded soil, irregular canopy against dark trees. |
+| corn.jpg | https://upload.wikimedia.org/wikipedia/commons/a/a4/-2020-07-17_Flowering_Sweet_corn_%28Zea_mays%29_plant%2C_Trimingham%2C_Norfolk.JPG?download=1 | Kolforn (Wikimedia), 17 July 2020, CC BY-SA 4.0 with attribution permission | Modern botanical close-up only: broad curling leaves, longitudinal veins, tassel emergence. Not period-site evidence. |
+| marigold.jpg | https://eit-planttoolbox-prod.s3.amazonaws.com/media/images/tagetes_spp_TANAKA_Juuyoh_ccby20.jpg | Tanaka Juuyoh, CC BY 2.0, via NC Extension Plant Toolbox | Compact plant-form masses and visible flowers. Genus-level planting, not a cultivar replica. |
+
+UMN article pages: [tomatoes](https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-tomatoes),
+[squash](https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-summer-squash-and-zucchini),
+[beans](https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-beans),
+[corn](https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-sweet-corn).
+[City Hall description and license](https://commons.wikimedia.org/wiki/File:Community_garden_at_City_Hall_(4825357400).jpg).
+The indeterminate tomato revision supersedes the earlier register's smaller determinate habit.
+
+Text uses the installed Noto Sans Regular through `kit/fonts.py`. Its embedded
+font metadata credits the Noto Project Authors (2022) and identifies the
+[SIL Open Font License 1.1](https://scripts.sil.org/OFL). No font file is bundled.
+All names, signs and the painted shed motif are original and fictional.

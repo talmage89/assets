@@ -273,3 +273,324 @@ fallow, and all five states are asserted on the imported gardens. A pure plan
 audit also retains all five across 300 seeds. This reduces the park garden to
 214,898 triangles without removing its mature staple crops. The changed
 exports and all checkpoint views are rebuilt before handoff.
+
+## Look-dev pass 1 — recover the midsummer mass before polishing
+
+Color/value first: opened the 1000px exported heroes, overheads and tomato,
+bean and squash details in `renders/lookdev-pass-1/`, against the Martin Drive,
+WiseWords and additional July 2010 City Hall photographs. Also opened UMN's
+indeterminate tomato, zucchini and bean photographs, the corn tassel close-up
+and NC Extension's marigold planting. Martin's light siding and WiseWords'
+gray stucco remain the assumed neutrals. The new City Hall comparator uses the
+near bed's gray cap; plant-photo neutrals and their limitations are recorded
+with the next comparison set. No reference pixels enter an asset texture.
+
+The first new export has real foliage overlap, a much taller corn stand, closed
+bean foliage on the teepee, a wider squash mound and dense lettuce rows. The
+same plot sizes, positions, care states, pivots and accessible clearances stay.
+Density now comes from planted rows reaching the plot edges, not enlarged
+plot geometry. High specimens keep curved leaf grids; ordinary field plants
+retain their leaves with fewer hidden petiole/fruit sections. First park count
+259,508 exceeded the cap: reduced field sections, then got 223,148. Further
+mulch simplification is required to retain the previously accepted budget.
+
+Harsh findings, fixed for pass 2:
+
+- Shade in the tomato and bean is nearly black, hiding the material range.
+  Double the procedural sky fill without raising exposure or the sun. Keep
+  soil/cavity contact shadows, and check the next exported images numerically.
+- Zucchini is a clean dark scalloped cutout. Strengthen silver mottling along
+  the primary vein axils, with broken patches, and restore the high specimen's
+  finer curved grid. The single 1K plant set remains unchanged in allocation.
+- Fallow beds are visibly still brown soil: the soil-to-straw material change
+  left their UVs pointing at the soil tile. Reproject those faces to straw.
+- The shed roof shows wood knots. Native low roof courses had a default wood
+  material; classify the upward roof-course faces and assign roofing.
+- All shed variants became blue because instance material edits shared mesh
+  data. Copy that private mesh before changing site finishes. City gets the
+  painted mural shed/reclaimed painted bins, park weathered unpainted wood,
+  newer site green paint and newer bin boards. Native deliveries stay read-only.
+- The gravel reads like tiny dunes. Reduce its macro height and color wave;
+  keep fine granular normals. Wood knots also need a quieter relief signal.
+- Park framing loses its adjacent building and exposes an empty horizon.
+  Move the existing side neighbor nearer the lot edge and add native trees at
+  the park boundary; re-aim from the open gate. No plots or routes move.
+- Bean and squash detail cameras crop away too much construction. Pull back
+  to show the full support and plant mound, maintaining the real scale.
+
+This pass is a diagnostic, not accepted look-dev. The foliage is fuller but
+still regularly spaced and the first opaque palette has too many materials.
+Consolidate identical atlas swatches into one stock glTF PBR material before
+the next export; the botanical color/alpha atlas remains a separate material.
+
+## Look-dev pass 2 — inspect the baked charts and the photographic pairs
+
+Color/value first: viewed the second exported batch, its three midsummer pairs,
+and the five plant specimens. Fallow straw is now golden-gray instead of brown
+soil; roofing is dark; faded blue/wood/green finishes distinguish the sites.
+The three new opaque maps share one 2K atlas, rather than multiplying memory
+by swatch. Direct garden allocations are 24 MiB city / 40 MiB other sites,
+including the unchanged 4 MiB plant set, 4 MiB wire field and existing lawn.
+The leaf values remain too dark under the raking sun relative to UMN's tomato
+photograph. Lettuce is too yellow. Correct species albedos, keeping the existing
+sun/exposure and actual shaded cavities. The squash's silver marks are obvious
+but repeat as stripes; replace the sinusoidal breakup with seeded small patches
+beside its five primary veins. Healthy blades should not all carry identical
+bites: put those on the sparse older lower blades only.
+
+WiseWords still exposes too much of the soil beneath a regular crown. Each
+mature tomato now receives supported daughter branchlet cards, with nine
+script-generated leaflets apiece, overlapping the modeled compounds; this
+adds mass in the shrub/tree manner without paying for hundreds more petioles.
+Close the bare growing tips with small terminal leaves. Keep each plant below
+the accepted 4.6k ceiling. Add compact marigold borders among low crops, using
+original alpha flower heads on field specimens and geometry on the hero plant;
+these use spare cells in the same plant atlas. The photograph has mixed crops
+and colorful painted beds; this is a growth/coverage comparison, not a replica.
+
+The third pair (City Hall, July 2010) exposed a bad camera constraint: its bed
+ends are out of frame. The first fit's RMS is 107.8px and its roll is implausible.
+Do not call it a strong photo match. Retain that failed image in this pass and
+replace the framing constraints before the final comparison. Martin's sign
+fit remains 5.8px and WiseWords' bed fit 14.7px, but the regular tenant plots,
+chain-link and large lawn alleys intentionally differ from Martin's intimate
+flower garden. The additional border flowers address some of the missing
+midsummer presence without changing the accepted plan.
+
+The raw UV audit also rejects collapsed charts on elevated boards, marker
+caps and imported shed parts. The ground-height clamp was flattening some
+charts above .38m. Repair each collapsed chart in the face's geometric plane;
+verify exported triangles, not only the source layer. The chips are still too
+large and uniformly warm, and the compost heap reads as an undifferentiated
+mound. Reduce chip sizes, mix weathered gray fragments, preserve their normal
+relief and rejudge the final infrastructure details. Move the mural to the
+fixed side siding so it cannot float in front of a moving door.
+
+The plant maps are analytic at 4K and filtered to 1K; the opaque swatches are
+Cycles-baked at 4K and filtered to 2K. The prototype high mesh is not substituted
+for the exported field geometry in garden renders. The three camera-matched
+old-view comparisons remain required in addition to the new open-gate heroes.
+
+## Look-dev pass 3 — reject the small export losses
+
+Color/value first: inspected the 1200px third-pass city set and the park hero,
+overhead, old camera, corner, tomato, bean, compost and water views, against the
+same balanced photographs. The additional fill and species changes recover green
+variation without lifting the deep soil and under-canopy shadows. Silvered boards
+and darker ground-contact posts now separate from replacement tan slats; golden
+fallow straw, dark watering basins and chip paths read from the garden frame.
+The park now has a full stand of beans on five supports rather than a tiny
+isolated trellis in a largely empty tenant plot. Its adjacent house and edge trees
+also replace the repeated central house backdrop. The city blue shed/mural, chips
+and brick walls read differently from the park's wood shed, grass and large plots.
+
+The foliage comparison still catches artificial construction. Some tomato
+leaflets floated a few centimetres off the rachis after fine petiole removal.
+Seat the retained blade bases directly on the rachis; do the same for the three
+bean leaflets. Add the missing secondary pod pedicels on the detailed bean. This
+costs 72 triangles per garden and keeps the park below 215k. Independent rays
+now measure the actual exported stem-foot vertices against the receiving soil,
+in addition to the existing root-origin test. Neither this nor the export
+comparison proves photographic plant anatomy; the photographs remain the judge.
+
+The full-size squash photo has pointed palmate lobes, whereas the current
+scalloped outline reads like pumpkin. Sharpen those five lobes in the analytic
+alpha without adding geometry. Restrict old lettuce blades to the outer basal
+whorl so its young heart stays green. Vein-adjacent squash silvering is more
+credible than the previous stripes, but repeated texture outlines remain visible.
+The bean's regular vertical tiers and the marigold's neat flower rings are also
+still CG tells. Keep them explicit in the checkpoint assessment.
+
+The raw audit found that 4K-to-1K filtering erased the fine bird-net alpha below
+the .45 cutout threshold. Conservatively cover the source pixels: 23.44% of the
+net cell now survives the shipping threshold, rather than silently losing the
+net. Compost clippings also lost their chart when a BakeUV layer was joined to
+UVMap; normalize that layer name before the join. Every shipped geometric UV
+triangle is now noncollapsed and opaque vertices stay within their reserved
+swatches. Shared tiling/card overlap is intentional, not a unique atlas unwrap.
+
+Replaced the unreliable City Hall bed-end constraints with the visible cage hoop.
+The new fit uses an inferred cage size, not surveyed dimensions: about 2.9px RMS
+at 1024px and a 28mm lens. It is useful for foliage coverage and construction,
+not proof that the fictional bed is the photographed bed. WiseWords and Martin
+remain approximately 14.7px and 5.8px respectively. All three are July garden
+photographs of the requested period; Oliver's installation view is retained only
+as earlier construction evidence. The final set repeats the old hero cameras
+for the before/after evidence, alongside unobstructed 35mm eye-height heroes.
+
+## Look-dev pass 4 — the garden must belong to a block
+
+Color/value first: opened all nine completed city views in the 1200px/40-sample
+batch (`renders/lookdev-pass-4/`). Straw, silver/tan lumber, pale blue paint and
+dark soil retain separate values under the same raking sun. Deep foliage shadows
+persist without a pale overall lift. The tomato detail now has overlapping
+compound blades and green/turning/red fruit with connected leaf bases. The
+exported marigold border is legible beside the bed corner. Chip fragments remain
+too graphic at very close range, and the compost still reads as a simple mound
+under its clippings. These are remaining material/form limitations, not resolved
+by the passing numerical checks.
+
+The open-gate city hero and repeated old camera exposed a larger composition
+failure: removing the shared central house left an empty straight green horizon
+behind the rear fence. Stop this intermediate batch and correct that context.
+Instance the existing brick apartment across the rear service alley, preserving
+the alley clearance, accepted garden plan and all native delivery bytes. This
+closes an urban block rather than reintroducing the same suburban house behind
+every garden. It adds presentation-context instances, not garden triangles or
+new image memory. Repackage and repeat the scene before rerendering the full set;
+no intermediate image is promoted into the final evidence folder.
+
+## Look-dev pass 5 — isolated specimens expose the remaining form errors
+
+Color/value first: opened the complete 1200px/40-sample set in
+`renders/lookdev-pass-5/`, including every garden view, both catalogues, the five
+isolated specimens and the three photographic pairs. The same assumed neutrals
+apply: WiseWords gray stucco, Martin's light siding and City Hall's gray board
+cap. The city/park/newer heroes have display-luma 5th/median/95th percentiles
+.013/.305/.690, .003/.302/.826 and .013/.321/.638 respectively, with zero clipped
+channels. These numbers demonstrate preserved shadows and highlight range, not
+photographic realism. The city now belongs to a brick block; the park has grass
+and broad stands beside trees/building; the later garden foreground shows an
+elevated tray and actual knee space. Before/after panes retain the old cameras.
+
+Reject the following remaining form problems before the next set:
+
+- The weedy squash detail reveals only one of the two intended plants. The old
+  random 20% crop omission could empty half a compact bed. Neglect must add weeds
+  around the planted vegetables, not randomly erase them. Keep the full crop
+  grid in weedy plots. Preserve all five care states and all accepted bed centers.
+- Pay for that density by replacing the six fine cylindrical axes of repeated
+  field herbs with tapered ribbons of their true width. Retain every leaf and
+  the hero prototype's modeled stems. Field herbs fall from 200 to 164 triangles;
+  the intermediate park count is 213,663 rather than exceeding 215k.
+- Tomato leaflets and daughter compounds are mostly edge-on at eye height. Their
+  nominal leaf count overstates visible coverage. Add droop, varied branchlet
+  pitch and roll, while limiting the lowest compounds' fall above soil. This
+  changes visible canopy area without adding triangles or changing real scale.
+- The squash alpha revision still has broad rounded tips. Deepen the clefts and
+  give the five lobes steeper points. Keep the 24 curved blades and their actual
+  dimensions; the next photograph pair must judge the resulting silhouette.
+- Isolated marigold heads are almost flat saucers. Dome their existing curved
+  grids in proportion to head radius. The original alpha petals stay, with no
+  geometry or map allocation increase. This supersedes pass 2's proposed
+  geometry petals: both high and field flower heads use curved alpha grids.
+- Corn has random whole-blade roll but insufficient twist along each blade.
+  Rotate its cross section progressively along the existing grid, preserving
+  its joint spacing, leaf count, ears, silk and tassel.
+- The first wet-soil assignment covered the entire tended bed. Restore watered
+  patches around actual planted root locations, with broken edges, leaving dry
+  crust between irrigated rows. The same shared dry/wet swatches supply both.
+
+WiseWords still has more irregular mixed growth and incidental objects than the
+fictional tomato bed. City Hall's crops and wooden walls differ from our Plot10;
+its cage hoop fit supports framing, not a reconstruction of the whole garden.
+Martin is flower-rich and intimate while the accepted park plan is spacious and
+rectilinear. Those composition differences remain visible and are not excused by
+small landmark residuals. The plant photos remain morphology checks where no
+reliable neutral exists. No photograph enters a material or mesh.
+
+One interrupted CPU build briefly overlapped a second attempted build. Both were
+stopped in this worktree, and the updated family is rebuilt serially before the
+next checks and image set. GPU bakes/renders remain under the shared lock. The
+next set is judged from fresh exported files, not patched historical receipts.
+
+## Look-dev pass 6 — keep the growth and audit its supports
+
+Color/value first: inspected all 40 PNG renders in `renders/lookdev-pass-6/`.
+Hero display-luma 5th/median/95th percentiles are .014/.301/.690 (city),
+.003/.302/.826 (park) and .013/.321/.638 (newer); no channel clips. The plant
+comparison neutrals remain concrete for tomato and weed cloth for squash;
+bean/corn/marigold comparisons remain morphology-only. Squash is dark with
+broken silvering; lettuce is pale with green hearts; kale is distinctly blue-gray.
+Old lower blades differ from healthy upper growth without a uniform yellow wash.
+
+The weedy squash bed now has both plants, and the herb/corn/kale/pepper stands
+retain their full planting grids. The overheads show tended crowns reaching bed
+edges, with bare areas concentrated in fresh and fallow plots and working strips.
+The revised tomato view reads as a mass of drooping compound foliage around its
+cage instead of rows of edge-on cards. Fruit is partly hidden inside that mass,
+as expected. Pointed squash lobes, actual corn twist and domed marigold heads are
+visible in their exported close-ups and isolated specimens. The photo comparisons
+still expose regular tiering, repeated blade outlines and simplified leaf response;
+this is a substantial form improvement, not photographic equivalence.
+
+The attachment audit catches a new error in the flower dome: raising its central
+vertex above the authored head position leaves a gap above the stalk. Define the
+head's highest center at its stalk attachment and lower the rim. Extend the
+existing marigold branch to the upper floret layer, and give the separate spent
+head a short connected branch. Squash flowers and fruit also need explicit
+pedicels/peduncles from the crown rather than relying on the leaves to hide their
+supports. These are real stem meshes, within the same atlas and budgets. The
+resulting rebuild measures 122,144 / 214,223 / 109,632 garden triangles; the
+largest plant remains 4,488. Re-render and repeat after these connections change.
+
+Visible limitations to carry into the checkpoint report: field grass has no
+individual blades; chip relief is shallow and its fragments graphic close up;
+the compacted fines have too-even shoulders; compost is still a smooth mound
+under sparse clippings. Botanical veins, silhouettes and fine branching repeat.
+The three photographic scenes contain more incidental mixed growth and objects
+than the fictional sites. Do not describe these as finished product photographs,
+and do not add gallery/docs images at this checkpoint.
+
+## Look-dev pass 7 — exported checkpoint handoff
+
+Color/value first: reviewed all 40 final exported renders in readable inspection
+groups, then opened the five botanical pairs, three period-garden pairs and three
+before/after pairs at full size. Final hero luma ranges are .014/.301/.690,
+.003/.302/.826 and .013/.320/.638 (5th/median/95th); clipped-channel share is zero.
+Concrete and weed cloth remain the assumed botanical neutrals; period-photo
+neutrals are unchanged. Comparisons do not claim equal exposure or surveyed plant
+scale. Isolated squash remains cooler/teal and its silvering cleaner than the
+balanced photograph; the hero's warmer illumination does not prove an exact match.
+
+The caps now meet their stalks, existing branches reach the upper floret layer,
+the spent head has a branch, and squash fruit/flowers have peduncles/pedicels.
+This is explicit construction, not a claim from the serialization test. Separate
+soil/root/cage checks measure actual exported surfaces. All 40 render receipts
+match current export bundles.
+
+Final botanical judgement:
+
+- Tomato fills the cage with drooping, overlapping compounds, but the photograph
+  has finer branches, less repetitive serration and more irregular lower growth.
+- Squash fills the compact bed with overlapping pointed palmate blades and a
+  shaded crown. Veins, mottling and lobe profiles still repeat too visibly.
+- Bean groups fill the teepees and park supports. An isolated vine remains airy,
+  with regular tiers and straighter pods than the close-up photograph; that photo
+  is not a whole-plant density survey.
+- Corn stands interlocked with arched/twisted leaves, ears, silk and tassels.
+  Anther/silk detail is sparse and the blade response lacks the photo's texture.
+  The modern close-up supports morphology, not period-site evidence.
+- Marigolds form visible pinnate flowering borders with curved heads. Ray patterns
+  and stiff outlines repeat; the genus-level photo is not a replica cultivar.
+
+The sites read differently: city chips/blue mural shed/painted bins/brick block;
+park grass/broad in-ground stands/old wood/edge trees and building; newer raised
+trays/firm granular court/newer boards. Accepted plans, dimensions, sockets and
+moving construction stay. Old-camera pairs are 2400x818 with 1200px panes;
+pose/lens/aspect equality is asserted.
+
+Validation completed:
+
+- `make -C community-garden WIDTH=1200 SAMPLES=40`: passed model, refs, repository,
+  budgets, normals, fresh import, actual surface contact/clearance, motion, raw UV,
+  packaged-scene and render-provenance checks; complete rendered/reviewed set.
+- `make -C community-garden repeat`: passed seven independently rebuilt glTF/BIN
+  files, three regenerated plant maps and byte-identical authored surface fields.
+  Native inputs and baked swatches are retained; exact GPU bake/render bytes are
+  outside this repeat check's scope.
+- Gardens: 122,144 / 214,223 / 109,632 triangles, 3 / 4 / 4 materials,
+  24 / 40 / 40 MiB direct compressed full-mip image allocation. The fourth material
+  preserves native lawn. Plants remain one shared 1K/4 MiB set; opaque swatches
+  share one 2K/16 MiB set. README lists all modules and measured file sizes.
+- No collapsed exported UV triangles or escaped swatches. Density is measured;
+  intentional tiling/card overlap is not a unique-island claim.
+- All 479 recorded other-family deliveries remain byte-identical. No kit change,
+  authored top-level README change, gallery or docs images.
+
+Stop at the requested look-dev checkpoint. Remaining CG tells are regular
+spacing/branching, repeating analytic leaf surfaces, approximate transmission,
+flat field grass, shallow graphic chips, even gravel shoulders and simple compost.
+Period pairs retain crop/context differences; City Hall's hoop scale is inferred.
+Passing measurements do not resolve those visual weaknesses. Nothing is needed
+from the lead to reproduce this state.

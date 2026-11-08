@@ -1,26 +1,22 @@
-# Community gardens — form and construction checkpoint
+# Community gardens — look-dev checkpoint
 
-Three original midsummer neighborhood gardens, generated from scripts for an
-American town between 1995 and 2015. **This is the requested form checkpoint:**
-quick material values, outline alpha and imported-library context. No final
-look-dev, baked lumber/soil atlas, final docs gallery or game-ready claim.
+Three original midsummer community gardens for an American town of 1995–2015.
+The accepted construction and plans remain; planting now fills tended plots,
+with overlapping crop canopies, companion herbs and flowering borders. This
+round stops at exported look-dev review: no README gallery or docs images.
 
-The native botanical toolkit supplies tapered stem sweeps, curved leaf grids,
-physical normals and Wind data. Crop growth rules live in this family. Native
-shed construction, fence wire fields, ground maps, trees, architecture, cars
-and utility parts are reused without changing their accepted deliveries.
-
-| Seed | Fictional place | Year | Fence footprint | Plan |
+| Seed | Fictional place | Year | Fence footprint | Character |
 | --- | --- | --- | --- | --- |
-| 117 | Bellwether Growers | 1998 | 10.668 × 18.8976 m | 16 compact beds, four banks, gravel spine between apartments |
-| 229 | Meadow Commons | 2004 | 27.432 × 24.384 m | Eight 10×20 ft tenant plots, two communal beds, grass cross aisle and rear service yard |
-| 341 | Alder Neighbors | 2012 | 16.4592 × 18.8976 m | 12 transverse beds, two elevated tray beds, broad front court and shared service route |
+| 117 | Bellwether Growers | 1998 | 10.668 × 18.8976m | Apartment gap, wood chips, painted mural shed and reclaimed bins |
+| 229 | Meadow Commons | 2004 | 27.432 × 24.384m | In-ground tenant plots, grass alleys, edge trees and neighboring building |
+| 341 | Alder Neighbors | 2012 | 16.4592 × 18.8976m | Compacted gravel courts, elevated greens trays, green shed and newer bin boards |
 
-Plot states interleave tidy, lush, weedy, fallow and newly planted. Seeds also
-choose plant morphology, rotations, mulch and watering positions. The three
-archetypes change the plot dimensions, orientation, entry court, surface and
-service organization. A different seed within an archetype varies its planting
-and care, retaining that archetype's layout grammar.
+All five care states remain: tidy, lush, weedy, freshly planted and fallow.
+Only fresh/fallow plots retain broad bare soil or mulch. The plans retain their
+plot centers, widths, aisle dimensions and service positions. Real planting
+spacings fill each usable opening; the large park plots keep internal working
+strips. The park grass corridor has no painted geometric edge, so its measured
+clearance is distinguished from the 1.524m authored design strip.
 
 | Construction dimension | Generated | Basis |
 | --- | --- | --- |
@@ -28,208 +24,172 @@ and care, retaining that archetype's layout grammar.
 | Larger tenant plot | 10×20 ft / 3.048×6.096 m | Brief; internal crop rows leave access strips, not a 10 ft reach bed |
 | Lumber | 38.1mm thick; 234.95 or 285.75mm high | Dressed nominal 2×10 / 2×12; 88.9mm square corner posts |
 | Concrete block | 193.675mm high/thick, 396.875mm long | Angelus specified nominal 8×8×16in CMU; open cells and 25mm webs |
-| Main route | 1.524m; 1.8288m in 2012 | Above ADA 36in / .9144m minimum; compacted fines, not loose chips |
+| Main route | 1.524m; 1.8288m in 2012 | Design widths; chip / grass / firm compacted fines by site |
 | Working aisles | At least .9144m in compact grid | ISU approximately 3 ft for equipment; measured export gaps in check report |
 | Accessible tray bed | 2.4384×.9144m; work surface .8636m | ADA 34in maximum work height; 18in two-sided reach |
 | Tray underside | .6973m before placement | Above ADA 27in / .6858m knee height; leg openings measured separately |
 | Fence | 1.2192m fabric; 3.048mm wire | Native chain-link family, 50.8335mm perpendicular clear mesh |
-| Shed | 2.4384×3.048m nominal | Native 8×10ft framed shed; shingle cuts deferred to normal bake |
+| Shed | 2.4384×3.048m nominal | Native gauged 8×10ft shed and lapped roof courses; fine tabs omitted |
 | Cage / trellis | 1.34m / 2.12m high | Authored home-garden hardware; 5mm cage wire, 25mm bamboo poles |
 | Hose | 20.6mm outer diameter | Authored 5/8in bore class; slack coils lie on grade |
 
-Published guides, period examples and photo credits are in
-[refs/SOURCES.md](refs/SOURCES.md); the dimensional choices are expanded in
-[REFERENCE.md](REFERENCE.md). These are original compositions. Unsurveyed photos
-establish visual proportions rather than exact dimensions or compliance.
 
-Plants include tomatoes, peppers, zucchini, pole beans, sweet corn, lettuce,
-kale, basil-like herbs, sunflowers, marigolds and weeds, each in three stages.
-Mature plants have two seeded specimens. Tomato leaves are pinnate with
-serrated leaflets and suspended fruit trusses; beans have climbing axes,
-trifoliate leaves and pods; corn has distichous blades, ears and tassels.
-Squash has a short crown, long petioles, broad palmate blades and low fruit.
-Bean variants distinguish a bamboo pole from bowed thin twine. Mature tomatoes
-have three connected leaders and nine-leaflet compound leaves. Engine distance LODs/impostors
-are integration work, following the existing shrub/tree convention.
+The city main route is chips; the park's is mown grass; the later site's is
+compacted granular fines. These models do not certify an ADA site.
+Reference dimensions and growth decisions are in [REFERENCE.md](REFERENCE.md),
+with exact image URLs, authors, rights and uses in [refs/SOURCES.md](refs/SOURCES.md).
+Every vertex and asset texel is generated by scripts; photographs are comparisons.
 
-| Plant | Seedling (.28) | Intermediate (.64) | Mature (1.0), triangles |
-| --- | ---: | ---: | ---: |
-| Tomato | 964 | 2,332 | 4,608 |
-| Pepper | 206 | 552 | 1,886 |
-| Zucchini / squash | 354 | 552 | 1,194 |
-| Pole bean | 756 | 1,512 | 2,472 |
-| Sweet corn | 278 | 398 | 858 |
-| Lettuce | 260 | 420 | 620 |
-| Kale | 260 | 420 | 620 |
-| Herb | 336 | 712 | 1,232 |
-| Sunflower | 140 | 1,124 | 1,244 |
-| Marigold | 308 | 1,180 | 1,468 |
-| Weed clump | 192 | 192 | 192 |
+Tomatoes reach 1.72m above soil, with five leaders, nine-leaflet compounds and
+overlapping daughter branchlet cards. Green, turning and ripe fruit hang in
+trusses. Zucchini makes a broad mound of .36–.46m palmate blades; corn reaches
+2.24m plus tassel, with arching leaves and silked ears. Beans overlap up the
+actual poles/twine. Marigolds are compact pinnate flowering mounds. All eleven
+plants retain .28/.64/1.0 stages and two mature seeded variants. Field specimens
+keep their canopy while simplifying petiole sections and tiny fruit geometry;
+separate reusable high specimens support close views. Wind exports as `_WIND`,
+never albedo `COLOR_0`.
 
-Both mature variants have the same topology count. Small seedlings and tools
-intentionally use fewer triangles than the budget tier's typical range.
+| Plant | Seedling | Intermediate | Mature high | Mature field |
+| --- | ---: | ---: | ---: | ---: |
+| tomato | 612 | 1,340 | 4,488 | 2,682 |
+| pepper | 142 | 456 | 1,790 | 236 |
+| squash | 430 | 894 | 1,814 | 904 |
+| bean | 338 | 578 | 1,358 | 436 |
+| corn | 214 | 390 | 971 | 375 |
+| lettuce | 340 | 756 | 1,172 | 152 |
+| kale | 340 | 756 | 1,172 | 152 |
+| herb | 240 | 848 | 1,840 | 164 |
+| sunflower | 92 | 804 | 900 | 620 |
+| marigold | 944 | 1,964 | 2,952 | 384 |
+| weed | 66 | 66 | 66 | 26 |
 
-| Reusable piece | Triangles, including moving children |
+Counts are triangles; both mature variants have the same count. The largest
+plant remains within the accepted 4.6k ceiling. Detailed supports and prototypes
+are measured separately from every repeated instance in a garden.
+
+| Reusable piece | Triangles including moving children |
 | --- | ---: |
-| Lumber 4×8 bed, either height | 1,012 |
-| Hollow block 4×8 bed | 1,104 |
-| Accessible 8×3 tray and supports | 1,016 |
-| Ground 10×20 plot, board / bare | 324 / 144 |
-| Tomato cage | 864 |
-| Bean twine trellis / bamboo teepee | 322 / 584 |
-| Three-bay compost | 1,140 |
-| Standpipe, handles and hose | 1,976 |
-| Rain barrel, lid and tap | 1,396 |
-| Shade bench / bulletin board | 316 / 508 |
-| Bucket / watering can | 476 / 702 |
-| Wheelbarrow / row cover / pinwheel | 636 / 570 / 52 |
-| Native framed shed, private checkpoint simplification | 4,468 |
+| Raised4x8 | 1,444 |
+| Raised4x8Tall | 1,444 |
+| Block4x8 | 1,536 |
+| Accessible8x3 | 1,448 |
+| Ground10x20 | 756 |
+| GroundBare10x20 | 576 |
+| TomatoCage | 608 |
+| BeanTrellis | 322 |
+| CompostThreeBay | 1,361 |
+| Standpipe | 1,976 |
+| RainBarrel | 1,396 |
+| ShadeBench | 316 |
+| BulletinBoard | 508 |
+| Bucket | 476 |
+| WateringCan | 702 |
+| Wheelbarrow | 636 |
+| RowCover | 570 |
+| Pinwheel | 52 |
+| BeanTeepee | 584 |
+| NativeShed | 4,468 |
 
-`build/pieces.json` contains every reusable piece and plant count.
-`build/check.json` contains raw accessor counts, normal lengths, external image
-identities, geometry/file bytes, fresh-import comparison and measured widths.
-`build/garden-<seed>.json` is the complete plan/planting manifest. Gardens stay
-under 250k triangles; plants under 5k, shed under 8k, other modules under 2k.
+| Garden | Triangles | Plot plants | Materials | glTF / BIN bytes | Direct texture memory |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 117 | 122,144 | 204 | 3 | 853,921 / 7,334,972 | 24 MiB |
+| 229 | 214,223 | 529 | 4 | 1,725,716 / 5,598,496 | 40 MiB |
+| 341 | 109,632 | 181 | 4 | 808,047 / 6,832,404 | 40 MiB |
 
-| Garden | Triangles | Quick material slots | glTF / BIN bytes | Direct texture memory |
+The enforced garden ceiling for this round is 215k, below the original brief’s
+250k cap. Moving parts remain separate. Three city materials are the
+opaque atlas, masked foliage and masked wire. The two other sites add native
+lawn; this fourth material preserves that accepted tiling set instead of copying
+it into a larger new texture. Prototype plants use opaque atlas plus foliage.
+
+| Shared set | Shipped maps | Full-mip compressed memory | Origin |
+| --- | --- | ---: | --- |
+| GardenPlants | 1024² RGBA BaseColor / OpenGL +Y Normal / ORM | 4 MiB | Original analytic 4K leaves, branchlets, flowers and bird netting; filtered to 1K |
+| GardenSurfaces | 2048² BaseColor / +Y Normal / ORM | 16 MiB | Original metric fields, Cycles baked at 4K, filtered to 2K |
+| ChainLink | 1024² BaseColor-alpha / +Y Normal / ORM | 4 MiB | Native analytic wire rebuilt in private cache |
+| Lawn | 2048² BaseColor / +Y Normal / ORM | 16 MiB | Existing Ground delivery; park/newer only |
+
+One opaque atlas covers the entire family: tan and silvered wood with ground
+contact dampness/checks, granular dry/wet soil, straw, fresh/weathered chips,
+compacted gravel, block efflorescence/moss, oxidized zinc, faded paint/plastic,
+hose rubber and small botanical/hardware swatches. Shared chart repetition is
+intentional. The raw UV audit checks chart bounds, collapsed triangles and
+measured density; it makes no unique-island overlap claim for these tiles.
+Analytic normal/color precision and plant coverage survive the shared kit's
+channel-correct filters. These estimates assume 8bpp per map with full mips,
+excluding geometry/engine overhead.
+
+`export/checkpoint/Garden_<seed>.gltf` plus BIN is the garden. The overlapping
+prototype roots live in `CommunityGardenPieces.gltf`; instance the desired root.
+External image identities are shared across every seed. Keep directory structure
+or remap URIs when integrating. `Site_<seed>.gltf` adds the separately budgeted
+native neighborhood. Every review render freshly imports an export; no source
+look-dev scene is substituted.
+
+| Packaged scene | Total triangles | Native context | Unique image memory | glTF / BIN bytes |
 | --- | ---: | ---: | ---: | ---: |
-| 117 | 144,189 | 33 | 487,598 / 7,315,300 | 8 MiB |
-| 229 | 214,898 | 34 | 502,739 / 5,826,348 | 24 MiB |
-| 341 | 137,582 | 34 | 510,626 / 6,910,468 | 24 MiB |
+| 117 | 904,710 | 782,566 | 164.02 MiB | 1,111,252 / 34,179,268 |
+| 229 | 1,192,033 | 977,810 | 158.00 MiB | 1,911,457 / 28,558,032 |
+| 341 | 1,016,402 | 906,770 | 158.00 MiB | 974,202 / 29,810,368 |
 
-Fence bays are 492–508 triangles, the 5ft/6ft gate assemblies 612/620 and
-the open gutter/downpipe 636. These are placed modular pieces, counted from
-the exports. Broad scene totals count every plant instance; BIN sizes benefit
-from shared meshes. Material slots are provisional for construction review
-and exceed the final atlas/draw-call target.
+Native context includes the library's houses/apartments, trees, street, cars and
+utility poles. Packed native images are losslessly externalized in a shared
+content-hash cache. Native material-driven vertex colors remain intact. The
+single guarded native-car tangent rounding preservation remains unchanged;
+source native deliveries are never rewritten. Scene costs are not garden costs.
 
-Measured main-spine minima are 1.524 / 1.524 / 1.8288m, sampled at intervals
-no greater than six inches. Actual gate hardware leaves 1.43884 / 1.43884 /
-1.74364m clear. Minimum measured edge-to-edge gaps are .91440 / 1.15840 /
-1.05451m; the third figure includes planter/post geometry rather than only the
-nominal board rectangles. Gardener socket heights agree with actual imported
-walking surfaces within 0.001mm. Nine rays through the high bed's knee corridor
-are clear through 27in height; an upward ray measures .69730m to its bearer.
-These checks prove the modeled construction; triangle/bounds re-import checks
-separately prove serialization. Motion checks sample gate and placed shed doors
-every 5°, omitting open alpha sheets and allowing no solid penetration.
-
-Actual soil rays check 116 / 135 / 106 planted roots, with 4.8–18.4mm of root
-penetration rather than floating caps. Cage feet reach approximately 19–20cm
-below the local soil; timber tomato stakes reach 30cm, trellis/bamboo feet 20cm.
-The latter dimensions are authored construction lengths; cage/plant contact
-ranges are measured from the imported mesh. Crop layouts follow a bed's long
-axis even when the frame is transverse; flowers/weeds stay within its actual
-soil opening. Teepee radii contract to fit narrow block-bed soil openings.
-
-Delivery is `export/checkpoint/Garden_<seed>.gltf` plus its BIN;
-`CommunityGardenPieces.gltf` is the overlapping-root reusable library. Select
-and instance a named library root; the inspection sheet lays roots out only
-for presentation. The three garden files reference the same external image
-identities. Canonical images remain outside `export/`; preserve the relative
-directory layout or remap URIs when packaging an engine scene.
-
-`Site_<seed>.gltf` packages that garden with the native street, buildings,
-trees, cars and utility context. The renderer exports this assembly and
-re-imports it before drawing the checkpoint views. Existing maps remain
-external where their file identity is available; packed native maps are
-losslessly externalized into one shared `textures/context/` cache by content
-hash. That cache contains native image copies, not a new authored texture set.
-Native context costs are recorded separately in `build/context/costs-*.json`,
-and scene/package identities in `build/context/site-*.json`. The 250k limit
-applies to the garden, not the surrounding town already present in the library.
-
-| Packaged scene | Total triangles | Native context triangles | Unique image memory | glTF / BIN bytes |
-| --- | ---: | ---: | ---: | ---: |
-| Site 117 | 914,132 | 769,943 | 148.02 MiB | 864,911 / 34,301,148 |
-| Site 229 | 1,179,900 | 965,002 | 142.00 MiB | 784,766 / 28,978,184 |
-| Site 341 | 1,102,584 | 965,002 | 142.00 MiB | 792,983 / 30,090,568 |
-
-Native vertex tints are preserved as material-driven `COLOR_0`; garden wind
-remains `_WIND` and is never exported as base-color modulation. Scene checks
-verify that separation and every garden image's original byte identity.
-Memory assumes 8bpp block compression and full mips per unique map, excluding
-geometry/engine overhead. External PNG storage is 86.37MB for Site 117 and
-82.52MB for each other scene; all seeds share canonical files.
-
-One native-car MikkTSpace corner can straddle a four-decimal tangent rounding
-boundary on re-export. The packager preserves that corner's original native
-tangent, guarded by exact position/normal/UV signatures and a maximum one-step
-change. The native input stays untouched; no general quantization is applied.
-
-The new temporary plant set is 1024² BaseColor-alpha / +Y Normal / ORM:
-**4 MiB compressed with full mips**, shared across every crop/stage/seed. Its
-unused leaf tile also holds bird netting. Normal/ORM are deliberately simple
-checkpoint maps. The fence field is the native 1024 analytic wire set rebuilt
-in this family's private cache: **4 MiB**, intended to point at the canonical
-fence atlas during look-dev. Garden lawn reuses Ground's 2048 set: **16 MiB**.
-Lumber, soil and equipment use uniform checkpoint values, allocating no maps.
-Presentation-only context additionally reuses native ground, tree, building,
-car and utility maps; this is separately costed from the garden itself.
-No new final lumber/soil set is allocated at this checkpoint.
-
-Garden root: centre of fence footprint at grade, metres, Blender +Z up and −Y
-front. glTF converts to +Y up and +Z front. `GateLeaf` pivots about its left
-hinge, Z −110°…0°; checkpoint is open at −85°. The native shed keeps both
-hinged door pivots and their authored ranges. `BarrowWheel` is X ±360°;
-`PinwheelRotor` is Y ±360°. `BibWheel_Left/Right` are Z 0°…720°;
-`BarrelTapLever` is Z 0°…90°; `BarrelLid` slides Z 0…0.30m. Plot sockets sit 470mm outside the front edge,
-facing the plot; `Socket_Standpipe` stands at its bibs. These are gardener
-placement sockets, not animation or reach certification.
+Garden roots are centered on the fence footprint at grade, metres, Blender +Z
+up / −Y front, glTF +Y up / +Z front. `GateLeaf` is Z −110°…0°, shown at −85°.
+Native shed doors retain their actual hinges/ranges. `BarrowWheel` is X ±360°;
+`PinwheelRotor` Y ±360°; bib wheels Z 0°…720°; barrel tap Z 0°…90°; lid slides
+Z 0…0.30m. Each plot and standpipe retains its gardener socket. Surface rays
+check actual receiving ground, bed soil, roots, cage feet and tray knee opening;
+raw/fresh-import comparison separately checks serialization. Motion sweeps
+sample gate/shed solids every 5° and omit boundary-only alpha sheets.
 
 ```sh
-make -C community-garden                    # checkpoint only
+make -C community-garden
 make -C community-garden check
-make -C community-garden match              # three local photo comparisons
-make -C community-garden repeat             # deterministic geometry/image proof
-make -C community-garden render WIDTH=1440 SAMPLES=40
-make -C community-garden model SEEDS=118 ARCHETYPE=city # alternate plan instance
+make -C community-garden repeat
+make -C community-garden render WIDTH=1200 SAMPLES=40
+make -C community-garden model SEEDS=118 ARCHETYPE=city
 ```
 
-`src/plan.py` owns footprints, plot banks, bed dimensions, court/aisle widths
-and service positions. `SEEDS` chooses integer garden seeds; `ARCHETYPE`
-optionally overrides the seed-modulo-three archetype. Seeds choose five care
-states, two mature specimens, plant rotation, skipped plants, weeds, straw and
-watered root zones. `plants.build(species, stage, seed, support_radius)` exposes
-botanical generation separately; the shared catalogue starts at seed 713,
-with .28/.64/1.0 stages. The default check/render suite covers the three
-curated seeds; alternate-seed `model` builds do not imply that suite has
-certified an arbitrary new layout.
+Defaults build the look-dev checkpoint without docs. `src/plan.py` owns accepted
+plans; `plants.build(species, stage, seed, support_radius, field=False)` owns
+crop morphology. `src/surfaces.py` owns the original finish fields. Native inputs
+are read-only and only missing prerequisites are built. Scratch stays in `build/`.
+Cycles bakes/renders use the kit GPU lock in serial sets. No kit change.
+The repeat check rebuilds all seven exports in fresh scenes, repacks native
+context and regenerates the analytic plant maps and surface fields byte for byte.
+It retains native inputs and baked opaque maps; exact GPU bake/render bytes are
+outside that check’s scope.
 
-Native context exports live in the same clone (trees, houses, apartments, cars,
-utility and Ground textures). `make` builds a missing prerequisite; existing
-deliveries are read-only inputs. `make clean` removes only this family's build/render cache. Requires
-Blender 5.2, Python/Pillow/NumPy, fontconfig/Noto Sans and flock. All Cycles work
-holds the shared kit GPU lock. No kit or top-level index change.
+Review evidence is local under `renders/lookdev/`: each seed's `hero.png`,
+`above.png`, `above-annotated.jpg`, corner, tomato, bean, squash, compost and water
+views; 341 also accessible tray; 117 scale and Eevee. `before-camera.png` repeats
+the old hero pose, with full-size pairs in `comparisons/<seed>-before-after.jpg`
+when the preserved historical checkpoint cache is present. `plants/` contains
+five standalone exported specimens, paired with botanical photos under
+`comparisons/`. Three midsummer calibrated pairs are in `matches/`. Contact,
+heroes, details, plants and photographic contact sheets stay outside git.
+The historical comparison cache is local evidence from the accepted checkpoint,
+not an image downloaded or committed as a new asset input.
 
-Renders and contact sheets stay under `renders/`; no checkpoint JPG enters
-git history. Form critique and remaining weaknesses are in [REVIEW.md](REVIEW.md).
+The 1200px/40-sample complete build and independent repeat both pass. Forty
+render receipts match current exported bundles; all 479 recorded other-family
+delivery files remain byte-identical.
 
-The checkpoint views are `renders/checkpoint/<seed>/{hero,above,corner,compost,
-water,tomato,bean}.png`, with `above-annotated.jpg` for plot/path dimensions.
-Seed 341 also has `accessible.png`; 117 has `scale.png` and `eevee.png`.
-`plants.png` shows every stage/variant; `pieces.png` shows construction modules.
-The three period photo comparisons and calibration overlays are in
-`renders/checkpoint/matches/`. `contact.jpg`, `heroes.jpg`, `details.jpg` and
-`matched-contact.jpg` collect them. Render receipts record the actual imported
-glTF/BIN/image bundle hash; review rejects stale exports or camera recipes.
+[REVIEW.md](REVIEW.md) records the critique passes, neutrals, failures and final
+limitations. The City Hall hoop fit uses an inferred cage scale; plant-photo
+views compare morphology and do not claim surveyed dimensions or identical light.
+The remaining weaknesses are orderly planting, repeated leaf/card silhouettes,
+approximate thin-leaf response, shallow chip relief, even gravel/grass and simple
+compost mounds. Photographic scene context is approximate. The traditional shed
+threshold remains outside the accessible-interior claim.
 
-Remaining limits: uniform checkpoint materials and provisional UVs; coarse
-wet-soil value boundaries; vegetation less tangled than the mature photo;
-an approximate Oliver camera fit with occluded landmarks; a traditional raised
-shed threshold. The firm routes and measured knee opening support the design,
-but this is not a blanket ADA compliance claim. Later look-dev must consolidate
-material slots, bake construction detail/wear, develop leaf response and
-recheck the exported result. No final lumber/soil atlas or material approval is
-implied by this checkpoint.
-
-The park plan remains especially regular and underplanted; path-shoulder
-corners also need a finishing pass. Every curated garden retains all five
-care states, including a visibly mulched fallow plot.
-
-Validation: `make`, `make check`, `make scenes check-scenes` and `make repeat`
-pass. Repeat compares all seven glTF/BIN deliveries and regenerates the three
-analytic plant maps byte-for-byte. Render provenance checks 29 source-bundle
-receipts. A separate preservation audit found all 312 pre-existing delivery,
-texture and docs files unchanged. `REVIEW.md` records four critique passes.
-No kit or top-level README change, and no preview image is committed.
+Text uses installed Noto Sans (SIL Open Font License 1.1) through `kit/fonts.py`;
+all signs and site names
+are fictional. References are credited in the source register and used only
+for comparison. Native library pieces retain their own documented sources.
