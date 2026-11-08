@@ -378,7 +378,8 @@ comparison evidence, never in shipped maps or committed gallery images.
 - **Road fatigue remains an atlas treatment.** Dusty gray 2–4 in overbands
   and darker wheel paths improve the lane. Fine alligator cracks share a
   bounded, rotated atlas cell, whose pattern can be recognized in a close
-  inspection. The road is less convincing close up than at lane distance.
+  inspection. Some overbands still have a smooth drawn path, particularly
+  in the newer hero. The road is less convincing close up than at lane distance.
 - The house and road layout is regular, some household plants and the
   dumpster are schematic, and native shed/pole/playground adapters use
   simpler finishes. The aerial is a construction overview with brighter
