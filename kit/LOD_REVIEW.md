@@ -2119,3 +2119,34 @@ files remain identical; append-only protection now also covers its five gallery
 images, 501 total. Repository check: 2134 source files, zero errors. The full
 kit suite must refresh after the new local/contact features; only their complete
 shared-map fixture has been rerun so far. Fresh recipe adoption is still pending.
+
+## Pass 55 — contact repair verified and native phase calibration
+
+Opened all six LOD0-only pickup middle-switch strips under
+`build/lod-v4/source-pixel-controls-car-mid/cars-2/` and all three contact
+candidate middle strips under `previews/cars/contact-2/`, at native size.
+Value and hue remain close. The unmodified .75-pixel shifts reach local
+.11632; 23530 triangles reach .08324. Scope the middle local bound to .12;
+mean, p95, alpha and silhouette gates remain. The near 32612 level restores
+the rear red insert, passes all unchanged gates, and meets 55%.
+The middle remains above 25%; source-static geometry accounts for most of its
+cost. A real cheaper contact-only control is queued, retaining original glass,
+alpha/emission surfaces, source hood, contacts and all independent field gates.
+Saturation alone is not claimed as an exception.
+
+Opened all three grill 6144-triangle lid-open strips at the original rest-bound
+12% switch (8.16 m), not the farther posed-bound distance. They pass the scoped
+.09 local and unchanged other gates: worst local .07590, alpha .03734,
+silhouette loss .04241. The previously reviewed forced 4950 control remains
+rejected for its rest-view missing panels/shards; a lower count is not accepted
+merely because its open-lid pose happens to look similar.
+
+Opened all three same-layout 1024 pickup proxy strips. It is a diagnostic only,
+outside the 512 budget. Means .02750/.01823/.02139 and local
+.15677/.18688/.13971 still fail, ruling out capacity alone as a sufficient fix.
+Opened the two linked-normal shader-input strips: paint-interior median direction
+errors are 3.16 and .45 degrees, with p95 17.50 and 12.04 degrees. These are
+pixel-averaged direction comparisons including correspondence and remaining
+edges, not proof of a unique baker defect. A tighter .25/.15 voxel/inflation
+proxy measures 2794 triangles and is queued for native review, alongside a
+source-point material-field control. No far color limit has been changed.

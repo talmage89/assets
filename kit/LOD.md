@@ -209,6 +209,13 @@ dot products. Blender's [normal-map evaluation](https://github.com/blender/blend
 define the tested frame. A regression evaluates the actual re-imported base
 and coat shader outputs on a varying-normal cage, independently of that inverse.
 
+The pickup's shared-map middle level uses a scoped local-patch limit of .12.
+At its unchanged .10 switch, unchanged LOD0 shifted by a measured .75 pixel
+reaches .11632 in the same 8x8 metric; the reduced surface reaches .08324.
+Native three-view strips retain color, lamps and silhouette. Global RGB,
+p95, alpha and silhouette bounds stay at their defaults. This calibration
+does not apply to the near level or far proxy.
+
 The final arbiter remains the default image limits, for LOD0 and the preceding
 level at each switch (24 opaque / 128 foliage samples by default, with a seed-noise-calibrated `render_samples` override for noisy powered/specular assets; same fixed seed): mean absolute display RGB <= .02; p95 max-channel change
 <= .08; alpha MAE <= .05; maximum mean RGB change in any 8x8 patch <= .08.
