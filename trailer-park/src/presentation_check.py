@@ -36,6 +36,7 @@ def check(folder):
             v=row['landmark_visibility'];assert v['clear_count']==v['anchor_count']
     cams=json.loads(Path('build/cameras.json').read_text());assert all(c['residual_rms_pixels']<=20 for c in cams.values())
     assert abs(cams['street-2007']['shot']['roll'])<1e-9, 'Older street camera must remain level'
+    shot=cams['street-2007']['shot'];assert abs(shot['location'][2]-shot['target'][2])<1e-9,'Street verticals must remain parallel'
     report=dict(passed=True,views=len(rows),frames=results,scope='Current GLB/images, camera/lens/light, traffic metadata and display range; photographic judgment remains manual in REVIEW.md')
     Path('build/final-provenance.json').write_text(json.dumps(report,indent=2));print('FINAL PRESENTATION PASS',len(rows),'views')
 

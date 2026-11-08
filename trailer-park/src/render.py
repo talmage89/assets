@@ -210,8 +210,17 @@ def render(stem,path,meta,views,out,width,samples,dress=True,source=False):
             lib=Library();car=lib.place(ROOT/'cars/export/AlderH120.glb','Scale car',(meta['plan']['length']*.22,-meta['plan']['width']/2-2.7,0),90);lib.factory(car,1);lib.clear();temporary.append(car)
         cam.location=v['location'];cam.rotation_euler=(Vector(v['target'])-cam.location).to_track_quat('-Z','Y').to_euler()
         cam.data.type='ORTHO' if 'ortho' in v else 'PERSP';cam.data.lens=v.get('lens',45);cam.data.ortho_scale=v.get('ortho',20)
+        cam.data.shift_y=v.get('shift_y',0)
         if v.get('roll'):cam.rotation_euler.rotate_axis('Z',v['roll'])
         sc.render.resolution_x=width;sc.render.resolution_y=round(width/v.get('aspect',1.78));sc.render.filepath=str((out/stem/(name+'.png')).resolve());Path(sc.render.filepath).parent.mkdir(parents=True,exist_ok=True)
+        if v.get('review_projected_pixels'):
+            from bpy_extras.object_utils import world_to_camera_view
+            original=(sc.render.resolution_x,sc.render.resolution_y);pw,ph=v['review_resolution']
+            sc.render.resolution_x=pw;sc.render.resolution_y=ph;bpy.context.view_layer.update()
+            projected=[world_to_camera_view(sc,cam,Vector(point)) for point in v['review_landmarks']]
+            error=max(math.dist((q.x*pw,(1-q.y)*ph),expected) for q,expected in zip(projected,v['review_projected_pixels']))
+            assert error<.05,(name,'Actual render camera/calibrator disagreement',error)
+            sc.render.resolution_x,sc.render.resolution_y=original
         if not v.get('fixed_camera') and not stem.startswith('Park') and name in ('hero','detail','front','back','side','top','scale'):
             from bpy_extras.object_utils import world_to_camera_view
             lo,hi=meta['bounds_min'],meta['bounds_max'];corners=[Vector((x,y,z)) for x in (lo[0],hi[0]) for y in (lo[1],hi[1]) for z in (lo[2],hi[2])]
@@ -239,7 +248,7 @@ def render(stem,path,meta,views,out,width,samples,dress=True,source=False):
                                source_manufacture=source,source_fields=source_fields,light={**light,'sun_elevation_degrees':math.degrees(math.asin(-dv.z)),'sun_visibility':sun_choice if automatic else None},
                                landmark_visibility=visibility,camera_matrix_world=[list(r) for r in cam.matrix_world],
                                camera_parameters=dict(type=cam.data.type,lens=cam.data.lens,ortho_scale=cam.data.ortho_scale,sensor_width=cam.data.sensor_width,
-                                                      resolution=[sc.render.resolution_x,sc.render.resolution_y]),engine=sc.render.engine,width=width,samples=samples))
+                                                      resolution=[sc.render.resolution_x,sc.render.resolution_y],**({'shift_y':cam.data.shift_y} if cam.data.shift_y else {})),engine=sc.render.engine,width=width,samples=samples))
         # Commit evidence per completed frame; a later scene import must not
         # erase all provenance when a long shared-machine batch is stopped.
         receipt=Path(sc.render.filepath).with_suffix('.receipt.json')
@@ -307,11 +316,10 @@ def main():
                     views['before_'+row['shot']]=camera
         if views:receipts+=render(stem,path,meta,views,a.out,a.width,a.samples,not a.no_context,a.source_finish)
     if a.cameras and a.cameras.exists():
-        from kit.photo_match import verify
-        verify(a.cameras)
         for name,row in json.loads(a.cameras.read_text()).items():
             stem=row['asset'];meta=json.loads((a.exports/(stem+'.json')).read_text())
             v=row['shot'];v['aspect']=(row['crop'][2]-row['crop'][0])/(row['crop'][3]-row['crop'][1]);v['review_landmarks']=row['landmarks_world_m'];v['review_subject_nodes']=row.get('subject_nodes',[])
+            v['review_projected_pixels']=row['projected_pixels'];v['review_resolution']=[row['crop'][2]-row['crop'][0],row['crop'][3]-row['crop'][1]]
             v['light']=(dict(sun_energy=.8,sky_strength=.40,sky_saturation=.06,camera_sky_strength=.40,camera_sky_saturation=.06,angle_degrees=12,direction=(.3,.3,-1),exposure=-1.25) if name=='single-2009' else
                         dict(sun_energy=5,sky_strength=.12,sky_saturation=.35,angle_degrees=.65,direction=(.5,.5,-1),exposure=.10) if name=='street-2007' else
                         dict(sun_energy=5,sky_strength=.12,sky_saturation=.35,angle_degrees=.65,direction=(.5,.5,-1),exposure=.10))

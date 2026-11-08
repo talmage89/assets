@@ -11,16 +11,19 @@ from kit.photo_match import calibrate
 
 
 def level_fit(result):
-    """Refit six optics/pose variables with exactly zero camera roll."""
+    """Zero pitch and roll; lens rise retains the photo's low horizon."""
     import numpy as np
     from kit.photo_match import project
     shot=result['shot'];origin=np.array(shot['location']);delta=np.array(shot['target'])-origin
-    parameters=np.array([math.atan2(delta[1],delta[0]),math.atan2(delta[2],np.linalg.norm(delta[:2])),*origin,math.log(shot['lens']),0.])
+    parameters=np.array([math.atan2(delta[1],delta[0]),*origin,math.log(shot['lens']),.16])
     points=np.array(result['landmarks_world_m']);target=np.array(result['measured_pixels'])
     width=result['crop'][2]-result['crop'][0];height=result['crop'][3]-result['crop'][1];initial=parameters.copy()
+    def projected(p):
+        pose=[p[0],0.,*p[1:4],p[4],0.];uv,depth,forward=project(pose,points,width,height)
+        uv[:,1]+=p[5]*width;return uv,depth,forward
     def residual(p):
-        uv,depth,_=project(p,points,width,height)
-        return np.r_[((uv-target)/width).ravel(),(p[4]-1.46)/.30,(p[5]-initial[5])*.012,np.minimum(depth-.02,0)*10]
+        uv,depth,_=projected(p)
+        return np.r_[((uv-target)/width).ravel(),(p[3]-1.46)/.30,(p[4]-initial[4])*.012,np.minimum(depth-.02,0)*10]
     damping=.001
     for iteration in range(160):
         error=residual(parameters);columns=[]
@@ -29,13 +32,13 @@ def level_fit(result):
             columns.append((residual(candidate)-error)/step)
         jac=np.stack(columns,axis=1);matrix=jac.T@jac
         change=np.linalg.solve(matrix+damping*np.diag(np.maximum(np.diag(matrix),1e-5)),-jac.T@error)
-        candidate=parameters.copy();candidate[:6]+=change;candidate[5]=np.clip(candidate[5],math.log(20),math.log(45))
+        candidate=parameters+change;candidate[4]=np.clip(candidate[4],math.log(20),math.log(45));candidate[5]=np.clip(candidate[5],-.4,.4)
         if np.linalg.norm(residual(candidate))<np.linalg.norm(error):parameters=candidate;damping=max(1e-9,damping*.4)
         else:damping=min(1e8,damping*5)
-    uv,depth,forward=project(parameters,points,width,height);errors=np.linalg.norm(uv-target,axis=1)
+    uv,depth,forward=projected(parameters);errors=np.linalg.norm(uv-target,axis=1)
     assert np.all(depth>0)
-    result.update(projected_pixels=uv.tolist(),residuals_pixels=errors.tolist(),residual_rms_pixels=float(np.sqrt(np.mean(errors**2))),roll_constraint_degrees=0)
-    shot.update(location=parameters[2:5].tolist(),target=(parameters[2:5]+forward).tolist(),lens=math.exp(parameters[5]),roll=0.)
+    result.update(projected_pixels=uv.tolist(),residuals_pixels=errors.tolist(),residual_rms_pixels=float(np.sqrt(np.mean(errors**2))),roll_constraint_degrees=0,pitch_constraint_degrees=0)
+    shot.update(location=parameters[1:4].tolist(),target=(parameters[1:4]+forward).tolist(),lens=math.exp(parameters[4]),roll=0.,shift_y=float(parameters[5]))
     return result
 
 
