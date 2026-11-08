@@ -82,6 +82,9 @@ def generate(folder=Path('textures/checkpoint')):
         d.rectangle((0,y,255,y+55),fill=(47,49,44,255))
         d.text((128,y+3),'CEDAR RUN',font=ImageFont.truetype(font,22),anchor='mt',fill=(186,184,159,255))
         d.text((128,y+32),str(year)+'  COUNTY WORKS',font=ImageFont.truetype(font,12),anchor='mt',fill=(171,168,149,255))
+    # A tiny form-tie recess occupies the unused strip beneath the plaques.
+    d.ellipse((1,117,11,127),fill=(118,116,103,200))
+    d.ellipse((3,119,9,125),fill=(25,27,23,255))
     im.save(folder/'T_RiverPlants_BaseColor.png')
     n=512;y,x=np.mgrid[:n,:n]/n
     # Several wind/current wave trains, with different phases and scales.

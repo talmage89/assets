@@ -32,8 +32,26 @@ def fixtures(p,parent):
             # Riverwalk below Main Street with 6m poured bays and a real cap.
             b.geom([(x-1,y,-.3),(xx-1,yy,-.3),(xx-1,yy,.65),(x-1,y,.65)],[(0,1,2,3)],'concrete',(.63,.64,.60,1))
             b.geom([(x-1.12,y,.65),(xx-1.12,yy,.65),(xx-4.2,yy,.65),(x-4.2,y,.65)],[(0,1,2,3)],'concrete',(.80,.80,.75,1))
-            wall_top=.65 if abs((y+yy)/2)<8 else 3.70
-            b.geom([(x-4.2,y,.50),(xx-4.2,yy,.50),(xx-4.2,yy,wall_top),(x-4.2,y,wall_top)],[(0,1,2,3)],'concrete',(.65,.65,.60,1))
+            wall_top=.65 if abs((y+yy)/2)<8 or -82<(y+yy)/2<-80 else 3.70
+            opening=next((oy for oy in (-33,59) if y<oy<yy),None)
+            if opening is None:
+                b.geom([(x-4.2,y,.50),(xx-4.2,yy,.50),(xx-4.2,yy,wall_top),(x-4.2,y,wall_top)],[(0,1,2,3)],'concrete',(.65,.65,.60,1))
+            else:
+                # Radial frame quads leave a real circular aperture in the
+                # retaining face; the culvert's hollow barrel meets its rim.
+                inner=[];outer=[];oz=1.22;r=.4318
+                angles=sorted(set([k*math.tau/20 for k in range(20)]+[
+                    math.atan2(zz-oz,v-opening)%math.tau for v in (y,yy) for zz in (.50,wall_top)]))
+                for a in angles:
+                    dy,dz=math.cos(a),math.sin(a)
+                    limits=[]
+                    if abs(dy)>1e-8:limits.append(((yy if dy>0 else y)-opening)/dy)
+                    if abs(dz)>1e-8:limits.append(((wall_top if dz>0 else .50)-oz)/dz)
+                    t=min(limits)
+                    for ring,rr in ((inner,r),(outer,t)):
+                        v=opening+dy*rr;ring.append((edge(v)-4.2,v,oz+dz*rr))
+                for k in range(len(angles)):
+                    c=(k+1)%len(angles);b.geom([inner[c],inner[k],outer[k],outer[c]],[(0,1,2,3)],'concrete',(.65,.65,.60,1))
             b.geom([(x-4.03,y,wall_top+.025),(xx-4.03,yy,wall_top+.025),(xx-4.55,yy,wall_top+.025),(x-4.55,y,wall_top+.025)],[(0,1,2,3)],'concrete',(.72,.72,.67,1))
             trail.append((x-2.6,y,.65))
             if abs(y)>9:
@@ -50,6 +68,7 @@ def fixtures(p,parent):
     # 30in storm drain through a concrete endwall. The opening has no disk.
     for y in (-33,59):
         x=p.center(y)+p.halfwidth(y)*1.13;z=p.bed(x,y)
+        if p.kind=='downtown':x=p.center(y)+p.halfwidth(y)+4.20;z=.64
         b.box((x+.1,y,z+.1),(.35,2.1,.25))
         for side in (-1,1):b.box((x+.1,y+side*.65,z+.68),(.35,.40,1.15))
         b.box((x+.1,y,z+1.20),(.35,1.7,.22))
@@ -73,6 +92,8 @@ def fixtures(p,parent):
         import bmesh
         bm=bmesh.new();bm.from_mesh(right.data);bmesh.ops.reverse_faces(bm,faces=list(bm.faces));bm.to_mesh(right.data);bm.free()
     G.path('RiverbankTrail',trail,rt,'walk')
+    from wall_details import add
+    add(p,rt)
     return rt
 
 
