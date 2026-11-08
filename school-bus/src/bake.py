@@ -7,7 +7,8 @@ import argparse,json,sys,time
 from pathlib import Path
 import bpy,numpy as np
 from PIL import Image,ImageDraw,ImageFilter
-ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
+HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1]
+sys.path[:0]=[str(HERE),str(ROOT)]
 from kit import gpu
 from kit.bake import require_attribute_coordinates
 from kit.image_io import write_png,linear_to_srgb

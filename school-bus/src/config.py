@@ -10,7 +10,8 @@ UV_DEFAULT_PRIORITY=.65
 UV_PRIORITY={'District lettering':3,'Fleet number':2,'Front school':3,'Rear school':3,'Stop legend':3,
              'Rear emergency label':3,'Side exit label':3,
              'Front fictional':2,'Rear fictional':2,'Glass':.75,'Truck rim':1.1,'Tire':1.0,
-             'Lower folded':1.4,'Formed roof':1.1,'Compound hood':1.8,'Front nose':1.5,'Bench':.55}
+             'Lower folded':1.4,'Formed roof':1.1,'Compound hood':1.8,'Front nose':1.5,
+             'Worn entrance tread':2.0,'Bench_00':1.0,'Bench_01':.8,'Bench':.55}
 UV_DENSITY_BANDS=dict(reference_size=2048,p5_min=5,median_min=50,median_max=500,p95_max=1800)
 DELIVERY_SURFACES={
  'Paint':dict(principled={'Coat Weight':.25,'Coat Roughness':.22},factors={'Metallic':0},normal_strength=1),
