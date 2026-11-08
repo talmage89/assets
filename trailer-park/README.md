@@ -1,29 +1,37 @@
-# Manufactured home communities — dense parks and look-dev checkpoint
+# Manufactured home communities
+
+![Alder Court / older through-lane community](docs/hero-101.jpg)
+![Meadow Bend / newer loop community](docs/hero-202.jpg)
+![Both parks from above](docs/parks.jpg)
+![Home turnarounds, modules, scale and Eevee](docs/homes-modules.jpg)
+![Occupied lot and construction details](docs/details.jpg)
 
 An original, script-built family for an American town of 1995–2015. Alder
 Court is a compact older through-street community; Meadow Bend is a roomier
 1990s loop with double-wides, a clubhouse and a playground. The home, lot,
 addition and street grammar is reusable independently of either example.
 
-**This stops before final documentation.** One new manufactured-finish set
-is GPU-baked at 4096 and shipped at 2048. It combines with the native house,
-ground and prop sets; seeded mesh colors carry broad exposure and upkeep.
-The delivery remains exterior-only, without interiors or collision meshes.
-No `docs/` images or final gallery are produced at this gate. Image critiques
-and their remaining weaknesses are recorded in [REVIEW.md](REVIEW.md).
+The gallery imports the exported geometry and shipped textures. Lane heroes
+use Cycles, a 40 mm lens at 1.68 m, a procedural clear sky and an 18° raking
+sun. The last panel on the home sheet is Eevee. Cars, mature vegetation and
+surrounding town are native presentation actors, counted separately.
 
-The latest completion gate is **rejected**: sparse rust and a level street
-camera have improved, but the older hero still looks too clean and the lawn
-clumps expose their cards. Current 1440 px evidence is in
-`renders/finish-pass4/`; same-camera crops are in `renders/finish-fixes/`.
-The final view set, gallery and docs remain withheld.
+One new manufactured-finish set is GPU-baked at 4096 and shipped at 2048.
+It combines with the native house, ground and prop sets; seeded mesh colors
+carry broad exposure and upkeep. The delivery is exterior-only, without
+interiors or collision meshes. This final round delivers the complete family
+with the limitations below; it does not claim that every visual fix passed.
+[REVIEW.md](REVIEW.md) records the rejected passes and final critiques.
 
-Latest verification passes `make model check`, `make repeat` (74 files),
-`make check-texture-repeat` and the repository check. Own generated models
-and textures were rebuilt after removal, using cached native inputs.
-Full-delivery `make` is not claimed while this visual gate remains rejected.
+Full-size finals: [all views](renders/final/contact.jpg),
+[matched-light comparisons](renders/final/matched-contact.jpg),
+[source comparisons](renders/source/matched-contact.jpg), and
+[older hero](renders/final/Park-101/hero.png). Same-camera native comparisons:
+[home age](renders/last-round-fixes/01-home-age.jpg),
+[July lawn](renders/last-round-fixes/02-july-lawn.jpg), and
+[old lane](renders/last-round-fixes/03-lane-old.jpg).
 
-`make` regenerates the ignored checkpoint evidence. `build/metrics.md`
+`make` regenerates the complete delivery and gallery. `build/metrics.md`
 contains the complete six-home, 69-lot, module and park budget tables;
 render receipts keep presentation cars, vegetation and town separate.
 
@@ -218,7 +226,7 @@ separate at their inherited or authored pivots. Home axes are Blender Z:
 front door 0…100°, back −100…0°, storm −105…0°. `make check` sweeps the
 six standalone homes at 2° intervals with 1 mm tolerance: 18 motions,
 936 tested poses in total. Skirt access is a separate lift-out object.
-Native shed/gate motion definitions remain inherited; this checkpoint
+Native shed/gate motion definitions remain inherited; this delivery
 does not claim a complete sweep against every dressed lot neighbor.
 
 The exported parks also pass **1,365 static assembly-pair checks** between
@@ -255,8 +263,9 @@ and ORM (occlusion/roughness/metallic), **6,429,664 PNG bytes** in total.
 Our scripts create every field, bake it at 4096 using Cycles GPU, then
 downsample to shipping resolution. Atlas cells encode ribbed metal siding,
 rolled roofing, skirt, chassis steel, pier concrete, aluminum carport and
-hardware. Sparse fastener runoff, sheltered damp, grade splash and the garden's
-four clipped-blade variants occupy guarded cells in that same set. Coverage
+hardware. Sparse fastener runoff, sheltered damp, grade splash and fine
+asphalt fatigue occupy guarded cells in that same set. Individual clipped
+grass blades have varied geometry and the base turf's own hue. Coverage
 is analytic: GPU-bake RGB/normal/ORM first, then pack the original alpha field
 without premultiplying paint color. No reference pixels enter the atlas.
 Broad seeded exposure and caused wear multiply these fields via
@@ -275,12 +284,12 @@ Blender 5.2 and the repository's existing Python tools are required. No
 packages, scripts or binaries are downloaded. From this folder:
 
 ```sh
-make                         # references, models, checks, locked Cycles set, pairs, contacts
+make                         # references, models, checks, locked final views, pairs, contacts, docs
 make check                   # raw export, sampled dimensions, re-import, home door sweeps, repo rules
 make repeat                  # regenerate packages and compare bytes with cached native inputs
 make check-texture-repeat    # regenerate fields, locked GPU rebake, kit tolerance + exact coverage
 make model OLD_SEED=303 NEW_SEED=404 ROWS=9
-make render PASS=preview WIDTH=1000 SAMPLES=16
+make render DELIVERY=0 PASS=preview WIDTH=1000 SAMPLES=16
 make check-preservation
 ```
 
@@ -296,22 +305,22 @@ This optional historical input is separate from rebuilding the current
 family from scripts. No previous asset package is substituted for a current
 delivery, and the comparisons remain ignored review images.
 
-The current correction crops use the separately frozen `aa071cd` packages in
-`build/round4-before/export/`, with private copies of their Manufactured maps.
-`src/render_batch.py` reuses original frames only after GLB hash, camera,
-resolution and light equality checks; it renders the replacement street
-camera against that frozen export. `src/finish_crops.py --after
-renders/finish-pass4` builds the current comparisons. Historical input is
-optional and separate from rebuilding the current family.
+The last-round correction crops compare the supplied `5a3935d` frames in
+`renders/finish-pass4/` with `renders/final/`. Each panel is a native crop,
+at least 800 px wide; camera matrix, optics, resolution and eight lighting
+controls must match. Older `aa071cd` comparisons and the accepted camera
+correction remain separately available in `renders/finish-fixes/` and
+`build/round4-before/`. Historical inputs are optional and separate from
+rebuilding the current delivery.
 
-`kit/checkpoint_rules.mk` supplies the gate graph; `kit/with_gpu.sh` holds
+`kit/checkpoint_rules.mk` supplies the build graph; `kit/with_gpu.sh` holds
 the shared GPU lock once for the complete render batch. Modeling and
 checks use serial Blender processes. References are fetched only as
 images/PDFs into ignored `refs/`. Existing accepted native packages are
 read-only inputs. Missing native deliveries have a source-only fallback
 under `build/library/`, built with their original Makefiles; no sibling
 delivery is overwritten. The warm-input path is exercised here; a complete
-cold rebake of every native family has not been exercised in this checkpoint.
+cold rebake of every native family has not been exercised in this delivery.
 
 Evidence is local and rebuildable:
 
@@ -321,14 +330,15 @@ Evidence is local and rebuildable:
 | `build/check.json` | Raw triangle/normal/finite UV checks, zero collapsed geometry/UV triangles, fresh re-import counts, sampled physical dimensions, 1,000 deterministic plans |
 | `build/motion.json` | Sampled actual home-door meshes; no penetrations, no contact exceptions |
 | `build/repeat.json` | Byte identity of regenerated glTF/BIN/JSON/local PNGs, using cached native inputs; not a GPU rebake test |
-| `build/preserved*.json` | SHA-256 baselines for 1,212 pre-existing delivery/image files; all unchanged |
+| `build/preserved*.json` | SHA-256 baselines for 1,217 pre-existing delivery/image files, including merged freeway docs |
 | `build/look-check.json` | Atlas-cell containment, finite UVs, image resources, density and instance audits |
 | `build/metrics.md` | Every home, lot and module; unique/placed park and presentation counts; image memory |
-| `renders/checkpoint/<pass>/provenance.json` | Fresh embedded GLB imports, source/image hashes, cameras, light and actual context triangles |
-| `renders/checkpoint/<pass>/sources/` | Exact embedded GLBs used by that pass, retaining its original baked images |
-| `renders/checkpoint/<pass>/tonal-report.json` | Percentiles and near-clip fractions; supports visual judgement, not albedo certification |
-| `renders/checkpoint/<pass>/source-verification.json` | Archived GLB and referenced image SHA-256 receipts |
-| `renders/checkpoint/<pass>/matches/` | Three construction pairs plus a supplementary newer-lane pair; neutral balance, anchor overlays and residuals |
+| `renders/final/provenance.json` | Fresh embedded GLB imports, source/image hashes, cameras, light and actual context triangles |
+| `renders/final/sources/` | Exact embedded GLBs used by the finals, retaining their baked images |
+| `renders/final/tonal-report.json` | Percentiles and near-clip fractions; supports visual judgement, not albedo certification |
+| `renders/final/source-verification.json` | Archived GLB and referenced image SHA-256 receipts |
+| `renders/final/matches/` | Three construction pairs plus a supplementary newer-lane pair; neutral balance, anchor overlays and residuals |
+| `build/final-provenance.json`, `build/docs.json` | Current-package final coverage and five bounded gallery JPG receipts |
 
 Heroes are perspective views from 1.68 m at 40 mm under a procedural clear
 sky and 18° raking sun. The complete set also includes turnarounds,
@@ -344,8 +354,8 @@ Neither fit proves that this fictional park reproduces a photographed site.
 Neutral patches are identified and balanced in linear RGB before comparing
 values. The final critique records what still reads as CG.
 
-There are no interiors. This checkpoint does not claim structural/civil
+There are no interiors. This delivery does not claim structural/civil
 certification, unique lightmap packing, full-site motion clearance or final
 draw-call batching. Native shed/pole/playground adapters, household plants
-and the schematic dumpster remain less developed than the homes. No kit,
-top-level README or final docs images are changed.
+and the schematic dumpster remain less developed than the homes. No kit or
+top-level README is edited by this family.
