@@ -17,7 +17,7 @@ def main():
         rows['existing_delivery_bytes']=unchanged
     # This round also preserved all other families' deliveries and docs.
     # The optional historical manifest stays ignored, beside its archived inputs.
-    preservation=BASE.parent/'build/bus-round2/other-deliveries.json'
+    preservation=BASE.parent/'build/bus-round3/other-deliveries.json'
     if preservation.exists():
         hashes=json.loads(preservation.read_text())
         rows['all_other_family_delivery_bytes']=all(
@@ -25,7 +25,7 @@ def main():
             for p,digest in hashes.items())
     bake=json.loads((BASE/'textures/4k/bake-report.json').read_text())
     rows['dense_mold_projection']=bake['front_projection']['independent_triangle_center_rays']['exact_surface_fallback_area_fraction']<=.01
-    result=dict(passed=all(rows.values()),checks=rows,scope='Round 2 exported look checkpoint; construction, serialization, image provenance and material appearance are distinct proofs')
+    result=dict(passed=all(rows.values()),checks=rows,scope='C75 delivery audit; construction, serialization, image provenance and material appearance are distinct proofs')
     (BASE/'build/checkpoint-check.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))
     if not result['passed']:raise SystemExit(1)
 if __name__=='__main__':main()

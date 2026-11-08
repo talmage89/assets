@@ -1,20 +1,21 @@
-# Round 2 form/look checkpoint. Documentation images remain deferred.
+# C75 delivery: source, shared atlas, three external-image glTFs and exports-only views.
 .DELETE_ON_ERROR:
 CHECKPOINT_BLEND := build/bus-101.blend
 CHECKPOINT_ARGS := --seed 101
 CHECKPOINT_DEPS := src/build.py src/front.py src/interior_shapes.py src/weathering.py src/spec.py src/finishes.py src/markings.py build/markings/.stamp
-CHECKPOINT_OUT := renders/checkpoint
+CHECKPOINT_OUT := renders/final
 WIDTH ?= 1400
 SAMPLES ?= 48
 BLENDER ?= blender -t 4
 SEEDS := 101 102 103
 DELIVERIES := $(foreach s,$(SEEDS),export/C75-$(s).gltf export/C75-$(s).bin)
-VIEWS := hero original_hero front side rear top rear_three_quarter front_detail entrance interior aisle aisle_daylight side_interior warning emergency roof scale fleet
+VIEWS := hero original_hero front side rear top rear_three_quarter front_detail lamp_detail hood_surface entrance interior aisle aisle_daylight side_interior warning emergency roof wheels scale fleet
 MATCH_VIEWS := service_front service_side service_rear vision_front
 LEAK_VIEWS := front side rear top front_three_quarter rear_three_quarter
-CHECKPOINT_RENDER_OUTPUTS := $(foreach v,$(VIEWS),renders/checkpoint/$(v).png) renders/checkpoint/provenance.json \
+REFLECTION_OUTPUTS := $(foreach d,export-full export source dense,$(foreach v,three_quarter crown,renders/curvature/$(d)/$(v).png) renders/curvature/$(d)/provenance.json)
+CHECKPOINT_RENDER_OUTPUTS := $(foreach v,$(VIEWS),$(CHECKPOINT_OUT)/$(v).png) $(CHECKPOINT_OUT)/provenance.json \
     $(foreach v,$(LEAK_VIEWS),renders/seethrough/$(v).png renders/seethrough/$(v)-envelope.png renders/seethrough/$(v)-leaks.png) renders/seethrough/counts.json \
-    renders/seethrough/hero-paint.png renders/eevee/hero.png renders/eevee/provenance.json
+    renders/seethrough/hero-paint.png renders/eevee/hero.png renders/eevee/provenance.json $(REFLECTION_OUTPUTS)
 PHOTO_RENDER_OUTPUTS := $(foreach v,$(MATCH_VIEWS),renders/matches/$(v).png renders/source-matches/$(v).png) \
     renders/matches/provenance.json renders/source-matches/provenance.json
 # The family checkpoint supports glTF external images, superseding the kit's GLB default argument.
@@ -82,7 +83,7 @@ build/calibration-verified.stamp: build/calibration.json
 build/school-fit.json build/school-stage.json &: $(DELIVERIES) build/model-check.json src/check_school_fit.py src/school_stage.py src/school_context.py
 	$(BP) --python src/check_school_fit.py
 
-$(CHECKPOINT_RENDER_OUTPUTS): $(DELIVERIES) build/finalized.blend build/school-fit.json build/school-stage.json $(foreach s,$(SEEDS),build/delivery-$(s).json) src/views.py src/school_stage.py src/school_context.py src/lighting_context.py src/glass_lighting.py src/lamp_states.py src/seethrough.py src/repair_baseline.py
+$(CHECKPOINT_RENDER_OUTPUTS): $(DELIVERIES) build/finalized.blend build/school-fit.json build/school-stage.json $(foreach s,$(SEEDS),build/delivery-$(s).json) src/views.py src/school_stage.py src/school_context.py src/lighting_context.py src/glass_lighting.py src/lamp_states.py src/seethrough.py src/reflection_lines.py
 # A clean gallery batch also renders all eight comparisons. Calibration changes
 # alone refresh only those comparisons, preserving verified gallery images.
 $(CHECKPOINT_RENDER_OUTPUTS): | build/calibration-verified.stamp
@@ -104,10 +105,26 @@ look-bake: build/finalized.blend
 
 # Section cuts are actual triangle/plane intersections, independent of renders.
 .PHONY: front-sections
-front-sections: renders/round2-front-final/source-sections.png renders/round2-front-final/export-sections.png
-renders/round2-front-final/source-sections.json: $(CHECKPOINT_BLEND) src/front_sections.py
+all: front-sections
+front-sections: renders/curvature/source-sections.png renders/curvature/export-sections.png
+renders/curvature/source-sections.json: $(CHECKPOINT_BLEND) src/front_sections.py
+	@mkdir -p $(@D)
 	$(BP) --python src/front_sections.py -- --source $< --out $@
-renders/round2-front-final/export-sections.json: export/C75-101.gltf export/C75-101.bin src/front_sections.py
+renders/curvature/export-sections.json: export/C75-101.gltf export/C75-101.bin src/front_sections.py
+	@mkdir -p $(@D)
 	$(BP) --python src/front_sections.py -- --source $< --out $@
-renders/round2-front-final/%.png: renders/round2-front-final/%.json src/front_sections.py
+renders/curvature/%.png: renders/curvature/%.json src/front_sections.py
 	$(PYTHON) src/front_sections.py --plot --out $<
+
+.PHONY: repeat check-texture-repeat fixes
+fixes: render
+	$(PYTHON) src/finish_pairs.py
+repeat: export
+	$(PYTHON) src/repeat.py --blender '$(BLENDER)'
+check-texture-repeat: export
+	$(PYTHON) src/texture_repeat.py --blender '$(BLENDER)'
+
+.PHONY: clean-delivery
+clean: clean-delivery
+clean-delivery:
+	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('textures','export')]"

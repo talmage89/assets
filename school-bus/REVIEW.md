@@ -1,4 +1,4 @@
-# C75 form and construction checkpoint
+# C75 asset review
 
 ## Round 3 — pass 1, refreshed baseline rejected
 
@@ -155,6 +155,56 @@ All 29 deterministic files now match byte for byte across independent source,
 UV, marking and three-seed export builds. GPU bakes remain separate inputs;
 the diagnostic used a held texture set and is not a visual delivery. Clear
 those temporary outputs and run the default build, with a fresh bake, next.
+
+## Round 3 — pass 5, current exported gallery and held-camera repairs
+
+Color/value first: opened all 21 native 1400px final Cycles views, the Eevee
+view, all eight raw source/export service matches and their eight photo pairs.
+The snow-balanced first front and parking-stripe-balanced second front now
+support a yellow enamel field, rather than the old peach. Broad sky reflections
+remain lighter than the diffuse paint; these photographs do not recover a
+calibrated albedo. The accepted low-sun school lane retains saturated yellow,
+dark wheel wells and deep underbody shade. Paint median/p99 displayed luma are
+.5865/.6693, with no clipped channels; 30.52% of bus pixels are below 25/255.
+Those measurements exclude the campus and sky and support, rather than decide,
+visual acceptance. The same daylight ceiling crop changes from RGB112/137/135
+to135/136/134. Gray lining, brown period vinyl and black rubber are distinct.
+
+Opened all eight 1400px-per-side repair pairs. The new lamp opening has a fair
+yellow return, a narrow seal and curved cover seated within the molding; the
+pinched fin and projecting black box are gone. The windscreen's pale header
+band is gone. The closed rear view also confirms readable emergency lettering
+after the print-normal repair. The fresh hero and fleet now show the alternate
+district/fleet markings that were missing from their old gallery images.
+
+Opened all eight reflection-line renders and both actual section plots. The
+isolated dense, source and exported crown bands run continuously; the broad
+soft dents are gone. The exported normal field adds pixel grain at diagnostic
+roughness.055, from filtering/quantization and the small chip relief. Ordinary
+enamel does not display that chrome-level grain. Complete-scene reflections
+also include the mirrors and their supports; their oval reflections disappear
+from the isolated mold without altering its delivered normals. The grille edge
+and shoulder transitions remain deliberate. All 19 blocker/envelope/leak/paint
+diagnostic images were opened; the six leak images contain zero resolved pixels.
+
+Compared the native source optical probes with the baked close-ups: the fair
+opening survives, while fine chips and reflector detail soften in the atlas.
+The cabin's top rolls and welts now read, but their corner sampling and repeated
+bench shapes still read as CG at aisle-camera range. Warning/rear optics and
+driver controls remain simple; small type, fasteners and tape patches soften;
+the underside is schematic. Eevee's sheet-glass approximation has paler/noisier
+panes than Cycles. These are the remaining limits of an exterior game vehicle.
+
+The actual cold default `make` passes, including current exports, all checks,
+gallery, pairs and section plots. Exact `make repeat` passes all34 deterministic
+files, including UV/export reports and the atlas manifest. The independent GPU
+rebake is still pending; final proof and documentation-image commit wait for it.
+The six requested visual repairs show in their views. Proceed to final docs.
+
+## Earlier form and round-2 history
+
+The following records earlier states. Round3 above supersedes the old pending
+gallery and detached-supervisor notes below.
 
 This is the requested stop before look development. Quick surfaces are baked
 and judged on the export later in this log; this is not final game-ready acceptance.

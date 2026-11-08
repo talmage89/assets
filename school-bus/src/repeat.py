@@ -9,7 +9,8 @@ from pathlib import Path
 def snapshot():
     files=list(Path('export').glob('C75-*.*'))+list(Path('export/shared').glob('*.png'))
     files+=list(Path('build/markings').glob('*.png'))+list(Path('textures/2k').glob('*.png'))
-    files+=[Path('build/bus-101.counts.json')]
+    files+=[Path('build/bus-101.counts.json'),Path('build/uv.json'),Path('export/shared/atlas-source.json')]
+    files += [Path(f'build/export-{seed}.json') for seed in [101,102,103]]
     return {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)}
 
 def main():
@@ -43,7 +44,7 @@ def main():
             subprocess.run(command,check=True,stdout=log,stderr=subprocess.STDOUT)
     new=snapshot();changed=sorted(p for p in old.keys()|new.keys() if old.get(p)!=new.get(p))
     result=dict(passed=not changed,changed=changed,files=new,reference_files=old,reference_root=str(reference),
-                scope='Exact independent source-counts, generated marking PNGs, re-packed/re-exported GLB/glTF/BIN and shared PNG bytes. GPU rebakes and Blender timestamped containers excluded.')
+                scope='Exact independent source-counts, UV/export reports, atlas manifest, generated marking PNGs, re-packed/re-exported GLB/glTF/BIN and shared PNG bytes. GPU rebakes and Blender timestamped containers excluded.')
     Path('build/repeat.json').write_text(json.dumps(result,indent=2))
     if changed:raise SystemExit('Non-identical deterministic files: '+', '.join(changed))
     # Source-photo receipts hash the authoring containers too. Their timestamps

@@ -1,4 +1,4 @@
-"""Checkpoint presentation always imports the delivery for exported views."""
+"""Bus gallery imports the delivery; source probes are explicitly labeled."""
 import argparse,hashlib,json,math,sys
 from pathlib import Path
 import bpy
@@ -130,6 +130,8 @@ def render(a):
             # the real panes. No fill lamps are hidden inside the cabin.
             sun.data.energy=.75;cloud.inputs[0].default_value=.75;bg.inputs[1].default_value=2.5
         if 'exposure' in s:sc.view_settings.exposure=s['exposure']
+        sc.view_settings.use_white_balance='whitepoint' in s
+        if 'whitepoint' in s:sc.view_settings.white_balance_whitepoint=s['whitepoint']
         if s.get('fleet'):
             for seed,dx in [(102,-4.1),(103,4.1)]:
                 obs=imported(path.parent/f'C75-{seed}.gltf')
@@ -158,7 +160,8 @@ def render(a):
             glass='Car-family thin-sheet Fresnel fallback, applied once per finite pane with transparent rear surface' if a.engine=='BLENDER_EEVEE' else 'Cycles camera refraction; parallel-pane colored shadow transmission',
             background_context='Original charcoal horizon flags approximating the photographed tree enclosure' if name.startswith(('service_','vision_')) else 'Full-height neutral charcoal studio wall' if name in ['front','side','rear'] else 'Procedural environment',
             graphics_backend=display_gpu.platform.renderer_get() if a.engine=='BLENDER_EEVEE' else None,
-            lighting=dict(sun_energy=sun.data.energy,sun_rotation=list(sun.rotation_euler),sky=bg.inputs[1].default_value,cloud_mix=cloud.inputs[0].default_value,exposure=sc.view_settings.exposure))
+            lighting=dict(sun_energy=sun.data.energy,sun_rotation=list(sun.rotation_euler),sky=bg.inputs[1].default_value,cloud_mix=cloud.inputs[0].default_value,exposure=sc.view_settings.exposure,
+                          white_balance_whitepoint=s.get('whitepoint'),white_balance_neutral='Light gray ceiling; adaptation to daylight through the accepted tinted glass' if 'whitepoint' in s else None))
         if s.get('fleet'):receipts[name]['fleet_inputs']={str(seed):digest(path.parent/f'C75-{seed}.gltf') for seed in [101,102,103]}
         if s.get('human'):
             def height(obs):
@@ -184,8 +187,25 @@ def checkpoint_batch(a):
         dict(source=a.source,out=str(base/'renders/eevee'),shots='hero',school=None,calibration=None,engine='BLENDER_EEVEE')]
     for phase in phases:
         values=vars(a).copy();values.update(phase);render(argparse.Namespace(**values))
-    from repair_baseline import render as baseline
-    baseline(a.width,a.samples)
+    from reflection_lines import render as stripes
+    for label,source,part in [('export-full',Path(a.source),None),('export',Path(a.source),'hood'),
+                              ('source',base/'build/bus-101.blend','hood'),('dense',base/'build/bus-101.blend','dense')]:
+        stripes(source,base/'renders/curvature'/label,width=1200,samples=32,part=part)
+    archive=ROOT/'build/bus-round3/before/export/C75-101.gltf'
+    if archive.exists():
+        original=ROOT/'build/bus-round3/before-cameras.json'
+        if original.exists():
+            values=vars(a).copy();values.update(source=str(archive),out=str(base/'renders/round3-before'),
+                shots='all',school=None,calibration=str(original),engine='CYCLES')
+            render(argparse.Namespace(**values))
+        values=vars(a).copy();values.update(source=str(archive),out=str(base/'renders/round3-before/details'),
+            shots='lamp_detail,hood_surface',school=None,calibration=None,engine='CYCLES')
+        render(argparse.Namespace(**values))
+    probe=ROOT/'build/bus-round3/fair-optics-low.blend'
+    if probe.exists():
+        values=vars(a).copy();values.update(source=str(probe),out=str(base/'renders/round3-optics-source'),
+            shots='front_detail,lamp_detail,hood_surface',school=None,calibration=None,engine='CYCLES')
+        render(argparse.Namespace(**values))
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True);p.add_argument('--shots',default='all');p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=48);p.add_argument('--engine',default='CYCLES');p.add_argument('--school');p.add_argument('--calibration');p.add_argument('--checkpoint-batch',action='store_true')

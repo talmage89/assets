@@ -1,4 +1,4 @@
-"""Ignored review contact sheets only; checkpoint never writes final docs JPGs."""
+"""Export provenance, tonal measurements and ignored final contact sheets."""
 from pathlib import Path
 import math,hashlib,json
 import numpy as np
@@ -22,7 +22,7 @@ def sheet(paths,out,cols=3,w=520,h=370):
         im.paste(tile,(x+(w-tile.width)//2,y+29+(h-42-tile.height)//2));d.text((x+10,y+6),label,font=FONT,fill=(25,30,27))
     im.save(out,quality=92,optimize=True)
 def main():
-    folder=BASE/'renders/checkpoint';paths=[folder/(n+'.png') for n in ['hero','original_hero','front','side','rear','top','rear_three_quarter','front_detail','entrance','interior','aisle','aisle_daylight','side_interior','warning','emergency','roof','scale','fleet']]
+    folder=BASE/'renders/final';paths=[folder/(n+'.png') for n in ['hero','original_hero','front','side','rear','top','rear_three_quarter','front_detail','lamp_detail','hood_surface','entrance','interior','aisle','aisle_daylight','side_interior','warning','emergency','roof','wheels','scale','fleet']]
     source=BASE/'export/C75-101.gltf';digest=signature(source)
     calibration=json.loads((BASE/'build/calibration.json').read_text())
     receipts=json.loads((folder/'provenance.json').read_text())
@@ -69,8 +69,5 @@ def main():
     sheet(paths+[BASE/'renders/eevee/hero.png'],folder/'contact.jpg');sheet([folder/(n+'.png') for n in ['front','side','rear','top']],folder/'turnaround.jpg',2,w=720,h=480)
     pairs=list((BASE/'renders/matches').glob('*-pair.jpg'))
     if pairs:sheet(pairs,BASE/'renders/matches/contact.jpg',1,w=1500,h=800)
-    if (BASE/'renders/round2-before/new-hero-camera/provenance.json').exists():
-        from repair_pairs import main as repairs
-        repairs()
     print('REVIEW_SHEETS',folder/'contact.jpg',folder/'turnaround.jpg')
 if __name__=='__main__':main()
