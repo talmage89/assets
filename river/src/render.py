@@ -18,25 +18,25 @@ def setup(width,samples):
     sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable()
     sc.cycles.samples=samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=8
     sc.cycles.transmission_bounces=6;sc.cycles.volume_bounces=2;sc.render.resolution_x=width;sc.render.resolution_y=round(width*2/3);sc.render.resolution_percentage=100
-    sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.4
+    sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.15
     sc.world=bpy.data.worlds.new('Procedural clear late-afternoon sky');sc.world.use_nodes=True
     nodes=sc.world.node_tree.nodes;links=sc.world.node_tree.links
-    sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(18);sky.sun_rotation=math.radians(224);sky.sun_disc=False
+    sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(16);sky.sun_rotation=math.radians(-115);sky.sun_disc=False
     sky.altitude=100;sky.air_density=.8
     # Neutral diffuse sky fill preserves gray concrete in shade. A separate
     # camera-ray strength retains the clear sky's deeper photographic value.
     sat=nodes.new('ShaderNodeHueSaturation');sat.inputs['Saturation'].default_value=.55
     grade=nodes.new('ShaderNodeMixRGB');grade.blend_type='MULTIPLY';grade.inputs[0].default_value=1;grade.inputs[2].default_value=(1.18,1.04,.80,1)
     links.new(sky.outputs[0],sat.inputs['Color']);links.new(sat.outputs[0],grade.inputs[1])
-    bg=nodes.get('Background');links.new(grade.outputs[0],bg.inputs[0]);bg.inputs[1].default_value=.30
-    visible=nodes.new('ShaderNodeBackground');links.new(sky.outputs[0],visible.inputs[0]);visible.inputs[1].default_value=.035
+    bg=nodes.get('Background');links.new(grade.outputs[0],bg.inputs[0]);bg.inputs[1].default_value=.26
+    visible=nodes.new('ShaderNodeBackground');links.new(sky.outputs[0],visible.inputs[0]);visible.inputs[1].default_value=.10
     lp=nodes.new('ShaderNodeLightPath');mix=nodes.new('ShaderNodeMixShader')
     ray=nodes.new('ShaderNodeMath');ray.operation='MAXIMUM'
-    links.new(lp.outputs['Is Camera Ray'],ray.inputs[0]);links.new(lp.outputs['Is Glossy Ray'],ray.inputs[1])
+    links.new(lp.outputs['Is Camera Ray'],ray.inputs[0])
     links.new(ray.outputs[0],mix.inputs[0]);links.new(bg.outputs[0],mix.inputs[1]);links.new(visible.outputs[0],mix.inputs[2]);links.new(mix.outputs[0],nodes.get('World Output').inputs[0])
-    light=bpy.data.lights.new('Low raking sun','SUN');light.energy=3.7;light.color=(1,.88,.73);light.angle=math.radians(.65)
+    light=bpy.data.lights.new('Low raking sun','SUN');light.energy=5.5;light.color=(1,.94,.84);light.angle=math.radians(.53)
     sun=bpy.data.objects.new(light.name,light);sc.collection.objects.link(sun)
-    direction=Vector((-.69,-.66,.31));sun.rotation_euler=(-direction).to_track_quat('-Z','Y').to_euler()
+    direction=Vector((-.40,-.876,.276));sun.rotation_euler=(-direction).to_track_quat('-Z','Y').to_euler()
     cam=bpy.data.objects.new('Review camera',bpy.data.cameras.new('Review camera'));sc.collection.objects.link(cam);sc.camera=cam
     cam.data.clip_end=2500;cam.data.clip_start=.04;cam.data.sensor_width=36;cam.data.sensor_fit='HORIZONTAL'
     return sc,cam
@@ -79,7 +79,7 @@ def restore_native_leaves():
 
 
 def shot(sc,cam,definition,path,source,width,samples):
-    sc.view_settings.exposure=definition.get('exposure',-.4)
+    sc.view_settings.exposure=definition.get('exposure',-.15)
     cam.location=definition['location'];cam.rotation_euler=(Vector(definition['target'])-cam.location).to_track_quat('-Z','Y').to_euler()
     if definition.get('roll'):cam.rotation_euler.rotate_axis('Z',definition['roll'])
     cam.data.lens=definition['lens'];sc.render.resolution_x=width;sc.render.resolution_y=round(width/definition.get('aspect',1.5))
@@ -88,7 +88,7 @@ def shot(sc,cam,definition,path,source,width,samples):
     path.with_suffix('.json').write_text(json.dumps(dict(source=str(source),bundle_sha256=bundle(source),
         stage='fresh external glTF import / quick PBR form checkpoint',camera=definition,
         engine='CYCLES',samples=samples,width=width,water='imported normal, interpolated _FLOW response and uniform absorption extras',
-        sun_elevation_degrees=18,exposure=sc.view_settings.exposure),indent=2)+'\n')
+        sun_elevation_degrees=16,sun_direction=[-.40,-.876,.276],exposure=sc.view_settings.exposure),indent=2)+'\n')
 
 
 def render(seed,out,width,samples,names):

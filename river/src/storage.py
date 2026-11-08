@@ -34,12 +34,15 @@ def compact(d,binary):
         elif isinstance(value,list):
             for v in value:yield from textures(v)
     # A common UV decode for every use of one material/channel.
+    foliage_meshes={n['mesh'] for n in d['nodes'] if 'mesh' in n and n.get('extras',{}).get('river_category')=='vegetation'}
+    exact_uv_materials={pr['material'] for mi in foliage_meshes for pr in d['meshes'][mi]['primitives']}
     groups={}
     for mesh in d['meshes']:
         for pr in mesh['primitives']:
             for key,index in pr['attributes'].items():
                 if key.startswith('TEXCOORD_'):groups.setdefault((pr['material'],int(key[9:])),set()).add(index)
     for (material,channel),indices in groups.items():
+        if material in exact_uv_materials:continue
         samples=[read(i) for i in sorted(indices)];lo=np.min([v.min(axis=0) for v in samples],axis=0)
         extent=np.maximum(np.max([v.max(axis=0) for v in samples],axis=0)-lo,1e-6)
         # Keep long terrain charts exact; native building charts fit below 64.
