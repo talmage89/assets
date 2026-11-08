@@ -6,8 +6,8 @@ and Fresnel loss instead of losing direct daylight to unsampled caustics.
 """
 import bpy
 
-def install():
-    for mat in bpy.data.materials:
+def install(materials=None):
+    for mat in bpy.data.materials if materials is None else materials:
         if not mat.use_nodes:continue
         nt=mat.node_tree;bs=next((n for n in nt.nodes if n.type=='BSDF_PRINCIPLED'),None)
         if not bs or not (mat.get('vehicle_glass') or bs.inputs['Transmission Weight'].default_value>0):continue

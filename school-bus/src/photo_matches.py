@@ -10,7 +10,8 @@ BASE=Path(__file__).resolve().parents[1]
 def match(photo,title,location,target,lens,world,pixels):
     path=BASE/'build/balanced'/photo;w,h=Image.open(path).size;scale=w/1400
     return dict(photo=str(path),title=title,crop=tuple(round(v) for v in (-w*.10,-h*.06,w*1.10,h*1.06)),location=location,target=target,lens=lens,
-        lens_bounds_mm=(20,100),camera_height_m=(1.65,.8),background='transparent',exposure=2.0,
+        lens_bounds_mm=(20,100),camera_height_m=(1.65,.8),background='transparent',
+        exposure={'service-front.jpg':2.6,'used-long-side.jpg':2.7,'service-rear.jpg':2.2,'vision-service.jpg':2.4}[photo],
         landmarks=[dict(world=p,pixel=(u*scale,v*scale)) for p,(u,v) in zip(world,pixels)])
 F,R,H=S.FRONT_AXLE,S.REAR_AXLE,S.HUB
 MATCHES={

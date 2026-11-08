@@ -2,6 +2,7 @@
 import argparse,hashlib,json,math,sys
 from pathlib import Path
 import bpy
+import gpu as display_gpu
 from mathutils import Vector,Matrix
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];sys.path[:0]=[str(HERE),str(ROOT),str(ROOT/'cars/src')]
 from kit import gpu,model as G
@@ -21,6 +22,8 @@ def setup(width,samples,engine):
     ld=bpy.data.lights.new('Low raking sun','SUN');ld.energy=3.0;ld.angle=math.radians(.8);ld.color=(1,.94,.84)
     sun=bpy.data.objects.new(ld.name,ld);sc.collection.objects.link(sun);sun.rotation_euler=Vector((.60,.80,-.33)).to_track_quat('-Z','Y').to_euler()
     G.box('Checkpoint asphalt',(0,0,-.030),(1000,1000,.06),material('Asphalt',(.047,.052,.052)),0)
+    screen=G.box('Side studio backdrop',(10,0,0),(.04,40,20),material('Charcoal studio backdrop',(.035,.040,.038),.88),0)
+    screen.hide_render=True
     cam=bpy.data.objects.new('Bus checkpoint camera',bpy.data.cameras.new('Bus checkpoint camera'));sc.collection.objects.link(cam);sc.camera=cam;cam.data.sensor_width=36;cam.data.sensor_fit='HORIZONTAL';cam.data.clip_start=.025;cam.data.clip_end=10000
     sc.render.resolution_x=width;sc.render.resolution_percentage=100;sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA'
     sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.25
@@ -55,7 +58,13 @@ def pose(shot):
 
 def imported(path):
     before=set(bpy.context.scene.objects);bpy.ops.import_scene.gltf(filepath=str(path.resolve()))
-    return list(set(bpy.context.scene.objects)-before)
+    objects=list(set(bpy.context.scene.objects)-before)
+    if path.stem.startswith('C75-') and bpy.context.scene.render.engine=='CYCLES':
+        # Queued/fleet buses get the same pane lighting as the lead bus.
+        # Restrict this to their own bindings, leaving native campus data alone.
+        from glass_lighting import install
+        install({m for ob in objects if ob.type=='MESH' for m in ob.data.materials if m})
+    return objects
 
 def eevee_finite_panes():
     """Apply the car sheet approximation once per closed, finite bus pane.
@@ -63,6 +72,12 @@ def eevee_finite_panes():
     Its rear surface must not add a second sheet Fresnel/TIR response to an
     unrefracted transparent ray. Delivery geometry and Cycles stay physical.
     """
+    # Source glazing links its transmission mask; this default only lets the
+    # unchanged car adapter identify that transmissive surface in a preview.
+    for mat in bpy.data.materials:
+        if mat.get('vehicle_glass'):
+            bs=mat.node_tree.nodes.get('SURFACE')
+            if bs:bs.inputs['Transmission Weight'].default_value=1
     from delivery_materials import eevee_glass
     eevee_glass()
     for mat in bpy.data.materials:
@@ -84,7 +99,10 @@ def render(a):
     if path.suffix=='.blend':bpy.ops.wm.open_mainfile(filepath=str(path))
     else:imported(path)
     if a.engine=='BLENDER_EEVEE':
-        eevee_finite_panes();bpy.context.scene.eevee.taa_render_samples=max(192,a.samples);bpy.context.scene.eevee.use_raytracing=True
+        eevee_finite_panes();bpy.context.scene.eevee.taa_render_samples=max(32 if path.suffix=='.blend' else 192,a.samples);bpy.context.scene.eevee.use_raytracing=True
+    else:
+        from glass_lighting import install
+        install()
     for ob in bpy.context.scene.objects:
         if ob.get('bake_only'):ob.hide_render=True
     cam=setup(a.width,a.samples,a.engine);sc=bpy.context.scene;receipts={}
@@ -92,14 +110,25 @@ def render(a):
     if a.calibration:shots={n:d['shot'] for n,d in json.loads(Path(a.calibration).read_text()).items()}
     for name,s in shots.items():
         temp=[];vals=pose(s)
-        bpy.data.objects['Checkpoint asphalt'].hide_render=bool(name=='hero' and a.school)
+        # Horizontal orthographic elevations use the full-height studio card;
+        # their parallel rays below Z=0 otherwise see an unlit ground edge.
+        bpy.data.objects['Checkpoint asphalt'].hide_render=bool(name=='hero' and a.school) or name in ['front','side','rear']
+        screen=bpy.data.objects['Side studio backdrop'];screen.hide_render=name not in ['front','side','rear']
+        if not screen.hide_render:
+            direction=Vector((s['location'][0],s['location'][1],0)).normalized()
+            screen.location=-direction*10
+            screen.rotation_euler=direction.to_track_quat('X','Z').to_euler()
         sun=bpy.data.objects['Low raking sun'];cloud=sc.world.node_tree.nodes['Reference cloud'];bg=sc.world.node_tree.nodes['Background']
         sun.data.energy=3.0;cloud.inputs[0].default_value=0;bg.inputs[1].default_value=.18;sc.view_settings.exposure=-.25
         sun.rotation_euler=Vector((.60,.80,-.33)).to_track_quat('-Z','Y').to_euler()
-        if name in ['service_front','service_rear']:
-            sun.data.energy=0;cloud.inputs[0].default_value=.85;bg.inputs[1].default_value=.60;sc.view_settings.exposure=.80
-        if name=='service_side':
-            sun.data.energy=3.5;bg.inputs[1].default_value=.14;sun.rotation_euler=Vector((-.75,.15,-.95)).to_track_quat('-Z','Y').to_euler()
+        if name in ['service_front','service_side','service_rear','vision_front']:
+            sun.data.energy=0;cloud.inputs[0].default_value=1;cloud.inputs[2].default_value=(.60,.60,.60,1);bg.inputs[1].default_value=.60
+            from lighting_context import flags
+            temp+=flags(s['location'],side_reflection=name=='service_rear')
+        if name in ['aisle','aisle_daylight']:
+            # An interior daylight exposure, with a broad bright sky through
+            # the real panes. No fill lamps are hidden inside the cabin.
+            sun.data.energy=.75;cloud.inputs[0].default_value=.75;bg.inputs[1].default_value=2.5
         if 'exposure' in s:sc.view_settings.exposure=s['exposure']
         if s.get('fleet'):
             for seed,dx in [(102,-4.1),(103,4.1)]:
@@ -114,14 +143,10 @@ def render(a):
             for ob in children:
                 ob.location*=1.1/1.8;ob.scale*=1.1/1.8;ob.location+=Vector((-2.5,-4.0,0))
         if name=='hero' and a.school:
-            school=Path(a.school).resolve();obs=imported(school);temp+=obs
-            # Place the native campus so the actual reserved socket sits at the bus origin.
-            socket=next(o for o in obs if 'Bus_loading_0' in o.name)
-            bpy.context.view_layer.update();xf=socket.matrix_world.inverted()
-            for ob in obs:
-                if ob.parent is None:ob.matrix_world=xf@ob.matrix_world
-            receipts['school']=dict(source=str(school.relative_to(ROOT)),sha256=digest(school),socket=socket.name,
-                fit='Original 11m reservation with a 12.192m bus; centered fit measured separately')
+            from school_stage import place
+            obs,receipt=place(Path(a.school).resolve(),path,imported,digest,ROOT)
+            temp+=obs;receipts['school']=receipt
+            sun.rotation_euler=Vector((-.60,.80,-.33)).to_track_quat('-Z','Y').to_euler()
         cam.location=s['location'];cam.rotation_euler=(Vector(s['target'])-cam.location).to_track_quat('-Z','Y').to_euler();cam.rotation_euler.rotate_axis('Z',s.get('roll',0))
         cam.data.type='ORTHO' if 'ortho' in s else 'PERSP';cam.data.ortho_scale=s.get('ortho',14);cam.data.lens=s['lens']
         sc.render.resolution_y=round(a.width/s.get('aspect',1.78));sc.render.filepath=str((out/f'{name}.png').resolve())
@@ -130,7 +155,9 @@ def render(a):
         receipts[name]=dict(camera=s,source=str(path.relative_to(ROOT)),sha256=digest(path),stage='source' if path.suffix=='.blend' else 'export',engine=a.engine,width=a.width,samples=a.samples,
             engine_samples=sc.cycles.samples if a.engine=='CYCLES' else sc.eevee.taa_render_samples,
             posed_nodes={ob.name:dict(matrix_world=[list(row) for row in ob.matrix_world],rotation_delta_degrees=math.degrees((ob.matrix_world.to_quaternion()@rest.to_quaternion().inverted()).angle)) for ob,rest in vals.items() if (ob.matrix_world.to_quaternion()@rest.to_quaternion().inverted()).angle>1e-5},
-            glass='Car-family thin-sheet Fresnel fallback, applied once per finite pane with transparent rear surface' if a.engine=='BLENDER_EEVEE' else 'Cycles nested transmission',
+            glass='Car-family thin-sheet Fresnel fallback, applied once per finite pane with transparent rear surface' if a.engine=='BLENDER_EEVEE' else 'Cycles camera refraction; parallel-pane colored shadow transmission',
+            background_context='Original charcoal horizon flags approximating the photographed tree enclosure' if name.startswith(('service_','vision_')) else 'Full-height neutral charcoal studio wall' if name in ['front','side','rear'] else 'Procedural environment',
+            graphics_backend=display_gpu.platform.renderer_get() if a.engine=='BLENDER_EEVEE' else None,
             lighting=dict(sun_energy=sun.data.energy,sun_rotation=list(sun.rotation_euler),sky=bg.inputs[1].default_value,cloud_mix=cloud.inputs[0].default_value,exposure=sc.view_settings.exposure))
         if s.get('fleet'):receipts[name]['fleet_inputs']={str(seed):digest(path.parent/f'C75-{seed}.gltf') for seed in [101,102,103]}
         if s.get('human'):
@@ -157,6 +184,8 @@ def checkpoint_batch(a):
         dict(source=a.source,out=str(base/'renders/eevee'),shots='hero',school=None,calibration=None,engine='BLENDER_EEVEE')]
     for phase in phases:
         values=vars(a).copy();values.update(phase);render(argparse.Namespace(**values))
+    from repair_baseline import render as baseline
+    baseline(a.width,a.samples)
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True);p.add_argument('--shots',default='all');p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=48);p.add_argument('--engine',default='CYCLES');p.add_argument('--school');p.add_argument('--calibration');p.add_argument('--checkpoint-batch',action='store_true')

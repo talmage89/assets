@@ -12,6 +12,32 @@ import spec as S
 import numpy as np
 from PIL import Image,ImageFilter
 
+def leak_locations(mask,camera,scene,objects):
+    """Locate failed screen rays on the independent die, without masking them."""
+    from mathutils.bvhtree import BVHTree
+    deps=bpy.context.evaluated_depsgraph_get();vertices=[];faces=[]
+    for ob in objects:
+        evaluated=ob.evaluated_get(deps);mesh=evaluated.to_mesh()
+        mesh.calc_loop_triangles();offset=len(vertices)
+        vertices.extend(ob.matrix_world@v.co for v in mesh.vertices)
+        faces.extend(tuple(offset+i for i in t.vertices) for t in mesh.loop_triangles)
+        evaluated.to_mesh_clear()
+    tree=BVHTree.FromPolygons(vertices,faces,all_triangles=True)
+    ys,xs=np.where(mask)
+    if not len(xs):return []
+    height,width=mask.shape;rows=[]
+    for k in np.linspace(0,len(xs)-1,min(12,len(xs))).astype(int):
+        x,y=int(xs[k]),int(ys[k]);u=(x+.5)/width-.5;v=.5-(y+.5)/height
+        if camera.data.type=='ORTHO':
+            start=camera.matrix_world@Vector((u*camera.data.ortho_scale,v*camera.data.ortho_scale*height/width,0))
+            direction=camera.matrix_world.to_quaternion()@Vector((0,0,-1))
+        else:
+            start=camera.location
+            direction=camera.matrix_world.to_quaternion()@Vector((u*36/camera.data.lens,v*36/camera.data.lens*height/width,-1)).normalized()
+        hit=tree.ray_cast(start,direction)[0]
+        rows.append(dict(pixel=[x,y],envelope_hit_m=list(hit) if hit is not None else None))
+    return rows
+
 def emission(name,color=None):
     mat=bpy.data.materials.new(name);mat.use_nodes=True;nt=mat.node_tree;nt.nodes.clear()
     bs=nt.nodes.new('ShaderNodeBsdfTransparent' if color is None else 'ShaderNodeEmission')
@@ -33,8 +59,10 @@ def main():
     actual=[o for o in bpy.context.scene.objects if o.type=='MESH'];optic_faces=0
     for ob in actual:
         old=list(ob.data.materials);roles=[]
+        paint=ob.data.attributes.new('PaintReview','BOOLEAN','FACE')
         for face in ob.data.polygons:
             glass='Glass' in old[face.material_index].name
+            paint.data[face.index].value='Paint' in old[face.material_index].name
             isopt=glass and key([ob.matrix_world@ob.data.vertices[i].co for i in face.vertices]) in optical
             roles.append(2 if isopt else 1 if glass else 0);optic_faces+=int(isopt)
         ob.data.materials.clear()
@@ -70,11 +98,14 @@ def main():
     cavity=G.box('Uncut underfloor negative space',(0,1.043,-.433),(2.392,9.882,3.134),None,0)
     G.boolean(die,cavity)
     G.loft('Uncut roof envelope',[roof_section(y,d) for y,d in [(-3.92,.20),(-3.78,.085),(-3.56,.015),(-3.38,0),(5.60,0),(5.80,.025),(5.96,.075),(6.006,.115)]],white)
-    hood=[]
-    for y,w,top,bottom in [(-5.916,.725,1.520,1.060),(-5.87,.755,1.565,1.035),(-5.55,.780,1.642,1.015),(-4.95,.800,1.765,1.045),(-4.38,.825,1.860,1.145),(-3.96,.858,1.888,1.240)]:
-        sec=[(-w,bottom),(-w,top-.145),(-w*.98,top-.078),(-w*.91,top-.026),(-w*.76,top),(-w*.42,top+.017),(0,top+.025),(w*.42,top+.017),(w*.76,top),(w*.91,top-.026),(w*.98,top-.078),(w,top-.145),(w,bottom)]
-        hood.append([(x,y,z) for x,z in sec])
-    G.loft('Uncut hood envelope',hood,white)
+    from front import STATIONS,section
+    hood=G.loft('Uncut hood envelope',[section(row) for row in STATIONS],white)
+    sub=hood.modifiers.new('Envelope compound mold','SUBSURF');sub.levels=1
+    G.apply(hood)
+    # The independent filled die needs a through arch. Two half-width tools
+    # leave fictitious cutter-end walls in the otherwise open engine bay.
+    G.boolean(hood,G.cylinder('Envelope wheel opening',(-1.50,S.FRONT_AXLE,S.HUB),
+                            (1.50,S.FRONT_AXLE,S.HUB),.692,None,96))
     # Keep the real open rear of each pressed C section. A filled bounding box
     # falsely classified wheel vent holes behind its swept corner as body leaks.
     for front,width,depth,z0,z1 in [(True,2.35,.204,.470,.790),(False,2.43,.180,.500,.800)]:
@@ -84,7 +115,6 @@ def main():
             section=[(y,z0),(y,z1),(y+direction*depth,z1),(y+direction*depth,z1-g),(y+direction*g,z1-g),(y+direction*g,z0+g),(y+direction*depth,z0+g),(y+direction*depth,z0)]
             rings.append([(x,yy,zz) for yy,zz in section])
         G.apply(G.bevel(G.loft('Uncut pressed bumper envelope',rings,white),.0015,1))
-    for sign in [-1,1]:G.box('Uncut optical molding',(sign*.948,-5.688,1.052),(.400,.185,.365),white,.070,3)
     envelope=list(set(bpy.context.scene.objects)-before)
     for ob in envelope:ob.hide_render=True
     sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=16;sc.cycles.use_denoising=False;sc.cycles.use_adaptive_sampling=False;sc.cycles.max_bounces=0;sc.cycles.transparent_max_bounces=32
@@ -104,11 +134,26 @@ def main():
         mask=np.asarray(Image.open(out/(name+'-envelope.png')).getchannel('A').filter(ImageFilter.MinFilter(5)))>250;mask &= silhouette
         leak=mask&magenta;Image.fromarray(leak.astype('uint8')*255).save(out/(name+'-leaks.png'))
         results[name]=dict(tested_pixels=int(mask.sum()),magenta_pixels=int(leak.sum()))
+        if leak.any():results[name]['failed_ray_locations']=leak_locations(leak,cam,sc,envelope)
         for ob in actual:ob.hide_render=False
         for ob in envelope:ob.hide_render=True
+    # A separate direct-emission paint mask gates the final hero's measured
+    # saturation/rolloff, excluding glass, tires, campus and the queued fleet.
+    for ob in actual:
+        paint=ob.data.attributes['PaintReview']
+        for face in ob.data.polygons:face.material_index=1 if paint.data[face.index].value else 0
+    s=SHOTS['hero'];cam.location=s['location'];cam.rotation_euler=(Vector(s['target'])-cam.location).to_track_quat('-Z','Y').to_euler()
+    cam.data.type='PERSP';cam.data.lens=s['lens'];sc.render.resolution_y=round(a.width/s['aspect'])
+    sc.render.film_transparent=True;sc.world.node_tree.nodes['Background'].inputs[0].default_value=(0,0,0,1)
+    sc.render.filepath=str((out/'hero-paint.png').resolve());bpy.ops.render.render(write_still=True)
     result=dict(passed=all(r['magenta_pixels']==0 for r in results.values()),views=results,optical_faces_transmitting=optic_faces,
         method='Car family filled_silhouette and 2px contour guard intersect independent uncut bus body/roof die; actual imported delivery is the blocker',
         scope='Body, roof, hood, bumpers and optical molding. Cabin glass emits white; sealed headlamp covers transmit to their actual opaque inserts. Exterior gaps around mirrors and wheel arches remain negative space.')
     (out/'counts.json').write_text(json.dumps(result,indent=2));print('BUS_SEETHROUGH',result,flush=True)
-    if not result['passed']:raise SystemExit(1)
+    if not result['passed']:
+        # Grouped Make targets delete failed outputs. Keep the failed evidence
+        # separately so a genuine gap can be located before another GPU turn.
+        import shutil
+        shutil.copytree(out,out.parent/'seethrough-failure',dirs_exist_ok=True)
+        raise SystemExit(1)
 if __name__=='__main__':main()
