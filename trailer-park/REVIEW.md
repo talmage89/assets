@@ -589,3 +589,58 @@ clearances; no home/lot plan changes are warranted. The 2007 comparison has
 the required lane and neighbors but retains a tilted, inferred-road fit,
 which is less convincing than the three accepted construction comparisons.
 This pass still withholds the gallery. Crops are provisional, not approval.
+
+## Delivery pass 3 — reject the remaining manufactured-looking age and turf
+
+**Color and value first.** Opened all ten native 1440px export frames and
+all four balanced photo pairs in `renders/age-pass3/`. The photographic
+neutrals remain the shaded 2009 storm-door frame, 2007 white addition
+fascia, 2015 aluminum pan and newer white PVC post. Lowering only the
+single-wide comparison by .45 EV improves its white-frame value match;
+it does not fix the material. The used photograph has mottled skirt dirt,
+chalky wall variation and large differences across the cracked apron.
+Our skirt and apron still read as broad, clean, uniform light surfaces.
+The old/new heroes retain display max-channel p5/p95 of .071/.780 and
+.141/.796, with near-clip fractions .0000112/.00000086. Deep shade and
+unclipped highlights do not establish photographic realism.
+
+Traffic is substantially improved: independent lot paints show dark blue,
+charcoal, black, red and tan among the light vehicles. The foreground
+opposing drives now have different bodies. Only three native body models
+exist, so they recur farther down the view; the literal request that no
+model repeat anywhere in a whole view is not met. Original car deliveries
+are unchanged; their coverage maps retain dirt and damage under recoloring.
+
+The roof/end runoff is now visible, but its regular stations and similarly
+long vertical stripes look authored. Broad wall interpolation turns some
+streaks into bars. Siding, awnings and the near skirt remain too pristine
+for the neglected upkeep seeds. Dents and missing panels exist in geometry
+but do not establish the required age in the main hero. The tarp is still
+too stiff and the clutter too orderly. The exposed apron repairs are
+visible in the single-wide pair, yet most of the slab remains unbroken
+against the photograph's rough, patched, oil-marked surface. Reject fix 2.
+
+Smooth, interrupted seals, binder/wheel variation, repairs, small oil marks
+and worn bump paint show the intended road history. Feathering removes the
+paper-like shoulder outlines. However, the seals still look drawn, oil
+marks remain too similarly round and the pavement edge is too straight.
+This is progress, not a final road treatment.
+
+Feathered pad/skirt soil and sparse grass clumps blend better than pass 2.
+Tree sockets vary species, scale, aspect and yaw, retaining accepted planting
+positions. Broad turf still looks like flat felt between the clumps; the
+dry/worn scars do not break up enough of the lawn at full frame. Two native
+crown skeletons also remain recognizable. Reject the complete turf gate.
+
+The replacement 2007 view contains the old lane, neighbors and their fronts.
+It fixes the void, but remains a loose type comparison: four inferred lane
+stations, a visible tilt and much more open road than the photo. Pair labels
+now explicitly distinguish inferred lane anchors from construction corners.
+The other three accepted camera solutions and both park plans are retained.
+
+Delivery gate: REJECTED
+
+Per the brief, stop before final gallery generation and docs. The prepared
+delivery targets remain disabled by default. Docs generation additionally
+requires explicit visual acceptance; three logged rejected critiques cannot
+unlock it. No final-readme, cold-build or final-repeat claim is made here.

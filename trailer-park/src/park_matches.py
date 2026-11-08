@@ -85,7 +85,7 @@ def solve():
 
 
 def compose(folder):
-    from PIL import Image,ImageOps
+    from PIL import Image,ImageOps,ImageDraw,ImageFont
     import numpy as np
     from kit.photo_match import compose as pairs
     from kit.image_io import srgb_to_linear,linear_to_srgb
@@ -97,3 +97,16 @@ def compose(folder):
         copied=dict(row,photo=str(path),linear_neutral_gain=gains.tolist());balanced[name]=copied
         (dest/(name+'.png')).write_bytes((dest/row['asset']/(name+'.png')).read_bytes())
     calibration=dest/'comparison-cameras.json';calibration.write_text(json.dumps(balanced,indent=2));pairs(calibration,dest,dest)
+    # Lane depth is inferred, unlike the two construction-corner fits.
+    # Keep the shared compositor but make that weaker evidence explicit.
+    from kit.fonts import find_font
+    font=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),23)
+    small=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),18)
+    for name in ('street-2007','newer-row-2024'):
+        path=dest/(name+'-pair.jpg');im=Image.open(path).convert('RGB');draw=ImageDraw.Draw(im)
+        draw.rectangle((im.width//2,0,im.width,68),fill=(238,239,236))
+        draw.text((im.width//2+18,12),'Reference photograph / inferred lane framing',font=font,fill=(22,38,29))
+        draw.rectangle((0,im.height-56,im.width,im.height),fill=(238,239,236))
+        row=cams[name]
+        label='Lane-anchor RMS %.1f px; longitudinal stations inferred / type comparison, not surveyed construction'%row['residual_rms_pixels']
+        draw.text((18,im.height-42),label,font=small,fill=(49,64,52));im.save(path,quality=94,optimize=True)
