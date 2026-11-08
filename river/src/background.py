@@ -18,7 +18,7 @@ def water_reach(p,parent,side,ground):
     This remains presentation context, separate from the 300m game reach.
     Matching the boundary cross-section avoids a flat painted water seam.
     """
-    ys=sorted(side*(p.reach/2+i*10) for i in range(66));nx=28;stride=nx+1
+    ys=sorted(side*(p.reach/2+i*10) for i in range(66));nx=20;stride=nx+1
     rows=[]
     for y in ys:
         l,r=p.water_edges(y)
@@ -63,6 +63,15 @@ def join_water(p,parent):
         surface=f.normal.z>.5 and all(abs(core.data.vertices[i].co.z-p.water_z(core.data.vertices[i].co.y))<.08 for i in f.vertices)
         normals.extend([water_normal(p,core.data.vertices[i].co.x,core.data.vertices[i].co.y) if surface else f.normal for i in f.vertices])
     core.data.normals_split_custom_set(normals)
+    # A streaming boundary must preserve texture phase and tangent frame as
+    # well as positions/normals. Apply the same current-aligned coordinates
+    # to the complete connected body, including the distant continuation.
+    uv=core.data.uv_layers.active
+    for face in core.data.polygons:
+        for li in face.loop_indices:
+            v=core.data.vertices[core.data.loops[li].vertex_index].co
+            tx,ty=p.tangent(v.y)
+            uv.data[li].uv=((v.x*ty-v.y*tx)/3.7,(v.x*tx+v.y*ty)/2.2)
     core['core_reach_limits_y_m']=[-p.reach/2,p.reach/2]
     core['presentation_reach_limits_y_m']=[-800,800]
 

@@ -88,7 +88,14 @@ class Plan:
         end_fill=max(0,min(1,(abs(x)-self.length/2-.90)/.12))
         fill_top=self.road_z(x)-.075-.02*min(abs(y),3.3528)
         if abs(y)>3.3528:fill_top=self.road_z(x)-.06
-        if abs(y)<7.8 and abs(x)<self.length/2+.90:z=min(z,.50 if self.kind=='downtown' else 2.1)
+        if abs(y)<7.8 and abs(x)<self.length/2+.90:
+            cap=2.1
+            if self.kind=='downtown':
+                edge_distance=abs(x-self.center(y))-self.halfwidth(y)
+                # Keep the low riverwalk clear, then armor a 2H:1V bank
+                # up toward the abutment seat instead of a broad flat void.
+                cap=.50+min(1.65,max(0,edge_distance-4.45)*.5)
+            z=min(z,cap)
         if a>1.12 and end_fill>0:z=max(z,2.1+(fill_top-2.1)*road_fill*end_fill)
         if self.kind=='edge' and abs(x)>self.length/2+9:
             ditch=math.exp(-((abs(y)-9.4)/1.85)**2)

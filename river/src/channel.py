@@ -29,10 +29,19 @@ def surface_z(p,x,y):
 
 def stone(b,x,y,z,r,rng,role='bank'):
     # Low-silhouette angular riprap, individual seating determined by terrain.
-    n=7;phase=rng.random()*6.28;sx=rng.uniform(.8,1.3);sy=rng.uniform(.7,1.2)
+    n=5 if r<.22 else 6;phase=rng.random()*6.28;sx=rng.uniform(.8,1.3);sy=rng.uniform(.7,1.2)
     base=[(x+sx*r*math.cos(i*math.tau/n+phase),y+sy*r*math.sin(i*math.tau/n+phase),z-r*.22) for i in range(n)]
     top=[(x+sx*r*.7*math.cos(i*math.tau/n+phase),y+sy*r*.7*math.sin(i*math.tau/n+phase),z+r*rng.uniform(.32,.72)) for i in range(n)]
-    v=rng.uniform(.60,1.05);b.loft([base,top],role,(v,v,v*.96,1))
+    # The base follows and penetrates the actual terrain. Its hidden bottom
+    # cap costs nothing; fractured exposed faces keep the rock's silhouette.
+    if BED_TREE is not None:
+        seated=[]
+        for vx,vy,vz in base:
+            hit=BED_TREE.ray_cast(Vector((vx,vy,100)),Vector((0,0,-1)),120)[0]
+            seated.append((vx,vy,min(vz,hit.z-.025) if hit is not None else vz))
+        base=seated
+    v=rng.uniform(.60,1.05);color=(v,v,v*.96,1)
+    b.loft([base,top],role,color,caps=False);b.geom(top,[tuple(range(n))],role,color,up=True)
 
 
 def terrain(p,parent):
@@ -78,8 +87,13 @@ def terrain(p,parent):
         if z>p.water_z(y)-.32:stone(rocks,x,y,z,rng.uniform(.035,.14),rng)
     # Armored, keyed slope and toe at both abutments and each pier.
     for side in (-1,1):
-        for i in range(780):
-            x=side*rng.uniform(p.width*.39,p.length/2+7.0);y=rng.uniform(-13,13)
+        for i in range(580):
+            if i<400:
+                x=side*rng.uniform(p.length/2-4,p.length/2+6.5)
+                y=rng.choice((-1,1))*rng.uniform(p.deck_width/2-.3,p.deck_width/2+6)
+            else:
+                x=side*rng.uniform(p.length/2-7,p.length/2-2)
+                y=rng.uniform(-p.deck_width/2,p.deck_width/2)
             if abs(x)>p.length/2-.8 and abs(y)<6.8:continue
             z=surface_z(p,x,y);stone(rocks,x,y,z+.04,rng.uniform(.16,.39),rng)
     for j in range(1,p.spans):
@@ -137,7 +151,7 @@ def terrain(p,parent):
 
 
 def water(p,parent):
-    b=G.Batch('WaterSurface',parent,'water');ny=360;nx=28
+    b=G.Batch('WaterSurface',parent,'water');ny=240;nx=20
     rows=[]
     for i in range(ny+1):
         y=-p.reach/2+i*p.reach/ny;l,r=p.water_edges(y)

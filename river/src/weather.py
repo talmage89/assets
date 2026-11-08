@@ -108,6 +108,17 @@ def add(p,parent):
     walls=G.Batch('FloodwallWeepAge',parent,'site')
     for side in (-1,1):
         if p.kind!='downtown':break
+        for j in range(150):
+            a=-150+j*2;c=a+2;hi=rng.uniform(.17,.36)
+            pts=[]
+            for yy,z in ((a,p.water_z(a)-.03),(c,p.water_z(c)-.03),(c,p.water_z(c)+hi),(a,p.water_z(a)+hi)):
+                pts.append((p.center(yy)+side*(p.halfwidth(yy)+.998),yy,z))
+            u0=.502+.246*(j%4)/4;u1=u0+.246/4
+            walls.geom(pts,[(0,1,2,3)],'maintenance',(.44,.58,.30,1),uv=[(u0,.752),(u1,.752),(u1,.998),(u0,.998)])
+        for y in (-33,59):
+            pts=[(p.center(yy)+side*(p.halfwidth(yy)+.997),yy,z)
+                 for yy,z in ((y-.8,-.02),(y+.8,-.02),(y+.8,.62),(y-.8,.62))]
+            walls.geom(pts,[(0,1,2,3)],'maintenance',(.55,.61,.35,1),uv=chart(0))
         for j in range(30):
             y=-143+j*9.7+rng.uniform(-2,2)
             x=p.center(y)+side*(p.halfwidth(y)+4.198)

@@ -42,7 +42,7 @@ class Batch:
         if caps: fs.extend([tuple(reversed(range(n))),tuple(range(len(vs)-n,len(vs)))])
         self.geom(vs,fs,role,color,smooth=smooth)
 
-    def tube(self,pts,r,role='steel',n=8,thickness=0):
+    def tube(self,pts,r,role='steel',n=8,thickness=0,caps=True):
         pts=list(map(Vector,pts));rings=[];inner=[]
         for i,p in enumerate(pts):
             t=(pts[min(i+1,len(pts)-1)]-pts[max(0,i-1)]).normalized()
@@ -50,16 +50,17 @@ class Batch:
             rings.append([p+r*(u*math.cos(j*math.tau/n)+v*math.sin(j*math.tau/n)) for j in range(n)])
             if thickness:inner.append([p+(r-thickness)*(u*math.cos(j*math.tau/n)+v*math.sin(j*math.tau/n)) for j in range(n)])
         if thickness:self.loft(rings+list(reversed(inner))+[rings[0]],role,caps=False,smooth=True)
-        else:self.loft(rings,role,smooth=True)
+        else:self.loft(rings,role,smooth=True,caps=caps)
 
-    def cylinder(self,p,r,h,role='concrete',n=24):
+    def cylinder(self,p,r,h,role='concrete',n=24,caps=True):
         x,y,z=p
-        self.loft([[(x+r*math.cos(i*math.tau/n),y+r*math.sin(i*math.tau/n),z+zz) for i in range(n)] for zz in (-h/2,h/2)],role,smooth=True)
+        self.loft([[(x+r*math.cos(i*math.tau/n),y+r*math.sin(i*math.tau/n),z+zz) for i in range(n)] for zz in (-h/2,h/2)],role,smooth=True,caps=caps)
 
-    def beam(self,a,b,w,d=None,role='steel'):
+    def beam(self,a,b,w,d=None,role='steel',caps=True):
         a,b=Vector(a),Vector(b);q=(b-a).to_track_quat('Z','Y').to_matrix();p=(a+b)/2
         vs=[p+q@Vector((i*w/2,j*(d or w)/2,k*(b-a).length/2)) for i,j,k in ((-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1))]
-        self.geom(vs,[(0,3,2,1),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)],role)
+        fs=[(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)]
+        self.geom(vs,([(0,3,2,1),(4,5,6,7)]+fs) if caps else fs,role)
 
     def finish(self):
         me=bpy.data.meshes.new(self.name);me.from_pydata(self.v,[],self.f);me.update()

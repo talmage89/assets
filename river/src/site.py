@@ -37,11 +37,11 @@ def fixtures(p,parent):
             b.geom([(x-4.03,y,wall_top+.025),(xx-4.03,yy,wall_top+.025),(xx-4.55,yy,wall_top+.025),(x-4.55,y,wall_top+.025)],[(0,1,2,3)],'concrete',(.72,.72,.67,1))
             trail.append((x-2.6,y,.65))
             if abs(y)>9:
-                b.cylinder((x-1.2,y,1.15),.024,1,'steel',8)
-                for z in (.80,1.65):b.tube([(x-1.2,y,z),(xx-1.2,yy,z)],.022,'steel',6)
+                b.cylinder((x-1.2,y,1.15),.024,1,'steel',8,caps=False)
+                for z in (.80,1.65):b.tube([(x-1.2,y,z),(xx-1.2,yy,z)],.022,'steel',6,caps=i in (0,149))
                 for j in range(1,18):
                     t=j/18;bx=(1-t)*x+t*xx-1.2
-                    b.box((bx,y+2*t,1.225),(.019,.019,.85),'steel')
+                    b.beam((bx,y+2*t,.80),(bx,y+2*t,1.65),.019,role='steel',caps=False)
         else:
             x-=7;xx-=7;z=p.bed(x,y)+.035;zz=p.bed(xx,yy)+.035
             if abs(y)>12:

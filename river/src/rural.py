@@ -60,12 +60,16 @@ def add(p,parent,lots):
         poles=[]
         for x in range(46,230,38):
             xx=side*x;y=9.6;z=surface_z(p,xx,y)
-            C.instance(C.REPO/'school/build/context/utility.glb',f'County pole {side} {x}',(xx,y,z),parent,90,select='Tangent')
-            poles.append((xx,y,z))
+            pole=C.instance(C.REPO/'school/build/context/utility.glb',f'County pole {side} {x}',(xx,y,z),parent,90,select='Tangent')
+            poles.append(pole)
+        import bpy
+        bpy.context.view_layer.update()
         for a,c in zip(poles,poles[1:]):
-            for offset,h in ((-.975,10.003),(.975,10.003),(0,10.143),(.275,7.94),(-.24,6.26)):
+            for key in ('Primary_B','Primary_C','Primary_A','Neutral','Telephone'):
+                start=next(o.matrix_world.translation.copy() for o in a.children_recursive if o.name.endswith('__Socket_'+key))
+                end=next(o.matrix_world.translation.copy() for o in c.children_recursive if o.name.endswith('__Socket_'+key))
                 pts=[]
                 for j in range(17):
-                    t=j/16;pts.append((a[0]*(1-t)+c[0]*t,a[1]+offset,a[2]*(1-t)+c[2]*t+h-.55*4*t*(1-t)))
-                b.tube(pts,.005 if h>7 else .009,'steel',5)
+                    t=j/16;point=start*(1-t)+end*t;point.z-=.55*4*t*(1-t);pts.append(point)
+                b.tube(pts,.009 if key=='Telephone' else .005,'steel',5)
     b.finish()

@@ -94,7 +94,7 @@ def construction(seed):
         if ob.type!='MESH':continue
         ob.data.calc_loop_triangles();key=ob.get('river_category','context');counts[key]=counts.get(key,0)+len(ob.data.loop_triangles)
     assert counts==meta['triangles'],(counts,meta['triangles'])
-    assert counts['bridge']<80000 and counts['reach']+counts['water']<150000
+    assert counts['bridge']<80000 and counts['reach']+counts['water']+counts['site']<150000
     pads=[bvh(o) for o in obs if o.type=='MESH' and o.name.startswith('BearingStation')]
     supports=[bvh(o) for o in obs if o.type=='MESH' and o.name.startswith(('Pier_','Abutment_'))]
     gaps=[];seat_gaps=[];lengths=[]
