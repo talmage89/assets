@@ -146,14 +146,21 @@ def check():
             assert abs(beam_bottom[2]-post_top[2])<.001
             construction[stem]=dict(sampled_deck_top_m=top[2],sampled_low_tread_m=bottom[2],sampled_beam_interval_m=[beam_bottom[2],beam_top[2]],sampled_joist_bottom_m=joist_bottom[2],sampled_post_top_m=post_top[2])
         if stem.startswith('Park'):
-            p=meta['plan'];widths=[];addon_clearance=[]
+            p=meta['plan'];widths=[];addon_clearance=[];home_budgets=[]
+            def subtree_triangles(index):
+                node=d['nodes'][index]
+                own=sum(d['accessors'][pr['indices']]['count']//3 for pr in d['meshes'][node['mesh']]['primitives']) if 'mesh' in node else 0
+                return own+sum(subtree_triangles(child) for child in node.get('children',[]))
             car_points=[o.matrix_world.translation.copy() for o in bpy.context.scene.objects if o.get('socket_kind')=='car']
             car_spacing=min((a-b).length for j,a in enumerate(car_points) for b in car_points[j+1:])
             assert car_spacing>2.5,(stem,'duplicate or crowded car sockets',car_spacing)
             for lot in p['lots']:
                 h=meta['assemblies'][f'Lot_{lot["number"]:02}_Home']
                 cap=50000 if lot['home']['double'] else 35000
-                assert h['triangles']<=cap,(stem,lot['number'],'seeded home budget',h['triangles'],cap)
+                index=next(i for i,n in enumerate(d['nodes']) if n.get('name')==f'Lot_{lot["number"]:02}_Home')
+                measured=subtree_triangles(index)
+                assert measured==h['triangles'] and measured<=cap,(stem,lot['number'],'seeded home budget',measured,h['triangles'],cap)
+                home_budgets.append(dict(lot=lot['number'],raw_subtree_triangles=measured,cap=cap))
                 if lot['home']['carport']:
                     def tree(suffix):
                         ob=next(o for o in bpy.context.scene.objects if o.name==f'Lot_{lot["number"]:02}_{"Home_" if suffix=="Deck" else ""}{suffix}__Mesh')
@@ -199,6 +206,7 @@ def check():
             # only neighbors sharing a lane and side.
             assert not separations or min(separations)>3.0,(stem,'home separation',separations)
             construction[stem]=dict(road_width_mesh_m=road_width,home_separation_mesh_m=separations,minimum_car_socket_spacing_m=car_spacing,static_assembly_pairs_checked=placement_pairs,deck_carport_mesh_checks=addon_clearance,net_lot_area_m2=p['lot_frontage']*p['lot_depth'],home_count=len(p['lots']),road_graph=p['roads'])
+            construction[stem]['home_budgets']=home_budgets
         rows[stem]=dict(triangles=triangles,geometry_bytes=meta['geometry_bytes'],materials=len(d['materials']),collapsed_triangles=collapsed,collapsed_diagnostic_uv_triangles=uv_bad,max_normal_length_error=maxnormal,mesh_size_m=size.tolist(),fresh_import=True,upward_surface_triangles=top_triangles)
         print('CHECK',stem,triangles,'UV diagnostics',uv_bad,flush=True)
     immutable={}
