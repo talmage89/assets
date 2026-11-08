@@ -2235,3 +2235,22 @@ normals to match LOD0. A nearest-compatible point-field control is queued to
 isolate source association from the earlier ray-first point-field control,
 using identical geometry, UV allocation, shipping size and controlled baker.
 No production source or frozen recipe changed for that diagnostic.
+
+## Pass 58 — first frozen-tool adopter reviewed
+
+The fresh street-light build retains 1656/3180 triangles (52.08%), one material
+and one draw per level, with no new image content. Its three native 25% strips,
+two construction views and contact sheet are opened at full size. Values remain
+consistent: the shaft does not fade, its bend and lamp head keep their outline,
+and the small ground flange stays legible. Worst mean .00375, p95 .01545,
+local .01276, alpha .01597 and silhouette loss .02370 pass unchanged limits.
+The complete `make check-lod` also passes geometry/re-import and original-field
+audits. Frozen source/recipe checks remain intact; the second family, family
+joint proof and post-build original checks are still pending.
+
+The first GPU regression attempt did not run a fixture: a scratch-runner change
+nested `with_gpu.sh` under an already held GPU lock. The wrapper does not skip
+that lock; it waited on itself. The deadlocked attempt is terminated and saved
+separately. The replacement batch uses one outer `kit/with_gpu.sh`, and its
+children skip a second wrapper when the held marker is present. No kit source
+changed and no test pass is inferred from the interrupted attempt.
