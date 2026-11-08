@@ -1,15 +1,17 @@
 """One GPU lease, fresh serial Blender processes, resumable scene receipts."""
-import argparse,hashlib,json,os,shutil,signal,subprocess,sys,time
+import argparse,fcntl,hashlib,json,os,shutil,signal,subprocess,sys,time
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 CHILD=None
 STOP_SIGNAL=None
 STOP_AT=None
+LEASE_START=None
 
 
 def stop(signum,frame):
     global STOP_SIGNAL,STOP_AT
     STOP_SIGNAL=signum;STOP_AT=time.monotonic()
+    if CHILD is None:raise SystemExit(128+signum)
     # Never wait from a signal handler: it may interrupt wait() while that
     # method owns subprocess's non-reentrant waitpid lock.
     if CHILD is not None:
@@ -27,7 +29,7 @@ def merge(folder,rows):
 
 
 def run_job(name,args,outputs,exports=Path('export'),camera=None):
-    global CHILD
+    global CHILD,LEASE_START
     source=[]
     for stem in sorted({stem for stem,shot in outputs}):
         path=exports/(stem+'.gltf');doc=json.loads(path.read_text())
@@ -44,6 +46,15 @@ def run_job(name,args,outputs,exports=Path('export'),camera=None):
         if old['key']==key and all(Path(p).is_file() and digest(p)==sha for p,sha in old['files'].items()):
             print('REUSE',name,flush=True);merge(old['folder'],old['rows']);return
     command=[os.environ.get('BLENDER','blender'),'-b','-t','2','--factory-startup','--python-exit-code','1','--python','src/render.py','--',*args,'--exports',str(exports)]
+    # Cooperate at scene boundaries: a set stays roughly 5–7 minutes rather
+    # than holding the machine's one GPU through every presentation scene.
+    # Children inherit this descriptor only after the next set owns its lease.
+    if LEASE_START is not None and time.monotonic()-LEASE_START>300:
+        print('GPU SET COMPLETE; yielding and queuing the next set',flush=True)
+        fcntl.flock(9,fcntl.LOCK_UN)
+        fcntl.flock(9,fcntl.LOCK_EX)
+        LEASE_START=time.monotonic()
+        print('NEXT GPU SET ACQUIRED',flush=True)
     print('RENDER JOB',name,flush=True)
     CHILD=subprocess.Popen(command,pass_fds=(9,))
     while True:
@@ -88,9 +99,11 @@ def before_frames(after,width):
 
 
 def main():
+    global LEASE_START
     p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=32)
     p.add_argument('--cameras',type=Path,default=Path('build/cameras.json'));p.add_argument('--delivery',action='store_true');p.add_argument('--source');p.add_argument('--eevee',action='store_true');a=p.parse_args()
     assert os.environ.get('ASSETS_GPU_HELD')=='1';os.environ['PYTHONDONTWRITEBYTECODE']='1'
+    LEASE_START=time.monotonic()
     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
     base=['--out',str(a.out),'--width',str(a.width),'--samples',str(a.samples)]
     jobs=[('Park-101',['hero','row']),('Park-202',['hero'])]
