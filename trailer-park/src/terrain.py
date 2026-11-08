@@ -52,11 +52,30 @@ def decal(parent,name,center,size,mat,rect,yaw=0,seed=0,z=.020):
     ob['placement_seed']=seed;return ob
 
 
+def worn_walk(parent,p,x0,x1,y,mat):
+    """Compacted soil on the actual stair-to-parking route, with worn margins."""
+    rng=random.Random(p['occupant_seed']+248);n=math.ceil((x1-x0)/.9);vs=[];fs=[]
+    for j in range(n+1):
+        x=x0+(x1-x0)*j/n;center=y+rng.uniform(-.055,.055)
+        width=.23+rng.uniform(0,.10)+.12*math.exp(-((x-x0)/.8)**2)
+        vs.extend([(x,center-width,.002),(x,center+width,.002)])
+        if j:k=(j-1)*2;fs.append((k,k+2,k+3,k+1))
+    ob=mesh(parent,'Compacted stair to parking footpath',vs,fs,mat,1.524)
+    for c in ob.data.color_attributes.active_color.data:
+        variation=rng.uniform(.94,1.04);c.color=(.75*variation,.61*variation,.37*variation,1)
+    return ob
+
+
 def pavement(a,p,lib,library_material):
     # Reuse the canonical alpha ravel/crack/oil manufacture. Unique placement,
     # rotation and extents prevent the row from repeating the same history.
     trim=library_material(lib,'GroundTrim');seed=p['occupant_seed'];r=random.Random(seed+148)
     L,W=p['length'],p['width']
+    if p.get('corner_apron'):
+        for j in range(6):
+            decal(a.root,'Corner apron settlement crack',(-L*.42+j*L*.17,-W/2-2.0+r.uniform(-.7,.7)),(.12,2.5+r.random()),trim,(.5,0,.625,.25),r.uniform(-65,65),seed,z=.003)
+        for j in range(4):
+            decal(a.root,'Gravel at aged hardstanding edge',(-L*.35+j*5.7,-8.23),(.20,6.096),trim,(0,.5,.5,.75),90,seed,z=.003)
     if seed%3==0:
         for j in range(3):decal(a.root,'Loose gravel on dirt apron',(L/2+.9+j*1.8,-1.075),(1.8,2.95),trim,(0,.5,.5,.75),180*(j%2),seed,z=.019)
     if p['era']!='1996' or seed%4==0:

@@ -25,7 +25,7 @@ def solve():
         location=transform(lot,(L*.85,-L*.7,1.0)),target=transform(lot,(0,0,1.8)),lens=38,lens_bounds_mm=[20,90],
         neutral='White storm-door frame, shaded daylight; geometry fit uses five visible wall-line corners; obscured rear floor and old erroneous ridge anchor excluded',
         neutral_rect=[1804,990,1844,1100],landmarks=[dict(world=transform(lot,w),pixel=[x*s,y*s]) for w,(x,y) in corners])}
-    lot=next(q for q in plan['lots'] if q['number']==18);h=lot['home'];off=(-h['length']*.32,-h['width']/2-1.20,0)
+    lot=next(q for q in plan['lots'] if q['number']==36);h=lot['home'];assert h['room'];off=(-h['length']*.32,-h['width']/2-1.20,0)
     pts=[((-1.6,-1.2,2.95),(479,454)),((1.6,-1.2,2.95),(651,456)),
          ((-1.6,-1.2,.80),(488,674)),((1.6,-1.2,.80),(651,670)),
          ((1.6,1.2,3.20),(787,457)),((1.6,1.2,.80),(785,668))]
@@ -57,8 +57,12 @@ def solve():
       neutral='White PVC entrance-fence post, crop checked at pixel scale; four lane-edge anchors, longitudinal stations inferred from our fictional plan; does not fit individual houses or establish surveyed depth',
       neutral_rect=[265,683,269,717],landmarks=[dict(world=q,pixel=pix) for q,pix in anchors])
     results={}
+    subjects={'single-2009':['Lot_01_Home'],'street-2007':['Lot_36_AddedRoom'],
+              'aerial-2015':['Lot_06_Carport','Lot_07_Carport'],'newer-row-2024':[]}
     for name,d in definitions.items():
-        result=calibrate(d);result.update(asset=d['asset'],neutral=d['neutral'],neutral_rect=d['neutral_rect'])
+        nodes={n.get('name') for n in json.loads(Path('export',d['asset']+'.gltf').read_text())['nodes']}
+        assert set(subjects[name])<=nodes,(name,'Declared comparison subject absent from export',subjects[name])
+        result=calibrate(d);result.update(asset=d['asset'],neutral=d['neutral'],neutral_rect=d['neutral_rect'],subject_nodes=subjects[name])
         if name=='newer-row-2024':result['lens_status']='24mm full-frame EXIF; bounded 23.5–24.5mm lane fit; inferred longitudinal stations'
         results[name]=result;print(name,round(result['residual_rms_pixels'],2),'px',round(result['shot']['lens'],1),'mm',flush=True)
         assert result['residual_rms_pixels']<=20,(name,result['residual_rms_pixels'])

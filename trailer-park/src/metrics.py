@@ -42,7 +42,8 @@ def report(folder):
     text += [table(['Park','Homes','Lot ft','Lot sqft','Gross acres','Homes/acre','Placed triangles','Unique triangles','Materials','Unbatched primitives','glTF + BIN bytes','Shared GPU MiB'],parks)]
     text += ['Per-lot totals include home, native props, local flatwork, resident storage and small edge plants. '
              'Cars, large trees/shrubs and surrounding town are outside these exports. Unique triangles count '
-             'distinct exported meshes; placed totals count every node instance.\n',
+             'distinct exported meshes; placed totals count every node instance. Per-lot unique totals '
+             'are local to that lot, not incremental allocations to add across the whole park.\n',
              table(['Park','Lot','Template','Occupant seed','Era','Body ft','Home triangles','Lot placed triangles','Lot unique triangles'],lots)]
     if context:text += [table(['Presentation park','Category','Placed triangles','Unique triangles'],context)]
     if presentation_memory:

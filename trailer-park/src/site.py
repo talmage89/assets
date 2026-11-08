@@ -74,7 +74,7 @@ def road(parent,p,lib):
 
 def lot(p,record,lib,parent,instances):
     spec=record['home'];seed=spec['occupant_seed'];a=Assembly(f'Lot_{record["number"]:02}');L,W=spec['length'],spec['width']
-    spec=dict(spec,site_yaw=record['yaw']);hn=a.root.name+'_Home'
+    spec=dict(spec,site_yaw=record['yaw'],lot_kind=p['kind'],corner_apron=p['kind']=='old' and record['number']==1);hn=a.root.name+'_Home'
     h=instances.get(('home',spec['variant_id'],record['yaw']),hn,lambda:make_home(spec,hn));place(h,parent=a.root)
     h['home_spec']=json.dumps(spec,sort_keys=True)
     label(a,str(record['number']),(-L*.035+.69,-W/2-.092,2.30),.11,spec['accent'])
@@ -83,12 +83,14 @@ def lot(p,record,lib,parent,instances):
         return place(rt,pos,yaw,parent=a.root)
     cp_x=L/2-2.9
     if spec['carport']:
-        cp=instances.get(('carport',spec['awning_sag']),a.root.name+'_Carport',lambda:A.carport(a.root.name+'_Carport',sag=spec['awning_sag']))
+        cp=instances.get(('carport',spec['awning_sag'],spec['era']=='1996',spec['upkeep']),a.root.name+'_Carport',lambda:A.carport(a.root.name+'_Carport',sag=spec['awning_sag'],context=spec))
         place(cp,(cp_x,-W/2-1.82,0),parent=a.root)
         marker=next(o for o in cp.children if o.get('socket_kind')=='car')
         marker.name=a.root.name+'__CarportCar';marker['vehicle_index']=(seed+1)%3
         marker['paint_index']=(seed+2)%5;marker['occupied']=seed%5!=0
-    if spec['room']:part(('room',seed%3),'AddedRoom',lambda n:A.room(n,seed=seed%3),(-L*.32,-W/2-1.20,0))
+    if spec['room']:
+        room_variant=(seed+2)%3
+        part(('room',room_variant),'AddedRoom',lambda n:A.room(n,seed=room_variant),(-L*.32,-W/2-1.20,0))
     if spec['propane']:part('propane','Propane',A.propane,(L*.13,W/2+.55,0))
     part(('ac',spec['ac']),'AC',lambda n:A.conditioner(n,spec['ac']),
          (L*.12,W/2+.17,1.80) if spec['ac']=='window' else (-L*.24,W/2+.73,0),180 if spec['ac']=='window' else 0)
@@ -117,7 +119,7 @@ def lot(p,record,lib,parent,instances):
     # Existing household assets retain their own geometry, pivots and atlases.
     for path,name,pos,yaw,select in [
         ('trailer-park/build/native/shed.gltf','Shed',(-L/2-(2.5 if p['kind']=='old' else 1.9),1.6 if p['kind']=='old' else 2.3,0),90 if p['kind']=='old' else 0,None),
-        ('trash-cart/export/TrashCart.glb','Cart',(L/2+.8,-W/2-.5,.015),90,None),
+        ('trash-cart/export/TrashCart.glb','Cart',(L*.15,-W/2-.7,0) if spec['corner_apron'] else (L/2+.8,-W/2-.5,.015),90,None),
         ('mailbox/export/Mailbox.glb','Mailbox',(L/2+3.2,1.7,.015),-90,None),
         ('patio-set/export/PatioSet.glb','LawnChair',(-L*.035+.75,-W/2-1.05,spec['floor']-.025),0,'Chair'),
     ]:
@@ -130,15 +132,15 @@ def lot(p,record,lib,parent,instances):
         for j in range(2):native(lib,path,a.root.name+'_Fence'+str(j),(-L/2+.5+j*3.048,-W/2-3.55,0),0,'Chain_Section',a.root)
         for j in range(3):native(lib,path,a.root.name+'_Post'+str(j),(-L/2-1.024+j*3.048,-W/2-3.55,0),0,'Chain_Terminal' if j in (0,2) else 'Chain_Line',a.root)
         native(lib,path,a.root.name+'_Gate',(-L/2+5.60,-W/2-3.55,0),0,'Chain_GateBay',a.root)
-    a.socket('Car',(L/2+3.1,-1.1,.015),'car',yaw=90,vehicle_index=2 if p['kind']=='old' and record['number']==1 else seed%3,paint_index=seed%5)
+    a.socket('Car',(-L*.31,-7.20,0) if spec['corner_apron'] else (L/2+3.1,-1.1,.015),'car',yaw=90,vehicle_index=2 if spec['corner_apron'] else seed%3,paint_index=seed%5)
     a.socket('Mailbox',(L/2+3.2,1.7,0),'mailbox')
     # Real paving between uncurbed private lane and the home end.
-    concrete=library_material(lib,'Concrete');gravel=seed%3==0
+    concrete=library_material(lib,'Concrete');gravel=seed%3==0 and not spec['corner_apron']
     mat=concrete if not gravel else library_material(lib,'Asphalt')
     # Partition the union at the carport pad rather than laying coplanar
     # slabs on top of one another. The approach meets the actual lane edge.
     cp_rect=(cp_x-3.45,cp_x+3.45,-W/2-3.595,-W/2-.045)
-    xs=[L/2,L/2+5.42];ys=[-2.55,.40]
+    xs=[L/2,L/2+5.42];ys=[-8.30 if spec['corner_apron'] else -2.55,.40]
     if spec['carport']:
         xs=sorted(set(xs+[v for v in cp_rect[:2] if xs[0]<v<xs[-1]]))
         ys=sorted(set(ys+[v for v in cp_rect[2:] if ys[0]<v<ys[-1]]))
@@ -146,15 +148,23 @@ def lot(p,record,lib,parent,instances):
         for y0,y1 in zip(ys,ys[1:]):
             if spec['carport'] and cp_rect[0]<(x0+x1)/2<cp_rect[1] and cp_rect[2]<(y0+y1)/2<cp_rect[3]:continue
             ground_box(a.root,'Lot drive apron',((x0+x1)/2,(y0+y1)/2,-.015),(x1-x0,y1-y0,.06),mat,3.048 if not gravel else 1.5,(.80,.77,.67) if gravel else (.90,.89,.84))
+    if spec['corner_apron']:
+        ground_box(a.root,'Aged corner-lot hardstanding',(-.15,(-8.30-W/2-.02)/2,-.025),(L+.30,8.30-W/2-.02,.05),concrete,3.048,(.88,.85,.76))
     if spec['carport']:ground_box(a.root,'Carport pad',(cp_x,-W/2-1.82,-.015),(6.9,3.55,.06),concrete,3.048,(.86,.85,.79))
     for y in (-1.85,-.45):ground_box(a.root,'Unpaved driveway throat',(L/2+5.758,y,-.018),(.676,.48,.045),concrete,1.5,(.47,.40,.25))
     # A narrow resident-made walk connects the parking approach to the stairs.
     x0=-L*.035-spec['deck_width']/2+.475;x1=L/2+1.2;wy=-W/2-3.0
-    ground_box(a.root,'Resident walk',((x0+x1)/2,wy,-.008),(x1-x0,.80,.045),concrete,3.048,(.78,.77,.70))
-    ground_box(a.root,'Resident walk return',(x1,(wy-2.7)/2,-.008),(.80,-2.7-wy,.045),concrete,3.048,(.78,.77,.70))
+    if not spec['corner_apron']:
+        if p['kind']=='old' and seed%3==0:
+            from terrain import worn_walk
+            worn_walk(a.root,spec,x0,x1,wy,concrete)
+        else:
+            ground_box(a.root,'Resident walk',((x0+x1)/2,wy,-.008),(x1-x0,.80,.045),concrete,3.048,(.78,.77,.70))
+            ground_box(a.root,'Resident walk return',(x1,(wy-2.7)/2,-.008),(.80,-2.7-wy,.045),concrete,3.048,(.78,.77,.70))
     from ground_edges import edges
-    edges(a.root,[[(L/2,-2.55,.005),(L/2+5.4,-2.55,.005)],[(L/2+5.4,.40,.005),(L/2,.40,.005)],
-                  [(x0,wy-.44,.005),(x1,wy-.44,.005)]],seed+314,lib)
+    paths=[[(L/2,-2.55,.005),(L/2+5.4,-2.55,.005)],[(L/2+5.4,.40,.005),(L/2,.40,.005)],[(x0,wy-.44,.005),(x1,wy-.44,.005)]]
+    if spec['corner_apron']:paths=[[(-L/2-.3,-8.30,.002),(L/2+5.4,-8.30,.002)],[(-L/2-.3,-W/2-.10,.002),(L/2,-W/2-.10,.002)]]
+    edges(a.root,paths,seed+314,lib)
     from terrain import pavement
     pavement(a,spec,lib,library_material)
     # Sparse pad dressing is geometry now; oil and causal weather remain look-dev.
@@ -253,7 +263,10 @@ def build(p):
         # are the same native species scaled once, with explicit age inference.
         if (old and j%3!=1) or (not old and j%2==0):
             tx=rng.uniform(-.7,.7)
-            tx=row['origin'][0]+tx*(1 if row['yaw']==0 else -1)+(row['side']*row['home']['length']*.22 if old else 0)
+            if old and row['yaw']==180:
+                h=row['home'];u=-h['length']*.32+2.05 if h['room'] else -h['length']*.22
+                tx=row['origin'][0]-u+rng.uniform(-.05,.05)
+            else:tx=row['origin'][0]+tx*(1 if row['yaw']==0 else -1)
             a.socket('Tree_'+str(j),(tx,yy+p['lot_frontage']/2-.4,0),'tree',species='oak' if j%3==0 else 'maple',plant_scale=rng.uniform(.92,1.12) if old else rng.uniform(.44,.64))
         if j%2==0:a.socket('Shrub_'+str(j),(row['origin'][0]+row['side']*4,yy-3,0),'shrub')
     for i,x in enumerate((-p['loop_x'],p['loop_x']) if p['kind']=='old' else (0,)):

@@ -121,7 +121,9 @@ def check():
             assert abs(skirt_hit[1]+spec['width']/2)<.04,(stem,'open skirt seam',skirt_hit)
             construction[stem]['skirt_seam_ray_hit_m']=skirt_hit
             if spec['era']!='1972':
-                rake_hit,_=probe(stem,(spec['length']/2+1,spec['width']/2-.10,spec['eave']+.05),(-1,0,0))
+                # Sample the gable infill below the enlarged rake fascia,
+                # rather than mistaking the overhanging trim for that wall.
+                rake_hit,_=probe(stem,(spec['length']/2+1,spec['width']/2-.35,spec['eave']+.05),(-1,0,0))
                 assert abs(rake_hit[0]-spec['length']/2)<.02,(stem,'open rake closure',rake_hit)
                 construction[stem]['rake_closure_ray_hit_m']=rake_hit
         if stem=='SupportFrame':

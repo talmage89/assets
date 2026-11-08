@@ -18,12 +18,12 @@ def compare(folder):
             matrix_delta=max(abs(x-y) for a,b in zip(row['camera_matrix_world'],current['camera_matrix_world']) for x,y in zip(a,b))
             assert matrix_delta<1e-6,(stem,name,'camera matrix changed',matrix_delta)
             assert row['camera_parameters']==current['camera_parameters'],(stem,name,'camera parameters changed')
-            light_keys=('direction','sun_energy','sky_strength','exposure','angle_degrees','sky_saturation')
+            light_keys=('direction','sun_energy','sky_strength','exposure','angle_degrees','sky_saturation','camera_sky_strength','camera_sky_saturation')
             for key in light_keys:assert row['light'][key]==current['light'][key],(stem,name,'changed light',key)
             a=folder/stem/(row['shot']+'.png');b=folder/stem/(name+'.png')
             left=Image.open(a).convert('RGB');right=Image.open(b).convert('RGB');assert left.size==right.size and left.width>=800
             im=Image.new('RGB',(left.width*2,left.height+58),(232,233,226));im.paste(left,(0,58));im.paste(right,(left.width,58));d=ImageDraw.Draw(im)
-            d.text((18,15),'Accepted form checkpoint / same camera and light',font=font,fill=(25,30,25))
+            d.text((18,15),'Prior form checkpoint / same camera and light',font=font,fill=(25,30,25))
             d.text((left.width+18,15),'Current exported asset / same camera and light',font=font,fill=(25,30,25))
             path=out/(stem+'-'+name+'.jpg');im.save(path,quality=95,optimize=True)
             receipts.append(dict(path=str(path),panel_size=left.size,camera_equal=True,light_equal=True,

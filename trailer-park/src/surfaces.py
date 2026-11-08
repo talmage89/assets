@@ -108,8 +108,8 @@ def age(q,n,c,role,component,p,seed):
         color=color.lerp(Vector((.22,.075,.022)),oxide)
     if component in ('skirting','skirt_access'):
         color=Vector((.62,.61,.55))
-        soil=severity*.65*math.exp(-max(0,z-.04)/(.19+.06*ripple))*(.6+.4*ripple)
-        color=color.lerp(Vector((.13,.12,.065)),soil)
+        soil=severity*.95*math.exp(-max(0,z-.04)/(.17+.06*ripple))*(.6+.4*ripple)
+        color=color.lerp(Vector((.065,.070,.030)),soil)
     if component=='carport' and z<.43:
         rust=severity*.74*math.exp(-z/.16)*(.7+.3*ripple)
         color=color.lerp(Vector((.22,.065,.018)),rust)
@@ -147,7 +147,7 @@ def finish(ob):
         elif component in ('skirting','skirt_access'):cell='Skirt'
         elif component=='chassis':cell='Steel'
         elif component=='roof':cell='Roof'
-        elif component=='carport':cell='Plain' if sum(coords[i].z for i in poly.vertices)/len(poly.vertices)<.33 else 'Zinc'
+        elif component=='carport':cell='Zinc'
         elif component in ('roof_trim','openings','window_detail','utilities','dish'):
             c=values[poly.vertices[0]];cell='Zinc' if .36<max(c[:3])<.58 and max(c[:3])-min(c[:3])<.06 else 'Plain'
         else:cell='Plain'

@@ -1,7 +1,7 @@
 """Freeze supplied checkpoint packages for identical-camera comparisons.
 
 Historical outputs are local review inputs, not new shipping assets. Geometry
-and image bytes must match the accepted checkpoint; only image URIs relocate.
+and image bytes must match the prior checkpoint; only image URIs relocate.
 """
 import hashlib,json,os,subprocess
 from pathlib import Path
@@ -27,8 +27,8 @@ def freeze():
     legacy=subprocess.check_output(['git','show','07d9d3f:trailer-park/src/render.py'])
     Path('build/baseline/legacy_render.py').write_bytes(legacy)
     Path('build/baseline/receipt.json').write_text(json.dumps(dict(commit='07d9d3f',packages=receipts,
-        scope='Supplied accepted local checkpoint cache; unchanged geometry/image bytes, relocated image URIs'),indent=2))
-    print('FROZEN BASELINE',len(receipts),'accepted packages')
+        scope='Supplied prior local checkpoint cache; unchanged geometry/image bytes, relocated image URIs'),indent=2))
+    print('FROZEN BASELINE',len(receipts),'prior packages')
 
 
 if __name__=='__main__':freeze()

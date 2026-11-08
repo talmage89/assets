@@ -51,6 +51,7 @@ def park(seed=101, kind=None, rows=9):
             spec=home(vs,era,width_ft=(16 if era=='1984' else 12 if variant%4==3 else 14) if old else (16 if era=='1984' else (24,28,28,24)[variant%4]),
                       length_ft=(52,60,64,70)[variant%4] if old else (52,56,60,64)[variant%4])
             spec.update(variant_id=f'{kind}-{variant}',occupant_seed=hs)
+            if old and variant==2:spec.update(color=PALETTES[3],accent=(.18,.10,.07))
             if old and lane<0 and side<0 and j==0:spec['carport']=False
             yy=(j-(rows-1)/2)*pitch
             # Both street-facing end walls have a 6 m drive approach. Side

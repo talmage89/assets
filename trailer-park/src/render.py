@@ -17,6 +17,12 @@ def setup(width,samples):
     sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(18);sky.sun_rotation=math.radians(235);sky.sun_disc=False;sky.aerosol_density=.45
     sat=ns.new('ShaderNodeHueSaturation');sat.name='Daylight sky chroma';sat.inputs['Saturation'].default_value=.35
     bg=ns.get('Background');bg.inputs['Strength'].default_value=.10;ls.new(sky.outputs[0],sat.inputs['Color']);ls.new(sat.outputs[0],bg.inputs[0])
+    visible=ns.new('ShaderNodeHueSaturation');visible.name='Visible sky chroma';ls.new(sky.outputs[0],visible.inputs['Color'])
+    camera_bg=ns.new('ShaderNodeBackground');camera_bg.name='Visible clear sky';camera_bg.inputs['Strength'].default_value=.06;ls.new(visible.outputs[0],camera_bg.inputs['Color'])
+    paths=ns.new('ShaderNodeLightPath');specular=ns.new('ShaderNodeMath');specular.operation='MAXIMUM'
+    ls.new(paths.outputs['Is Camera Ray'],specular.inputs[0]);ls.new(paths.outputs['Is Glossy Ray'],specular.inputs[1])
+    mix=ns.new('ShaderNodeMixShader');ls.new(specular.outputs[0],mix.inputs[0]);ls.new(bg.outputs[0],mix.inputs[1]);ls.new(camera_bg.outputs[0],mix.inputs[2])
+    ls.new(mix.outputs[0],next(n for n in ns if n.type=='OUTPUT_WORLD').inputs['Surface'])
     ld=bpy.data.lights.new('Low raking sun','SUN');ld.energy=10;ld.angle=math.radians(.65);ld.color=(1,.94,.83)
     sun=bpy.data.objects.new(ld.name,ld);sc.collection.objects.link(sun);sun.rotation_euler=Vector((.75,.61,-.316)).to_track_quat('-Z','Y').to_euler()
     cam=bpy.data.objects.new('CheckpointCamera',bpy.data.cameras.new('CheckpointCamera'));sc.collection.objects.link(cam);sc.camera=cam
@@ -94,7 +100,7 @@ def shot_views(stem,meta):
         span=p['span'];sx,sy=p['size'];old=p['kind']=='old'
         xx=p['loop_x']
         return dict(hero=dict(location=(-xx-1.50,-span/2+2,1.68),target=(-xx-.3,-span/2+31,1.83),lens=40),
-                    above=dict(location=(sx*1.02,-sy*1.05,max(sx,sy)*.95),target=(0,0,0),lens=43,aspect=1.45,light=dict(exposure=.15,sky_strength=.12,sun_energy=8)),
+                    above=dict(location=(sx*1.02,-sy*1.05,max(sx,sy)*.95),target=(0,0,0),lens=43,aspect=1.45,light=dict(exposure=1.0,sky_strength=.12,sun_energy=8)),
                     entrance=dict(location=(-xx+11,-span/2-19,1.68),target=(-xx+6,-span/2-7,1.4),lens=48,aspect=1.5),
                     row=dict(location=(-xx+2.3,-span/2+15,1.68),target=(-xx-12,-span/2+23,1.8),lens=40))
     if stem.startswith(('Single','Double')):
@@ -146,7 +152,7 @@ def render(stem,path,meta,views,out,width,samples,dress=True):
         temporary=[];posed={}
         for suffix,angle in v.get('door_angles',{}).items():
             pivot=next(o for o in bpy.context.scene.objects if o.name.endswith('__'+suffix));posed[pivot]=pivot.matrix_basis.copy();pivot.matrix_basis=posed[pivot]@Matrix.Rotation(math.radians(angle),4,'Z')
-        light=dict(sun_energy=10,sky_strength=.10,exposure=0,angle_degrees=.65,sky_saturation=.35)
+        light=dict(sun_energy=10,sky_strength=.10,exposure=0,angle_degrees=.65,sky_saturation=.35,camera_sky_strength=.06,camera_sky_saturation=1)
         light.update(v.get('light',{}));automatic=sun_choice is not None and not v.get('fixed_camera') and 'direction' not in v.get('light',{})
         direction=light.get('direction',sun_choice['direction'] if automatic else (.75,.61,-.316));light['direction']=direction
         if v.get('fixed_camera'):light['sky_saturation']=v.get('light',{}).get('sky_saturation',1)
@@ -155,6 +161,8 @@ def render(stem,path,meta,views,out,width,samples,dress=True):
         sky=next(n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY');dv=Vector(direction).normalized()
         sky.sun_rotation=math.atan2(-dv.y,-dv.x);sky.sun_elevation=math.asin(-dv.z)
         sc.world.node_tree.nodes['Daylight sky chroma'].inputs['Saturation'].default_value=light['sky_saturation']
+        sc.world.node_tree.nodes['Visible sky chroma'].inputs['Saturation'].default_value=light['camera_sky_saturation']
+        sc.world.node_tree.nodes['Visible clear sky'].inputs['Strength'].default_value=light['camera_sky_strength']
         sc.world.node_tree.nodes.get('Background').inputs['Strength'].default_value=light['sky_strength']
         sc.view_settings.exposure=light['exposure']
         if name=='scale':
@@ -181,6 +189,9 @@ def render(stem,path,meta,views,out,width,samples,dress=True):
                 else:cam.location=center+(cam.location-center)*1.06
             v=dict(v,location=list(cam.location),ortho=cam.data.ortho_scale) if cam.data.type=='ORTHO' else dict(v,location=list(cam.location))
         if v.get('fixed_matrix'):cam.matrix_world=Matrix(v['fixed_matrix'])
+        for subject in v.get('review_subject_nodes',[]):
+            ob=bpy.data.objects.get(subject)
+            assert ob and any(c.type=='MESH' for c in ob.children_recursive),(name,'Missing imported comparison subject',subject)
         visibility=landmark_visibility(v['review_landmarks'],cam.location) if v.get('review_landmarks') else None
         bpy.ops.render.render(write_still=True)
         provenance.append(dict(stem=stem,shot=name,camera=v,source=str(path),delivery=str(delivery),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),images=meta['images'],context=ctx,
@@ -246,9 +257,9 @@ def main():
         verify(a.cameras)
         for name,row in json.loads(a.cameras.read_text()).items():
             stem=row['asset'];meta=json.loads(Path('export',stem+'.json').read_text())
-            v=row['shot'];v['aspect']=(row['crop'][2]-row['crop'][0])/(row['crop'][3]-row['crop'][1]);v['review_landmarks']=row['landmarks_world_m']
-            v['light']=(dict(sun_energy=.8,sky_strength=.40,sky_saturation=.06,angle_degrees=12,direction=(.3,.3,-1),exposure=.20) if name=='single-2009' else
-                        dict(sun_energy=2.0,sky_strength=.30,sky_saturation=.10,angle_degrees=5,direction=(.6,.6,-1),exposure=.10) if name=='street-2007' else
+            v=row['shot'];v['aspect']=(row['crop'][2]-row['crop'][0])/(row['crop'][3]-row['crop'][1]);v['review_landmarks']=row['landmarks_world_m'];v['review_subject_nodes']=row.get('subject_nodes',[])
+            v['light']=(dict(sun_energy=.8,sky_strength=.40,sky_saturation=.06,camera_sky_strength=.40,camera_sky_saturation=.06,angle_degrees=12,direction=(.3,.3,-1),exposure=-.80) if name=='single-2009' else
+                        dict(sun_energy=2.0,sky_strength=.30,sky_saturation=.10,camera_sky_strength=.30,camera_sky_saturation=.10,angle_degrees=5,direction=(.6,.6,-1),exposure=.10) if name=='street-2007' else
                         dict(sun_energy=5,sky_strength=.12,sky_saturation=.35,angle_degrees=.65,direction=(.5,.5,-1),exposure=.10))
             receipts+=render(stem,Path('export',stem+'.gltf'),meta,{name:v},a.out/'matches',a.width,a.samples,True)
     if a.baseline and a.baseline.exists():receipts+=baseline_renders(a.baseline,receipts,a.out,a.width,a.samples)

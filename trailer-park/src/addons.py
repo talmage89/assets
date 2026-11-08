@@ -76,8 +76,9 @@ def stairs(a,width,depth,height,m):
         m.beam((x+sx,y0,height+.90),(x+sx,y0-n*run+.10,.92),.042,.068,'Veneer',WOOD,r=.002)
 
 
-def carport(name='Carport',length=6.7056,width=3.3528,sag=0):
-    a=Assembly(name);m=a.mesh('AluminumPans',component='carport');zback=2.68;zfront=2.42
+def carport(name='Carport',length=6.7056,width=3.3528,sag=0,context=None):
+    a=Assembly(name);a.root['weather_spec']=json.dumps(context or dict(seed=303,era='1972',upkeep='patched'),sort_keys=True)
+    m=a.mesh('AluminumPans',component='carport');zback=2.68;zfront=2.42
     # Independent support posts; an add-on never loads a mobile home's wall.
     for x in (-length/2+.13,0,length/2-.13):
         for sy in (-1,1):

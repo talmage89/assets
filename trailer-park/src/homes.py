@@ -162,8 +162,9 @@ def roof(a,p):
     half=W/2+over;lx=L/2+over
     def height(y):return E+.10+(.13*(1-(y/half)**2) if p['era']=='1972' else (half-abs(y))*p['pitch'])
     stations=[-half+i*2*half/12 for i in range(13)] if p['era']=='1972' else [-half,0,half]
+    coating={'kept':(.72,.73,.67),'faded':(.40,.41,.37),'patched':(.32,.33,.29)}[p['upkeep']]
     for y0,y1 in zip(stations,stations[1:]):
-        m.prism([(-lx,y0,height(y0)),(lx,y0,height(y0)),(lx,y1,height(y1)),(-lx,y1,height(y1))],(0,0,-1),.055,'Shingles' if p['roof']=='shingle' else 'Trim',None if p['roof']=='shingle' else (.38,.39,.35))
+        m.prism([(-lx,y0,height(y0)),(lx,y0,height(y0)),(lx,y1,height(y1)),(-lx,y1,height(y1))],(0,0,-1),.055,'Shingles' if p['roof']=='shingle' else 'Trim',None if p['roof']=='shingle' else coating)
     if p['roof']=='rolled':
         for j in range(math.ceil(L/.9144)):
             x=-L/2+j*L/math.ceil(L/.9144)
@@ -171,10 +172,11 @@ def roof(a,p):
     else:
         m.box((0,0,height(0)+.018),(L+.22,.15,.045),'Shingles')
     for sy in (-1,1):
-        trim.box((0,sy*half,height(half)-.048),(L+2*over,.032,.120),'Trim',p['accent'] if p['era']=='1984' else None)
+        fascia=.24 if p['era']=='1984' else .12
+        trim.box((0,sy*half,height(half)+.012-fascia/2),(L+2*over,.032,fascia),'Trim',p['accent'] if p['era']=='1984' else None)
         trim.box((0,sy*(half+.023),height(half)-.012),(L+.25,.055,.027),'Trim',ZINC)
     for sx in (-1,1):
-        for y0,y1 in zip(stations,stations[1:]):trim.beam((sx*lx,y0,height(y0)-.04),(sx*lx,y1,height(y1)-.04),.027,.09,'Trim',p['accent'] if p['era']=='1984' else None,r=0)
+        for y0,y1 in zip(stations,stations[1:]):trim.beam((sx*lx,y0,height(y0)-.04),(sx*lx,y1,height(y1)-.04),.027,.14 if p['era']=='1984' else .09,'Trim',p['accent'] if p['era']=='1984' else None,r=0)
         if p['era']=='1972':
             ys=[-W/2+i*W/12 for i in range(13)]
             poly=[(sx*(L/2+.002),-W/2,E),(sx*(L/2+.002),W/2,E)]
