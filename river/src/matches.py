@@ -1,7 +1,7 @@
 """Measured feature cameras and honest type comparisons using kit.photo_match.
 
 Photographs never enter Blender. Fitting small landmark sets does not survey
-the real crossings. Under-Huron is steel and wider; this remains disclosed.
+the real crossings. The underside uses FHWA's concrete I-beam photograph.
 """
 import argparse
 import json
@@ -37,23 +37,25 @@ def definitions():
         shores += [((l,y,p.water_z(y)),*left),((r,y,p.water_z(y)),*right)]
     bank=definition('riverside-2008.jpg','Town park bank and water / autumn reference; dock differs',shores,
         (15,-45,11),(p.center(130),130,0),99)
-    bank['lens_bounds_mm']=[98.5,99.5]
-    # Native construction differs. Restrict anchors to the cap/column frame;
-    # the photographed steel cross-bracing remains an explicit mismatch.
+    # The authored reach is not a surveyed park. The old hard 99mm bound
+    # prevented its different bank spacing from fitting the measured shores.
+    bank['lens_bounds_mm']=[18,140]
     p=generate(101);x=-p.span/2;half=p.deck_width/2-.3
     cap_top=p.deck_z-.32-1.143-.30
     # Native bent cap is 2.30m wide, 1.10m deep, with 50mm chamfers.
     # Use its actual upper/lower chamfer endpoints after height adaptation.
-    under=definition('under-huron.jpg','Under bridge / support frame; steel reference differs',[
-        ((x-1.10,half,cap_top),.170,.660),((x-1.10,-half,cap_top),.849,.679),
-        ((x-1.10,half,cap_top-1.10),.170,.711),((x-1.10,-half,cap_top-1.10),.849,.730)],
-        (-24,-.4,2.15),(x,0,3.7),24,height=[2.15,.25])
+    under=definition('under-concrete-sc.jpg','Concrete I-girder underside / FHWA 2008',[
+        ((x-1.10,half,cap_top),1065/2816,1366/2112),
+        ((x-1.10,half,cap_top-1.10),1065/2816,1717/2112),
+        ((x-.60,.60,cap_top-1.10),1429/2816,1700/2112),
+        ((x-.60,-.60,cap_top-1.10),1747/2816,1682/2112)],
+        (-15,0,1.2),(x,0,4),24)
     return dict(urban=(101,urban),bank=(202,bank),under=(101,under))
 
 
 def prepare():
     result={}
-    neutral=dict(urban=(260,466,350,477),bank=(1660,857,1740,865),under=(380,582,460,610))
+    neutral=dict(urban=(260,466,350,477),bank=(1660,857,1740,865),under=(2000,1370,2300,1470))
     Path('build/photo-balanced').mkdir(parents=True,exist_ok=True)
     for name,(seed,d) in definitions().items():
         original=d['photo'];im=ImageOps.exif_transpose(Image.open(original)).convert('RGB')
@@ -68,8 +70,8 @@ def prepare():
         # recorded separately from the fitted geometry and not baked into art.
         result[name]['construction_status']='type comparison, not reconstruction'
         result[name]['shot']['exposure']=1.0 if name=='under' else -.4
-        if name=='under':result[name]['reference_optics']='18mm EXIF on APS-C Canon Rebel T3i; fit uses a 36mm sensor and authored narrower bridge'
-        if name=='bank':result[name]['reference_optics']='99mm equivalent in EXIF; fit estimates the authored channel scale, not a surveyed park replica'
+        if name=='under':result[name]['reference_optics']='Estimated virtual lens from four support landmarks; different pile/bearing layout and new age. Four anchors do not certify full girder alignment.'
+        if name=='bank':result[name]['reference_optics']='99mm-equivalent photographic EXIF is not imposed on the unsurveyed authored reach. Estimated virtual optics fit its four shore anchors.'
         result[name]['white_balance']=dict(original=original,neutral_patch_xyxy=neutral[name],
             assumed_neutral=['bridge concrete','weathered gray dock decking','pier cap concrete'][['urban','bank','under'].index(name)],
             photo_patch_rgb=med.tolist(),gains=gain.tolist())

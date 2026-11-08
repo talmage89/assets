@@ -20,6 +20,7 @@ asset pixels or vertices. Names and dates on the bridges are fictional.
 | Raisinriver.jpg | https://upload.wikimedia.org/wikipedia/commons/8/84/Raisinriver.jpg | Hudkina, 15 July 2008, CC BY-SA 3.0, Wikimedia Commons | Small-town river, brick backs, near-eye-height bank view, olive water with broken sky reflections and urban walk. Parapet concrete is the assumed neutral. |
 | huron-vista.jpg | https://upload.wikimedia.org/wikipedia/commons/e/ee/Huron_River_Scenic_Vista_with_Huron_Parkway_Bridge_-_panoramio.jpg | Dwight Burdette, 19 June 2013, CC BY 3.0, Wikimedia Commons / former Panoramio | Wider bank/water stretch with a period road bridge; dense low bank cover, turbid water and reflected sky. Viewed only. |
 | riverside-2008.jpg | https://upload.wikimedia.org/wikipedia/commons/1/1b/Riverside_Park_693.jpg | Cmadler, 18 October 2008, CC BY-SA 3.0, Wikimedia Commons | Huron River mud banks, low gradient and water response in a town park. Autumn differs from the summer model; viewed only. |
+| under-concrete-sc.jpg | https://upload.wikimedia.org/wikipedia/commons/b/bc/Bridge_Underside_SC_%288426547411%29.jpg | Federal Highway Administration, 20 June 2008; US DOT public domain, also reviewed CC BY 2.0 on Wikimedia Commons | Concrete precast I-beams and pile bent on SC 377 near Kingstree. Replaces the steel-truss underside comparison. Exposed concrete cap is the assumed white-balance neutral; different support count and new age remain disclosed. |
 
 Online primary references, viewed:
 
