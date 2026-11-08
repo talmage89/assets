@@ -40,9 +40,9 @@ def plant(p,parent):
  templates=[]
  for pattern in range(8):
   b=Q.Batch('Grass clump tile %02d'%pattern)
-  for j in range(16):
+  for j in range(32):
    x=rng.uniform(-.65,.65);y=rng.uniform(-.65,.65);h=rng.uniform(.10,.23)
-   shade=1 if pattern<4 else .80
+   shade=1 if pattern<4 else .88
    tint=(rng.uniform(.78,1)*shade,rng.uniform(.83,1)*shade,rng.uniform(.65,.87)*shade,1)
    for angle in (rng.uniform(0,math.pi),rng.uniform(math.pi,math.tau)):
     d=Vector((math.cos(angle),math.sin(angle),0))*.16;v=Vector((x,y,0))

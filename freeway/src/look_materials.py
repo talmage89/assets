@@ -13,6 +13,8 @@ def install():
         Q.M[role]=m
     Q.M['Barrier']=Q.M['Bridge']
     Q.M['GrassCard']=Q.M['Maintenance'].copy();Q.M['GrassCard'].name='Freeway_TurfCards'
+    normal=next(n for n in Q.M['GrassCard'].node_tree.nodes if n.type=='NORMAL_MAP')
+    normal.inputs['Strength'].default_value=.10 # Leaf edges are thinner than the maintenance atlas's 8mm relief.
     from landscape import install as install_turf
     install_turf()
     Q.M['WheelPolish']=Q.M['Concrete'].copy();Q.M['WheelPolish'].name='Freeway Wheel polish / Ground Concrete'

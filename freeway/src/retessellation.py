@@ -37,11 +37,18 @@ def compare(old,new):
   if sample_index%4!=3:continue # Corner UV/normal charts have intentional seams.
   # Native texture phase and normals must agree too, using barycentric
   # interpolation at the closest point on the actual old surface.
-  tri=old[index];a,b,c=tri[:,:3];v=np.asarray(point)-a;e0=b-a;e1=c-a
-  gram=np.array([[e0@e0,e0@e1],[e0@e1,e1@e1]])
-  weights=np.linalg.solve(gram,[v@e0,v@e1]);value=tri[0]+weights[0]*(tri[1]-tri[0])+weights[1]*(tri[2]-tri[0])
-  uv_error=max(uv_error,float(abs(value[6:]-row[6:]).max()))
-  normal_error=max(normal_error,float(np.linalg.norm(value[3:6]-row[3:6])))
+  def errors(index,point):
+   tri=old[index];a,b,c=tri[:,:3];v=np.asarray(point)-a;e0=b-a;e1=c-a
+   gram=np.array([[e0@e0,e0@e1],[e0@e1,e1@e1]])
+   weights=np.linalg.solve(gram,[v@e0,v@e1]);value=tri[0]+weights[0]*(tri[1]-tri[0])+weights[1]*(tri[2]-tri[0])
+   return float(abs(value[6:]-row[6:]).max()),float(np.linalg.norm(value[3:6]-row[3:6]))
+  uv,norm=errors(index,point)
+  if uv>.001 or norm>.005:
+   # Closed tube components meet at coincident, oppositely oriented internal
+   # caps. A single nearest triangle can select the other cap's UV/normal.
+   candidates=[errors(k,q) for q,_,k,d in tree.find_nearest_range(Vector(row[:3]),max(.00005,distance+.00001))]
+   if candidates:uv,norm=min(candidates,key=lambda value:value[0]+value[1])
+  uv_error=max(uv_error,uv);normal_error=max(normal_error,norm)
  return dict(samples=len(samples)*4,max_surface_distance_m=worst,max_uv_delta=uv_error,max_normal_delta=normal_error)
 
 def main():

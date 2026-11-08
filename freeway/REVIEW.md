@@ -695,6 +695,46 @@ separately in the README. All 1,094 other-delivery files remain hash-identical.
 Five JPGs are 184,392; 183,427; 199,904; 194,695; and 190,665 bytes, with widths
 1400/1400/1600/1600/1600. No kit or top-level README change was made. Gallery
 images are ready for the final, separate commit.
+# Round 4, pass 1: exported turf, age and framing (rejected)
+
+Color and value: the 1000 px exported views in renders/round4-pass1 make the
+miss clear. The native lawn's soil/weed RGB, normalized independently and
+amplified, becomes yellow camouflage rather than a continuous grass bed.
+Against the concrete-neutral 2002 aerial and 2008 bridge photo, the large
+yellow/green value breaks are the first CG tell. The 202 median shows sparse
+card islands above that base. Near 101 grass has volume but reads as an overly
+upright seed curtain. The pavement wheel paths now read; the column shafts
+still look almost new and their old repair skin becomes a pale rectangle.
+The barrier has a smooth low gradient, with too little irregular spray history.
+
+I opened all seven raw exported views at native size: old 101 camera, barrier,
+pier/girders, 202 hero, and three 101 framing candidates. The ramp candidates
+retain the accepted gas canopy/storefronts/signals but too much foreground;
+the mainline view gives the pavement and bridge weight but loses the town.
+Centered 2.4/2.6 aspect studies of the ramp-shoulder view retain town/bridge/road
+and reduce foreground turf to a band. The selected 50mm, 2.6 composition will
+be rendered again, not used as a cropped final. Its actual exported shoulder
+surface is Z 6.8302619m, with the camera 1.65m above it. A separate 35mm roadway
+view will keep pavement age legible at player eye height.
+
+Corrections: compress native blade luminance instead of amplifying separate
+RGB channels; lower large-clump contrast; increase blade coverage and clump
+density while retaining eight linked meshes and the same atlas allocation;
+soften mown contrast and reduce the leaf normal's effective relief to .8mm.
+Strengthen head-connected column streams and low spray, weather the repair
+skin continuously with its shaft, and vary barrier spray height along station.
+No docs are accepted at this pass.
+
+Construction gate: rejected bilinear ground resampling moved supports/flumes.
+It was removed before the first images above; the actual old earth triangles
+remain, with smooth grass normals. Mowing contrast moves to the cards. Civil
+101 drops from the rejected grid's 357,538 to 287,616 triangles; 202 is 162,966.
+Both traffic glTF/BIN pairs remain byte-identical, and cap-runoff chart bytes
+remain exact. A later edge-return merge also retains the original diagonals
+around new lane-center samples. The first oriented-surface audit exposed
+ambiguous coincident internal tube caps; it now selects the matching oriented
+chart rather than the first nearest cap. Final physical checks remain pending.
+
 # Round 4: rejected grass and surface age / baseline
 
 Color and value: at native size the aaf099e 101 hero has a dark olive ground

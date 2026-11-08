@@ -20,7 +20,8 @@ def install():
                 if not channel:continue
                 if channel=='Normal':
                     bs=next(n for n in nodes if n.type=='BSDF_PRINCIPLED');h=nodes.new('ShaderNodeTexImage');h.image=bpy.data.images.load(str((Path('textures/source')/f'T_{name}_Height.png').resolve()),check_existing=True);h.image.colorspace_settings.name='Non-Color'
-                    bump=nodes.new('ShaderNodeBump');bump.inputs['Distance'].default_value=spec['height'];links.new(h.outputs[0],bump.inputs['Height']);links.new(bump.outputs['Normal'],bs.inputs['Normal'])
+                    scale=next((n.inputs['Strength'].default_value for n in nodes if n.type=='NORMAL_MAP'),1.)
+                    bump=nodes.new('ShaderNodeBump');bump.inputs['Distance'].default_value=spec['height']*scale;links.new(h.outputs[0],bump.inputs['Height']);links.new(bump.outputs['Normal'],bs.inputs['Normal'])
                 else:
                     node.image=bpy.data.images.load(str((Path('textures/source')/f'T_{name}_{channel}.png').resolve()),check_existing=True);node.image.colorspace_settings.name='sRGB' if channel=='BaseColor' else 'Non-Color'
                     if name=='FreewayMaintenance' and channel=='BaseColor':

@@ -119,7 +119,8 @@ def construction(root):
             for i in face.vertices:
                 v=ob.data.vertices[i].co
                 station=v.y+root.location.y
-                low=math.exp(-(max(0,v.z)/.43)**1.1)*(.64+.10*math.sin(station*.067)+.08*math.sin(station*.71)) if root.get('module_kind') in ('barrier','soundwall') else 0
+                spray_height=.42+.12*math.sin(station*.43)+.05*math.sin(station*1.8)
+                low=math.exp(-(max(0,v.z)/spray_height)**1.15)*(.79+.10*math.sin(station*.067)+.06*math.sin(station*.71)) if root.get('module_kind') in ('barrier','soundwall') else 0
                 value=1-low
                 if root.get('module_kind')=='barrier':
                     # Water enters the actual open end joints and collects
@@ -142,7 +143,7 @@ def construction(root):
                     value-=.28*math.exp(-max(0,v.z-7.18236)/.27)
                 # Damp deposits retain their brown/olive soil spectrum.
                 concrete=ma in (Q.M['Bridge'],Q.M['Barrier'])
-                value=max(.18,min(1,value))
+                value=max(.10,min(1,value))
                 ca.data[i].color=(value,value*(1-(1-value)*.08)*(.985 if concrete else 1),value*(1-(1-value)*.22)*(.94 if concrete else 1),1)
                 is_pier=root.get('module_kind')=='bridge_pier' or (root.get('module_kind')=='bridge' and ob.parent and ob.parent.get('module_kind')=='bridge_pier')
                 if is_pier and v.z<4.46 and abs(v.x)<.61:
@@ -207,6 +208,12 @@ def construction(root):
         for j in range(8):
             a=-.52+1.04*j/8;c=-.52+1.04*(j+1)/8
             xa,ya=.6008*math.sin(a),y-.6008*math.cos(a);xc,yc=.6008*math.sin(c),y-.6008*math.cos(c)
-            b.face([(xa,ya,lower[j]),(xc,yc,lower[j+1]),(xc,yc,upper[j+1]),(xa,ya,upper[j])],'Bridge',tint=(.88,.885,.89,1))
+            start=len(b.colors)
+            b.face([(xa,ya,lower[j]),(xc,yc,lower[j+1]),(xc,yc,upper[j+1]),(xa,ya,upper[j])],'Bridge')
+            from column_age import tint
+            for k in range(start,len(b.colors)):
+                # These older formed repairs have weathered with the shaft;
+                # their slight mix change must not become a white patch stamp.
+                value=tint(Vector(b.v[k]));b.colors[k]=tuple(min(1,v*1.08) for v in value[:3])+(1,)
     b.finish()
     root['bridge_weather_complete']=True

@@ -17,7 +17,10 @@ def field():
  rgb=srgb_to_linear(np.asarray(Image.open(source).convert('RGB'),np.float32)/255)
  # This derivative changes the original scripted lawn's seasonal pigment,
  # retaining the original fine blade/grain pattern. It contains no macro age.
- median=np.median(rgb.reshape(-1,3),axis=0)
+ # Keep the fine authored blade values, but compress the native soil/weed
+ # contrast. Independent channel normalization turned soil into yellow camo.
+ luminance=rgb@np.array([.2126,.7152,.0722],np.float32)
+ fine=np.clip((luminance/np.median(luminance))**.35,.78,1.24)
  rng=np.random.default_rng(381);size=rgb.shape[0]
  def noise(n):
   a=rng.random((n,n),dtype=np.float32)
@@ -25,7 +28,8 @@ def field():
   a=np.pad(a,2,mode='wrap');im=Image.fromarray(a).resize((size+4*size//n,)*2,Image.Resampling.BICUBIC)
   return np.asarray(im,np.float32)[2*size//n:2*size//n+size,2*size//n:2*size//n+size]-.5
  clump=.42*noise(11)+.35*noise(31)+.21*noise(79)
- rgb=np.clip(rgb/median*np.array([.175,.190,.060])*(1+clump[:,:,None]*1.7),0,1)
+ value=fine*(1+clump*.65)
+ rgb=np.clip(value[:,:,None]*np.array([.145,.170,.055]),0,1)
  path.parent.mkdir(parents=True,exist_ok=True);write_png(path,linear_to_srgb(rgb),bits=8)
  receipt.write_text(json.dumps(dict(inputs=sig,output_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),scope='Seasonal derivative of original Ground manufacture; same canonical normal/ORM and 2048 allocation'),indent=2));return path
 
@@ -48,9 +52,9 @@ def lawn_tint(x,y,kind='verge',seed=0,height=0,lateral=None):
  rootshade=.94+.04*math.sin(x*.18+math.sin(y*.16))+.02*math.sin(y*.73+x*.31)
  # Put straw pigment in the image so the desired red multiplier stays <=1.
  # glTF's normalized color attributes clamp a >1 tint during serialization.
- red_scale=.155/.175
+ red_scale=.125/.145
  # Keep the accepted irrigated-yard mean when changing the ROW's pigment.
- if kind=='yard':return ((.80+.18*dry)*(.125/.175)*rootshade,(.93-.26*dry)*(.155/.190)*rootshade,(.94-.37*dry)*(.055/.060)*rootshade,1)
+ if kind=='yard':return ((.80+.18*dry)*(.125/.145)*rootshade,(.93-.26*dry)*(.155/.170)*rootshade,(.94-.37*dry)*rootshade,1)
  # Mowing contrast belongs to the dense card tiles. Sampling its short
  # period on the sparse earth corners would alias into large triangles.
  return ((.84+.20*dry)*red_scale*rootshade,(.98-.16*dry)*rootshade,(.96-.27*dry)*rootshade,1)

@@ -15,6 +15,7 @@ VIEWS={'grass-101':(101,'hero_previous','hero',(0,.28,1,1)),
        'columns':(101,'pier_girders','pier_girders',(0,0,1,1)),
        'barrier':(101,'barrier','barrier',(0,0,1,1)),
        'lanes-101':(101,'hero_previous','hero',(0,.48,1,.74)),
+       'lanes-101-road':(101,'hero_road','hero_road',(0,.40,1,1)),
        'lanes-202':(202,'hero','hero',(0,.46,1,1))}
 
 def prepare():
@@ -51,7 +52,7 @@ def panel(label,before,after,roi,same=True):
  a,b=[im.crop(box) for im,box in zip((a,b),boxes)];assert min(a.width,b.width)>=800
  w=max(a.width,b.width);im=Image.new('RGB',(w*2,max(a.height,b.height)+50),(24,29,26));d=ImageDraw.Draw(im)
  font=ImageFont.truetype(find_font('DejaVu Sans','Book'),24)
- im.paste(a,(0,50));im.paste(b,(w,50));d.text((16,10),label+' / aaf099e',font=font,fill=(232,236,226));d.text((w+16,10),'CURRENT EXPORT / '+('same camera' if same else 'new composition'),font=font,fill=(232,236,226))
+ im.paste(a,(0,50+(im.height-50-a.height)//2));im.paste(b,(w,50+(im.height-50-b.height)//2));d.text((16,10),label+' / aaf099e',font=font,fill=(232,236,226));d.text((w+16,10),'CURRENT EXPORT / '+('same camera' if same else 'new composition'),font=font,fill=(232,236,226))
  im.save(OUT/(label+'.jpg'),quality=96)
  return dict(before=str(before),after=str(after),native_widths=[a.width,b.width],crop_boxes=boxes,identical_camera=same,cameras=[r['camera'] for r in records],before_sha256=hashlib.sha256(before.read_bytes()).hexdigest(),after_sha256=hashlib.sha256(after.read_bytes()).hexdigest())
 

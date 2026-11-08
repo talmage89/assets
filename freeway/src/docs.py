@@ -18,14 +18,14 @@ def main():
  review();proof=json.loads(Path('build/final-provenance.json').read_text())
  crops=json.loads(Path('renders/fix-crops/cameras.json').read_text());assert len(crops)==9
  for row in crops.values():assert hashlib.sha256(Path(row['after']).read_bytes()).hexdigest()==row['after_sha256']
- current=json.loads(Path('renders/round4-crops/evidence.json').read_text());assert len(current)==7
+ current=json.loads(Path('renders/round4-crops/evidence.json').read_text());assert len(current)==8
  for row in current.values():assert hashlib.sha256(Path(row['after']).read_bytes()).hexdigest()==row['after_sha256']
  folder=Path('renders/final');docs=Path('docs');docs.mkdir(exist_ok=True)
  spec={
   'hero-101.jpg':[(folder/'101/hero.png','Alder Junction')],
   'hero-202.jpg':[(folder/'202/hero.png','Cedar Hollow')],
   'plans.jpg':[(folder/'101/above_clean.png','Diamond / 101'),(folder/'202/above_clean.png','Sound-wall corridor / 202')],
-  'details.jpg':[(folder/'101/pier_girders.png','Type IV girders and pier'),(folder/'101/bearings.png','Bearing seats and joint runoff'),(folder/'101/terminal.png','Ramp terminal'),(folder/'101/gore.png','Gore and attenuator'),(folder/'101/sign_structure.png','Guide-sign structure'),(folder/'101/guardrail_end.png','Guardrail and terminal')],
+  'details.jpg':[(folder/'101/pier_girders.png','Type IV girders and pier'),(folder/'101/bearings.png','Bearing seats and joint runoff'),(folder/'101/hero_road.png','Lane polish, joints and repairs'),(folder/'101/gore.png','Gore and attenuator'),(folder/'101/sign_structure.png','Guide-sign structure'),(folder/'101/guardrail_end.png','Guardrail and terminal')],
   'scale-eevee.jpg':[(folder/'scale.png','1.8 m figure and native car'),(Path('renders/final-eevee/101/hero.png'),'Exported scene / Eevee'),(folder/'101/barrier.png','Median barrier'),(folder/'202/cable_median.png','Cable median and backyards')]}
  rows={}
  for name,sources in spec.items():
