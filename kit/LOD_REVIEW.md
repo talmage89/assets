@@ -2261,3 +2261,32 @@ the fresh CPU phase this is 34/34 files, with every test-file digest and both
 full kit-source snapshots matching. Fresh completion follows the corrected
 GPU start; peak child RSS for that GPU phase is 989036 KiB. The interrupted
 double-lock attempt is excluded from this pass claim.
+
+## Pass 59 — visible pickup skin failure despite passing metrics
+
+Opened all three public 20608-triangle middle strips at the original 10% switch.
+The front surround reflection changes and black triangular tears appear above
+the front wheel at 55 degrees and along the rear bed at 145 degrees. They are
+visible at the native 118-pixel height. Reject this candidate despite its mean
+.01171/.00847/.00768, p95 .07844/.05883/.05099 and local
+.08271/.07309/.08258, which pass the calibrated numeric limits. Its source
+UV/frame and geometry audits also passed. Those checks prove neither source-skin
+visibility nor appearance. The default visibility guard's additional geometry
+is necessary here. Retain 23530 (39.32% of LOD0), with the cheaper fault shown in
+`build/lod-v4/previews/cars/double-sided/2-55-strip.jpg` and `2-145-strip.jpg`.
+The 25% target remains explicitly unmet; this is the measured exception evidence,
+not a claim that saturation proves a mathematical minimum.
+
+Opened all three nearest-compatible point-field far strips. It does not fix
+color: means .03244/.02004/.02231, local .22689/.19254/.10621. Front lamp spill
+persists and the rear develops false bright red emission. Reject it. No
+production transfer policy or frozen recipe changed. Keep the better reviewed
+optical-cap4 SS4 allocation in the canonical build and retain the known far
+color failure. Geometry tightening, higher filtering resolution, coherent
+point fields and nearest-compatible association have not supplied a passing
+512 atlas; no palette, lighting or color-space correction is invented to hide it.
+
+The unused cold diagnostic variants remain archived; they are not adopted or
+reported as completed tests. The canonical pickup rebuild is queued, followed
+by its full check and a separately scoped geometry/field audit if the far image
+check fails. The full failed image result is preserved.
