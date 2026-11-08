@@ -1,16 +1,20 @@
 """One GPU lease, fresh serial Blender processes, resumable scene receipts."""
-import argparse,hashlib,json,os,shutil,signal,subprocess,sys
+import argparse,hashlib,json,os,shutil,signal,subprocess,sys,time
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 CHILD=None
+STOP_SIGNAL=None
+STOP_AT=None
 
 
 def stop(signum,frame):
-    if CHILD is not None and CHILD.poll() is None:
-        CHILD.terminate()
-        try:CHILD.wait(timeout=30)
-        except subprocess.TimeoutExpired:CHILD.kill();CHILD.wait()
-    raise SystemExit(128+signum)
+    global STOP_SIGNAL,STOP_AT
+    STOP_SIGNAL=signum;STOP_AT=time.monotonic()
+    # Never wait from a signal handler: it may interrupt wait() while that
+    # method owns subprocess's non-reentrant waitpid lock.
+    if CHILD is not None:
+        try:CHILD.terminate()
+        except ProcessLookupError:pass
 
 
 def digest(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -41,7 +45,13 @@ def run_job(name,args,outputs,exports=Path('export'),camera=None):
             print('REUSE',name,flush=True);merge(old['folder'],old['rows']);return
     command=[os.environ.get('BLENDER','blender'),'-b','-t','2','--factory-startup','--python-exit-code','1','--python','src/render.py','--',*args,'--exports',str(exports)]
     print('RENDER JOB',name,flush=True)
-    CHILD=subprocess.Popen(command,pass_fds=(9,));code=CHILD.wait();CHILD=None
+    CHILD=subprocess.Popen(command,pass_fds=(9,))
+    while True:
+        try:code=CHILD.wait(timeout=1);break
+        except subprocess.TimeoutExpired:
+            if STOP_AT is not None and time.monotonic()-STOP_AT>30:CHILD.kill()
+    CHILD=None
+    if STOP_SIGNAL is not None:raise SystemExit(128+STOP_SIGNAL)
     if code:raise subprocess.CalledProcessError(code,command)
     folder=Path(args[args.index('--out')+1]);rows=[];files={}
     for stem,shot in outputs:
