@@ -1,11 +1,16 @@
-"""Independent period Type III bridge. Cross-section from FDOT 20130.
+"""Period Type III bridge using main's shared freeway construction factories.
 
-No geometry or code is copied from the unmerged freeway branch. Local +X
-is span station; cap width and girder pitch can share future kit primitives.
+The smaller section is from FDOT 20130. Local +X is bridge station.
 """
 import math
 import geometry as G
 from plan import FT
+import freeway_bridge as shared
+
+
+class Batch(G.Batch):
+    def geom(self,vs,fs,role='concrete',*args,**kwargs):
+        return super().geom(vs,fs,'bridge_concrete' if role=='concrete' else role,*args,**kwargs)
 
 # FDOT 20130: bottom-to-top 7 / 7.5 / 19 / 4.5 / 7 in zones.
 # 45 in total, 16 in top, 22 in bottom, 7 in web; .75in foot chamfers.
@@ -16,30 +21,15 @@ SECTION=[(-.26035,0),(.26035,0),(.2794,.01905),(.2794,.1778),
 
 
 def girder(name,length=18.0086,parent=None):
-    rt=G.root(name,parent=parent,module='TypeIII_Girder',length_m=length)
-    b=G.Batch(name+'__Casting',rt)
-    # Small prestress camber remains visible under long raking reflections.
-    xs=sorted([-length/2+i*length/12 for i in range(13)]+[-length/2+.65,length/2-.65])
-    def camber(x):
-        t=max(0,min(1,(x+length/2-.65)/(length-1.3)))
-        return .012*4*t*(1-t)
-    # Flat bearing seats at each end meet the horizontal sole plates.
-    rings=[[(x,y,z+camber(x)) for y,z in SECTION] for x in xs]
-    b.loft(rings);ob=b.finish()
-    G.root(name+'__W',(-length/2+.26,0,0),rt,socket_kind='bearing')
-    G.root(name+'__E',(length/2-.26,0,0),rt,socket_kind='bearing')
-    return rt
+    return shared.girder(name,length,SECTION,parent)
 
 
 def pier(name,width=11.8872,kind='columns',height=2.11,parent=None,flow_angle=0):
+    if kind=='columns':return shared.columns(name,width,height,parent)
     rt=G.root(name,parent=parent,module='Pier_'+kind)
-    b=G.Batch(name+'__Substructure',rt)
+    b=Batch(name+'__Substructure',rt)
     # Datum is waterline. Buried footings stop below exposed bed.
-    if kind=='columns':
-        for y in (-width*.29,0,width*.29):
-            b.cylinder((0,y,(height-.80-1.3)/2),.55,height-.80+1.3,n=24)
-            b.box((0,y,-1.42),(1.95,1.95,.36))
-    else:
+    if kind=='wall':
         # Skew the submerged stem with local flow, leaving the bearing cap
         # transverse to the bridge. Angle is radians about local +Z.
         def flow_point(x,y,z):
@@ -60,7 +50,7 @@ def pier(name,width=11.8872,kind='columns',height=2.11,parent=None,flow_angle=0)
 
 def abutment(name,width=11.8872,parent=None,seat=2.687,top=4.13):
     rt=G.root(name,parent=parent,module='Abutment',seat_z_m=seat)
-    b=G.Batch(name+'__Retaining',rt)
+    b=Batch(name+'__Retaining',rt)
     # Bridge is to local -X; wingwalls contain the approach embankment.
     b.box((.40,0,(seat-.80)/2),(.80,width,seat))
     # The seat projects toward the span under the bearing plinths. The old
@@ -79,18 +69,12 @@ def abutment(name,width=11.8872,parent=None,seat=2.687,top=4.13):
 
 
 def parapet(name,length=6.096,parent=None):
-    rt=G.root(name,parent=parent,module='Parapet')
-    b=G.Batch(name+'__HemmedConcrete',rt)
-    # Curb-mounted 32in concrete parapet, narrow cap with drip projections.
-    sec=[(-.20,0),(.20,0),(.20,.10),(.13,.23),(.105,.8128),(-.105,.8128),(-.13,.23),(-.20,.10)]
-    b.loft([[(x,y,z) for y,z in sec] for x in (-length/2,length/2)])
-    for s in (-1,1):b.box((s*(length/2-.04),0,.81),(.012,.21,.012),'rubber')
-    b.finish();return rt
+    return shared.parapet(name,length,parent)
 
 
 def deck(name,length=6.096,width=11.8872,parent=None,scuppers=(0,)):
     rt=G.root(name,parent=parent,module='DeckPanel')
-    b=G.Batch(name+'__Slab',rt)
+    b=Batch(name+'__Slab',rt)
     lane=3.3528;edge=-.06-.02*lane
     section=[(-width/2,-.32),(width/2,-.32),(width/2,edge),(lane,edge),(0,-.06),(-lane,edge),(-width/2,edge)]
     b.loft([[(x,y,z) for y,z in section] for x in (-length/2,length/2)])
@@ -108,29 +92,14 @@ def deck(name,length=6.096,width=11.8872,parent=None,scuppers=(0,)):
     ob=b.finish()
     for x in scuppers:
         for side in (-1,1):
-            cutter=G.model.box('Scupper opening cutter',(x,side*(lane+.0762),-.2),(.36,.22,1),G.M['concrete'],0)
+            cutter=G.model.box('Scupper opening cutter',(x,side*(lane+.0762),-.2),(.36,.22,1),G.M['bridge_concrete'],0)
             G.model.boolean(ob,cutter)
     mod=ob.modifiers.new('Final drain triangles','TRIANGULATE');G.model.apply(ob)
     return rt
 
 
 def guardrail(name,length=7.62,parent=None):
-    rt=G.root(name,parent=parent,module='GuardrailTerminal')
-    b=G.Batch(name+'__SheetAndPosts',rt)
-    # Original 12ga bent W section; local X length, offset Y from traffic.
-    sec=[(0,.48),(.067,.51),(.083,.56),(.016,.635),(.083,.71),(.067,.76),(0,.7874)]
-    sec+= [(y+.00266,z) for y,z in reversed(sec)]
-    b.loft([[(x,y,z) for y,z in sec] for x in (-length/2,length/2)],'steel')
-    for i in range(5):
-        x=-length/2+i*length/4
-        for y in (.22,.36): b.box((x,y,.34),(.1524,.009,.76),'steel')
-        b.box((x,.29,.34),(.006,.14,.76),'steel')
-        b.box((x,.145,.63),(.1524,.2032,.3556),'wood')
-        b.tube([(x,-.01,.635),(x,.36,.635)],.008,'steel',6)
-    b.box((-length/2,.04,.635),(.35,.24,.40),'steel')
-    b.box((-length/2-.18,.04,.635),(.008,.26,.38),'yellow')
-    b.beam((-length/2,.29,.08),(-length/2+2.1,.29,.08),.06,role='steel')
-    b.finish();return rt
+    return shared.guardrail(name,length,parent)
 
 
 def assemble(p,parent):
@@ -144,7 +113,7 @@ def assemble(p,parent):
         a=-p.length/2+i*p.span;c=a+p.span
         for j,y in enumerate(ys):
             ob=girder(f'Girder_{i}_{j}',p.span-.28,rt);ob.location=((a+c)/2,y,bottom)
-        d=G.Batch(f'Span_{i}__DiaphragmsHaunches',rt)
+        d=Batch(f'Span_{i}__DiaphragmsHaunches',rt)
         for x in (a+.48,(a+c)/2,c-.48):
             for ya,yb in zip(ys,ys[1:]):d.box((x,(ya+yb)/2,bottom+.69),(.22,yb-ya-.178,.75))
         for y in ys:d.box(((a+c)/2,y,soffit+.02),(p.span-.28,.41,.04))
@@ -157,9 +126,9 @@ def assemble(p,parent):
         for side in (-1,1):
             for j in range(3):
                 ob=parapet(f'Parapet_{i}_{side}_{j}',p.span/3-.016,rt)
-                ob.location=(a+(j+.5)*p.span/3,side*(p.deck_width/2-.24),p.deck_z+.085344)
+                ob.location=(a+(j+.5)*p.span/3,side*(p.deck_width/2-.3048),p.deck_z+.085344)
         # Each 8m scupper drains through a real gutter gap into a downpipe.
-        drain=G.Batch(f'Span_{i}__DrainConduit',rt)
+        drain=Batch(f'Span_{i}__DrainConduit',rt)
         for side in (-1,1):
             for x in (a+p.span*.28,a+p.span*.73):
                 y=side*(3.3528+.0762)
@@ -180,23 +149,28 @@ def assemble(p,parent):
         else:
             tx,ty=p.tangent(0)
             ob=pier('Pier_'+str(i),p.deck_width,p.pier,seat,rt,flow_angle=math.atan2(-tx,ty));ob.location.x=x
-        b=G.Batch('BearingStation_'+str(i),rt)
+        b=Batch('BearingStation_'+str(i),rt)
         for y in ys:
             offsets=(.40,-.40) if 0<i<p.spans else ((.40,) if i==0 else (-.40,))
             for dx in offsets:
-                b.box((x+dx,y,seat+.10),(.56,.70,.20))
-                b.box((x+dx,y,seat+.24),(.48,.60,.08),'rubber')
-                b.box((x+dx,y,seat+.29),(.50,.62,.02),'steel')
+                shared.bearing(b,x+dx,y,seat)
         b.box((x,0,p.deck_z-.04),(.035,6.72,.04),'rubber')
         for dx in (-.033,.033):b.box((x+dx,0,p.deck_z-.039),(.025,6.72,.008),'steel')
         b.finish()
     for s in (-1,1):
-        b=G.Batch('ApproachSlab_'+str(s),rt)
+        b=Batch('ApproachSlab_'+str(s),rt)
         b.box((s*(p.length/2+2),0,p.deck_z-.18),(4,p.deck_width,.28));b.finish()
         for side in (-1,1):
             ob=guardrail(f'ApproachRail_{s}_{side}',parent=rt)
-            ob.location=(s*(p.length/2+4),side*(p.deck_width/2-.20),p.deck_z)
+            ob.location=(s*(p.length/2+4),side*(p.deck_width/2-.20),p.deck_z-.02*3.3528-.008)
+            ob.scale.x=s
             ob.scale.y=side
+    if p.kind=='downtown':
+        plinths=Batch('ParapetLightPedestals',rt)
+        for side in (-1,1):
+            for x in (-17,17):
+                plinths.box((x,side*(p.deck_width/2-.3048),p.deck_z+.492672),(.65,.6096,.814656))
+        plinths.finish()
     for y in (-1.6764,1.6764):
         pts=[(-120+i*4,y,p.deck_z-.02*abs(y)+.008) for i in range(61)]
         if y>0:pts.reverse()

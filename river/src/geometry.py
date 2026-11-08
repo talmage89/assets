@@ -69,7 +69,7 @@ class Batch:
         for f,role,col,coords,sm in zip(me.polygons,self.roles,self.colors,self.uv,self.smooth):
             f.material_index=roles.index(role);f.use_smooth=sm
             axes=sorted(range(3),key=lambda k:abs(f.normal[k]))[:2]
-            coverage=6.096 if role=='asphalt' else 3.048 if role in ('concrete','grass') else 2
+            coverage=6.096 if role=='asphalt' else 3.048 if role in ('concrete','bridge_concrete','zinc','grass') else 2
             for j,li in enumerate(f.loop_indices):
                 v=me.vertices[me.loops[li].vertex_index].co
                 if role.startswith('paint_'):

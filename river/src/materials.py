@@ -34,6 +34,8 @@ def palette(repo):
     if not bpy.data.node_groups.get('glTF Material Output'):create_settings_group('glTF Material Output')
     for role,key in [('concrete','Concrete'),('asphalt','Asphalt'),('grass','Lawn')]:
         G.M[role]=tiling.material(key,repo/'ground/textures/ship',tint=True)
+    for role,key in [('bridge_concrete','FreewayConcrete'),('zinc','FreewayZinc')]:
+        G.M[role]=tiling.material(key,repo/'freeway/textures/ship',tint=True)
     bank=tiling.material('RiverBank',Path('textures/checkpoint'),tint=True)
     bank.use_backface_culling=False;G.M['bank']=bank
     for role,color in [('paint_yellow',(.9,.66,.08)),('paint_white',(1,1,1))]:

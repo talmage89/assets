@@ -11,7 +11,8 @@ def main():
           ('trees',['export/PinOak.glb'],['SPECIES=oak','export/PinOak.glb']),
           ('downtown',[f'export/Midwest_411_{i:02d}.gltf' for i in range(1,7)],['model']),
           ('school',[f'build/context/{k}.glb' for k in ('car','houses-ranch','houses-cape','furniture','light')],['build/dependencies.json']),
-          ('street-signs',['export/set/RoadSigns.gltf'],['set-model'])]
+          ('street-signs',['export/set/RoadSigns.gltf'],['set-model']),
+          ('freeway',[f'textures/ship/T_{n}_{c}.png' for n in ('FreewayConcrete','FreewayZinc') for c in ('BaseColor','Normal','ORM')],['textures'])]
     for family,required,args in jobs:
         if all((ROOT/family/name).exists() for name in required):continue
         log=Path('build')/('dependency-'+family+'.log')

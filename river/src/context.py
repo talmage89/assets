@@ -110,7 +110,7 @@ def add(p,parent):
         streets.finish()
         for side in (-1,1):
             for x in (-17,17):
-                instance(native/'light.glb','Parapet light',(x,side*(p.deck_width/2-.23),p.deck_z+.90),rt)
+                instance(native/'light.glb','Parapet light',(x,side*(p.deck_width/2-.3048),p.deck_z+.90),rt,0 if side>0 else 180)
         for i,y in enumerate((-44,-22,22,46)):
             x=p.center(y)-p.halfwidth(y)-3.65
             instance(native/'furniture.glb','Riverwalk bench '+str(i),(x,y,.65),rt,90,select='Bench')

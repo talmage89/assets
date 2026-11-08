@@ -32,6 +32,6 @@ def add(p,parent):
         x=-p.length/2+j*p.span
         if p.pier=='columns':
             for y in (-p.deck_width*.29,0,p.deck_width*.29):
-                rings=[[(x+.551*math.cos(i*math.tau/24),y+.551*math.sin(i*math.tau/24),z+.012*math.sin(i*1.7)) for i in range(24)] for z in (-.06,.26)]
+                rings=[[(x+.601*math.cos(i*math.tau/32),y+.601*math.sin(i*math.tau/32),z+.012*math.sin(i*1.7)) for i in range(32)] for z in (-.06,.26)]
                 b.loft(rings,'algae',caps=False)
     b.finish()

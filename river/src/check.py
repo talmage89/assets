@@ -105,12 +105,21 @@ def construction(seed):
     assert max(seat_gaps)<.002,('Plinth/support gap',max(seat_gaps))
     # Sample actual imported reach cross-sections, not declared width constants.
     bed=next(o for o in obs if o.name=='BedBanksFloodplain');tree=bvh(bed);water=next(o for o in obs if o.name=='WaterSurface')
+    rail_gaps=[]
+    for rail in [o for o in obs if o.type=='MESH' and o.name.startswith('ApproachRail_')]:
+        points=[rail.matrix_world@v.co for v in rail.data.vertices];bottom=min(p.z for p in points)
+        for point in points:
+            if point.z>bottom+1e-5:continue
+            soil=tree.ray_cast(point+Vector((0,0,1)),Vector((0,0,-1)),2)[0]
+            assert soil is not None,('Guardrail post has no soil',rail.name,tuple(point))
+            rail_gaps.append(point.z-soil.z)
+    assert rail_gaps and min(rail_gaps)>-.03 and max(rail_gaps)<.002,('Guardrail foot/soil',min(rail_gaps),max(rail_gaps))
     samples=[]
     for y in (-80,0,40,75):
         row=[v.co for v in water.data.vertices if abs(v.co.y-y)<.02]
         if not row:continue
         world=[water.matrix_world@v for v in row];samples.append(dict(y_m=y,width_m=max(v.x for v in world)-min(v.x for v in world)))
-    headroom=[];socket_gaps={};building_walk_checks=0
+    headroom=[];socket_gaps={};building_walk_checks=0;light_gaps=[]
     for name in ('BoatLaunch','FishingSpot'):
         socket=next((o for o in obs if o.name==name),None)
         if socket is None:continue
@@ -121,6 +130,17 @@ def construction(seed):
         socket_gaps[name]=abs(pos.z-hit.z)
         assert socket_gaps[name]<.025,('Socket above landing',name,socket_gaps[name])
     if seed==101:
+        plinth=bvh(next(o for o in obs if o.name=='ParapetLightPedestals'))
+        bases=[o for o in obs if o.type=='MESH' and 'Parapet light' in o.name and 'StreetLight_Mesh' in o.name]
+        assert len(bases)==4,('Missing native light bases',len(bases))
+        for base in bases:
+            points=[base.matrix_world@v.co for v in base.data.vertices];bottom=min(p.z for p in points)
+            for point in points:
+                if point.z>bottom+1e-5:continue
+                seat=plinth.ray_cast(point+Vector((0,0,.001)),Vector((0,0,-1)),.3)[0]
+                assert seat is not None,('Unsupported lamp base',base.name,tuple(point))
+                light_gaps.append(abs(point.z-seat.z))
+        assert max(light_gaps)<.002,('Lamp/pedestal gap',max(light_gaps))
         trail=next(o for o in obs if o.name=='RiverbankTrail');pts=np.array(json.loads(trail['points_blender_m']))
         for building in [o for o in obs if o.name.startswith('MainStreetBack_') and o.parent and o.parent.name=='TownContext']:
             building_walk_checks+=1
@@ -146,7 +166,9 @@ def construction(seed):
     return dict(categories=counts,bearing_surface_samples=len(gaps),max_girder_pad_gap_m=max(gaps),
                 plinth_support_samples=len(seat_gaps),max_plinth_support_gap_m=max(seat_gaps),girder_lengths_m=sorted(set(round(x,5) for x in lengths)),water_width_samples=samples,
                 riverwalk_headroom_samples=len(headroom),minimum_sampled_riverwalk_headroom_m=min(headroom) if headroom else None,
-                gameplay_socket_surface_gaps_m=socket_gaps,building_walk_bounds_checks=building_walk_checks)
+                gameplay_socket_surface_gaps_m=socket_gaps,building_walk_bounds_checks=building_walk_checks,
+                lamp_base_surface_samples=len(light_gaps),maximum_lamp_pedestal_gap_m=max(light_gaps) if light_gaps else None,
+                guardrail_foot_samples=len(rail_gaps),guardrail_foot_minus_soil_range_m=[min(rail_gaps),max(rail_gaps)])
 
 
 def main():
