@@ -1,5 +1,5 @@
 """Serial four-fix review from current and frozen accepted export packages."""
-import argparse,json,sys
+import argparse,hashlib,json,shutil,sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE),str(HERE.parents[1])]
 import render as R
@@ -24,7 +24,22 @@ def main():
         for stem in ('Park-101','Park-202'):
             path=Path('build/round4-before/export')/(stem+'.gltf');meta=json.loads(path.with_suffix('.json').read_text())
             views={r['shot']:dict(r['camera'],light=r['light'],fixed_camera=True,fixed_matrix=r['camera_matrix_world']) for r in rows if r['stem']==stem}
-            prior+=R.render(stem,path,meta,views,out,a.width,a.samples)
+            # Reuse byte-verified historical frames only with identical
+            # optics and all eight light controls; never enlarge a panel.
+            historical=Path('renders/age-pass3');old_rows=json.loads((historical/'provenance.json').read_text()) if (historical/'provenance.json').exists() else []
+            packed=Path('build/round4-before/build/embedded')/(stem+'.glb')
+            digest=hashlib.sha256(packed.read_bytes()).hexdigest() if packed.is_file() else None
+            for shot in list(views):
+                old=next((r for r in old_rows if r['stem']==stem and r['shot']==shot),None)
+                current=next(r for r in rows if r['stem']==stem and r['shot']==shot)
+                frame=historical/stem/(shot+'.png')
+                if not old or old['sha256']!=digest or not frame.exists() or old['camera_parameters']!=current['camera_parameters']:continue
+                delta=max(abs(x-y) for p,q in zip(old['camera_matrix_world'],current['camera_matrix_world']) for x,y in zip(p,q))
+                keys=('direction','sun_energy','sky_strength','exposure','angle_degrees','sky_saturation','camera_sky_strength','camera_sky_saturation')
+                if delta>1e-6 or any(old['light'][k]!=current['light'][k] for k in keys):continue
+                target=out/stem/(shot+'.png');target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(frame,target)
+                prior.append(dict(old,reused_verified_frame=str(frame)));del views[shot]
+            if views:prior+=R.render(stem,path,meta,views,out,a.width,a.samples)
         (out/'provenance.json').write_text(json.dumps(prior,indent=2))
 
 
