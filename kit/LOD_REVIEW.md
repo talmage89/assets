@@ -2317,3 +2317,31 @@ explicitly; their construction and motion checks are included. Complete commands
 and results are in `build/lod-v4/adopter-original-checks.json`. The four current
 adopter manifests, checks and all 60 recorded render-file hashes match. The
 reduced assembled-joint proof remains queued and is still a separate obligation.
+
+## Pass 61 — canonical colonial review catches a native visual failure
+
+Opened all nine fresh colonial strips, four construction views and the contact
+sheet. The chain measures 24949/13218/1798; both near caps are met and all nine
+configured image comparisons pass. Broad siding values, garage panel response
+and roof color agree. The 512 proxy loses detail at the construction camera;
+at its 4.5% switch it retains the broad values and passes the previously justified
+house-only phase limits (.03 mean, .13 p95, .10 local). This does not approve
+new faults in its near levels.
+
+The near front and side strips expose thin dark vertical seams below several
+windows. They are visible at native size in `houses/renders/lod/LOD1-0-strip.jpg`
+and `LOD1-55-strip.jpg`, and remain in the middle views. They are **a visual
+failure despite passing metrics**, not a close-view-only limitation. Native
+two-panel crops are in `build/lod-v4/previews/houses/canonical-inspection/`.
+Straight double-precision geometry rays at four measured dark streaks find a
+different first-hit siding layer in three of them (for example, source facing
+cosine .939 versus candidate .304, with a 26 mm depth change); the fourth has
+a 3 mm shift on a similar-facing surface. This diagnoses geometric layer
+exposure at those samples, not a radiance simulation or a universal explanation
+for every dark pixel. Receipt: `build/lod-v4/house-seam-rays.json`.
+
+A separate public-config control tightens `surface_pixels` to .125 for both
+near levels. Its native review is pending. No production tool, frozen recipe,
+near material or original delivery has changed. Until a control passes, the
+canonical house's seams remain explicitly open; neither its target counts nor
+its numeric image result is reported as visual acceptance.
