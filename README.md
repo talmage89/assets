@@ -49,6 +49,8 @@ Street
   arms, a span-wire installation and a controller cabinet, at four seeded intersections with worn pavement and loops.
 - [Utility poles](utility/README.md): silvered wood distribution poles with crossarms, transformers, a three-pot bank,
   risers, guys, a street-light bracket and communication cables, wired along four seeded streets.
+- [Freeway](freeway/README.md): prestressed-girder overpass, pier bents, barriers, guardrail, cable median, sign
+  bridges and sound walls, in two seeded places: a 1970s concrete diamond interchange and a curved asphalt corridor.
 - [Street furniture](street-furniture/README.md): bus stop and shelter, bench, bike racks, newspaper boxes, a collection
   box, parking meters and litter and recycling receptacles, with doors and lids that open.
 - [Traffic cone](traffic-cone/README.md): 28-inch PVC cone with a weighted base.
