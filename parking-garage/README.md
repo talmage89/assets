@@ -1,212 +1,294 @@
-# Open parking garages — form and construction checkpoint
+# Open parking garages
 
-Two original scripted American parking structures for a 1995–2015 town:
-**Alder Quay**, a 1988 municipal precast garage, and **Bellwether Commons**, a
-1996 cast-in-place commercial garage. This delivery deliberately stops before
-look-dev. Concrete/steel use quick scalar materials; shared native paving,
-cars, trees and street luminaires keep their own original library resources.
-There is no committed docs imagery at this checkpoint.
+![Alder Quay municipal precast garage](docs/hero-101.jpg)
+![Bellwether Commons commercial garage](docs/hero-202.jpg)
+![Bays, levels and circulation](docs/family.jpg)
+![Interior, entry, roof, scale and Eevee](docs/details.jpg)
+![The construction modules](docs/modules.jpg)
 
-[Municipal hero](renders/checkpoint/101/hero.png) ·
-[Commercial hero](renders/checkpoint/202/hero.png) ·
-[Complete contact sheet](renders/checkpoint/contact.jpg) ·
-[Photographic comparisons](renders/matches/contact.jpg)
+Two original American parking structures for a town of 1995–2015: **Alder
+Quay**, a 1988 municipal precast garage, and **Bellwether Commons**, a 1996
+cast-in-place post-tensioned garage beside a commercial center. Both are
+scripted in Blender 5.2, at real scale, with shared external glTF images.
 
-| Seed | Structure and plan | Structural footprint | Levels | Ramp |
-| --- | --- | --- | ---: | --- |
-| 101 | Long-span precast; flat 60ft bay beside a full-rise parking bay | 80.4672 × 36.576m | 4 | 5.7292%, 58.5216m run |
-| 202 | Cast PT; flat 60ft bay beside a narrow external speed ramp | 58.5216 × 25.6032m | 3 | 10%, plus 5% end transitions within 36.576m |
+[All final views](renders/final/contact.jpg) ·
+[Fixed-camera corrections](renders/delivery-fixes/contact.jpg) ·
+[Final two corrections](renders/ruling-fixes/contact.jpg) ·
+[Baked photographic pairs](renders/final-matches/contact.jpg) ·
+[Source-finish pairs](renders/final-source-matches/contact.jpg) ·
+[Critiques](REVIEW.md)
 
-Both use 8.5 × 18ft stalls, 24ft two-way aisles and 11ft levels. Towers,
-entry gantry and roof poles extend beyond the structural envelope. Published
-geometry, authored choices and the limits of the engineering interpretation
-are in [REFERENCE](REFERENCE.md); credits and direct sources are in
-[SOURCES](refs/SOURCES.md).
+The municipal plan uses deep PCI-section double tees on seated girders, a
+flat parking bay beside a full-rise parking ramp, four levels and a metered
+Main Street frontage. The smaller commercial plan uses PT slabs/beams,
+three levels, a separate speed ramp and a surface arrival court. Their towers
+contain flights, landings, lift lobbies, shallow cabs and separately pivoted
+doors. Neither plan is a reskin of the other.
 
-The generator in [plan.py](src/plan.py) accepts `seed`, `system`, `levels`,
-`tee_count` and `occupancy`. The two proof seeds pin the plans above. Other
-seeds vary length, level count and actor placement within the selected system.
-An incompatible short parking ramp is rejected rather than silently made
-steeper. Bounds are 3–5 levels and 12–24 tee stations, further restricted by
-ramp grade. The Python manifest can be consumed without Blender. The Make
-graph presents proof seeds 101/202; the core API/CLI accepts other seeds and
-explicit bay counts. `python3 src/parameter_check.py` checks 45 valid programs,
-33 rejected short ramps and invalid/empty/full occupancy inputs without Blender.
+| Seed | Structural footprint | Levels | Stalls / weekday occupied | Ramp |
+| --- | --- | ---: | --- | --- |
+| 101 | 80.4672 × 36.576 m | 4 | 291 / 196 | Parking ramp, 5.7292%, 58.5216 m run |
+| 202 | 58.5216 × 25.6032 m | 3 | 76 / 56 | Speed ramp, 10%, 5% end transitions, 36.576 m overall |
 
-The kit contains double tees, inverted-T and L girders, corbel columns, PT
-columns/slabs/beams, spandrels, cable barriers, fixtures, wheel stops, drains,
-gates, ticket/pay machines and three tower heights. StructuralBay, EndBay,
-RampBay and PTStructuralBay are independently exported mating assemblies.
-Precast seats, joint strips, connectors and cast slab anchor patches are
-modeled. Central ramp/flat interfaces use paired L girders on separate bearing
-seats; the inverted-T module serves level adjoining bays. Major service wear
-remains the next phase: connector runoff, leaking
-joints, spalls, oil, turn rubber, repainted ghosts, roof fading and droppings
-must be placement-owned and cause-specific, not repeated marks on each tee.
+Both use 2.5908 × 5.4864 m stalls (8.5 × 18 ft), 7.3152 m two-way aisles
+(24 ft) and 3.3528 m levels (11 ft). Towers, entry gantry and roof poles
+extend outside the structural rectangle. Dimensions and engineering choices
+are distinguished in [REFERENCE.md](REFERENCE.md). The research includes
+[PCI's parking FAQ](https://www.pci.org/GCPCI/GCPCI/Technical_Resources/FAQs/Parking-Structures.aspx),
+[the Access Board parking guide](https://www.access-board.gov/ada/guides/chapter-5-parking/),
+ACI 362, open-garage provisions and consultants' published geometry; exact
+documents, photographs, authors and uses are in [SOURCES](refs/SOURCES.md).
 
-Current garage exports, excluding every car:
+One new shared concrete/steel triple carries manufactured pores, bed drag,
+roughness, steel and eight original coverage fields. The assembly places age
+where its cause acts: leaking panel/shaft junctions and failing seals,
+connector rust, crystalline salts, repaired spalls, engine drips, wheel paths,
+drain ponding, repaint ghosts, roof sealer abrasion and sheltered roost marks.
+One barrier bows at a bumper strike. These are original scripted fields,
+never photograph projections. The floor films conform to the actual crowned
+deck triangles. Most facade panel area remains dry.
 
-| Seed | Triangles | Stalls / occupied | Materials (quick) | glTF + BIN bytes |
-| --- | ---: | --- | ---: | ---: |
-| 101 | 95,672 | 291 / 196 | 16 | 7,864,593 |
-| 202 | 44,386 | 76 / 56 | 17 | 3,310,355 |
+Drive lanes have two tire tracks apiece, 1.56 m apart, within 36 cm-wide
+contact distributions that wander gently and widen at turns. That spacing
+matches the native hatchback's rear track. Roof sealer loss follows those
+same paths. Engine drips stay along the stall centers under the parked engines.
 
-| Construction module | Triangles |
-| --- | ---: |
-| DoubleTee | 192 |
-| InvertedT | 28 |
-| LBeam | 20 |
-| ColumnCorbel | 88 |
-| CorbelPair | 48 |
-| ColumnPlain | 40 |
-| PTColumn | 40 |
-| PTSlab | 116 |
-| PTBeam | 44 |
-| Spandrel | 68 |
-| CableBarrier | 260 |
-| PTGuard | 192 |
-| Fixture | 88 |
-| WheelStop | 44 |
-| Drain | 120 |
-| Gate | 128 |
-| Ticket | 72 |
-| PayStation | 72 |
-| Tower | 3,236 |
-| Tower3 | 2,276 |
-| Tower5 | 4,196 |
-| StructuralBay | 968 |
-| EndBay | 968 |
-| RampBay | 968 |
-| PTStructuralBay | 596 |
+Four native vehicle families share geometry across their placements. Seeded
+factory colors use the car family's principal palette, with small independent
+offsets and angles. The color weights are a period-informed authored mix,
+not a fleet census. The garage occupied reservations stay fixed; the town
+adds metered parking, traffic and an entry vehicle. Context cars use simpler
+uniform body paints. Town buildings, paving, trees, luminaires and car meshes
+remain original library resources, with their existing deliveries unchanged.
 
-Two reused native roof poles add 3,180 triangles each; they are included in
-each garage total.
+## Resources
 
-These are measured exported counts. Simple beams remain below the indicative
-300-triangle modular range because additional tessellation would not change
-their form; each module is below 2,000, and each tower below 8,000.
+| Garage | Triangles | Materials | glTF + BIN bytes | Embedded review GLB bytes | Referenced image bytes / MiB |
+| --- | ---: | ---: | ---: | ---: | --- |
+| 101 | 149,684 | 11 | 27,430,560 | 50,130,444 | 22,699,445 / 57.33 |
+| 202 | 57,116 | 11 | 9,835,673 | 32,535,560 | Same shared 13 images |
 
-The complete measured inventory is generated as `build/metrics.md` and
-`build/modules.json`. `build/garage-<seed>.json` records every placed piece,
-stall, route and occupied actor reservation. Native cars are reported apart.
-No parked-car mesh is embedded in the garage's geometry budget.
+The garage totals include towers, signs, fixtures, roof poles and placed
+service history. Cars and town geometry are separate. Additional triangles
+over the accepted structural checkpoint belong to surface-conforming pigment
+films; the structural module counts are unchanged. The whole-garage ceiling
+is 300k without cars; modules are at most 2k and towers at most 8k. Simple
+beams stay below the indicative modular range because extra tessellation
+would not change their silhouette.
 
-Cars are linked native instances, accounted separately from garage geometry:
+| Module | Triangles | glTF + BIN bytes | Materials | Referenced image MiB |
+| --- | ---: | ---: | ---: | ---: |
+| DoubleTee | 384 | 71,490 | 1 | 16.00 |
+| InvertedT | 28 | 7,586 | 1 | 16.00 |
+| LBeam | 20 | 6,080 | 1 | 16.00 |
+| ColumnCorbel | 76 | 16,506 | 1 | 16.00 |
+| CorbelPair | 48 | 11,095 | 1 | 16.00 |
+| ColumnPlain | 28 | 7,573 | 1 | 16.00 |
+| PTColumn | 28 | 7,558 | 1 | 16.00 |
+| PTSlab | 148 | 27,742 | 1 | 16.00 |
+| PTBeam | 44 | 10,561 | 1 | 16.00 |
+| Spandrel | 100 | 20,994 | 1 | 16.00 |
+| CableBarrier | 260 | 50,756 | 1 | 16.00 |
+| PTGuard | 192 | 37,870 | 1 | 16.00 |
+| Fixture | 88 | 20,230 | 2 | 16.00 |
+| WheelStop | 44 | 10,332 | 1 | 16.00 |
+| Drain | 128 | 25,483 | 1 | 16.00 |
+| Gate | 136 | 28,210 | 1 | 16.00 |
+| Ticket | 80 | 17,917 | 2 | 16.00 |
+| PayStation | 80 | 17,924 | 2 | 16.00 |
+| Tower | 6,168 | 1,175,025 | 4 | 21.33 |
+| Tower3 | 4,580 | 876,618 | 4 | 21.33 |
+| Tower5 | 7,756 | 1,475,654 | 4 | 21.33 |
+| StructuralBay | 1,496 | 279,922 | 1 | 16.00 |
+| EndBay | 1,496 | 279,636 | 1 | 16.00 |
+| RampBay | 1,496 | 280,321 | 1 | 16.00 |
+| PTStructuralBay | 644 | 125,478 | 1 | 16.00 |
 
-| Seed | Garage cars / expanded triangles | Surface cars / triangles | Street cars / triangles | Unique site mesh triangles | Site glTF + BIN bytes |
-| --- | --- | --- | --- | ---: | ---: |
-| 101 | 196 / 13,222,936 | 0 / 0 | 4 / 259,148 | 659,126 | 36,758,954 |
-| 202 | 56 / 3,685,880 | 30 / 2,007,714 | 4 / 274,542 | 680,778 | 37,799,527 |
+Bytes are measured glTF JSON plus BIN, excluding referenced images. Memory
+assumes 8bpp per map with a full 4/3 mip chain. A module instance reuses its
+images; do not add the same allocation for every tee or garage.
 
-Expanded actor counts charge every parked placement. The much smaller unique
-mesh count reflects shared geometry; it includes the garage, buildings,
-landscape and all native vehicle types. These counts describe the actual
-checkpoint sites, not an additional garage triangle allowance.
+| Shared allocation | Shipped size | Estimated MiB |
+| --- | --- | ---: |
+| New ParkingGarage BaseColor / +Y normal / ORM | Three 2048²; baked at 4096² | 16 |
+| GroundTrim | Three 2048² | 16 |
+| Ground Concrete | Three 2048² | 16 |
+| Native roof StreetLight | Three 1024² | 4 |
+| ParkingGraphics extension | One 2048² RGBA | 5.33 |
+| Garage referenced union, both seeds | 13 images | 57.33 |
 
-| Output | Use |
+ORM packs occlusion in R, roughness in G and metallic in B. BaseColor is
+sRGB; normal and ORM are linear. The new atlas has deliberately shared
+manufacture bands and coverage charts, not unique lightmap islands. Its UV
+audit checks band containment, collapse, tile seams, normals and texel
+density; intentional chart reuse is not claimed overlap-free.
+
+| Site cost, apart from garage | 101 | 202 |
+| --- | ---: | ---: |
+| Garage actors / expanded triangles | 196 / 12,722,398 | 56 / 3,542,596 |
+| Surface court actors / triangles | 0 / 0 | 13 / 846,938 |
+| Street parked actors / triangles | 7 / 483,508 | 9 / 611,198 |
+| Moving traffic / triangles | 3 / 201,112 | 3 / 187,528 |
+| Entry vehicle / triangles | 1 / 58,032 | 1 / 58,032 |
+| Town without actors, triangles | 1,367,004 | 1,319,696 |
+| Complete expanded scene triangles | 14,981,738 | 6,623,104 |
+| Unique site mesh triangles | 2,120,974 | 2,003,852 |
+| Site glTF + BIN bytes | 64,584,017 | 52,698,175 |
+| Site referenced image MiB | 142.67 | 148.00 |
+
+The two complete sites' cached image union is 148 MiB; paint variants add no
+new images. glTF material variants require mesh/material combinations for
+each factory color, so unique site mesh counts include those combinations.
+
+The complete sites instance the four native models. Expanded actor triangles
+charge every placement; unique site triangles describe the shared mesh
+payload. This is presentation context, not an extra garage allowance.
+These context counts describe the audited cold build; native-car variation
+can change them slightly within the repeat tolerance below. Keep
+relative image URIs and cache the resolved images across sites. Context
+buildings generated from native scripts use their source finishes; they do
+not certify the Downtown or Commercial families' final surface deliveries.
+
+## Generator and game assembly
+
+[plan.py](src/plan.py) accepts `seed`, `system`, `levels`, `tee_count` and
+`occupancy`. The proof seeds pin the plans above. Other seeds choose within
+3–5 levels and 12–24 tee stations, further restricted by permissible ramp
+grade. Explicitly short parking ramps are rejected. The lightweight Python
+manifest can be consumed without Blender. `src/build.py` exposes `--seeds`,
+`--system`, `--levels` and `--tee-count`; the complete look-dev/Make proof
+graph renders seeds 101 and 202. Changing `SEEDS` alone does not configure
+every proof/render stage.
+
+Grow a precast garage in 3.6576 m tee increments and 3.3528 m levels. Keep
+the 18.288 m parking-bay width and 10.9728 m end-turn zones. Recompute the
+full-rise parking ramp from the available run, then regenerate paired L
+seats, tees, shafts, spandrels, stall reservations and routes. The PT system
+uses its own slab/beam bay and external ramp. Add a tower matching the new
+height; Tower3, Tower and Tower5 serve three, four and five levels. Use the
+generator's contact/clearance checks after changing a plan. Repeating visual
+pieces without recalculating the circulation does not produce a valid plan.
+
+| Output | Purpose |
 | --- | --- |
-| `export/ParkingGarage-<seed>.gltf` + `.bin` | Placeable garage, meters, external shared images |
-| `export/sites/ParkingGarageSite-<seed>.gltf` + `.bin` | Complete seeded town setting and instanced parked cars; same canonical external images |
-| `export/modules/<name>.gltf` + `.bin` | Independent construction and mating modules |
-| `export/ParkingGaragePieces.gltf` | Module-sheet arrangement; reset roots before mating |
-| `build/garage-<seed>.blend` | Scripted authoring state, including actual drive/pedestrian curves |
-| `build/garage-<seed>.json` | Same paths as point lists, stall sockets and piece manifest |
-| `renders/checkpoint/<seed>/` | Exported-glTF Cycles hero, above/path, aisle, ramp turn, roof, entry, tower and scale |
-| `renders/checkpoint/modules.png`, `contact.jpg` | Module sheet and complete checkpoint contact sheet |
-| `renders/matches/*-pair.jpg`, `contact.jpg` | Three white-balanced fitted photographic type comparisons |
-| `build/check.json`, `render-values.json`, `preservation.json` | Fresh-import geometry, construction surfaces, exposure diagnostics and protected resource hashes |
-| `build/site-check.json`, `resources.json` | Complete-site instancing, actor counts, external image hashes and memory estimates |
+| `export/final/ParkingGarage-<seed>.gltf` + `.bin` | Garage alone, canonical relative external images |
+| `export/final/sites/ParkingGarageSite-<seed>.gltf` + `.bin` | Town, instanced cars and garage |
+| `export/final/modules/<name>.gltf` + `.bin` | Independent construction/mating modules |
+| `build/final-glb/` | Exact embedded GLBs used for final rendering/re-import |
+| `build/lookdev/garage-<seed>.json` | Placed pieces, stall sockets and path points |
+| `build/lookdev/traffic-<seed>.json` | Models, colors, poses and actor costs |
+| `build/delivery-metrics.json`, `.md` | Measured module/garage resource ledger |
+| `build/delivery-check.json` | Fresh-import support, film and actor measurements |
+| `build/final-package.json` | BIN/image identity and embedded GLB hashes |
+| `renders/final/<seed>/` | Cycles hero, above, details, scale and four orthographic views; one Eevee view |
+| `renders/final/modules/`, `modules.png`, `contact.jpg` | Every module, sheet and complete final contact |
+| `renders/final-matches/`, `final-source-matches/` | Baked and source-finish photographic comparisons |
 
-The footprint origin is the structural rectangle's ground center; front is
-Blender −Y, up +Z. glTF maps these to +Z front, +Y up. Preserve the relative
-image URIs and cache resolved canonical images. The same images are reused by
-both seeds; no source image is copied per garage. Diagnostic embedded GLBs
-remain under build/embedded/, not the public delivery path.
+The earlier `export/`, `export/form/` and `export/lookdev/` stages are
+historical/working outputs. Use `export/final/` for the complete
+delivery. The GLBs embed exactly the canonical geometry buffer and referenced
+PNG bytes, without a second Blender export or a change of finish.
 
-The per-seed authoring blends retain local module templates as well as the
-placed `Garage_<seed>` hierarchy. Public exports select only the intended
-hierarchy; presentation imports those exports.
-
-Curve point lists in JSON/extras use Blender meters. Convert `(x,y,z)` to
-glTF `(x,z,-y)` before applying the garage root transform in a game. The
-native Blender curves and serialized point lists describe the same routes.
+The footprint origin is the structural rectangle's ground center, +Z up and
+−Y front. glTF maps these to +Y up and +Z front. JSON/extras path points use
+Blender meters: convert `(x,y,z)` to `(x,z,-y)` before applying a game root
+transform. Beam-end sockets denote column/grid stations. Double-tee bearing
+sockets are the plane halfway between pad undersides, not a solid contact
+at the midpoint between stems. Ground exit, garage stair/lift interfaces,
+bearing, stacking and bay-end sockets retain their authored local axes.
 
 | Interaction | Blender local axis / range |
 | --- | --- |
-| Gate arm | Y, −90…0°; gearbox axle |
-| Stair landing doors | Z, 0…95°; garage-facing jambs |
-| Ground stair exit | Z, 0…95° relative to its authored +90° side-wall rest pose |
-| Elevator leaves | X, 0…±.72m; center-opening pair |
-| `Stall_<id>` | Parking-space center, width/depth/level/occupied extras |
-| `Drive_Up_*`, `Drive_Down_*` | Two-way aisle/ramp point lists in extras and JSON; native curves in the blend |
-| Threshold / module sockets | Ground exit, garage stair/lift interfaces, bearing/stack/bay ends |
+| Gate arm | Y, −90…0°, gearbox axle |
+| Stair landing doors | Z, 0…95°, garage-facing jambs |
+| Ground stair exit | Z, 0…95° relative to its +90° side-wall rest pose |
+| Elevator leaves | X, 0…±0.72 m, center-opening pair |
+| `Stall_<id>` | Center with width, depth, level and occupied extras |
+| `Drive_Up_*`, `Drive_Down_*` | Aisle/ramp point lists; authoring curves and JSON |
+| Pedestrian routes | Ground walk and tower-interface paths |
 
-Beam end sockets denote their column/grid stations. The default EndBay is
-36ft long, matching the proof garages. The double-tee bearing sockets sit at
-the midpoint between the two pad
-undersides at each end. They describe a bearing plane, rather than a solid
-contact at the midpoint between the stems.
+No armature or elevator travel animation is supplied. Doors are individually
+pivoted; the final open-lift view exercises the exported slide origins. The
+60 motion sweeps test moving parts against their neighbors. Drive clearances
+use sampled real surfaces and headroom rays, not a continuous swept vehicle
+or an engineering compliance certification.
 
-There is no armature or authored animation. Elevators have sliding doors and
-shallow openings, not a moving car, shaft machinery or a full elevator system.
-Garage-facing stair/elevator landings share one face; ground stair exits have
-separate openings to the public walk. Openings are real apertures in the walls.
+Fixture emitter sockets carry local rectangle sizes and up/down power
+metadata. The final renderer creates area lights at those exported sockets;
+game integration must instantiate equivalent lights or probes. The procedural
+sun, sky and presentation lights are separate from the baked material maps.
 
-The planned look-dev allocation is **one new 2048² concrete/steel PBR triple**,
-about **16 MiB** at 8bpp/map with full mips, shared across every placement and
-seed. An additive Ground parking graphics page supplies stall numbers, the
-accessibility glyph and level/entry signs. Directional arrows reuse GroundTrim's
-paint region; Ground's existing atlas bytes are unchanged. Its current
-quick sheet is 2048² RGBA color, **5⅓ MiB** at the same estimate; normal/ORM
-manufacture and final page sizing are deferred. GroundTrim's existing three
-2048 maps cost 16 MiB, Ground Concrete's existing triple another 16 MiB;
-the native roof luminaire's 1024 triple costs 4 MiB. The garage checkpoint
-therefore references 41⅓ MiB of shared mipped images at this uniform estimate,
-with no second copy for seed 202. The planned new concrete/steel triple is
-additional to these reused resources and has not been manufactured yet.
-Presentation additionally reuses Ground asphalt/lawn, native trees and car
-resources. The context hatchback/crossover use scalar form finishes; the
-sedan retains its native baked maps. The complete sites reference 126⅔ /
-132 MiB of shared images, 132 MiB for their combined cached union: 27 images,
-72,601,461 PNG bytes. These include paving, vehicles, trees and context signs.
-Downtown and Commercial surface deliveries are absent in this checkout, so their original source generators supply quick context finishes
-and original sign pages. Their existing DowntownMasonry / MineralRoof /
-Finish and Commercial masonry / Equipment allocations remain the binding
-choice for finished context; no replacement building surface set is authored
-here. Final UV density, bake loss, weathering and material/draw-call
-consolidation are explicitly not certified at this form gate.
+## Rebuild and proof
 
-Run with installed Blender 5.2, Python/Pillow/NumPy, open DejaVu fonts, Poppler
-and flock. Native Ground, street-light, tree and sedan exports are read-only
-inputs. Missing downtown/commercial and hatch/crossover context is generated
-inside this asset's ignored build/ from their original scripts. No other family
-is rebuilt or edited. Every Blender invocation is serialized on the shared
-lock; render sets acquire it once. No downloaded code, assets or HDRI is used.
+Use installed Blender 5.2, Python with Pillow/NumPy, Poppler, flock and an
+open DejaVu font. Native Ground, StreetLight, Trees and Cars outputs are
+read-only dependencies. Missing town/hatch/crossover presentation caches are
+built locally from the original family scripts. No other family's delivery
+is rebuilt or modified. No downloaded models, textures, HDRIs or code enter.
 
 ```sh
-make -C parking-garage                  # form exports, checks, Cycles views and sheets
-make -C parking-garage matches          # three fitted export comparisons
+make -C parking-garage                    # build, bake, check, render, review, docs
 make -C parking-garage check
-make -C parking-garage repeat           # deterministic geometry/image/manifest bytes
-make -C parking-garage WIDTH=1000 SAMPLES=24 render
+make -C parking-garage repeat             # exact deterministic fields/geometry
+make -C parking-garage check-texture-repeat # separate GPU bake, fixed tolerance
+make -C parking-garage FINAL_WIDTH=1280 FINAL_SAMPLES=32 delivery-review
 ```
 
-The site exporter uses the kit's exact-signature tangent guard for one native
-PinOak four-decimal rounding boundary. Its accepted value comes from the
-immutable native tree input; positions, normals and UVs are unchanged. The
-repeat comparison still requires identical bytes, with no comparison tolerance.
-Render receipts hash both external glTF and BIN payloads.
+`make clean` removes local build/renders/export and checkpoint textures;
+remove `textures/lookdev/` too for a complete new bake. GPU baking and all
+Cycles rendering use the kit's shared GPU lock, once per render set. The
+accepted recipe gates docs after full-size inspection; changing scripts
+requires recording a new visual review before the docs target can proceed.
 
-[REVIEW](REVIEW.md) records the image critiques and remaining weaknesses.
-Measurements distinguish actual surface tests from serialization checks; this
-checkpoint does not claim final game readiness. Existing library delivery
-bytes are hash-protected and the top-level repository index is left untouched.
+The repeat contract distinguishes generated garage content from native-car
+presentation inputs. Garage modules, assembly meshes, UVs, authored graphics,
+source fields and non-car exports repeat **byte for byte** with fixed inputs.
+GPU rebakes are checked separately: at most one 8-bit code per channel and
+mean normalized error at most 1e-5; their bytes are not promised identical.
 
+The hatchback and crossover generators can vary by a few triangles and less
+than a millimeter between cold builds. Their caches require identical object
+names, material assignments and material definitions, total triangle counts
+within **0.1%**, and 30 sampled surface positions per named mesh within
+**1 mm** of the accepted export. The samples cover six extent face interiors
+and 24 seeded area-weighted points. Every observed hash is logged. An
+out-of-tolerance candidate is archived and rejected; at most three fresh
+native attempts are allowed before the build fails. Rechecking an accepted
+cache appends to its history without erasing rejected attempts. Complete
+sites embedding these cars use that tolerance for car geometry, with
+bidirectional surface samples; every non-car node, transform and mesh
+attribute/index payload remains exact. This sampled comparison does not
+measure every surface point. All other families' committed deliveries stay
+byte-identical. Historical garage-owned form sites may regenerate.
 
-The measured checkpoint run was
-`make -k WIDTH=1200 SAMPLES=24 all repeat`: exit 0, all form checks passed,
-and 70 files / 91,258,230 bytes rebuilt identically. The three precast mating
-assemblies pass 48 girder-cap samples and 18 bearing-plane socket checks;
-all 60 motion sweeps pass. Sampled aisle minima are 2.6932 / 2.5898m,
-and measured van-route minima 2.4892m. The check is discrete surface sampling,
-not a continuous swept-car or engineering compliance certificate.
+## Credits
+
+Geometry, fields, coverage, signs and fictional names are original scripts.
+Library meshes and maps retain their own original credits; fonts are open
+DejaVu. Commons photographs and PCI/ACI/VA/Access Board documents are used
+only for looking, measurements and comparison. Downloaded references are
+ignored; `make refs` fetches the recorded images/PDFs. See [SOURCES](refs/SOURCES.md).
+
+## Known flaws
+
+Native hatchback/crossover caches and complete sites containing them repeat
+within the tolerance above, rather than necessarily byte for byte. The cars
+family is unchanged; this family does not repair its cold-build variance.
+One 73,308-triangle crossover candidate exceeded the 0.1% count limit and was
+rejected. Bounded source retries select only candidates that pass both fixed
+limits; their complete histories are retained in `build/context/`.
+
+At close range, the limited coverage kernels and perfectly manufactured small
+edges remain visible procedural tells. Tower cement faces and close cab
+hardware are more uniform than the photographs. Context cars have uniform
+factory paints and simplified dark cabins. The paired tire tracks are now
+localized, but their turning paths remain regular and the floor has less
+trowel relief than the photographed deck; reflections stretch at grazing
+angles in the isolated elevations. The photographed Harmon's cylindrical
+columns differ from these square shafts; the sunny heroes use their actual
+normal/shadow orientation rather than painted photographic shadows. Native
+pickup bumpers extend beyond the painted stall ends by up to 0.645 / 0.619 m
+in the two sites. These long vehicles are static context, and their poses do
+not certify a continuous driving simulation. Door/route checks are sampled;
+there are no supplied collision hulls, game-engine LODs or full elevator
+travel machinery. No kit files were changed for this delivery.
