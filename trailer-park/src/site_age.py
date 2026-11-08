@@ -4,6 +4,7 @@ from terrain import decal,mesh
 
 
 def road(a,p,lib,material):
+    from soil_finish import material as soil_material
     trim=material(lib,'GroundTrim');r=random.Random(p['seed']+1371);old=p['kind']=='old'
     w,span=p['street_width'],p['span'];m=a.mesh('CrackSeals',component='street_age')
     def seal(points,width):
@@ -41,13 +42,20 @@ def road(a,p,lib,material):
                 decal(a.root,'Washed shoulder gravel',(lane+side*(w/2+.12),y),(.42,3.4),trim,(.5,.25,1,.5),90*side,p['seed'],z=.006)
             # Dirt fingers cover the damaged edge, exposing an irregular
             # asphalt silhouette without widening the nominal lane.
-            vs=[];fs=[]
+            vs=[];fs=[];opacity=[]
             for j in range(math.ceil(span/.65)+1):
                 y=-span/2+j*span/math.ceil(span/.65);depth=r.uniform(.03,.25) if old else r.uniform(.02,.13)
-                vs.extend([(lane+side*(w/2-depth),y,.0165),(lane+side*(w/2+r.uniform(.10,.44)),y,-.004)])
-                if j and r.random()<.72:k=(j-1)*2;f=(k,k+2,k+3,k+1);fs.append(tuple(reversed(f)) if side>0 else f)
-            earth=mesh(a.root,'Eroded shoulder dirt',vs,fs,material(lib,'Concrete'),.72)
-            for c in earth.data.color_attributes.active_color.data:c.color=(.28,.23,.14,1)
+                outer=r.uniform(.15,.48);amount=0 if j%17 in (0,1,2) else .70+.25*math.sin(j*.63)**2
+                from terrain import sward_height
+                xs=[lane+side*q for q in (w/2-depth,w/2-.012,w/2+outer*.45,w/2+outer)]
+                vs.extend([(xs[0],y,.0165),(xs[1],y,.0165),(xs[2],y,sward_height(xs[2],y)+.004),(xs[3],y,sward_height(xs[3],y)+.004)])
+                opacity.extend([0,amount,amount*.65,0])
+                if j:
+                    k=(j-1)*4
+                    for column in range(3):
+                        f=(k+column,k+column+4,k+column+5,k+column+1);fs.append(tuple(reversed(f)) if side>0 else f)
+            earth=mesh(a.root,'Eroded shoulder dirt',vs,fs,soil_material(material(lib,'Concrete')),.72)
+            for c,alpha in zip(earth.data.color_attributes.active_color.data,opacity):c.color=(.28,.23,.14,alpha)
     ob=m.finish()
     for poly in ob.data.polygons:
         if poly.normal.z<0:poly.flip()
@@ -90,8 +98,9 @@ def pad(a,p,lib,material):
 def soil(a,p,lib,material,record):
     from ground_edges import edges
     from terrain import sward_height
+    from soil_finish import material as soil_material,patch
     r=random.Random(p['occupant_seed']+374);L,W=p['length'],p['width'];old=p['era']!='1996';paths=[]
-    concrete=material(lib,'Concrete')
+    concrete=soil_material(material(lib,'Concrete'))
     angle=math.radians(record['yaw']);cs,sn=math.cos(angle),math.sin(angle)
     def grade(x,y):
         xx=record['origin'][0]+cs*x-sn*y;yy=record['origin'][1]+sn*x+cs*y
@@ -107,24 +116,21 @@ def soil(a,p,lib,material,record):
         near=.04;far=r.uniform(.24,.65) if old else r.uniform(.18,.32)
         pts=[(x-length/2,y-near,.001),(x-length*.12,y-near,.001),(x+length/2,y-near,.001),
              (x+length*.40,y-far*.55,.001),(x+length*.12,y-far,.001),(x-length*.32,y-far*.78,.001)]
-        ob=mesh(a.root,'Bare soil under skirt runoff',pts,[(0,5,4,3,2,1)],concrete,.65)
+        ob=patch(a.root,'Bare soil under skirt runoff',list(reversed(pts)),concrete,(r.uniform(.24,.33),.23,.12),.65)
         ground(ob)
-        for c in ob.data.color_attributes.active_color.data:c.color=(r.uniform(.24,.33),.23,.12,1)
         paths.append([(x-length*.32,y-far*.78,.001),(x+length*.12,y-far,.001),(x+length*.40,y-far*.55,.001)])
     for j in range(3 if old else 1):
         x=L/2+1+j*1.4;y=-2.72;length=r.uniform(.7,1.4)
         pts=[(x-length/2,y+.22,.001),(x+length/2,y+.22,.001),(x+length*.40,y-.48,.001),(x-length*.25,y-.72,.001)]
-        ob=mesh(a.root,'Drive-edge worn soil',pts,[(0,3,2,1)],concrete,.72)
+        ob=patch(a.root,'Drive-edge worn soil',list(reversed(pts)),concrete,(.33,.27,.16),.72)
         ground(ob)
-        for c in ob.data.color_attributes.active_color.data:c.color=(.33,.27,.16,1)
         paths.append([(x-length*.25,y-.72,.001),(x+length*.40,y-.48,.001)])
     if p['upkeep']!='kept' or p['occupant_seed']%4==0:
         # Turning toward the mailbox compacts the unpaved side of the drive.
         x=L/2+2.2;y=1.2;length=r.uniform(1.0,2.0) if old else .85
         pts=[(x-length*.6,y-.65,.001),(x+length*.4,y-.52,.001),(x+length*.6,y-.10,.001),
              (x+length*.38,y+.55,.001),(x-length*.25,y+.65,.001),(x-length*.62,y+.08,.001)]
-        ob=mesh(a.root,'Dry compacted mailbox approach',pts,[(0,1,2,3,4,5)],concrete,.7);ground(ob)
-        for c in ob.data.color_attributes.active_color.data:c.color=(r.uniform(.42,.58),.38,.19,1)
+        ob=patch(a.root,'Dry compacted mailbox approach',pts,concrete,(r.uniform(.42,.58),.38,.19),.7);ground(ob)
         paths.append([pts[3],pts[4],pts[5]])
     paths=[[(x,y,grade(x,y)) for x,y,z in path] for path in paths]
     if paths:edges(a.root,paths,p['occupant_seed']+922,lib)

@@ -21,6 +21,10 @@ def audit():
             for pr in mesh['primitives']:
                 idx=g.accessor(pr['indices']).ravel().reshape(-1,3);unique+=len(idx)
                 ma=d['materials'][pr['material']];name=ma['name'];uv=g.accessor(pr['attributes']['TEXCOORD_0'])
+                if name.startswith('ManufacturedSoilFringe'):
+                    assert ma.get('alphaMode')=='BLEND' and ma.get('doubleSided')
+                    color=g.accessor(pr['attributes']['COLOR_0'])
+                    assert color.shape[1]==4 and color[:,3].min()<.001 and color[:,3].max()>.8,(path,'Lost soil edge opacity')
                 v=g.accessor(pr['attributes']['POSITION']);uv=uv[idx];v=v[idx]
                 a=np.linalg.norm(np.cross(v[:,1]-v[:,0],v[:,2]-v[:,0]),axis=1)/2
                 delta0=uv[:,1]-uv[:,0];delta1=uv[:,2]-uv[:,0];ua=abs(delta0[:,0]*delta1[:,1]-delta0[:,1]*delta1[:,0])/2
@@ -60,6 +64,7 @@ def audit():
             assert error<.007,('Shipped tangent normal length',error)
             new[-1]['max_unit_length_error']=error
     report=dict(passed=True,scope='Metric repeat UVs intentionally overlap; triangle containment in declared atlas cells, not a unique lightmap pack',exports=result,new_set=dict(size=2048,gpu_mib=16,images=new),union_gpu_mib=sum(im['mipped_8bpp_mib'] for im in all_images.values()))
+    assert report['union_gpu_mib']<=176.05,('Accepted static image budget exceeded',report['union_gpu_mib'])
     Path('build/look-check.json').write_text(json.dumps(report,indent=2));print('LOOK CHECK PASS',len(result),'exports; new set 16 MiB')
 
 

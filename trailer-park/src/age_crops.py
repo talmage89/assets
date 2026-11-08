@@ -13,7 +13,7 @@ def compare(before,after,out):
            ('02-home-age','Park-101','row',(.15,.18,1,1)),('03-lanes-old','Park-101','hero',(.15,.43,.95,1)),
            ('02-apron-age','Park-101','single-2009',(0,.33,1,1)),
            ('03-lanes-new','Park-202','hero',(.15,.43,.95,1)),('04-lawn-old','Park-101','row',(0,.44,1,1)),
-           ('04-turf-trees','Park-101','above',(0,0,1,1)),('05-street-same-camera','Park-101','street-2007',(0,0,1,1))]
+           ('04-turf-trees','Park-101','above',(0,0,1,1)),('05-street-context','Park-101','street-2007',(0,0,1,1))]
     def frame(folder,stem,shot):
         path=folder/stem/(shot+'.png')
         return path if path.is_file() else folder/'matches'/stem/(shot+'.png')

@@ -554,3 +554,38 @@ The 29.39mm pose has a conspicuous tilt and substantially more open street
 than the photograph. The other three accepted fits are unchanged. No final
 gallery or docs image is approved by this pass. First-pass native crops
 are in `renders/age-fixes/`; they document the miss as well as the progress.
+
+## Delivery pass 2 — reject polygonal soil and insufficient integrated wall age
+
+**Color and value first.** Inspected all ten 1440px pass-2 frames and all
+four balanced pairs in `renders/age-pass2/`. The same four photographic
+neutrals apply. The old single-wide remains brighter and much cleaner than
+the shaded reference. Its exposed apron now has visible repair history,
+but the wall/skirt values remain too uniform. Correct the old wall's
+caused color variation and reduce the single-wide pair's exposure by .45
+stop to better match its assumed white frame; retain the accepted hero
+lighting. Before/after evidence must rerender the old export under that
+same matched light, not compare two different exposures.
+
+The opposite foreground drives now use different bodies, and trees have
+different crown scales, rotations and horizontal aspects. These choices
+are stored in exported sockets. Sparse lawn clumps read as actual blades
+in the near row. The smooth, interrupted road seals and smaller oil traces
+are better than the first zigzag, with restrained wheel/binder value changes.
+
+Reject the soil treatment. Hard polygon edges at the drive/mailbox scars
+and the intermittent shoulder pieces read as paper laid on the ground.
+Use a shared vertex-opacity fringe over the same Concrete maps, with a
+feathered outer ring and actual sward-conforming elevations. A new material
+state is justified; another texture allocation is not. Independently check
+that the exported COLOR_0 alpha contains both clear edges and an opaque core,
+and enforce the accepted 176.05 MiB ceiling on the complete static image union.
+
+The broad roof-runoff ribbons are still weaker than needed. Carry selected
+roof-seam and end-fastener corrosion directly in the wall's color stations,
+including the street-facing end beside its window bank. Add protected-eave
+damp to the older walls. Keep the missing panels, piers and existing door
+clearances; no home/lot plan changes are warranted. The 2007 comparison has
+the required lane and neighbors but retains a tilted, inferred-road fit,
+which is less convincing than the three accepted construction comparisons.
+This pass still withholds the gallery. Crops are provisional, not approval.

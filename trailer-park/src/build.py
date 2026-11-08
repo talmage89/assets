@@ -73,6 +73,8 @@ def publish(stem,root,plan=None):
         for primitive in mesh['primitives']:
             ma=doc['materials'][primitive['material']]
             if ma.get('extras',{}).get('tiling_vertex_tint') is False:primitive['attributes'].pop('COLOR_0',None)
+    for ma in doc['materials']:
+        if ma['name'].startswith('ManufacturedSoilFringe'):ma.update(alphaMode='BLEND',doubleSided=True)
     path.write_text(json.dumps(doc,separators=(',',':'))+'\n')
     report['triangles_export']=sum(sum(doc['accessors'][pr['indices']]['count']//3 for pr in doc['meshes'][n['mesh']]['primitives']) for n in doc['nodes'] if 'mesh' in n)
     report['unique_export_triangles']=sum(doc['accessors'][pr['indices']]['count']//3 for mesh in doc['meshes'] for pr in mesh['primitives'])

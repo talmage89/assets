@@ -66,6 +66,8 @@ def cut(ob,p):
                     step=max(1,math.ceil(math.ceil(L/.9144)/4))
                     levels += [-L/2+j*stride+off for j in range(0,math.ceil(L/.9144),step) for off in (-.045,0,.045)]
                     levels += [L*station+off for station in (-.27,.19) for off in (-.35,0,.35)]
+                if axis==1 and p.get('era')!='1996':
+                    levels += [p.get('width',4.2)*station+off for station in (-.37,.37) for off in (-.15,0,.15)]
         for value in sorted(set(levels)):
             if not lo[axis]+.002<value<hi[axis]-.002:continue
             co=[0,0,0];co[axis]=value;n=[0,0,0];n[axis]=1
@@ -94,14 +96,15 @@ def age(q,n,c,role,component,p,seed):
         exposure=max(sunny,.65*abs(n.x))
         fade=severity*exposure*.43*max(0,min(1,(z-F)/1.4))
         color=color.lerp(Vector((.53,.51,.43)),fade)
-        wet=severity*north*.66*math.exp(-((z-(E-.22))/.46)**2)*(.22+.78*ripple)
+        wet=severity*(north*.60+(.17 if old else 0))*math.exp(-((z-(E-.22))/.38)**2)*(.22+.78*ripple)
         color*=1-wet;color.y*=1+wet*.17;color.z*=1-wet*.14
         # Roof lap runoff follows real 914.4mm seams, fades down under gravity.
         L=p.get('length',18);stride=L/math.ceil(L/.9144)
         step=max(1,math.ceil(math.ceil(L/.9144)/4))
         seam=min(abs(x-(-L/2+j*stride)) for j in range(0,math.ceil(L/.9144),step))
-        rust=severity*.46*math.exp(-(seam/.045)**2)*math.exp(-max(0,E-z)/.72)
-        if old and abs(n.y)>.5:color=color.lerp(Vector((.20,.068,.018)),rust)
+        if abs(n.x)>.5:seam=min(abs(y-p.get('width',4.2)*station) for station in (-.37,.37))
+        rust=severity*.85*math.exp(-(seam/.115)**2)*math.exp(-max(0,E-z)/.95)
+        if old and max(abs(n.x),abs(n.y))>.5:color=color.lerp(Vector((.18,.058,.016)),rust)
     if component=='roof' and old and p.get('roof')!='shingle' and max(c[:3])<.30:
         L=p.get('length',18);stride=L/math.ceil(L/.9144)
         seam=abs((x+L/2+stride/2)%stride-stride/2)
