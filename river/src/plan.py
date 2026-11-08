@@ -59,7 +59,7 @@ class Plan:
         if self.kind=='downtown' and x<0 and a>1.05: z=max(z,2.5)
         # Embankments under each road approach meet the abutment backwall.
         road_fill=max(0,1-max(0,abs(y)-7)/15)
-        end_fill=max(0,min(1,(abs(x)-self.length/2+1)/6))
+        end_fill=max(0,min(1,(abs(x)-self.length/2+.7)/.7))
         z=max(z,2.1+(self.deck_z-2.1)*road_fill*end_fill) if a>1.12 else z
         return z+self.water_z(y)
 

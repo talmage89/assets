@@ -20,6 +20,14 @@ def palette(repo):
         G.M[role]=tiling.material(key,repo/'ground/textures/ship',tint=True)
     bank=tiling.material('RiverBank',Path('textures/checkpoint'),tint=True)
     bank.use_backface_culling=False;G.M['bank']=bank
+    for role,color in [('paint_yellow',(.9,.66,.08)),('paint_white',(1,1,1))]:
+        ma=tiling.material('GroundTrim',repo/'ground/textures/ship',alpha=True,tint=False)
+        ma.name='River_'+role
+        bs=ma.node_tree.nodes.get('Principled BSDF');links=ma.node_tree.links
+        source=bs.inputs['Base Color'].links[0].from_socket
+        mix=ma.node_tree.nodes.new('ShaderNodeMixRGB');mix.blend_type='MULTIPLY';mix.inputs[0].default_value=1
+        mix.inputs[2].default_value=(*color,1);links.new(source,mix.inputs[1]);links.new(mix.outputs[0],bs.inputs['Base Color'])
+        G.M[role]=ma
     for role,c,r,m in [('steel',(.26,.285,.28),.44,1),('rubber',(.012,.014,.011),.87,0),
                          ('wood',(.10,.068,.035),.95,0),('algae',(.065,.075,.026),.9,0),
                          ('rust',(.13,.058,.024),.95,0),('foam',(.48,.49,.40),.7,0),

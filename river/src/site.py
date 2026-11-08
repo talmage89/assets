@@ -1,0 +1,77 @@
+"""Approaches, connected paths, outfalls, floodwall and bank-card planting."""
+import math
+import random
+import geometry as G
+
+
+def road(p,parent):
+    b=G.Batch('ApproachRoadAndWalks',parent,'site')
+    for side in (-1,1):
+        a=side*p.length/2;c=side*145
+        for y0,y1 in ((-3.3528,0),(0,3.3528)):
+            b.geom([(x,y,p.deck_z-.02*abs(y)) for x,y in ((a,y0),(c,y0),(c,y1),(a,y1))],[(0,1,2,3)],'asphalt')
+        for s in (-1,1):
+            b.box(((a+c)/2,s*4.2672,p.deck_z+.009144),(abs(c-a),1.524,.1524))
+    # Road-paint module is Ground's existing worn paint chart (bound below).
+    for y in (-.0762,.0762):
+        b.geom([(-145,y-.05,p.deck_z+.002),(145,y-.05,p.deck_z+.002),(145,y+.05,p.deck_z+.002),(-145,y+.05,p.deck_z+.002)],[(0,1,2,3)],'paint_yellow')
+    for y in (-3.18,3.18):
+        b.geom([(-145,y-.05,p.deck_z-.02*abs(y)+.003),(145,y-.05,p.deck_z-.02*abs(y)+.003),(145,y+.05,p.deck_z-.02*abs(y)+.003),(-145,y+.05,p.deck_z-.02*abs(y)+.003)],[(0,1,2,3)],'paint_white')
+    b.finish()
+
+
+def fixtures(p,parent):
+    rt=G.root('BankPublicWorks',parent=parent)
+    b=G.Batch('FloodwallTrailAndAccess',rt,'site');trail=[]
+    for i in range(150):
+        y=-150+i*2;yy=y+2
+        edge=lambda v:p.center(v)-p.halfwidth(v)
+        x=edge(y);xx=edge(yy)
+        if p.kind=='downtown':
+            # Riverwalk below Main Street with 6m poured bays and a real cap.
+            b.geom([(x-1,y,-.3),(xx-1,yy,-.3),(xx-1,yy,2.65),(x-1,y,2.65)],[(0,1,2,3)],'concrete',(.63,.64,.60,1))
+            b.geom([(x-1.12,y,2.65),(xx-1.12,yy,2.65),(xx-4.2,yy,2.65),(x-4.2,y,2.65)],[(0,1,2,3)],'concrete',(.80,.80,.75,1))
+            trail.append((x-2.6,y,2.65))
+            if abs(y)>9:
+                b.cylinder((x-1.2,y,3.15),.024,1,'steel',8)
+                for z in (2.80,3.65):b.tube([(x-1.2,y,z),(xx-1.2,yy,z)],.022,'steel',6)
+        else:
+            x-=7;xx-=7;z=p.bed(x,y)+.035;zz=p.bed(xx,yy)+.035
+            if abs(y)>12:
+                b.geom([(x-1,y,z),(xx-1,yy,zz),(xx+1,yy,zz),(x+1,y,z)],[(0,1,2,3)],'bank',(.93,.90,.82,1))
+            trail.append((x,y,z))
+    # 30in storm drain through a concrete endwall. The opening has no disk.
+    for y in (-33,59):
+        x=p.center(y)+p.halfwidth(y)*1.13;z=p.bed(x,y)
+        b.box((x+.1,y,z+.1),(.35,2.1,.25))
+        for side in (-1,1):b.box((x+.1,y+side*.65,z+.68),(.35,.40,1.15))
+        b.box((x+.1,y,z+1.20),(.35,1.7,.22))
+        rings=[[(xx,y+r*math.cos(k*math.tau/20),z+.58+r*math.sin(k*math.tau/20)) for k in range(20)] for xx,r in ((x+.65,.4318),(x-.12,.4318),(x-.12,.381),(x+.65,.381))]
+        b.loft(rings,'concrete',caps=False)
+    if p.kind=='edge':
+        # Small worn fishing landing and 12%-slope boat launch into shallow edge.
+        y=33;x=p.center(y)-p.halfwidth(y)
+        b.geom([(x-7,y-2,2.10),(x-7,y+2,2.10),(x+.8,y+2,-.12),(x+.8,y-2,-.12)],[(0,1,2,3)],'concrete',(.66,.65,.58,1))
+        G.root('BoatLaunch',(x-5,y,1.55),rt,socket_kind='launch')
+        G.root('FishingSpot',(x-2,y+5,.65),rt,socket_kind='fishing')
+    b.finish();G.path('RiverbankTrail',trail,rt,'walk')
+    return rt
+
+
+def plants(p,parent):
+    rng=random.Random(p.seed+18);b=G.Batch('BankGrassReedsCattails',parent,'vegetation')
+    # Dense low colonies, wide enough to read as cover; no lone wire tufts.
+    for i in range(11000):
+        y=rng.uniform(-149,149);side=(-1,1)[i%2]
+        if abs(y)<8:continue
+        u=side*rng.uniform(1.0,1.47)
+        if p.kind=='downtown' and side<0:continue
+        x=p.center(y)+u*p.halfwidth(y);z=p.bed(x,y)
+        if z<.06 or z>2.8:continue
+        if math.sin(y*.13+u*19)+math.sin(y*.33-u*8)<-.9:continue
+        reed=z<.65 and i%3==0;h=rng.uniform(.55,1.15) if reed else rng.uniform(.15,.45)
+        w=h*rng.uniform(.55,1.05);yaw=rng.uniform(0,6.28);dx=math.cos(yaw)*w/2;dy=math.sin(yaw)*w/2
+        k=rng.randrange(12,16) if reed else rng.randrange(12);a=(k%4)/4;c=(k//4)/4
+        uv=[(a+.002,c+.002),(a+.248,c+.002),(a+.248,c+.248),(a+.002,c+.248)]
+        b.geom([(x-dx,y-dy,z-.02),(x+dx,y+dy,z-.02),(x+dx+.09,y+dy,z+h),(x-dx+.09,y-dy,z+h)],[(0,1,2,3)],'plants',uv=uv)
+    b.finish()

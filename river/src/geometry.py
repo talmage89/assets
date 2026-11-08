@@ -68,7 +68,10 @@ class Batch:
             coverage=6.096 if role=='asphalt' else 3.048 if role in ('concrete','grass') else 2
             for j,li in enumerate(f.loop_indices):
                 v=me.vertices[me.loops[li].vertex_index].co
-                uv.data[li].uv=coords[j] if coords else (v[axes[0]]/coverage,v[axes[1]]/coverage)
+                if role.startswith('paint_'):
+                    paintuv=[(.005,.755),(.495,.755),(.495,.995),(.005,.995)]
+                    uv.data[li].uv=paintuv[j]
+                else:uv.data[li].uv=coords[j] if coords else (v[axes[0]]/coverage,v[axes[1]]/coverage)
                 vc.data[li].color=col
         bm=bmesh.new();bm.from_mesh(me);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
         bmesh.ops.triangulate(bm,faces=list(bm.faces),quad_method='FIXED',ngon_method='EAR_CLIP');bm.to_mesh(me);bm.free();me.update()
