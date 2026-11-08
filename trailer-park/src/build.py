@@ -46,6 +46,12 @@ def canonical_images():
         parts=q.relative_to('build/library').parts
         if 'ship' in parts and not {'build','renders','export'}.intersection(parts):known.setdefault(hashlib.sha256(q.read_bytes()).hexdigest(),q.resolve())
     q=Path('textures/checkpoint/T_ManufacturedForm.png');known[hashlib.sha256(q.read_bytes()).hexdigest()]=q.resolve()
+    # July changes albedo only. Identical reused lawn normal/ORM payloads
+    # retain Ground's canonical URIs for ordinary engine texture caches.
+    for channel in ('Normal','ORM'):
+        q=ROOT/f'ground/textures/ship/T_Lawn_{channel}.png'
+        if not q.is_file():q=Path('build/library/ground/textures/ship')/q.name
+        if q.is_file():known[hashlib.sha256(q.read_bytes()).hexdigest()]=q.resolve()
     _IMAGE_CACHE=known;return known
 
 
