@@ -14,7 +14,7 @@ def lighting(elevation=18,azimuth=-135,interior=False,matched=False):
     # Keep accepted interior and photo illumination. Public exterior daylight
     # has a low oblique sun, a clean atmosphere and less diffuse sky fill.
     exterior=not interior and not matched
-    if exterior:elevation,azimuth=12,-158
+    if exterior:elevation,azimuth=12,-22
     sc=bpy.context.scene;world=bpy.data.worlds.new('Clear sky with daylight bounce');world.use_nodes=True;sc.world=world
     nodes=world.node_tree.nodes;links=world.node_tree.links
     sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(elevation);sky.sun_rotation=math.radians(azimuth);sky.sun_disc=False

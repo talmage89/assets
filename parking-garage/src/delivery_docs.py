@@ -29,6 +29,7 @@ def main():
     acceptance=Path('src/delivery-acceptance.json')
     assert acceptance.exists(),'Open and critique every final at full size before recording acceptance'
     approved=json.loads(acceptance.read_text());assert approved['recipe']==recipe(),'Recipe changed since visual review'
+    assert approved['parameters']==json.loads(Path('build/delivery-render-parameters.json').read_text()),'Render parameters changed since review'
     folder=Path('renders/final');receipts=json.loads((folder/'views.json').read_text())
     assert len(receipts)==33
     for r in receipts:verify_receipt(r)

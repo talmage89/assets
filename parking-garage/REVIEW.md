@@ -768,3 +768,63 @@ patches are still too weak in the full heroes. Rejudge their correctly
 associated opacity in the next export before increasing coverage. Rust,
 salts and the barrier dent are still detail-scale. No gallery or docs
 are approved by this pass.
+
+## Delivery pass 10 — expose the leaks; remove stretched tire patterns
+
+Color/value first: inspected every 1280px image in `delivery-pass2` at native
+size. Both facades have warm highlights, a clear blue sky and deep openings.
+The interior illumination and tee depth still hold. The cars, accessible
+symbols and municipal street now show the requested changes. The commercial
+queue is clear in the entry detail, but remains small in the broad hero.
+
+Reject the drive-lane finish: the atlas's fine transverse oscillation has
+become a row of identical longitudinal dark bands when stretched over the
+whole lane. Replace that field with broad, irregular rubber transfer and
+sealer abrasion; retain the narrow paired paths only at actual turns. The
+floor films now follow the true crowned surfaces without triangular holes.
+
+Many facade plumes are concealed behind the projecting shafts: the leak
+centers were only 110mm from each structural station, behind a 760mm shaft.
+Move them to the exposed panel/shaft junction. Keep most panel fields dry;
+do not cover the structure with an overall dirt wash. The heroes remain
+too pristine at full frame until these exposed leaks are judged. No docs.
+
+## Delivery pass 11 — keep the floor; strengthen the exposed facade roots
+
+Color/value first: opened all twelve `delivery-pass3` views at 1280px and
+reopened the Alewife roof and Harmon facade photographs. The floor now has
+soft, darker traffic lanes without parallel atlas bands, stained vacant
+stalls, ponding by drains and worn paint. Roof abrasion is broad and faint,
+consistent with retained sealer rather than a row of tire graphics. The
+accepted interior bounce remains. Cars retain eight colors and four shapes;
+the crop of the unchanged commercial hero confirms its green entry car is
+visible beside the gate, with its approach clear of the court's parked row.
+
+Facade runoff is finally exposed beside the shafts and obvious in the tower
+and entry views. It is still too weak in the broad municipal hero. Enlarge
+the exposed roots and the existing repair patches, within plausible meter-
+scale leaking-joint spread; keep the same dry panel fields. Start the films
+below the sloped cap so they do not hang in air. This final facade adjustment
+has not yet been judged. Uniform context-car paints, dark cabin windows and
+the still-pristine small construction edges remain CG tells. Do not approve
+the docs from this pass.
+
+## Delivery pass 12 — use the opposite raking sun for the finals
+
+Color/value first: inspected all four 1280px `delivery-direction` heroes.
+The −22° sun leaves the visible west shaft faces in deep shade while the
+spandrels retain the same warm direct-light component. This is the missing
+articulation: the previous −158° light illuminated both faces visible to
+the street camera. Keep the −22° version. The sky is clear, concrete remains
+unclipped and the openings retain cars and practical fixtures. The glass
+towers now have a darker west face; their lit south panels and glazing
+still separate them from the openings. Interior and matched-light presets
+remain independent and unchanged.
+
+The enlarged leaking junctions and repair patches are exposed in both heroes.
+They retain dry panel fields and vary in length/width without the old comb.
+The floor correction, car mix and street changes already passed full-size
+review in pass 11. This is the candidate for a complete clean build and final
+export review, not approval of unrendered final views. Remaining CG tells are
+uniform car finishes/cabins, repeated coverage kernels at very close range,
+and perfectly manufactured small edges. No docs yet.

@@ -105,7 +105,7 @@ def placed(root,p,mats):
                     if hit[0] is None:break
                     q.append(tuple(hit[0]+Vector((0,0,.0015))))
                 if len(q)==4:
-                    strength=age*(.36+.20*math.sin(math.pi*(progress+end)/2))
+                    strength=age*(.50+.24*math.sin(math.pi*(progress+end)/2))
                     floor_stamp(q,'rubber',strength,[(u0,vstart),(u0,vend),(u1,vend),(u1,vstart)])
     L,W=p['length'],p['width']
     ymin,ymax=p.get('comparison_y_bounds_m',(-W/2,W/2))
@@ -127,7 +127,7 @@ def placed(root,p,mats):
         if len(corners)==4:
             key='scuff' if roof else 'rubber'
             u0,v0,u1,v1=A.LAYOUT[key]['rect'];va=v0+start/max(length,.001)*(v1-v0);vb=v0+distance/max(length,.001)*(v1-v0)
-            floor_stamp(corners,key,(.85 if roof else .72)*age,[(u0,va),(u0,vb),(u1,vb),(u1,va)])
+            floor_stamp(corners,key,(.85 if roof else .62)*age,[(u0,va),(u0,vb),(u1,vb),(u1,va)])
     for lev in range(p['levels']):
         z=lev*FLOOR
         for x in (-L/3,0,L/3):
@@ -144,14 +144,17 @@ def placed(root,p,mats):
                 if side==1 and p['ramp_limits'][0]<mid<p['ramp_limits'][1]:continue
                 # Wet joints dominate. Most of the panel stays dry; one or
                 # two weaker drips may start at a damaged cap or drip end.
-                sources=[(a+.11,rng.uniform(.7,1.35)),(c-.11,rng.uniform(.45,.95))]
+                # Shafts project in front of the panel. Place the leaking
+                # panel/shaft junction on the exposed panel beside the shaft,
+                # rather than concealing the whole plume behind its face.
+                sources=[(a+.85,rng.uniform(1.3,2.1)),(c-.75,rng.uniform(.85,1.65))]
                 if rng.random()<.32:
                     source=rng.choice((a+TEE,c-TEE)) if old else rng.uniform(a+.7,c-.7)
                     sources.append((source,rng.uniform(.20,.48)))
                 for x,width in sources:
                     if rng.random()<.18:continue
-                    top=z+((1.04 if side==-1 else 1.0) if old else .55)
-                    length=rng.uniform(.60,1.38) if old else rng.uniform(.32,.83)
+                    top=z+((1.015 if side==-1 else .975) if old else .535)
+                    length=rng.uniform(.90,1.60) if old else rng.uniform(.42,.92)
                     bottom=max(z-.30,top-length)
                     pts=[(x-width/2,y,bottom),(x+width/2,y,bottom),(x+width/2,y,top),(x-width/2,y,top)]
                     strength=age*rng.uniform(.72,1)
@@ -162,7 +165,7 @@ def placed(root,p,mats):
                         salt=[(xx,yy+side*.0003,zz) for xx,yy,zz in pts]
                         stamp(salt,'mineral',strength*rng.uniform(.45,.8))
                 if rng.random()<.65:
-                    x=rng.choice((a+.6,c-.6))+rng.uniform(-.2,.2);zz=z+rng.uniform(-.08,.30);w=rng.uniform(.45,.95);h=rng.uniform(.20,.42)
+                    x=rng.choice((a+1.1,c-1.1))+rng.uniform(-.2,.2);zz=z+rng.uniform(-.08,.30);w=rng.uniform(.65,1.25);h=rng.uniform(.25,.50)
                     stamp([(x-w/2,y,zz),(x+w/2,y,zz),(x+w/2,y,zz+h),(x-w/2,y,zz+h)],'spall',.8)
     construction(root,p,rng,age,stamp,floor_mark)
     ob=batch.finish();ob['allow_boundary']=True # open pigment films, never a collision solid

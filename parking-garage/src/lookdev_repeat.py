@@ -20,6 +20,10 @@ def main():
     assert Path('build/lookdev/atlas-layout.json').read_bytes()==Path('build/lookdev/repeat-layout.json').read_bytes()
     roots=('export/form','export/lookdev','export/final','build/final-glb','textures/lookdev')
     files=[p for root in roots for p in Path(root).rglob('*') if p.is_file()]
+    manifests=['form-sites','sites','modules','comparison-precast','comparison-harmon']
+    manifests += [f'{kind}-{seed}' for kind in ('garage','actors','look','traffic') for seed in (101,202)]
+    files += [Path('build/lookdev')/(name+'.json') for name in manifests]
+    files.append(Path('build/final-package.json'))
     before={str(p):digest(p) for p in files}
     # Exact rebuilds must not invalidate the already reviewed render inputs.
     times={str(p):(p.stat().st_atime_ns,p.stat().st_mtime_ns) for p in files}
@@ -39,7 +43,7 @@ def main():
         for p in files:shutil.copy2(backup/p,p)
     assert not changed,changed
     for p,stamp in times.items():os.utime(p,ns=stamp)
-    report=dict(passed=True,exact_source_fields=len(fields),exact_export_files=len(before),export_bytes=sum(Path(p).stat().st_size for p in before),
+    report=dict(passed=True,exact_source_fields=len(fields),exact_export_and_manifest_files=len(before),export_and_manifest_bytes=sum(Path(p).stat().st_size for p in before),
         source_scripts_sha256={str(p):digest(p) for p in sorted(Path('src').glob('*.py'))},
         texture_policy='Canonical 4096 GPU bake / 2048 maps unchanged. Repeats form construction, private comparison variants, town instancing, age, UV and export from accepted source blends. A fresh GPU bake is tested separately.')
     Path('build/lookdev/repeat.json').write_text(json.dumps(report,indent=2)+'\n');print('LOOK-DEV REPEAT PASS',report,flush=True)

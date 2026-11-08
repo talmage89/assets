@@ -86,8 +86,11 @@ def generate(folder=Path('build/lookdev/atlas-source'),layout_path=Path('build/l
             if key=='droppings':alpha*=np.clip((grain-.35)*4,0,1)
             rgb={'oil':(39,36,28),'spall':(126,122,109),'droppings':(209,202,177)}[key]
         else:
-            alpha=np.exp(-((u+.08*np.sin(v*11))/.64)**4)*rim*(.38+.52*grain)
-            alpha*=.55+.45*np.sin(u*34+v*3)**2
+            # Broad transferred rubber / missing sealer has mottled coverage,
+            # not a repeated tread pattern stretched across the drive aisle.
+            coarse=field(w,h,18709+j,72)
+            alpha=np.exp(-((u+.06*np.sin(v*7))/.78)**6)*rim
+            alpha*=(.22+.65*macro)*(.72+.28*grain)*(.40+.60*coarse)
             rgb=(42,39,31) if key=='rubber' else (186,179,155)
         bc[y0:y1,x0:x1,:3]=rgb;bc[y0:y1,x0:x1,3]=np.rint(np.clip(alpha,0,1)*255)
         orm[y0:y1,x0:x1]=[255,110 if key=='rubber' else 120 if key=='oil' else 230,0]

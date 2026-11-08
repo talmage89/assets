@@ -37,9 +37,10 @@ def main():
         r=next(r for r in frames if r['seed']==seed and r['name']=='hero');im=Image.open(r['output']).convert('RGB');annotated=im.copy();d=ImageDraw.Draw(annotated)
         plan=json.loads(Path(f'build/lookdev/garage-{seed}.json').read_text());stations=plan['structural_stations'];x=(stations[2]+stations[3])/2;y=-plan['width']/2;level=plan['floor_to_floor']*(2 if seed==101 else 1)
         points=dict(spandrel=[x,y-(.131 if seed==101 else .091),level+(.48 if seed==101 else .20)],column=[stations[2],y-.382,level-1.05],opening=[x,y+.25,level+1.7])
+        points['column_side']=[stations[2]-.382,y-.12,level-1.05]
         values={}
         for name,point in points.items():
-            u,v=project(point,r);half=max(2,round(r['width']/320));box=[round(u-half),round(v-half),round(u+half),round(v+half)]
+            u,v=project(point,r);half=1 if name=='column_side' else max(2,round(r['width']/320));box=[round(u-half),round(v-half),round(u+half),round(v+half)]
             values[name]=stats(im,box);values[name]['world_station_m']=point
             d.rectangle(box,outline='red',width=1);d.text((box[0],box[1]-15),name,fill='red')
         result[str(seed)]=values;annotated.save(work/f'{seed}-rois.jpg',quality=95)
