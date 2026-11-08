@@ -36,6 +36,7 @@ def terrain(p,parent):
         left=p.center(y)-p.halfwidth(y)
         xs=[p.center(y)+u*p.halfwidth(y) for u in us]+p.water_edges(y)
         xs += [s*(p.length/2+off) for s in (-1,1) for off in (-.01,.01,.89,.90,1.02,1.03)]
+        xs += [-170,-155,155,170]
         if p.kind=='downtown':xs += [left-off for off in (.74,.76,1,1.12,4.2,4.44,4.46)]
         rows.append([(x,y,p.bed(x,y)) for x in sorted(xs)])
     for row0,row1 in zip(rows,rows[1:]):
@@ -50,15 +51,16 @@ def terrain(p,parent):
                 v=.61+.13*math.sin(y*.067+u*1.7)+.07*math.sin(y*.31-u*.9)
                 color=(v*.91,v,v*.72,1)
             else:color=(wet,wet*.98,wet*.90,1)
-            b.geom(vs,[(0,1,2,3)],role,color,smooth=True)
+            b.geom(vs,[(0,1,2,3)],role,color,smooth=True,up=True)
     bed=b.finish()
     bm=bmesh.new();bm.from_mesh(bed.data)
     bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-6)
+    bm.normal_update();bmesh.ops.reverse_faces(bm,faces=[f for f in bm.faces if f.normal.z<0])
     bm.to_mesh(bed.data);bm.free();bed.data.update()
     BED_TREE=BVHTree.FromPolygons([v.co for v in bed.data.vertices],[list(f.vertices) for f in bed.data.polygons],all_triangles=True)
     rng=random.Random(p.seed);rocks=G.Batch('BarCobbleAndScourRiprap',rt,'reach')
     for i in range(1150):
-        y=rng.uniform(p.bar_y-26,p.bar_y+27);x=p.center(y)+p.halfwidth(y)*rng.uniform(-1.04,-.49)
+        y=rng.uniform(p.bar_y-26,p.bar_y+27);x=p.center(y)+p.outside*p.halfwidth(y)*rng.uniform(-1.04,-.49)
         z=surface_z(p,x,y)
         if z>p.water_z(y)-.32:stone(rocks,x,y,z,rng.uniform(.035,.14),rng)
     # Armored, keyed slope and toe at both abutments and each pier.
@@ -76,6 +78,7 @@ def terrain(p,parent):
     # Cutbank roots and flood debris are dead wood, not new tree species.
     debris=G.Batch('CutbankExposedRootsAndDrift',rt,'reach')
     for j in range(18):
+        if p.kind=='downtown':continue
         y=p.bar_y-20+j*2.3;x=p.center(y)+p.halfwidth(y)*1.11;z=p.bed(x,y)
         for k in range(3):
             debris.tube([(x+.3,y,z+.15),(x-.10,y+.2,z-.2),(x-.45-k*.10,y+.2+k*.23,z-.9)],.018/(k+1),'wood',5)
@@ -96,18 +99,21 @@ def water(p,parent):
         rows.append([(l+(r-l)*j/nx,y,p.water_z(y)+.006*math.sin(j*.9+y*.7)*math.exp(-((y-p.riffle_y)/10)**2)) for j in range(nx+1)])
     vs=[v for row in rows for v in row]
     fs=[(i*(nx+1)+j,i*(nx+1)+j+1,(i+1)*(nx+1)+j+1,(i+1)*(nx+1)+j) for i in range(ny) for j in range(nx)]
-    b.geom(vs,fs,'water',smooth=True);ob=b.finish()
+    b.geom(vs,fs,'water',smooth=True,up=True);ob=b.finish()
     flow=ob.data.attributes.new('_FLOW',type='FLOAT_VECTOR',domain='POINT')
     for v,a in zip(ob.data.vertices,flow.data):
-        tx,ty=p.tangent(v.co.y);speed=p.speed(v.co.x,v.co.y);a.vector=(tx*speed,ty*speed,max(0,p.water_z(v.co.y)-p.bed(v.co.x,v.co.y)))
+        tx,ty=p.tangent(v.co.y);speed=p.speed(v.co.x,v.co.y);a.vector=(tx*speed,ty*speed,max(0,p.water_z(v.co.y)-surface_z(p,v.co.x,v.co.y)))
     # A real closed bottom/edge shell makes absorption scale with actual depth.
     volume=G.Batch('WaterVolumeClosure',parent,'water')
+    def bottom(v):
+        x,y,_=v
+        return (x,y,min(surface_z(p,x,y)-.02,p.water_z(y)-.025))
     for row in (rows[0],rows[-1]):
-        for a,c in zip(row,row[1:]):volume.geom([a,c,(c[0],c[1],p.bed(c[0],c[1])-.02),(a[0],a[1],p.bed(a[0],a[1])-.02)],[(0,1,2,3)],'water')
+        for a,c in zip(row,row[1:]):volume.geom([a,c,bottom(c),bottom(a)],[(0,1,2,3)],'water')
     for side in (0,-1):
         for a,c in zip(rows,rows[1:]):
-            a,c=a[side],c[side];volume.geom([a,c,(c[0],c[1],p.bed(c[0],c[1])-.02),(a[0],a[1],p.bed(a[0],a[1])-.02)],[(0,1,2,3)],'water')
-    floor=[(x,y,p.bed(x,y)-.02) for x,y,z in vs];volume.geom(floor,[tuple(reversed(f)) for f in fs],'water',smooth=True)
+            a,c=a[side],c[side];volume.geom([a,c,bottom(c),bottom(a)],[(0,1,2,3)],'water')
+    volume.geom([bottom(v) for v in vs],[tuple(reversed(f)) for f in fs],'water',smooth=True)
     closure=volume.finish()
     # One closed shell is required for the medium stack to follow real depth.
     # Separate top/bottom objects lose that relationship in Cycles transmission.
@@ -119,7 +125,7 @@ def water(p,parent):
     flow=ob.data.attributes.get('_FLOW')
     for v,a in zip(ob.data.vertices,flow.data):
         tx,ty=p.tangent(v.co.y);speed=p.speed(v.co.x,v.co.y)
-        a.vector=(tx*speed,ty*speed,max(0,p.water_z(v.co.y)-p.bed(v.co.x,v.co.y)))
+        a.vector=(tx*speed,ty*speed,max(0,p.water_z(v.co.y)-surface_z(p,v.co.x,v.co.y)))
     foam=G.Batch('RiffleBrokenFoam',parent,'water');rng=random.Random(p.seed+31)
     for j in range(160):
         y=rng.gauss(p.riffle_y,3.5);l,r=p.water_edges(y);x=rng.uniform(l+.7,r-.7)

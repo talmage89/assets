@@ -24,11 +24,20 @@ def accessor(d,bin,index):
 
 
 def raw(path):
-    d=json.loads(path.read_text());binary=(path.parent/d['buffers'][0]['uri']).read_bytes();tris=0;norm=[];uv=[];flows=[];heightfield_faces=0
+    d=json.loads(path.read_text());binary=(path.parent/d['buffers'][0]['uri']).read_bytes();tris=0;norm=[];uv=[];flows=[];heightfield_faces=0;water_volume=None
     for me in d['meshes']:
         for pr in me['primitives']:
             inds=accessor(d,binary,pr['indices']).ravel();tris+=len(inds)//3
             v=accessor(d,binary,pr['attributes']['POSITION']);assert np.isfinite(v).all()
+            if me['name']=='WaterSurface':
+                # UV/normal splits in glTF do not make physical shell seams.
+                points,remap=np.unique(np.round(v,6),axis=0,return_inverse=True)
+                faces=remap[inds.reshape(-1,3)]
+                edges=np.sort(np.concatenate((faces[:,[0,1]],faces[:,[1,2]],faces[:,[2,0]])),axis=1)
+                _,uses=np.unique(edges,axis=0,return_counts=True)
+                assert (uses==2).all(),('Open water volume',np.unique(uses,return_counts=True))
+                tri=points[faces];water_volume=float(np.einsum('ij,ij->i',tri[:,0],np.cross(tri[:,1],tri[:,2])).sum()/6)
+                assert water_volume>100,('Reversed water shell',water_volume)
             if me['name'] in ('BedBanksFloodplain','DistantValleySkins','DistantWaterContinuation'):
                 tv=v[inds.reshape(-1,3)];cross=np.cross(tv[:,1]-tv[:,0],tv[:,2]-tv[:,0])
                 assert (cross[:,1]>=-1e-8).all(),('Downward terrain winding',me['name'],int((cross[:,1]<-1e-8).sum()))
@@ -52,7 +61,7 @@ def raw(path):
     return dict(stored_triangles=tris,placed_triangles=expanded,materials=len(d['materials']),images=len(d.get('images',[])),
         normal_length_error=float(abs(norm-1).max()),density_at_1024_px_m=np.percentile(uv,[5,50,95]).tolist(),
         flow_vertices=len(flow),flow_speed_m_s=np.percentile(np.linalg.norm(flow[:,:2],axis=1),[0,50,100]).tolist(),
-        max_flow_depth_m=float(flow[:,2].max()),upward_heightfield_faces=heightfield_faces,bytes_gltf=path.stat().st_size,bytes_bin=len(binary),bundle_sha256=bundle(path))
+        max_flow_depth_m=float(flow[:,2].max()),closed_water_shell_volume_m3=water_volume,upward_heightfield_faces=heightfield_faces,bytes_gltf=path.stat().st_size,bytes_bin=len(binary),bundle_sha256=bundle(path))
 
 
 def bvh(ob):
@@ -71,16 +80,29 @@ def construction(seed):
     assert counts==meta['triangles'],(counts,meta['triangles'])
     assert counts['bridge']<80000 and counts['reach']<150000
     pads=[bvh(o) for o in obs if o.type=='MESH' and o.name.startswith('BearingStation')]
-    gaps=[];lengths=[]
+    supports=[bvh(o) for o in obs if o.type=='MESH' and o.name.startswith(('Pier_','Abutment_'))]
+    gaps=[];seat_gaps=[];lengths=[]
     for ob in obs:
         if ob.type!='MESH' or not ob.name.startswith('Girder_'):continue
         ps=[ob.matrix_world@v.co for v in ob.data.vertices];xmin=min(p.x for p in ps);xmax=max(p.x for p in ps);y=(min(p.y for p in ps)+max(p.y for p in ps))/2;z=min(p.z for p in ps)
         lengths.append(xmax-xmin)
+        underside=bvh(ob)
         for x in (xmin+.26,xmax-.26):
-            origin=Vector((x,y,z+.001));hits=[tree.ray_cast(origin,Vector((0,0,-1)),.6)[0] for tree in pads]
+            foot=underside.ray_cast(Vector((x,y,z-.05)),Vector((0,0,1)),.3)[0]
+            assert foot is not None,('Missing girder bearing seat',ob.name)
+            origin=foot+Vector((0,0,.001));hits=[tree.ray_cast(origin,Vector((0,0,-1)),.6)[0] for tree in pads]
             hit=[h for h in hits if h is not None];assert hit,('Unsupported girder',ob.name,x)
-            gaps.append(min(abs(z-h.z) for h in hit))
+            gaps.append(min(abs(foot.z-h.z) for h in hit))
+            for dx,dy in ((0,0),(-.24,-.30),(-.24,.30),(.24,-.30),(.24,.30)):
+                start=Vector((x+dx,y+dy,foot.z-.5))
+                bases=[t.ray_cast(start,Vector((0,0,1)),.6)[0] for t in pads]
+                bases=[h for h in bases if h is not None];assert bases,('No bearing base',ob.name)
+                base=min(bases,key=lambda h:h.z)
+                seats=[t.ray_cast(base+Vector((0,0,.001)),Vector((0,0,-1)),1)[0] for t in supports]
+                seats=[h for h in seats if h is not None];assert seats,('Unsupported bearing plinth',ob.name,x+dx,y+dy)
+                seat_gaps.append(min(abs(base.z-h.z) for h in seats))
     assert max(gaps)<.002,('Girder/pad gap',max(gaps))
+    assert max(seat_gaps)<.002,('Plinth/support gap',max(seat_gaps))
     # Sample actual imported reach cross-sections, not declared width constants.
     bed=next(o for o in obs if o.name=='BedBanksFloodplain');tree=bvh(bed);water=next(o for o in obs if o.name=='WaterSurface')
     samples=[]
@@ -88,9 +110,26 @@ def construction(seed):
         row=[v.co for v in water.data.vertices if abs(v.co.y-y)<.02]
         if not row:continue
         world=[water.matrix_world@v for v in row];samples.append(dict(y_m=y,width_m=max(v.x for v in world)-min(v.x for v in world)))
-    headroom=[]
+    headroom=[];socket_gaps={};building_walk_checks=0
+    for name in ('BoatLaunch','FishingSpot'):
+        socket=next((o for o in obs if o.name==name),None)
+        if socket is None:continue
+        surface=tree if name=='FishingSpot' else bvh(next(o for o in obs if o.name=='FloodwallTrailAndAccess'))
+        pos=socket.matrix_world.translation
+        hit=surface.ray_cast(pos+Vector((0,0,1)),Vector((0,0,-1)),3)[0]
+        assert hit is not None,('Socket has no landing',name)
+        socket_gaps[name]=abs(pos.z-hit.z)
+        assert socket_gaps[name]<.025,('Socket above landing',name,socket_gaps[name])
     if seed==101:
         trail=next(o for o in obs if o.name=='RiverbankTrail');pts=np.array(json.loads(trail['points_blender_m']))
+        for building in [o for o in obs if o.name.startswith('MainStreetBack_') and o.parent and o.parent.name=='TownContext']:
+            building_walk_checks+=1
+            corners=[ob.matrix_world@Vector(v) for ob in building.children_recursive if ob.type=='MESH' for v in ob.bound_box]
+            if not corners:continue
+            bounds=np.array(corners);lo=bounds.min(axis=0);hi=bounds.max(axis=0)
+            along=pts[(pts[:,1]>=lo[1]-1)&(pts[:,1]<=hi[1]+1)]
+            assert all(x+1.65<lo[0] or x-1.65>hi[0] for x,y,z in along),('Building over riverwalk',building.name,lo.tolist(),hi.tolist())
+        assert building_walk_checks==40,('Missing building/walk audit',building_walk_checks)
         walk=bvh(next(o for o in obs if o.name=='FloodwallTrailAndAccess'))
         beams=[bvh(o) for o in obs if o.type=='MESH' and o.name.startswith('Girder_')]
         stations=sorted({round(sum((o.matrix_world@v.co).y for v in o.data.vertices)/len(o.data.vertices),5) for o in obs if o.type=='MESH' and o.name.startswith('Girder_')})
@@ -104,8 +143,10 @@ def construction(seed):
                 assert heights,('No overhead beam at walk',x,y)
                 headroom.append(min(heights))
         assert min(headroom)>2.3,('Walk headroom',min(headroom))
-    return dict(categories=counts,bearing_surface_samples=len(gaps),max_girder_pad_gap_m=max(gaps),girder_lengths_m=sorted(set(round(x,5) for x in lengths)),water_width_samples=samples,
-                riverwalk_headroom_samples=len(headroom),minimum_sampled_riverwalk_headroom_m=min(headroom) if headroom else None)
+    return dict(categories=counts,bearing_surface_samples=len(gaps),max_girder_pad_gap_m=max(gaps),
+                plinth_support_samples=len(seat_gaps),max_plinth_support_gap_m=max(seat_gaps),girder_lengths_m=sorted(set(round(x,5) for x in lengths)),water_width_samples=samples,
+                riverwalk_headroom_samples=len(headroom),minimum_sampled_riverwalk_headroom_m=min(headroom) if headroom else None,
+                gameplay_socket_surface_gaps_m=socket_gaps,building_walk_bounds_checks=building_walk_checks)
 
 
 def main():

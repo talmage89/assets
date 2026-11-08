@@ -10,7 +10,7 @@ def road(p,parent):
     for side in (-1,1):
         a=side*p.length/2;c=side*145
         for y0,y1 in ((-3.3528,0),(0,3.3528)):
-            b.geom([(x,y,p.deck_z-.02*abs(y)) for x,y in ((a,y0),(c,y0),(c,y1),(a,y1))],[(0,1,2,3)],'asphalt')
+            b.geom([(x,y,p.deck_z-.02*abs(y)) for x,y in ((a,y0),(c,y0),(c,y1),(a,y1))],[(0,1,2,3)],'asphalt',up=True)
         for s in (-1,1):
             b.box(((a+c)/2,s*4.2672,p.deck_z+.009144),(abs(c-a),1.524,.1524))
     # Road-paint module is Ground's existing worn paint chart (bound below).
@@ -32,13 +32,16 @@ def fixtures(p,parent):
             # Riverwalk below Main Street with 6m poured bays and a real cap.
             b.geom([(x-1,y,-.3),(xx-1,yy,-.3),(xx-1,yy,.65),(x-1,y,.65)],[(0,1,2,3)],'concrete',(.63,.64,.60,1))
             b.geom([(x-1.12,y,.65),(xx-1.12,yy,.65),(xx-4.2,yy,.65),(x-4.2,y,.65)],[(0,1,2,3)],'concrete',(.80,.80,.75,1))
-            wall_top=2.10 if abs(y)<8 else 3.70
+            wall_top=.65 if abs((y+yy)/2)<8 else 3.70
             b.geom([(x-4.2,y,.50),(xx-4.2,yy,.50),(xx-4.2,yy,wall_top),(x-4.2,y,wall_top)],[(0,1,2,3)],'concrete',(.65,.65,.60,1))
             b.geom([(x-4.03,y,wall_top+.025),(xx-4.03,yy,wall_top+.025),(xx-4.55,yy,wall_top+.025),(x-4.55,y,wall_top+.025)],[(0,1,2,3)],'concrete',(.72,.72,.67,1))
             trail.append((x-2.6,y,.65))
             if abs(y)>9:
                 b.cylinder((x-1.2,y,1.15),.024,1,'steel',8)
                 for z in (.80,1.65):b.tube([(x-1.2,y,z),(xx-1.2,yy,z)],.022,'steel',6)
+                for j in range(1,18):
+                    t=j/18;bx=(1-t)*x+t*xx-1.2
+                    b.box((bx,y+2*t,1.225),(.019,.019,.85),'steel')
         else:
             x-=7;xx-=7;z=p.bed(x,y)+.035;zz=p.bed(xx,yy)+.035
             if abs(y)>12:
@@ -54,10 +57,11 @@ def fixtures(p,parent):
         b.loft(rings,'concrete',caps=False)
     if p.kind=='edge':
         # Small worn fishing landing and 12%-slope boat launch into shallow edge.
-        y=33;x=p.center(y)-p.halfwidth(y)
+        y=-36;x=p.center(y)-p.halfwidth(y)
         b.geom([(x-18,y-2,2.10),(x-18,y+2,2.10),(x+.8,y+2,-.12),(x+.8,y-2,-.12)],[(0,1,2,3)],'concrete',(.66,.65,.58,1))
-        G.root('BoatLaunch',(x-5,y,1.55),rt,socket_kind='launch')
-        G.root('FishingSpot',(x-2,y+5,.65),rt,socket_kind='fishing')
+        G.root('BoatLaunch',(x-5,y,2.10-2.22*13/18.8),rt,socket_kind='launch')
+        fy=33;fx=p.center(fy)-p.halfwidth(fy)
+        G.root('FishingSpot',(fx-2,fy+5,surface_z(p,fx-2,fy+5)+.02),rt,socket_kind='fishing')
     b.finish();G.path('RiverbankTrail',trail,rt,'walk')
     return rt
 
@@ -65,17 +69,23 @@ def fixtures(p,parent):
 def plants(p,parent):
     rng=random.Random(p.seed+18);b=G.Batch('BankGrassReedsCattails',parent,'vegetation')
     # Dense low colonies, wide enough to read as cover; no lone wire tufts.
-    for i in range(11000):
+    for i in range(22000):
         y=rng.uniform(-149,149);side=(-1,1)[i%2]
         if abs(y)<8:continue
         u=side*rng.uniform(1.0,1.47)
         if p.kind=='downtown' and side<0:continue
         x=p.center(y)+u*p.halfwidth(y);z=surface_z(p,x,y)
+        if p.kind=='edge':
+            if side<0 and abs(x-(p.center(y)-p.halfwidth(y)-7))<1.15:continue
+            ramp_edge=p.center(-36)-p.halfwidth(-36)
+            if abs(y+36)<2.15 and ramp_edge-18.1<x<ramp_edge+.9:continue
         if z<.06 or z>2.8:continue
         if math.sin(y*.13+u*19)+math.sin(y*.33-u*8)<-.9:continue
         reed=z<.65 and i%3==0;h=rng.uniform(.55,1.15) if reed else rng.uniform(.15,.45)
-        w=h*rng.uniform(.55,1.05);yaw=rng.uniform(0,6.28);dx=math.cos(yaw)*w/2;dy=math.sin(yaw)*w/2
+        w=rng.uniform(.35,.65) if reed else rng.uniform(.55,.95);yaw=rng.uniform(0,6.28)
         k=rng.randrange(14,16) if reed else rng.randrange(12);a=(k%4)/4;c=(k//4)/4
         uv=[(a+.002,c+.002),(a+.248,c+.002),(a+.248,c+.248),(a+.002,c+.248)]
-        b.geom([(x-dx,y-dy,z-.02),(x+dx,y+dy,z-.02),(x+dx+.09,y+dy,z+h),(x-dx+.09,y-dy,z+h)],[(0,1,2,3)],'plants',uv=uv)
+        for angle in (yaw,yaw+math.pi/2):
+            dx=math.cos(angle)*w/2;dy=math.sin(angle)*w/2
+            b.geom([(x-dx,y-dy,z-.02),(x+dx,y+dy,z-.02),(x+dx+.09,y+dy,z+h),(x-dx+.09,y-dy,z+h)],[(0,1,2,3)],'plants',uv=uv)
     b.finish()

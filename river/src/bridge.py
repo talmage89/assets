@@ -19,15 +19,19 @@ def girder(name,length=18.0086,parent=None):
     rt=G.root(name,parent=parent,module='TypeIII_Girder',length_m=length)
     b=G.Batch(name+'__Casting',rt)
     # Small prestress camber remains visible under long raking reflections.
-    xs=[-length/2+i*length/12 for i in range(13)]
-    rings=[[(x,y,z+.012*(1-(2*x/length)**2)) for y,z in SECTION] for x in xs]
+    xs=sorted([-length/2+i*length/12 for i in range(13)]+[-length/2+.65,length/2-.65])
+    def camber(x):
+        t=max(0,min(1,(x+length/2-.65)/(length-1.3)))
+        return .012*4*t*(1-t)
+    # Flat bearing seats at each end meet the horizontal sole plates.
+    rings=[[(x,y,z+camber(x)) for y,z in SECTION] for x in xs]
     b.loft(rings);ob=b.finish()
-    G.root(name+'__W',(-length/2,0,0),rt,socket_kind='bearing')
-    G.root(name+'__E',(length/2,0,0),rt,socket_kind='bearing')
+    G.root(name+'__W',(-length/2+.26,0,0),rt,socket_kind='bearing')
+    G.root(name+'__E',(length/2-.26,0,0),rt,socket_kind='bearing')
     return rt
 
 
-def pier(name,width=11.8872,kind='columns',height=2.11,parent=None):
+def pier(name,width=11.8872,kind='columns',height=2.11,parent=None,flow_angle=0):
     rt=G.root(name,parent=parent,module='Pier_'+kind)
     b=G.Batch(name+'__Substructure',rt)
     # Datum is waterline. Buried footings stop below exposed bed.
@@ -36,14 +40,18 @@ def pier(name,width=11.8872,kind='columns',height=2.11,parent=None):
             b.cylinder((0,y,(height-.80-1.3)/2),.55,height-.80+1.3,n=24)
             b.box((0,y,-1.42),(1.95,1.95,.36))
     else:
-        # Rounded cutwater, aligned with river +Y; not a wall across the flow.
+        # Skew the submerged stem with local flow, leaving the bearing cap
+        # transverse to the bridge. Angle is radians about local +Z.
+        def flow_point(x,y,z):
+            c,s=math.cos(flow_angle),math.sin(flow_angle)
+            return (c*x-s*y,s*x+c*y,z)
         w=.65;length=width*.83
         sec=[(w,-length/2+.65),(w,length/2-.65)]
         sec += [(w*math.cos(t),length/2-.65+w*math.sin(t)) for t in [i*math.pi/8 for i in range(1,9)]]
         sec += [(-w,-length/2+.65)]
         sec += [(w*math.cos(t),-length/2+.65+w*math.sin(t)) for t in [math.pi+i*math.pi/8 for i in range(1,9)]]
-        b.loft([[(x,y,z) for x,y in sec] for z in (-1.4,-.15,.1,1.25,height-.8)])
-        b.box((0,0,-1.55),(2.25,length+1,.35))
+        b.loft([[flow_point(x,y,z) for x,y in sec] for z in (-1.4,-.15,.1,1.25,height-.8)])
+        b.loft([[flow_point(x,y,z) for x,y in ((-1.125,-(length+1)/2),(1.125,-(length+1)/2),(1.125,(length+1)/2),(-1.125,(length+1)/2))] for z in (-1.725,-1.375)])
     # Chamfered cap section, extruded in the transverse direction.
     sec=[(-.86,height-.70),(-.76,height-.80),(.76,height-.80),(.86,height-.70),(.86,height-.08),(.78,height),(-.78,height),(-.86,height-.08)]
     b.loft([[(x,y,z) for x,z in sec] for y in (-width/2+.3,width/2-.3)])
@@ -54,14 +62,17 @@ def abutment(name,width=11.8872,parent=None,seat=2.687,top=4.13):
     rt=G.root(name,parent=parent,module='Abutment',seat_z_m=seat)
     b=G.Batch(name+'__Retaining',rt)
     # Bridge is to local -X; wingwalls contain the approach embankment.
-    b.box((.40,0,(seat-.4)/2),(.80,width,seat+.4))
+    b.box((.40,0,(seat-.80)/2),(.80,width,seat))
+    # The seat projects toward the span under the bearing plinths. The old
+    # stem-only box ended behind their centers, leaving pads unsupported.
+    b.box((.125,0,seat-.20),(1.85,width,.40))
     b.box((.82,0,(seat+top)/2),(.40,width,top-seat))
     b.box((.30,0,-.40),(1.8,width+.6,.35))
     for s in (-1,1):
         rings=[]
-        for x,top in ((.8,4.13),(3.2,4.45),(6.3,4.45)):
+        for x,wing_top in ((.8,top),(3.2,top+.32),(6.3,top+.32)):
             center=s*(width/2+math.tan(math.radians(30))*(x-.8))
-            rings.append([(x,center+offset,z) for offset,z in ((-.17,-.4),(.17,-.4),(.17,top),(-.17,top))])
+            rings.append([(x,center+offset,z) for offset,z in ((-.17,-.4),(.17,-.4),(.17,wing_top),(-.17,wing_top))])
         b.loft(rings)
         b.beam((.8,s*width/2,-.50),(6.3,s*(width/2+math.tan(math.radians(30))*5.5),-.50),.8,.35,'concrete')
     b.finish();return rt
@@ -124,7 +135,10 @@ def guardrail(name,length=7.62,parent=None):
 
 def assemble(p,parent):
     rt=G.root('Bridge',parent=parent,bridge_plan=p.data());n=5
-    ys=[-p.deck_width*.34+i*p.deck_width*.68/(n-1) for i in range(n)]
+    # Keep the deck overhang at 0.95m to the outer girder centerline;
+    # spreading five girders across the roadway avoids a 1.9m cantilever.
+    outer=p.deck_width/2-.95
+    ys=[-outer+i*2*outer/(n-1) for i in range(n)]
     soffit=p.deck_z-.32;bottom=soffit-1.143;seat=bottom-.30
     for i in range(p.spans):
         a=-p.length/2+i*p.span;c=a+p.span
@@ -164,7 +178,8 @@ def assemble(p,parent):
             ob=abutment('Abutment_'+str(i),p.deck_width,rt,seat,soffit)
             ob.location.x=x;ob.rotation_euler.z=math.pi if i==0 else 0
         else:
-            ob=pier('Pier_'+str(i),p.deck_width,p.pier,seat,rt);ob.location.x=x
+            tx,ty=p.tangent(0)
+            ob=pier('Pier_'+str(i),p.deck_width,p.pier,seat,rt,flow_angle=math.atan2(-tx,ty));ob.location.x=x
         b=G.Batch('BearingStation_'+str(i),rt)
         for y in ys:
             offsets=(.40,-.40) if 0<i<p.spans else ((.40,) if i==0 else (-.40,))

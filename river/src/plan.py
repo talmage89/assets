@@ -29,6 +29,10 @@ class Plan:
     @property
     def length(self): return self.spans*self.span
 
+    @property
+    def outside(self):
+        return 1 if self.bend*math.sin(self.bar_y/78+self.phase)>=0 else -1
+
     def center(self, y):
         return self.bend*(math.sin(y/78+self.phase)-math.sin(self.phase))
 
@@ -42,6 +46,11 @@ class Plan:
 
     def water_z(self, y): return -.0006*y
 
+    def road_z(self,x):
+        t=max(0,min(1,(abs(x)-145)/85));t=t*t*(3-2*t)
+        grade=3.775 if self.kind=='downtown' else 2.225
+        return self.deck_z+(grade-self.deck_z)*t
+
     def bed(self, x, y):
         u=(x-self.center(y))/self.halfwidth(y); a=abs(u)
         riffle=math.exp(-((y-self.riffle_y)/9)**2)
@@ -49,28 +58,34 @@ class Plan:
         depth=1.05-.68*riffle
         if a <= 1:
             z=-depth*(1-a**3)
-            z-=1.25*pool*math.exp(-((u-.60)/.32)**2)
+            z-=1.25*pool*math.exp(-((u*self.outside-.60)/.32)**2)
             # The inner point bar rises across the normal-flow contour.
-            z+=1.08*pool*math.exp(-((u+.80)/.32)**2)
+            z+=1.08*pool*math.exp(-((u*self.outside+.80)/.32)**2)
         else:
-            steep=.18 if u>0 and pool>.3 else .46
+            steep=.18 if u*self.outside>0 and pool>.3 else .46
             z=min(2.15,(a-1)/steep*2.15)
             z+=.08*math.sin(x*.62+y*.30)*min(1,(a-1)*4)
-        if self.kind=='downtown' and x<0 and a>1.05: z=max(z,2.5)
-        if self.kind=='downtown' and a>1.1:
+        if self.kind=='downtown' and a>1:
             # Main Street is a raised terrace. The floodable low riverwalk
             # passes under the girders with >2.3m headroom.
             edge_distance=abs(x-self.center(y))-self.halfwidth(y)
-            z=max(z,2.15+1.55*max(0,min(1,(edge_distance-5)/6)))
-            if x<self.center(y) and edge_distance>=4.45:z=max(z,3.7)
-            if x<self.center(y) and .75<edge_distance<4.45:z=.50
+            if x<self.center(y):
+                if edge_distance>=4.45:z=max(z,3.7)
+                elif edge_distance>.75:z=.50
+                else:z=min(z,.50)
+            elif edge_distance>5:
+                z=max(z,2.15+1.55*max(0,min(1,(edge_distance-5)/6)))
         # Embankments under each road approach meet the abutment backwall.
         road_fill=max(0,1-max(0,abs(y)-7)/15)
         end_fill=max(0,min(1,(abs(x)-self.length/2-.90)/.12))
-        fill_top=self.deck_z-.075-.02*min(abs(y),3.3528)
-        if abs(y)>3.3528:fill_top=self.deck_z-.06
-        if abs(y)<7.8 and abs(x)<self.length/2+.90:z=min(z,2.1)
+        fill_top=self.road_z(x)-.075-.02*min(abs(y),3.3528)
+        if abs(y)>3.3528:fill_top=self.road_z(x)-.06
+        if abs(y)<7.8 and abs(x)<self.length/2+.90:z=min(z,.50 if self.kind=='downtown' else 2.1)
         if a>1.12 and end_fill>0:z=max(z,2.1+(fill_top-2.1)*road_fill*end_fill)
+        if self.kind=='edge' and abs(y+36)<=2.05:
+            launch_edge=self.center(-36)-self.halfwidth(-36)
+            t=(x-(launch_edge-18))/18.8
+            if 0<=t<=1:z=min(z,2.10-2.22*t-.08)
         return z+self.water_z(y)
 
     def water_edges(self, y):
@@ -97,12 +112,14 @@ def generate(seed=101, **changes):
     defaults=dict(seed=seed,kind='edge' if rural else 'downtown',width=36.576 if rural else 30.48,
                   spans=3 if not rural else 2,span=24.384 if rural else 18.288,
                   deck_width=11.8872 if not rural else 10.668,
-                  pier='wall' if rural else 'columns',bend=15 if rural else 7,
+                  pier='wall' if rural else 'columns',bend=15 if rural else -7,
                   phase=.35 if rural else 0,bar_y=40 if rural else 47,
                   riffle_y=74 if rural else 88,year=1968 if rural else 1974)
     defaults.update(changes)
     p=Plan(**defaults)
     if not 2<=p.spans<=4: raise ValueError('Bridge needs 2–4 spans')
     if not 12<=p.span<=27: raise ValueError('Type III visual span range: 12–27 m')
-    if p.deck_width<10: raise ValueError('Two lanes and walks need at least 10 m')
+    if not 10<=p.deck_width<=14: raise ValueError('Five-girder two-lane deck width range: 10–14 m')
+    if p.length<p.width+6:raise ValueError('Span layout needs the channel width plus two abutment banks')
+    if p.pier not in ('columns','wall'):raise ValueError('Pier must be columns or wall')
     return p

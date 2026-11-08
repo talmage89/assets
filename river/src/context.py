@@ -53,7 +53,7 @@ def clear_templates():
 
 
 def add(p,parent):
-    rt=G.root('TownContext',parent=parent);rng=random.Random(p.seed+97)
+    rt=G.root('TownContext',parent=parent);rng=random.Random(p.seed+97);lots=[]
     native=REPO/'school/build/context'
     # A few neutral 1.8m people are scale references, on the actual walk.
     from kit.studio import human
@@ -78,40 +78,48 @@ def add(p,parent):
     # Downtown brick backs line an actual alley behind the riverwalk. The
     # approach street passes through the gap, rather than through a building.
     if p.kind=='downtown':
+        plans={}
+        for i in range(1,7):
+            key=f'Midwest_411_{i:02d}.gltf'
+            doc=json.loads((REPO/'downtown/export'/key).read_text())
+            plans[key]=json.loads(next(n['extras']['plan'] for n in doc['nodes'] if n.get('extras',{}).get('building')))
+        front=math.ceil(abs(p.bend)+p.width*.5325+max(v['depth'] for v in plans.values())+10)
         for side in (-1,1):
             for direction in (-1,1):
                 cursor=15.2
                 for i in range(10):
                     key=f'Midwest_411_{1+(i%6):02d}.gltf';path=REPO/'downtown/export'/key
-                    doc=json.loads(path.read_text());native_plan=json.loads(next(n['extras']['plan'] for n in doc['nodes'] if n.get('extras',{}).get('building')))
+                    native_plan=plans[key]
                     width=native_plan['width'];depth=native_plan['depth']
                     y=direction*(cursor+width/2);cursor+=width
-                    x=side*(57-depth/2)
+                    x=side*(front-depth/2)
                     instance(path,f'MainStreetBack_{side}_{direction}_{i}',(x,y,3.675),rt,-90 if side<0 else 90)
+                    lots.append((x-depth/2-3,x+depth/2+3,y-width/2-1,y+width/2+1))
         streets=G.Batch('MainStreetAndServiceAlleys',rt,'context')
         for side in (-1,1):
             for j in range(150):
                 a=-150+j*2;c=a+2
                 grade=lambda y:max(3.7,2.1+(p.deck_z-.06-2.1)*max(0,1-max(0,abs(y)-7)/15))+.075
-                for x0,x1,role in ((57,59,'concrete'),(59,66.3152,'asphalt'),(66.3152,68.4,'concrete')):
+                for x0,x1,role in ((front,front+2,'concrete'),(front+2,front+9.3152,'asphalt'),(front+9.3152,front+11.4,'concrete')):
                     if abs(a)<6:continue
-                    streets.geom([(side*x0,a,grade(a)),(side*x1,a,grade(a)),(side*x1,c,grade(c)),(side*x0,c,grade(c))],[(0,1,2,3)],role)
+                    streets.geom([(side*x0,a,grade(a)),(side*x1,a,grade(a)),(side*x1,c,grade(c)),(side*x0,c,grade(c))],[(0,1,2,3)],role,up=True)
                 # The rear service lane lies on the raised river terrace.
                 if abs(a)>15:
                     x0=p.center(a)+side*(p.halfwidth(a)+4.6);x1=x0+side*2.4
-                    streets.geom([(x0,a,3.70),(x1,a,3.70),(x1,c,3.70),(x0,c,3.70)],[(0,1,2,3)],'asphalt')
+                    streets.geom([(x0,a,3.70),(x1,a,3.70),(x1,c,3.70),(x0,c,3.70)],[(0,1,2,3)],'asphalt',up=True)
         streets.finish()
         for side in (-1,1):
             for x in (-17,17):
                 instance(native/'light.glb','Parapet light',(x,side*(p.deck_width/2-.23),p.deck_z+.90),rt)
         for i,y in enumerate((-44,-22,22,46)):
-            x=p.center(y)-p.halfwidth(y)-5.2
+            x=p.center(y)-p.halfwidth(y)-3.65
             instance(native/'furniture.glb','Riverwalk bench '+str(i),(x,y,.65),rt,90,select='Bench')
     else:
         for i in range(12):
-            x=(-1 if i%2 else 1)*(57+(i%3)*22);y=-67+(i//2)*28
+            x=(-1 if i%2 else 1)*(90+(i%3)*22);y=-67+(i//2)*28
             style='houses-ranch.glb' if i%2 else 'houses-cape.glb'
             instance(native/style,'Floodplain neighbor '+str(i),(x,y,surface_z(p,x,y)-.025),rt,90 if x>0 else -90)
+            lots.append((x-12,x+12,y-12,y+12))
         instance(native/'furniture.glb','Fishing bench',(-25,34,2.15),rt,90,select='Bench')
     signs=REPO/'street-signs/export/set/RoadSigns.gltf'
     if signs.exists():
@@ -126,6 +134,19 @@ def add(p,parent):
         y=rng.uniform(-160,165);side=-1 if i%2 else 1
         near=i<32;x=p.center(y)+side*(p.halfwidth(y)+(rng.uniform(3,11) if near else rng.uniform(30,95)))
         if abs(y)<12:continue
+        if any(a<x<b and c<y<d for a,b,c,d in lots):continue
+        if p.kind=='downtown' and front+1<abs(x)<front+12:continue
+        # Leave actual camera/bridge sightlines as maintained access/clear
+        # banks. The town still encloses the views outside these narrow cones.
+        hy=-59 if p.kind=='edge' else -64
+        hx=p.center(hy)-p.halfwidth(hy)-(7 if p.kind=='edge' else 2.6)
+        corridors=[((hx,-59 if p.kind=='edge' else -64),(0,0),5.5)]
+        corridors += [((23.65,-106.72),(0,0),7)] if p.kind=='downtown' else [((-67.87,-38.24),(0,0),7)]
+        occludes=False
+        for (ax,ay),(bx,by),radius in corridors:
+            dx,dy=bx-ax,by-ay;t=((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy)
+            if 0<t<1 and math.hypot(x-ax-t*dx,y-ay-t*dy)<radius:occludes=True
+        if occludes:continue
         z=surface_z(p,x,y);species='RedMaple' if near or i%3 else 'PinOak'
         ob=instance(REPO/f'trees/export/{species}.glb','Native_'+species+'_'+str(i),(x,y,z-.04),veg,rng.uniform(0,360),rng.uniform(.63,1.1),category='vegetation')
         if near and p.kind=='edge':ob.rotation_euler.y=side*math.radians(rng.uniform(-6,-2))
