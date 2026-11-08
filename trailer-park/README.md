@@ -145,8 +145,8 @@ posts. Their original family materials and pivot structures are retained.
 
 | Park | Homes | Ground envelope, m | Lot, ft / sq ft | Street | Placed / unique triangles | Materials | glTF + BIN, MiB |
 | --- | ---: | --- | --- | --- | ---: | ---: | ---: |
-| 101 / Alder Court, 1968 plan | 36 | 149.304 × 107.7824 | 32 × 110 / 3,520 | 20 ft / 6.096 m through lanes | 2,542,976 / 978,596 | 32 | 68.537 |
-| 202 / Meadow Bend, 1994 plan | 33 | 133.4544 × 173.6192 | 56 × 95 / 5,320 | 24 ft / 7.3152 m rounded loop | 2,270,838 / 948,124 | 36 | 66.582 |
+| 101 / Alder Court, 1968 plan | 36 | 149.304 × 107.7824 | 32 × 110 / 3,520 | 20 ft / 6.096 m through lanes | 2,542,976 / 978,596 | 32 | 70.433 |
+| 202 / Meadow Bend, 1994 plan | 33 | 133.4544 × 173.6192 | 56 × 95 / 5,320 | 24 ft / 7.3152 m rounded loop | 2,270,838 / 948,124 | 36 | 68.423 |
 
 Counts include home bodies, decks, carports, native props, facilities,
 private ground/roads, small edge plants and service infrastructure. Cars,
