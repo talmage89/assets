@@ -53,7 +53,7 @@ def cut(ob,p):
         if component=='roof' and axis==2:continue
         if axis==2:
             levels=[F+.25,E-.4,E-.10,F+2.4384]
-            if component=='skirting':levels=[.28]
+            if component=='skirting':levels=[.12,.25,.43,.67] if p.get('era')!='1996' else [.28]
             if component in ('carport','carport_posts'):levels=[.10,.20,.32,.45]
         else:
             cov=2.4384 if component in ('wall','skirting','roof') else 1.2192
@@ -85,15 +85,16 @@ def age(q,n,c,role,component,p,seed):
     x,y,z=q;E=p.get('eave',3.35);F=p.get('floor',.91)
     old=p.get('era','1972')!='1996'
     upkeep=p.get('upkeep',('patched','kept','faded')[seed%3])
-    severity=({'patched':1.,'kept':.32,'faded':.78} if old else {'patched':.40,'kept':.13,'faded':.28})[upkeep]
+    severity=({'patched':1.,'kept':.38,'faded':.88} if old else {'patched':.40,'kept':.13,'faded':.28})[upkeep]
     north=max(0,n.y*(1 if p.get('site_yaw',0)==0 else -1));sunny=max(0,-n.y*(1 if p.get('site_yaw',0)==0 else -1))
     color=Vector(c[:3]);ripple=.5+.3*math.sin(x*6.3+y*3.1+seed)+.2*math.sin(x*17-y*11)
     if role=='Shingles':color/= .105
     if role=='Siding' and component in ('wall','roof_trim','era_details','added_room'):
         # UV-scale manufacture supplies ribs; these broad masks follow exposure.
-        fade=severity*sunny*.19*max(0,min(1,(z-F)/1.4))
-        color=color.lerp(Vector((.58,.57,.49)),fade)
-        wet=severity*north*.43*math.exp(-((z-(E-.17))/.43)**2)*(.40+.60*ripple)
+        exposure=max(sunny,.65*abs(n.x))
+        fade=severity*exposure*.43*max(0,min(1,(z-F)/1.4))
+        color=color.lerp(Vector((.53,.51,.43)),fade)
+        wet=severity*north*.66*math.exp(-((z-(E-.22))/.46)**2)*(.22+.78*ripple)
         color*=1-wet;color.y*=1+wet*.17;color.z*=1-wet*.14
         # Roof lap runoff follows real 914.4mm seams, fades down under gravity.
         L=p.get('length',18);stride=L/math.ceil(L/.9144)
@@ -107,15 +108,22 @@ def age(q,n,c,role,component,p,seed):
         oxide=severity*.65*math.exp(-(seam/.035)**2)*(.35+.65*math.sin(y*1.3+seed)**2)
         color=color.lerp(Vector((.22,.075,.022)),oxide)
     if component in ('skirting','skirt_access'):
-        color=Vector((.62,.61,.55))
-        soil=severity*.95*math.exp(-max(0,z-.04)/(.17+.06*ripple))*(.6+.4*ripple)
-        color=color.lerp(Vector((.065,.070,.030)),soil)
+        color=Vector((.62,.61,.55)).lerp(Vector((.40,.39,.32)),severity*.36)
+        splash=.13+.13*(.5+.5*math.sin(x*2.1+y*2.8+seed))**2
+        soil=severity*.94*math.exp(-max(0,z-.04)/splash)*(.35+.65*ripple)
+        color=color.lerp(Vector((.075,.067,.033)),soil)
+        damp=severity*north*.44*(.5+.5*math.sin(x*1.9+seed))**2
+        color=color.lerp(Vector((.09,.12,.055)),damp)
+    if component=='window_detail' and old and max(c[:3])-min(c[:3])>.04:
+        color=color.lerp(Vector((.37,.37,.29)),severity*.48)
     if component=='carport_posts' and z<.43:
         rust=severity*.93*math.exp(-max(0,z-.08)/.20)*(.65+.35*ripple)
         color=color.lerp(Vector((.22,.065,.018)),rust)
     if role=='Veneer':
         # Seasoned exposed timber: gray fibers, darker protected underside.
-        if component=='deck':color=color.lerp(Vector((.22,.21,.18)),.40+.28*severity if old else .20+.50*severity)
+        if component=='deck':
+            gray=Vector((.16,.155,.13))*(.80+.30*(.5+.5*math.sin(y*41+seed)))
+            color=color.lerp(gray,.58+.30*severity if old else .20+.50*severity)
         if z<.20:color*=.62+.38*max(0,z)/.20
     return tuple(max(.004,min(.95,v)) for v in color)
 

@@ -252,6 +252,8 @@ def build(p,name='Home',support_only=False):
     if not support_only:
         for f in ('front','back','left','right'):wall(a,p,f)
         roof(a,p);skirting(a,p);era_details.exterior(a,p);era_details.steps(a,p)
+        from home_age import runoff
+        runoff(a,p)
         m=a.mesh('Corners',component='corners')
         for x in (-p['length']/2,p['length']/2):
             for y in (-p['width']/2,p['width']/2):m.box((x,y,(p['floor']+p['eave'])/2),(.05,.05,p['eave']-p['floor']),'Trim')

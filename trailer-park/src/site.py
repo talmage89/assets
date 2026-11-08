@@ -40,6 +40,8 @@ def road(parent,p,lib):
     for i,(x,y,sx,sy) in enumerate(ranges):ground_box(a.root,'Private asphalt '+str(i),(x,y,-.035),(sx,sy,.10),asphalt,6.096,tint)
     from terrain import road_edge
     road_edge(a.root,p,asphalt,tint)
+    from site_age import road as age_road
+    age_road(a,p,lib,library_material)
     if not old:
         top=span/2+5
         for cx,cy,start in ((xx-radius,-top+radius,270),(xx-radius,top-radius,0),(-xx+radius,top-radius,90),(-xx+radius,-top+radius,180)):
@@ -68,7 +70,12 @@ def road(parent,p,lib):
         sections=[(-.18,.016),(-.13,.055),(-.06,.088),(.06,.088),(.13,.055),(.18,.016)]
         for (y0,z0),(y1,z1) in zip(sections,sections[1:]):
             m.prism([(x-w*.43,y+y0,z0),(x+w*.43,y+y0,z0),(x+w*.43,y+y1,z1),(x-w*.43,y+y1,z1)],(0,0,-1),.018,'Trim',(.055,.05,.025))
-        for j in range(9):m.box((x-w*.40+j*w*.1,y,.087),(w*.045,.27,.009),'Trim',(.52,.35,.025))
+        wear=random.Random(p['seed']+round((x+y)*100))
+        for j in range(9):
+            # Paint survives beside the tire tracks, with chipped gaps.
+            for k in range(5):
+                if wear.random()<(.40 if old else .22):continue
+                m.box((x-w*.40+j*w*.1,y+(k-2)*.05,.087),(w*.045*wear.uniform(.55,1),.038,.009),'Trim',(.36,.25,.035))
         m.box((x+w/2+.55,y-.8,1.02),(.06,.05,2.04),'Trim',(.25,.28,.26))
         m.box((x+w/2+.55,y-.82,1.85),(.47,.035,.60),'Trim',(.62,.57,.37),r=.007)
         label(a,'10',(x+w/2+.55,y-.843,1.86),.23,(.025,.03,.025))
@@ -171,6 +178,16 @@ def lot(p,record,lib,parent,instances):
     edges(a.root,paths,seed+314,lib)
     from terrain import pavement
     pavement(a,spec,lib,library_material)
+    from site_age import pad as age_pad
+    age_pad(a,spec,lib,library_material)
+    from site_age import soil
+    soil(a,spec,lib,library_material)
+    from traffic import selection
+    for marker in a.root.children_recursive:
+        if marker.get('socket_kind')!='car':continue
+        model,color=selection(p['seed'],record['number'],int('Carport' in marker.name))
+        if spec['corner_apron']:model=2
+        marker['vehicle_index']=model;marker['factory_color']=color;marker['occupant_seed']=seed
     # Sparse pad dressing is geometry now; oil and causal weather remain look-dev.
     place(a.root,record['origin'],record['yaw'],parent);a.root['lot_record']=json.dumps(record,sort_keys=True)
     return a
