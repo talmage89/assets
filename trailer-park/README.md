@@ -274,7 +274,7 @@ Evidence is local and rebuildable:
 | `build/check.json` | Raw triangle/normal/finite UV checks, zero collapsed geometry/UV triangles, fresh re-import counts, sampled physical dimensions, 1,000 deterministic plans |
 | `build/motion.json` | Sampled actual home-door meshes; no penetrations, no contact exceptions |
 | `build/repeat.json` | Byte identity of regenerated glTF/BIN/JSON/local PNGs, using cached native inputs; not a GPU rebake test |
-| `build/preserved.json` | SHA-256 baseline for 1,202 pre-existing delivery/image files; all unchanged |
+| `build/preserved*.json` | SHA-256 baselines for 1,202 pre-existing delivery/image files; all unchanged |
 | `build/look-check.json` | Atlas-cell containment, finite UVs, image resources, density and instance audits |
 | `build/metrics.md` | Every home, lot and module; unique/placed park and presentation counts; image memory |
 | `renders/checkpoint/<pass>/provenance.json` | Fresh embedded GLB imports, source/image hashes, cameras, light and actual context triangles |

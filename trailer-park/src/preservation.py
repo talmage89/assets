@@ -28,6 +28,7 @@ def main():
     if not complete.exists():complete.write_text(json.dumps(snapshot(),indent=2))
     for name,digest in json.loads(complete.read_text()).items():
         p=ROOT/name;assert p.is_file() and hashlib.sha256(p.read_bytes()).hexdigest()==digest,('Changed existing delivery',name)
-    print('PRESERVED',len(old),'existing files')
+    all_files={**old,**json.loads(expanded.read_text()),**json.loads(complete.read_text())}
+    print('PRESERVED',len(all_files),'existing files;',len(old),'from the original checkpoint')
 
 if __name__=='__main__':main()
