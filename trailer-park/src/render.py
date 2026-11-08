@@ -223,6 +223,10 @@ def render(stem,path,meta,views,out,width,samples,dress=True,source=False):
                                landmark_visibility=visibility,camera_matrix_world=[list(r) for r in cam.matrix_world],
                                camera_parameters=dict(type=cam.data.type,lens=cam.data.lens,ortho_scale=cam.data.ortho_scale,sensor_width=cam.data.sensor_width,
                                                       resolution=[sc.render.resolution_x,sc.render.resolution_y]),engine=sc.render.engine,width=width,samples=samples))
+        # Commit evidence per completed frame; a later scene import must not
+        # erase all provenance when a long shared-machine batch is stopped.
+        receipt=Path(sc.render.filepath).with_suffix('.receipt.json')
+        receipt.write_text(json.dumps(provenance[-1],indent=2))
         for root in temporary:
             for o in [*root.children_recursive,root]:bpy.data.objects.remove(o,do_unlink=True)
         for pivot,rest in posed.items():pivot.matrix_basis=rest

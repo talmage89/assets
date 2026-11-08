@@ -701,3 +701,53 @@ The cold default `make` / final gallery / GPU `make check-texture-repeat`
 delivery sequence remains unrun because the visual gate failed. The batch
 of 23 export/source/baseline frames completed serially in one GPU lock; the
 lock was released before the CPU-only package repeat. No detached job remains.
+
+## Completion pass 1 — broad age still fails; foreground turf omitted
+
+**Color and value first.** Opened the two completed 1440 px drafts in
+`renders/finish-pass1/Park-101/`, the original before heroes and row at native
+size, the 2009 used-home photograph and the 2015 park photograph. The new lawn
+is visibly lighter/yellower than the previous olive field. The garden's July
+albedo recipe preserves the accepted normal/ORM and 3.048 m repeat. The separate
+concrete-neutral audit uses the 2009 foreground apron at [1420,2330,1540,2410]
+and the 2015 sunlit pad at [890,1160,948,1180]; linear RGB gains are
+0.979/0.992/1.031 and 0.927/0.974/1.118. These are assumed neutrals, not measured
+albedos. Different sun, shade and exposure limit direct luminance comparisons.
+
+The periodic orange wall bars are gone. The replacement age is too faint:
+the row's siding, hood, drip rail and skirt still read clean, and the older
+hero still reads recently maintained. Narrow existing dirt gradients do not
+establish decades of uneven upkeep. The wide end window excluded every
+candidate inner roof-fastener station, leaving that important facade almost
+unstained. Reject the age gate. The next change gives its exposed outer hood/
+rail fasteners actual short, unequal runs, strengthens low splash dirt and
+awning film, and puts selected rust on actual awning screw positions.
+
+The lawn has improved color and more clipped blades, but the row foreground
+still reads planar between isolated clumps. Placement inspection finds the
+added mown blades only in the positive local-Y end yard. The negative-Y
+foreground was missed. Fill both halves while excluding the pads, walks and
+carport; keep bare approaches. The strongest dry yellow areas still need
+judgment beside the concrete-balanced photographs. Reject the full turf gate.
+
+The old lane's black, wider overbands and small shoulder fatigue cells now
+show at full frame. Their paths still have a designed quality; inspect native
+before/after crops rather than treating a width parameter as proof. The
+accepted patches, oil, car paints and canopy variation remain. Parking adds
+small seed-owned angle/offset differences. No camera/light change affects the
+older hero or row.
+
+The level replacement lane fit is 10.94 native px with roll constrained to
+zero. The original 2007 curved apron could only fit at 28.19 px with zero roll;
+the replacement uses the registered 2024 straight-lane photograph as an older
+park type/framing comparator, not a reconstruction or period photograph.
+It was not rendered in this interrupted batch, so no visual acceptance yet.
+
+The process exited 143/SIGTERM during the newer park import. Only two draft
+frames completed; `build/completion1-interrupted.json` hashes those PNGs and
+their archived exported GLB. The process did not write its final camera
+receipt, so these are draft visual evidence, not final provenance. The next
+batch uses separate serial Blender processes and per-frame receipts to keep
+completed evidence and limit retained scene memory.
+
+Delivery gate: REJECTED
