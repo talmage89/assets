@@ -128,3 +128,8 @@ check-texture-repeat: export
 clean: clean-delivery
 clean-delivery:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('textures','export')]"
+
+.PHONY: docs
+all: docs
+docs: review
+	$(PYTHON) src/docs.py

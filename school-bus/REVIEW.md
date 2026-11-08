@@ -168,7 +168,7 @@ dark wheel wells and deep underbody shade. Paint median/p99 displayed luma are
 .5865/.6693, with no clipped channels; 30.52% of bus pixels are below 25/255.
 Those measurements exclude the campus and sky and support, rather than decide,
 visual acceptance. The same daylight ceiling crop changes from RGB112/137/135
-to135/136/134. Gray lining, brown period vinyl and black rubber are distinct.
+to 135/136/134. Gray lining, brown period vinyl and black rubber are distinct.
 
 Opened all eight 1400px-per-side repair pairs. The new lamp opening has a fair
 yellow return, a narrow seal and curved cover seated within the molding; the
@@ -180,7 +180,7 @@ district/fleet markings that were missing from their old gallery images.
 Opened all eight reflection-line renders and both actual section plots. The
 isolated dense, source and exported crown bands run continuously; the broad
 soft dents are gone. The exported normal field adds pixel grain at diagnostic
-roughness.055, from filtering/quantization and the small chip relief. Ordinary
+roughness 0.055, from filtering/quantization and the small chip relief. Ordinary
 enamel does not display that chrome-level grain. Complete-scene reflections
 also include the mirrors and their supports; their oval reflections disappear
 from the isolated mold without altering its delivered normals. The grille edge
@@ -196,14 +196,34 @@ the underside is schematic. Eevee's sheet-glass approximation has paler/noisier
 panes than Cycles. These are the remaining limits of an exterior game vehicle.
 
 The actual cold default `make` passes, including current exports, all checks,
-gallery, pairs and section plots. Exact `make repeat` passes all34 deterministic
+gallery, pairs and section plots. Exact `make repeat` passes all 34 deterministic
 files, including UV/export reports and the atlas manifest. The independent GPU
 rebake is still pending; final proof and documentation-image commit wait for it.
 The six requested visual repairs show in their views. Proceed to final docs.
 
+## Round 3 — pass 6, documentation and final delivery audit
+
+Color/value first: opened all five documentation JPGs at their native sizes.
+The compressed gallery retains the yellow school-lane body, neutral gray/brown
+cabin, dark cavities and unclipped highlights of the reviewed PNGs. The final
+fleet sheet explicitly labels its Eevee view. The largest JPG is197,501 bytes;
+all five are at most1600px wide. No source form, shader or lighting was changed
+after the complete native-image review. The remaining CG tells from pass5
+remain visible and are listed honestly in the README.
+
+The fresh GPU rebake passes: BaseColor/Normal/ORM maximum differences are each
+one byte; their RMS differences are .000282/.001953/.000399 bytes. Independent
+alpha maximum/RMS are1/.000977 bytes. All are below the existing two-byte and
+.02-byte limits. The canonical delivery was never replaced with that trial.
+Exact repeat passes all34 files. The final default `make`, `make check` and
+repository check pass with the five-JPG documentation recipe enabled. All340
+protected other-family files retain their hashes. No kit/car/school source or
+delivery was changed. All render/bake jobs were attached, completed and joined.
+The final JPGs are ready for their own last commit.
+
 ## Earlier form and round-2 history
 
-The following records earlier states. Round3 above supersedes the old pending
+The following records earlier states. Round 3 above supersedes the old pending
 gallery and detached-supervisor notes below.
 
 This is the requested stop before look development. Quick surfaces are baked
