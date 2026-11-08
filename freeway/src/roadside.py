@@ -35,7 +35,8 @@ def seat(rt,soil):
         a,c,role=entries[0];d=c-a
         if d.xy.length<.03:continue
         outward=Vector((d.y,-d.x,0)).normalized();foot=[]
-        width=.55 if role==Q.M['Asphalt'] else .18
+        asphalt=role in (Q.M['Asphalt'],Q.M.get('AsphaltPolish'))
+        width=.55 if asphalt else .18
         valid=True
         for pt in (a,c):
             q=pt+outward*width;hit=soil.ray_cast(Vector((q.x,q.y,30)),Vector((0,0,-1)),60)[0]
@@ -43,7 +44,7 @@ def seat(rt,soil):
             # Embankment meets the pavement thickness, never rises onto its skin.
             hit.z=min(hit.z,pt.z-.025);foot.append(hit)
         if not valid:continue
-        b.surface([a,c,foot[1],foot[0]],'Earth' if role==Q.M['Asphalt'] else 'Concrete')
+        b.surface([a,c,foot[1],foot[0]],'Earth' if asphalt else 'Concrete')
         for top,footpoint in ((a,foot[0]),(c,foot[1])):
             key=tuple(round(v,5) for v in top);corners.setdefault(key,[]).append(footpoint)
         samples.extend([dict(top=list(a),foot=list(foot[0])),dict(top=list(c),foot=list(foot[1]))])
