@@ -71,6 +71,15 @@ def plant(p,parent):
    ob=templates[rng.randrange(len(templates))].copy();bpy.context.collection.objects.link(ob)
    ob.name='ROW turf tile %05d'%count;ob.parent=parent;ob.location=q+Vector((0,0,-.025))
    ob.rotation_mode='QUATERNION';ob.rotation_quaternion=normal.to_track_quat('Z','Y')@Quaternion(Vector((0,0,1)),rng.uniform(0,math.tau));ob.scale=(1,1,h)
+   # A linked tile is planar at its roots. At a ditch/crest crease, lower it
+   # onto the measured earth rather than leaving its downhill edge floating.
+   gaps=[]
+   for dx,dy in ((-.9,-.9),(-.9,.9),(.9,-.9),(.9,.9)):
+    v=ob.location+ob.rotation_quaternion@Vector((dx,dy,0))
+    hit=soil.ray_cast(Vector((v.x,v.y,30)),Vector((0,0,-1)),60)[0]
+    if hit is not None:gaps.append(v.z-hit.z)
+   lowering=max(0,max(gaps,default=0)+.005)
+   ob.location.z-=lowering;ob['terrain_root_lowering_m']=lowering
    ob['turf_card_tile']=True;count+=1
  if p.kind=='diamond':
   for j in range(-32,33):
@@ -82,5 +91,5 @@ def plant(p,parent):
     ob.location=p.xyz(s,side*.58,.004);ob.scale=(.32,.65,.65)
     ob['turf_card_tile']=True;count+=1
  for ob in templates:bpy.data.objects.remove(ob,do_unlink=True)
- parent['turf_tiles']=count;parent['turf_triangles']=count*64
+ parent['turf_tiles']=count;parent['turf_triangles']=sum(len(ob.data.loop_triangles) for ob in parent.children_recursive if ob.type=='MESH' and ob.get('turf_card_tile'))
  return count
