@@ -26,7 +26,8 @@ P=importlib.util.module_from_spec(spec);spec.loader.exec_module(P)
 class Library(P.Library):
     def load(self,path):
         path=Path(path)
-        if not path.is_file():
+        from dependencies import ready
+        if not ready(path):
             try:fallback=ROOT/'trailer-park/build/library'/path.relative_to(ROOT)
             except ValueError:fallback=path
             if not fallback.is_file():raise FileNotFoundError(f'Missing native delivery {path}; run make model to prepare immutable inputs')

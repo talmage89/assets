@@ -9,19 +9,25 @@ from textures import RECTS,COVERAGE
 ROOT=Path(__file__).resolve().parents[2]
 
 
+def house_folder(prefix):
+    for folder in (ROOT/'houses/textures/ship',ROOT/'trailer-park/build/library/houses/textures/ship'):
+        if all((folder/f'T_{prefix}_{ch}.png').is_file() for ch in ('BaseColor','Normal','ORM')):return folder
+    raise FileNotFoundError(f'Missing native {prefix} maps; run make model to prepare read-only inputs')
+
+
 def palette():
     from io_scene_gltf2.blender.imp.pbrMetallicRoughness import get_settings_group
     get_settings_group();out={}
     for role,key,folder in [('Metal','Manufactured',Path('textures/ship')),
-                            ('Siding','HouseSiding',ROOT/'houses/textures/ship'),
-                            ('Shingles','HouseShingles',ROOT/'houses/textures/ship'),
-                            ('Wood','HouseTrim',ROOT/'houses/textures/ship')]:
+                            ('Siding','HouseSiding',house_folder('HouseSiding')),
+                            ('Shingles','HouseShingles',house_folder('HouseShingles')),
+                            ('Wood','HouseTrim',house_folder('HouseTrim'))]:
         name='ManufacturedPBR_'+role;ma=bpy.data.materials.get(name)
         if not ma:ma=tiling.material(key,folder,tint=True);ma.name=name
         out[role]=ma
     name='ManufacturedPBR_Glass';ma=bpy.data.materials.get(name)
     if not ma:
-        ma=tiling.material('HouseTrim',ROOT/'houses/textures/ship',tint=True);ma.name=name
+        ma=tiling.material('HouseTrim',house_folder('HouseTrim'),tint=True);ma.name=name
         bs=ma.node_tree.nodes.get('Principled BSDF');bs.inputs['Transmission Weight'].default_value=1;bs.inputs['IOR'].default_value=1.52
         ma.use_backface_culling=False
     out['Glass']=ma;return out
