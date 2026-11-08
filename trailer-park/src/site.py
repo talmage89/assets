@@ -3,7 +3,7 @@ import math,random,json
 from pathlib import Path
 import bpy
 from mathutils import Vector
-from geometry import Assembly,Library,native,place,label,ROOT
+from geometry import Assembly,Library,Instances,native,place,label,ROOT
 from homes import build as make_home
 import addons as A
 from kit import model as G
@@ -34,11 +34,11 @@ def ground_box(parent,name,p,size,mat,coverage,tint=(1,1,1)):
 def road(parent,p,lib):
     asphalt=library_material(lib,'Asphalt');a=Assembly('PrivateStreet');a.root.parent=parent
     w=p['street_width'];span=p['span'];old=p['kind']=='old';xx=p['loop_x']
-    radius=7.0
-    ranges=[(0,0,w,span+42)] if old else [(-xx,0,w,span+18-2*radius),(xx,0,w,span+18-2*radius),(0,-span/2-9,2*xx-2*radius,w),(0,span/2+9,2*xx-2*radius,w),(0,-span/2-15,w,12)]
+    radius=5.0
+    ranges=[(x,0,w,span+20) for x in (-xx,xx)] if old else [(-xx,0,w,span),(xx,0,w,span),(0,-span/2-5,2*xx-2*radius,w),(0,span/2+5,2*xx-2*radius,w),(0,-span/2-9,w,8)]
     for i,(x,y,sx,sy) in enumerate(ranges):ground_box(a.root,'Private asphalt '+str(i),(x,y,-.035),(sx,sy,.10),asphalt,6.096)
     if not old:
-        top=span/2+9
+        top=span/2+5
         for cx,cy,start in ((xx-radius,-top+radius,270),(xx-radius,top-radius,0),(-xx+radius,top-radius,90),(-xx+radius,-top+radius,180)):
             vs=[]
             for i in range(13):
@@ -57,7 +57,7 @@ def road(parent,p,lib):
             if not old and k==1 and next_index==-1:extras.update(connects_path=0,join_segment=len(p['roads'][0])-2,join_fraction=.5)
             a.socket(f'DrivePath_{k}_{j}',[point[0],point[1],.015],'drive_path',yaw=yaw,**extras)
     m=a.mesh('BumpsSigns',component='traffic')
-    for x,y in ([(0,-span*.23),(0,span*.28)] if old else [(-xx,0),(xx,0)]):
+    for x,y in [(x,y) for x in (-xx,xx) for y in (-span*.23,span*.28)]:
         # 3.7 m wide, 0.3 m travel depth bolt-down rubber speed bump.
         sections=[(-.18,.016),(-.13,.055),(-.06,.088),(.06,.088),(.13,.055),(.18,.016)]
         for (y0,z0),(y1,z1) in zip(sections,sections[1:]):
@@ -70,17 +70,17 @@ def road(parent,p,lib):
     m.finish();return a
 
 
-def lot(p,record,lib,parent):
-    spec=record['home'];seed=spec['seed'];a=Assembly(f'Lot_{record["number"]:02}');L,W=spec['length'],spec['width']
-    h=make_home(spec,f'Lot_{record["number"]:02}_Home');h.root.parent=a.root
-    d=A.deck(a.root.name+'_Deck',spec['deck_width'],height=spec['floor']-.025,seed=seed)
-    place(d.root,(-L*.035,-W/2-1.11,0),parent=a.root)
-    back=A.deck(a.root.name+'_BackSteps',1.22,1.0,spec['floor']-.025,seed+1)
-    place(back.root,(L*.26,W/2+.55,0),180,parent=a.root)
+def lot(p,record,lib,parent,instances):
+    spec=record['home'];seed=spec['occupant_seed'];a=Assembly(f'Lot_{record["number"]:02}');L,W=spec['length'],spec['width']
+    hn=a.root.name+'_Home'
+    h=instances.get(('home',spec['variant_id']),hn,lambda:make_home(spec,hn));place(h,parent=a.root)
+    h['home_spec']=json.dumps(spec,sort_keys=True)
+    label(a,str(record['number']),(-L*.035+.69,-W/2-.092,2.30),.11,spec['accent'])
     cp_x=L/2-2.9
     if spec['carport']:
-        cp=A.carport(a.root.name+'_Carport',sag=spec['awning_sag']);place(cp.root,(cp_x,-W/2-1.82,0),parent=a.root)
-        marker=next(o for o in cp.root.children if o.get('socket_kind')=='car')
+        cp=instances.get(('carport',spec['awning_sag']),a.root.name+'_Carport',lambda:A.carport(a.root.name+'_Carport',sag=spec['awning_sag']))
+        place(cp,(cp_x,-W/2-1.82,0),parent=a.root)
+        marker=next(o for o in cp.children if o.get('socket_kind')=='car')
         marker.name=a.root.name+'__CarportCar';marker['vehicle_index']=(seed+1)%3
         marker['paint_index']=(seed+2)%5;marker['occupied']=seed%5!=0
     if spec['room']:place(A.room(a.root.name+'_AddedRoom').root,(-L*.32,-W/2-1.20,0),parent=a.root)
@@ -95,6 +95,8 @@ def lot(p,record,lib,parent):
     connections.finish()
     if spec['dish']:place(A.dish(a.root.name+'_Dish').root,(L*.32,W/2+.10,1.42),180,parent=a.root)
     place(A.dressing(a.root.name+'_PotsToy',seed).root,(-L*.035,-W/2-2.75,0),parent=a.root)
+    from lot_dressing import add
+    add(a,spec,seed)
     if spec['tarp']:
         m=a.mesh('BlueTarp',component='tarp');vs=[];fs=[]
         for j in range(7):
@@ -130,7 +132,7 @@ def lot(p,record,lib,parent):
     # Partition the union at the carport pad rather than laying coplanar
     # slabs on top of one another. The approach meets the actual lane edge.
     cp_rect=(cp_x-3.45,cp_x+3.45,-W/2-3.595,-W/2-.045)
-    xs=[L/2,L/2+6.096];ys=[-3.4,2.2]
+    xs=[L/2,L/2+5.42];ys=[-2.55,.40]
     if spec['carport']:
         xs=sorted(set(xs+[v for v in cp_rect[:2] if xs[0]<v<xs[-1]]))
         ys=sorted(set(ys+[v for v in cp_rect[2:] if ys[0]<v<ys[-1]]))
@@ -139,6 +141,7 @@ def lot(p,record,lib,parent):
             if spec['carport'] and cp_rect[0]<(x0+x1)/2<cp_rect[1] and cp_rect[2]<(y0+y1)/2<cp_rect[3]:continue
             ground_box(a.root,'Lot drive apron',((x0+x1)/2,(y0+y1)/2,-.015),(x1-x0,y1-y0,.06),mat,3.048 if not gravel else 1.5,(.80,.77,.67) if gravel else (.90,.89,.84))
     if spec['carport']:ground_box(a.root,'Carport pad',(cp_x,-W/2-1.82,-.015),(6.9,3.55,.06),concrete,3.048,(.86,.85,.79))
+    for y in (-1.85,-.45):ground_box(a.root,'Unpaved driveway throat',(L/2+5.758,y,-.018),(.676,.48,.045),concrete,1.5,(.47,.40,.25))
     # A narrow resident-made walk connects the parking approach to the stairs.
     x0=-L*.035-spec['deck_width']/2+.475;x1=L/2+1.2;wy=-W/2-3.0
     ground_box(a.root,'Resident walk',((x0+x1)/2,wy,-.008),(x1-x0,.80,.045),concrete,3.048,(.78,.77,.70))
@@ -153,24 +156,22 @@ def lot(p,record,lib,parent):
 
 def common(p,lib,parent):
     old=p['kind']=='old';span=p['span'];a=Assembly('CommonFacilities');a.root.parent=parent
-    base=-span/2-13
+    base=-span/2-5;first=-span/2+p['lot_frontage']/2
     # Buildings use the same construction grammar, converted into an office /
     # laundry program by signs and independent entrances; no new house system.
     from plans import home
     spec=home(p['seed']+71,'1972' if old else '1996',width_ft=12 if old else 24,length_ft=52)
-    office=make_home(spec,'Office' if old else 'Clubhouse');place(office.root,(-17 if old else 0,base+3 if old else -19,0),0,a.root)
+    office=make_home(spec,'Office' if old else 'Clubhouse');place(office.root,(0 if old else -14,base+2 if old else first+1.15,0),0,a.root)
     label(office,'OFFICE' if old else 'CLUBHOUSE',(0,-spec['width']/2-.06,2.49),.19,spec['accent'])
-    d=A.deck('OfficeDeck',3.048);place(d.root,(-spec['length']*.035,-spec['width']/2-1.11,0),parent=office.root)
     # Newer clubhouse occupies the loop's center; an independently placed
     # laundry at the north end leaves the central common lawn open.
     ls=home(p['seed']+81,'1984',width_ft=14,length_ft=52);ls['carport']=False
-    laund=make_home(ls,'Laundry');place(laund.root,(18 if old else 0,span/2+11 if old else span/2-12,0),0,a.root)
+    laund=make_home(ls,'Laundry');place(laund.root,(0 if old else -14,span/2+3 if old else span/2-p['lot_frontage']/2,0),180 if old else 0,a.root)
     label(laund,'LAUNDRY',(0,-ls['width']/2-.04,2.55),.21,ls['accent'])
-    ld=A.deck('LaundrySteps',3.048);place(ld.root,(-ls['length']*.035,-ls['width']/2-1.11,0),parent=laund.root)
-    sg=A.sign('EntranceSign',p['name'].upper());place(sg.root,(7 if old else 8,base-3,0),0,a.root)
-    for j in range(5):a.socket('EntrancePlant_'+str(j),(5+j*1.2,base-2.3,0),'shrub')
+    sg=A.sign('EntranceSign',p['name'].upper());place(sg.root,(-p['loop_x']+6 if old else 8,base-2,0),0,a.root)
+    for j in range(5):a.socket('EntrancePlant_'+str(j),(-p['loop_x']+4+j*1.2 if old else 8+j,base-1.3,0),'shrub')
     m=a.mesh('ClusterMail',component='cluster_mail')
-    mx,my=(14,base+3) if old else (-11,-.2)
+    mx,my=(14,base+3) if old else (-24,first-4)
     m.box((mx,my,.04),(3.5,2.0,.08),'Concrete')
     for dx in (-.5,.5):m.box((mx+dx,my,.65),(.10,.10,1.2),'Trim',(.24,.25,.22))
     m.box((mx,my,1.26),(1.62,.44,.78),'Trim',(.29,.30,.26),r=.012)
@@ -181,7 +182,7 @@ def common(p,lib,parent):
             m.box((xx+.13,my-.25,zz-.05),(.024,.008,.018),'Trim',(.08,.09,.07))
     m.finish();a.socket('MailUser',(mx,my-1,0),'occupant')
     # Dumpster and service enclosure, with open gates supplied by native fence.
-    dx,dy=(27,base+1) if old else (8,span/2+4)
+    dx,dy=(24,base+1) if old else (-22,span/2-2)
     m=a.mesh('Dumpster',component='dumpster')
     m.box((dx,dy,.73),(2.12,1.62,1.35),'Trim',(.045,.12,.095),r=.025)
     m.box((dx,dy,1.44),(2.2,1.70,.10),'Trim',(.035,.04,.033),r=.009)
@@ -194,21 +195,21 @@ def common(p,lib,parent):
         native(lib,'fences/export/WoodPrivacy.glb','DumpsterFrontPost'+str(sign),(dx+sign*2.4384,dy-1.1384,0),90,'Post_End',a.root)
     if not old:
         # Native dated playground pieces plus conservative 2H swing envelopes.
-        native(lib,'trailer-park/build/native/playground.gltf','CommonPlayground',(-4,9,0),0,parent=a.root)
+        native(lib,'trailer-park/build/native/playground.gltf','CommonPlayground',(13,first,0),0,parent=a.root)
         concrete=library_material(lib,'Concrete')
-        ground_box(a.root,'Playground containment',(-2,9,-.01),(18,12,.06),concrete,3.048,(.66,.53,.36))
-        a.socket('PlayUseMin',(-11,3,0),'play_use_zone');a.socket('PlayUseMax',(7,15,0),'play_use_zone')
+        ground_box(a.root,'Playground containment',(13,first,-.01),(18,12,.06),concrete,3.048,(.66,.53,.36))
+        a.socket('PlayUseMin',(4,first-6,0),'play_use_zone');a.socket('PlayUseMax',(22,first+6,0),'play_use_zone')
         # Common routes, visitor parking and a planted gathering edge give the
         # loop's center a reason to exist rather than leaving an empty island.
-        for x,y,w,d in ((-7,-26.8,15.7,1.22),(-7,16,15.7,1.22),(-11.5,7,1.22,35)):
+        for x,y,w,d in ((0,first-7.2,56,1.22),(-14,span/2-9,28,1.22)):
             ground_box(a.root,'Common walk',(x,y,-.008),(w,d,.045),concrete,3.048,(.86,.85,.79))
-        asphalt=library_material(lib,'Asphalt');ground_box(a.root,'Visitor parking',(8,-35,-.015),(13.5,12.2,.060),asphalt,6.096)
+        asphalt=library_material(lib,'Asphalt');ground_box(a.root,'Visitor parking',(-8,span/2-8,-.015),(12,5.6,.060),asphalt,6.096)
         pm=a.mesh('VisitorMarkings',component='parking')
-        for j in range(5):pm.box((6.5,-40.5+j*2.743,.021),(5.5,.085,.006),'Trim',(.46,.45,.36))
+        for j in range(5):pm.box((-13.5+j*2.743,span/2-8,.021),(.085,5.5,.006),'Trim',(.46,.45,.36))
         pm.finish()
-        for j in (0,2,3):a.socket('VisitorCar_'+str(j),(6.2,-39.15+j*2.743,.015),'car',yaw=90,vehicle_index=j%3,paint_index=j+3)
-        for j,(x,y) in enumerate([(-11,-8),(-9,17),(11,20),(-3,22),(7,-13)]):a.socket('CommonTree_'+str(j),(x,y,0),'tree',species='maple',plant_scale=.64)
-        for j in range(7):a.socket('CommonShrub_'+str(j),(-8+j*2.3,18.5+(j%2)*.55,0),'shrub')
+        for j in (0,2,3):a.socket('VisitorCar_'+str(j),(-12.2+j*2.743,span/2-8,.015),'car',vehicle_index=j%3,paint_index=j+3)
+        for j in range(3):a.socket('CommonTree_'+str(j),(4+j*8,first+6,0),'tree',species='maple',plant_scale=.64)
+        for j in range(7):a.socket('CommonShrub_'+str(j),(-22+j*2.3,first+3+(j%2)*.55,0),'shrub')
     return a
 
 
@@ -216,16 +217,16 @@ def build(p):
     a=Assembly('Park_'+str(p['seed']));a.root['park_plan']=json.dumps(p,sort_keys=True);lib=Library()
     turf=library_material(lib,'Lawn');W,D=p['size']
     ground_box(a.root,'Community ground',(0,0,-.07),(W,D,.14),turf,3.048,(.87,.86,.74))
-    road(a.root,p,lib)
-    for row in p['lots']:lot(p,row,lib,a.root)
+    road(a.root,p,lib);instances=Instances()
+    for row in p['lots']:lot(p,row,lib,a.root,instances)
     common(p,lib,a.root)
     # Native poles carry supported luminaires; overhead conductors sag between
     # native neutral sockets. Newer lots reserve buried drops at pedestals.
     poles=[]
-    rows=len([r for r in p['lots'] if r['side']==-1]);boundaries=(0,round(rows/3),round(rows*2/3),rows)
+    rows=round(p['span']/p['lot_frontage']);boundaries=(0,round(rows/3),round(rows*2/3),rows)
     for j in range(4):
         y=-p['span']/2+boundaries[j]*p['lot_frontage']
-        pole=native(lib,'trailer-park/build/native/utility.gltf','ParkPole_'+str(j),(5.5 if p['kind']=='old' else -p['loop_x']-4.7,y,0),0,parent=a.root);poles.append(pole)
+        pole=native(lib,'trailer-park/build/native/utility.gltf','ParkPole_'+str(j),(-p['loop_x']+5.5,y,0),0,parent=a.root);poles.append(pole)
     bpy.context.view_layer.update();m=a.mesh('OverheadConductors',component='conductors')
     for left,right in zip(poles,poles[1:]):
         for suffix in ('Neutral','Service','CommDrop'):
@@ -241,8 +242,9 @@ def build(p):
         xx,yy,*_=row['lot'];old=p['kind']=='old'
         # Mature crowns are staggered at rear/side yards; newer planted trees
         # are the same native species scaled once, with explicit age inference.
-        a.socket('Tree_'+str(j),(xx+row['side']*8+rng.uniform(-1.2,1.2),yy+rng.uniform(1.4,4.2),0),'tree',species='oak' if j%3==0 else 'maple',plant_scale=rng.uniform(.92,1.12) if old else rng.uniform(.44,.64))
+        if old or j%2==0:a.socket('Tree_'+str(j),(row['origin'][0]+rng.uniform(-3,3),yy+p['lot_frontage']/2-.4,0),'tree',species='oak' if j%3==0 else 'maple',plant_scale=rng.uniform(.92,1.12) if old else rng.uniform(.44,.64))
         if j%2==0:a.socket('Shrub_'+str(j),(row['origin'][0]+row['side']*4,yy-3,0),'shrub')
-    a.socket('TownEntry',(0,-D/2,.015),'street_connection',yaw=180)
-    if p['kind']=='old':a.socket('TownExit',(0,D/2,.015),'street_connection')
+    for i,x in enumerate((-p['loop_x'],p['loop_x']) if p['kind']=='old' else (0,)):
+        a.socket('TownEntry_'+str(i),(x,-D/2,.015),'street_connection',yaw=180)
+        if p['kind']=='old':a.socket('TownExit_'+str(i),(x,D/2,.015),'street_connection')
     lib.clear();return a

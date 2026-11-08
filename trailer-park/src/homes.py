@@ -1,6 +1,7 @@
 """Original permanent-chassis exterior shells, built from measured sections."""
 import math,random
 from geometry import Assembly,place,label
+import era_details
 
 STEEL=(.045,.049,.043)
 ZINC=(.43,.45,.43)
@@ -86,7 +87,9 @@ def openings(p,face):
             out.append(dict(u=L*.26,w=.76,z=F,h=1.93,kind='door'))
         else:out.append(dict(u=-L*.035,w=.813 if not double else .9144,z=F,h=1.98 if not double else 2.032,kind='door'))
         return out
-    return [dict(u=(-W*.20 if double else 0),w=1.52 if double else 1.22,z=F+.92,h=1.04,kind='window')]
+    if double:
+        return [dict(u=s*W*.21,w=1.30,z=F+.83,h=1.16,kind='window') for s in (-1,1)]
+    return [dict(u=0,w=W*.66,z=F+.77,h=1.31,kind='window')]
 
 
 def wall(a,p,face):
@@ -105,17 +108,8 @@ def wall(a,p,face):
     def allowed(u,z):return not any(abs(u-h['u'])<h['w']/2+.006 and h['z']-.006<z<h['z']+h['h']+.006 for h in holes)
     # Sheet ribs/courses have physical relief at this form gate. Fine grooves
     # and fasteners will move to the shared normal sheet during look-dev.
-    if p['siding']=='ribbed':
-        for i in range(math.ceil(length/.2032)):
-            u=-length/2+(i+.5)*length/math.ceil(length/.2032)
-            for z0,z1 in zip(zs,zs[1:]):
-                if allowed(u,(z0+z1)/2):m.box((u,.006,(z0+z1)/2),(.019,.012,z1-z0),'Siding',xf=xf)
-    else:
-        count=math.ceil((E-F)/.2032)
-        for j in range(count):
-            z=F+j*(E-F)/count+.012
-            for u0,u1 in zip(us,us[1:]):
-                if allowed((u0+u1)/2,z):m.box(((u0+u1)/2,.006,z),(u1-u0,.014,.022),'Siding',xf=xf)
+    # Fine ribs/lap relief belongs to the physical-scale baked tile. Keeping
+    # thousands of hidden cube sides here spent triangles without silhouette.
     for h in holes:
         u,w,z,ht=h['u'],h['w'],h['z'],h['h']
         # Real jamb depth, sill, head drip and 25 mm corner/J trim.
@@ -147,6 +141,7 @@ def wall(a,p,face):
                 sm.finish()
                 a.socket('OccupantThreshold',xf((u,.26,F)),'occupant');a.socket('DoorApproach',xf((u,.75,0)),'walk')
         else:
+            era_details.window(a,p,face,h,xf)
             # Recessed dark room, glass, two offset aluminum sashes and storm.
             tr.box((u,-.27,z+ht/2),(w-.025,.018,ht-.025),'Trim',(.025,.026,.022),xf=xf)
             tr.box((u,-.008,z+ht/2),(w-.03,.005,ht-.03),'Glass',xf=xf)
@@ -162,7 +157,8 @@ def wall(a,p,face):
 
 def roof(a,p):
     L,W,E=p['length'],p['width'],p['eave'];m=a.mesh('Roof',component='roof');trim=a.mesh('EaveRake',component='roof_trim')
-    half=W/2+.12;lx=L/2+.10
+    over=.254 if p['double'] else .20 if p['era']=='1984' else .12
+    half=W/2+over;lx=L/2+over
     def height(y):return E+.10+(.13*(1-(y/half)**2) if p['era']=='1972' else (half-abs(y))*p['pitch'])
     stations=[-half+i*2*half/12 for i in range(13)] if p['era']=='1972' else [-half,0,half]
     for y0,y1 in zip(stations,stations[1:]):
@@ -225,7 +221,7 @@ def skirting(a,p):
                 m.box((u,-.012,.624),(w-.04,.009,.17),'Trim',(.030,.036,.027),xf=xf)
                 for zz in (.57,.61,.65,.69):m.box((u,.008,zz),(w-.03,.022,.013),'Trim',xf=xf)
             else:m.box((u,0,z),(w,.012,height),'Trim',(.34,.33,.28) if p['era']=='1972' else (.43,.43,.37),xf=xf)
-            for du in (-w*.36,0,w*.36):m.box((u+du,.010,z),(.012,.014,height),'Trim',(.39,.38,.32),xf=xf)
+            # Fluted panel relief is in the shared normal sheet.
         for zz in (.042,.878):m.box((0,.012,zz),(length+.04,.035,.035),'Trim',xf=xf)
     # Lift-out access covers a real 0.61 m high opening, wider than 18 in.
     # Its separate ownership allows a game to remove it for utility access.
@@ -244,12 +240,12 @@ def build(p,name='Home',support_only=False):
     chassis(a,p)
     if not support_only:
         for f in ('front','back','left','right'):wall(a,p,f)
-        roof(a,p);skirting(a,p)
+        roof(a,p);skirting(a,p);era_details.exterior(a,p);era_details.steps(a,p)
         m=a.mesh('Corners',component='corners')
         for x in (-p['length']/2,p['length']/2):
             for y in (-p['width']/2,p['width']/2):m.box((x,y,(p['floor']+p['eave'])/2),(.05,.05,p['eave']-p['floor']),'Trim')
         m.finish()
         a.socket('FootprintMin',(-p['length']/2,-p['width']/2,0),'footprint');a.socket('FootprintMax',(p['length']/2,p['width']/2,0),'footprint')
         a.socket('Deck',(-p['length']*.035,-p['width']/2-.02,p['floor']-.025),'deck')
-        label(a,str(p.get('lot_number',p['seed']%100)),(-p['length']*.035+ .69,-p['width']/2-.037,2.30),.11,p['accent'])
+        if 'variant_id' not in p:label(a,str(p.get('lot_number',p['seed']%100)),(-p['length']*.035+ .69,-p['width']/2-.037,2.30),.11,p['accent'])
     return a

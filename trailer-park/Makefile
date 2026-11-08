@@ -1,15 +1,15 @@
 # Form and construction gate only. No bake, final docs or game-ready claim.
 OLD_SEED ?= 101
 NEW_SEED ?= 202
-ROWS ?= 5
-PASS ?= pass4
+ROWS ?= 9
+PASS ?= look1
 WIDTH ?= 1440
 SAMPLES ?= 32
 CHECKPOINT_BLEND := build/family.blend
 STEMS := SingleWide-120 SingleWide-147 SingleWide-168 DoubleWide-245 DoubleWide-228 DoubleWide-326 Deck Carport UtilityService PropaneBottles Condenser WindowAC SatelliteDish AddedRoom Household EntranceSign SupportFrame Modules HomeForms Park-$(OLD_SEED) Park-$(NEW_SEED)
 CHECKPOINT_OUTPUTS := build/family.blend build/family.json $(foreach s,$(STEMS),export/$(s).gltf export/$(s).bin export/$(s).json)
 CHECKPOINT_ARGS := --old-seed $(OLD_SEED) --new-seed $(NEW_SEED) --rows $(ROWS)
-CHECKPOINT_DEPS := $(addprefix src/,build.py plans.py geometry.py homes.py addons.py site.py ground_edges.py) build/native.stamp build/preserved.json
+CHECKPOINT_DEPS := $(wildcard src/*.py) build/native.stamp build/preserved.json
 CHECKPOINT_CHECK = $(BP) --python src/check.py && $(BP) --python src/check_motion.py
 CHECKPOINT_OUT := renders/checkpoint/$(PASS)
 CHECKPOINT_RENDER_ARGS := --cameras build/cameras.json

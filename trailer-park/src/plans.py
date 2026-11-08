@@ -27,44 +27,44 @@ def home(seed, era=None, width_ft=None, length_ft=None):
                 dish=seed%3!=0,upkeep=('patched','kept','faded')[seed%3])
 
 
-def park(seed=101, kind=None, rows=5):
+def park(seed=101, kind=None, rows=9):
     kind=kind or ('old' if seed%2 else 'new')
-    if kind not in ('old','new') or rows not in (4,5,6):raise ValueError('kind old/new; rows 4..6')
-    r=random.Random(seed);old=kind=='old';pitch=(40 if old else 64)*FT;depth=(110 if old else 120)*FT
+    if kind not in ('old','new') or not 8<=rows<=10:raise ValueError('kind old/new; rows 8..10')
+    r=random.Random(seed);old=kind=='old'
+    pitch=(40 if old else 56)*FT;depth=(100 if old else 95)*FT
     street=(20 if old else 24)*FT
     span=rows*pitch
-    # Different road graphs: a through lane vs a closed loop with a south entry.
-    loop_x=18.5
+    # Four rows, two narrow lanes: old through streets / newer connected loop.
+    # 4000 / 5320 sqft lots; gross density includes the two common end strips.
+    loop_x=depth+street/2
     lots=[]
-    for side in (-1,1):
+    for lane in (-loop_x,loop_x):
+      for side in (-1,1):
         for j in range(rows):
-            hs=seed*100+len(lots)+1
-            era=('1972' if j%3!=2 else '1984') if old else ('1984' if j==rows-1 else '1996')
-            spec=home(hs,era,length_ft=r.choice((52,60,64,70)) if old else r.choice((56,60,64)) if era=='1996' else 76)
+            hs=seed*100+len(lots)+1;variant=(j*5+len(lots)//rows*3)%8
+            era=('1972' if variant%3!=2 else '1984') if old else ('1984' if variant==7 else '1996')
+            vs=seed*100+variant+1
+            spec=home(vs,era,width_ft=(12 if variant%2 else 14) if old else (16 if era=='1984' else (24,28,28,24)[variant%4]),
+                      length_ft=(52,60,64,70)[variant%4] if old else (52,56,60,64)[variant%4])
+            spec.update(variant_id=f'{kind}-{variant}',occupant_seed=hs)
             yy=(j-(rows-1)/2)*pitch
             # Both street-facing end walls have a 6 m drive approach. Side
             # entries, decks and carports stay inside the lot's own frontage.
-            edge=street/2 if old else loop_x+street/2
-            xx=side*(edge+6.096+spec['length']/2)
-            spec['lot_number']=len(lots)+1
+            xx=lane+side*(street/2+6.096+spec['length']/2)
             lots.append(dict(number=len(lots)+1,home=spec,origin=[xx,yy+1.15,0],yaw=0 if side<0 else 180,
-                             lot=[side*(edge+depth/2),yy,depth,pitch],side=side))
+                             lot=[lane+side*(street/2+depth/2),yy,depth,pitch],side=side,lane=lane))
     if not old:
-        # Two shorter infill lots use the loop's middle block. Amenities keep
-        # their own connected reservations rather than filling a vacant island.
-        inner=2*loop_x-street
-        for yy in (-5.8,24.5):
-            hs=seed*100+len(lots)+1;spec=home(hs,'1996',24,52);spec['lot_number']=len(lots)+1
-            xx=loop_x-street/2-6.096-spec['length']/2
-            lots.append(dict(number=len(lots)+1,home=spec,origin=[xx,yy,0],yaw=0,
-                             lot=[0,yy,inner,pitch],side=0,central=True))
-    roads=[[[0,-span/2-21,0],[0,span/2+21,0]]]
+        # Three residential-size reservations for clubhouse, play and laundry.
+        lots=[q for q in lots if not (q['lane']*q['side']<0 and
+              (q['lot'][1]<-span/2+pitch or q['lot'][1]>span/2-pitch and q['lane']<0))]
+    roads=[[[x,-span/2-10,0],[x,span/2+10,0]] for x in (-loop_x,loop_x)]
     if not old:
-        top=span/2+9;radius=7.0;loop=[]
+        top=span/2+5;radius=5.0;loop=[]
         for cx,cy,start in ((loop_x-radius,-top+radius,270),(loop_x-radius,top-radius,0),(-loop_x+radius,top-radius,90),(-loop_x+radius,-top+radius,180)):
             loop.extend([[cx+radius*math.cos(math.radians(start+i*90/12)),cy+radius*math.sin(math.radians(start+i*90/12)),0] for i in range(13)])
-        loop.append(loop[0]);roads=[loop,[[0,-span/2-21,0],[0,-span/2-9,0]]]
+        loop.append(loop[0]);roads=[loop,[[0,-span/2-10,0],[0,-span/2-5,0]]]
     return dict(seed=seed,kind=kind,name='Alder Court' if old else 'Meadow Bend',year=1968 if old else 1994,
                 street_width=street,lot_frontage=pitch,lot_depth=depth,span=span,loop_x=loop_x,
-                size=[2*(street/2+depth+3+(0 if old else loop_x)),span+42],lots=lots,
-                roads=roads)
+                size=[4*depth+2*street+3,span+20],lots=lots,roads=roads,
+                lot_area_sqft=(4000 if old else 5320),template_count=8,
+                density_note='Gross parcel includes two lanes and common end strips; modern code comparators, not historical approval.')

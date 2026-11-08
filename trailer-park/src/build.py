@@ -14,16 +14,17 @@ spec=importlib.util.spec_from_file_location('manufactured_site',HERE/'site.py');
 
 
 def counts(obs):
-    bpy.context.view_layer.update();triangles=0;materials=set();lo=np.full(3,1e10);hi=-lo;parts={}
+    bpy.context.view_layer.update();triangles=0;unique=0;seen=set();materials=set();lo=np.full(3,1e10);hi=-lo;parts={}
     for o in obs:
         if o.type!='MESH' or not len(o.data.vertices):continue
         o.data.calc_loop_triangles();n=len(o.data.loop_triangles);triangles+=n
+        if o.data not in seen:unique+=n;seen.add(o.data)
         part=o.get('component',o.parent.name if o.parent else o.name);parts[part]=parts.get(part,0)+n
         if not o.data.materials:raise ValueError(('Unassigned mesh material',o.name,len(o.data.vertices),len(o.data.polygons)))
         for f in o.data.polygons:materials.add(o.data.materials[f.material_index].name)
         v=np.empty(len(o.data.vertices)*3);o.data.vertices.foreach_get('co',v);v=v.reshape(-1,3);xf=np.array(o.matrix_world);v=v@xf[:3,:3].T+xf[:3,3]
         lo=np.minimum(lo,v.min(0));hi=np.maximum(hi,v.max(0))
-    return dict(triangles=triangles,materials=len(materials),bounds_min=lo.tolist(),bounds_max=hi.tolist(),size_m=(hi-lo).tolist(),parts=parts)
+    return dict(triangles=triangles,unique_triangles=unique,unique_meshes=len(seen),materials=len(materials),bounds_min=lo.tolist(),bounds_max=hi.tolist(),size_m=(hi-lo).tolist(),parts=parts)
 
 
 def reset():
@@ -62,6 +63,8 @@ def publish(stem,root,plan=None):
             if ma.get('extras',{}).get('tiling_vertex_tint') is False:primitive['attributes'].pop('COLOR_0',None)
     path.write_text(json.dumps(doc,separators=(',',':'))+'\n')
     report['triangles_export']=sum(sum(doc['accessors'][pr['indices']]['count']//3 for pr in doc['meshes'][n['mesh']]['primitives']) for n in doc['nodes'] if 'mesh' in n)
+    report['unique_export_triangles']=sum(doc['accessors'][pr['indices']]['count']//3 for mesh in doc['meshes'] for pr in mesh['primitives'])
+    if plan and 'lots' in plan:report['gross_acres']=plan['size'][0]*plan['size'][1]/4046.8564224;report['homes_per_acre']=len(plan['lots'])/report['gross_acres']
     assert report['triangles_export']==report['triangles'],(stem,report['triangles_export'],report['triangles'])
     report['geometry_bytes']=path.stat().st_size+sum((path.parent/b['uri']).stat().st_size for b in doc['buffers'])
     report['images']=[dict(uri=im['uri'],bytes=(path.parent/im['uri']).stat().st_size,sha256=hashlib.sha256((path.parent/im['uri']).read_bytes()).hexdigest()) for im in doc.get('images',[])]
@@ -72,7 +75,7 @@ def publish(stem,root,plan=None):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',default='build/family.blend');p.add_argument('--old-seed',type=int,default=101);p.add_argument('--new-seed',type=int,default=202);p.add_argument('--rows',type=int,default=5);p.add_argument('--only',default='all');a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);report={}
+    p=argparse.ArgumentParser();p.add_argument('--out',default='build/family.blend');p.add_argument('--old-seed',type=int,default=101);p.add_argument('--new-seed',type=int,default=202);p.add_argument('--rows',type=int,default=9);p.add_argument('--only',default='all');a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);report={}
     definitions=[('SingleWide-120',home(120,'1972',12,60)),('SingleWide-147',home(147,'1984',14,70)),('SingleWide-168',home(168,'1984',16,80)),
                  ('DoubleWide-245',home(245,'1996',24,52)),('DoubleWide-228',home(228,'1996',28,60)),('DoubleWide-326',home(326,'1996',32,64))]
     for stem,spec in definitions:

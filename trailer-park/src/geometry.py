@@ -106,23 +106,41 @@ def place(root,p=(0,0,0),yaw=0,parent=None):
     root.parent=parent;root.location=p;root.rotation_euler.z=math.radians(yaw);return root
 
 
-def consolidate():
+def consolidate(root=None):
     bpy.context.view_layer.update()
-    for parent in sorted([o for o in bpy.context.scene.objects if o.type=='EMPTY' and o.get('asset_set')=='Manufactured'],key=lambda o:o.name):
+    scope=set([root,*root.children_recursive]) if root else set(bpy.context.scene.objects)
+    for parent in sorted([o for o in scope if o.type=='EMPTY' and o.get('asset_set')=='Manufactured'],key=lambda o:o.name):
         obs=sorted([o for o in parent.children if o.type=='MESH' and o.get('asset_set')=='Manufactured'],key=lambda o:o.name)
         if not obs:continue
+        if len(obs)==1 and obs[0].get('consolidated'):continue
         bpy.ops.object.select_all(action='DESELECT')
         for ob in obs:ob.select_set(True)
         bpy.context.view_layer.objects.active=obs[0]
         if len(obs)>1:bpy.ops.object.join()
-        ob=bpy.context.object;ob.name=parent.name+'__Mesh';ob.data.transform(ob.matrix_basis);ob.matrix_basis=Matrix.Identity(4)
+        ob=bpy.context.object;ob.name=parent.name+'__Mesh';ob.data.transform(ob.matrix_basis);ob.matrix_basis=Matrix.Identity(4);ob['consolidated']=True
     seen=set()
-    for ob in bpy.context.scene.objects:
+    for ob in list(root.children_recursive) if root else bpy.context.scene.objects:
         if ob.type!='MESH' or ob.data in seen:continue
         seen.add(ob.data)
         # Imported mesh normals/leaf cards remain exactly as delivered.
         if ob.get('asset_set')=='Manufactured':
             bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free();ob.data.update()
+
+
+class Instances:
+    """Build a bounded variant once, collapse its fixed parts, share meshes."""
+    def __init__(self):self.templates={}
+    def get(self,key,name,factory):
+        if key not in self.templates:
+            root=factory().root;consolidate(root);self.templates[key]=root
+            root['instance_template']=str(key);return root
+        template=self.templates[key];mapping={}
+        for old in [template,*sorted(template.children_recursive,key=lambda o:o.name)]:
+            ob=old.copy();bpy.context.collection.objects.link(ob);mapping[old]=ob
+            ob.name=old.name.replace(template.name,name,1)
+        for old,ob in mapping.items():
+            ob.parent=mapping.get(old.parent);ob.matrix_basis=old.matrix_basis.copy()
+        rt=mapping[template];rt['instance_template']=str(key);return rt
 
 
 def native(lib,path,name,p=(0,0,0),yaw=0,select=None,parent=None):
