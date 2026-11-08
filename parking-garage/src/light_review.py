@@ -15,16 +15,16 @@ def lighting(elevation=18,azimuth=-135,interior=False):
     nodes=world.node_tree.nodes;links=world.node_tree.links
     sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(elevation);sky.sun_rotation=math.radians(azimuth);sky.sun_disc=False
     sky.altitude=100;sky.air_density=1;sky.aerosol_density=.35
-    links.new(sky.outputs[0],nodes.get('Background').inputs['Color']);nodes.get('Background').inputs['Strength'].default_value=.22
+    links.new(sky.outputs[0],nodes.get('Background').inputs['Color']);nodes.get('Background').inputs['Strength'].default_value=.35 if interior else .22
     light=bpy.data.lights.new('Low raking daylight','SUN');light.energy=4.5;light.color=(1,.91,.79);light.angle=math.radians(.65)
     ob=bpy.data.objects.new(light.name,light);sc.collection.objects.link(ob)
     sun=Vector((math.cos(math.radians(elevation))*math.cos(math.radians(azimuth)),math.cos(math.radians(elevation))*math.sin(math.radians(azimuth)),math.sin(math.radians(elevation))))
     ob.rotation_euler=(-sun).to_track_quat('-Z','Y').to_euler()
     for socket in list(sc.objects):
         if socket.get('socket_kind')!='light_emitter':continue
-        for upward,power in ((False,socket.get('emitter_down_watts',115)),(True,socket.get('emitter_up_watts',45))):
+        for upward,power in ((False,socket.get('emitter_down_watts',55)),(True,socket.get('emitter_up_watts',65))):
             if power<=0:continue
-            ld=bpy.data.lights.new(socket.name+(' uplight' if upward else ' downlight'),'AREA');ld.energy=power;ld.shape='RECTANGLE';ld.size=.11;ld.size_y=1.15;ld.color=(.94,1,.90)
+            ld=bpy.data.lights.new(socket.name+(' uplight' if upward else ' downlight'),'AREA');ld.energy=power;ld.shape='RECTANGLE';ld.size=.11;ld.size_y=1.15;ld.color=(1,1,1)
             oo=bpy.data.objects.new(ld.name,ld);sc.collection.objects.link(oo);oo.location=socket.matrix_world@Vector((.15,0,.065) if upward else (0,0,-.015))
             oo.rotation_euler=socket.matrix_world.to_euler()
             if upward:oo.rotation_euler.rotate_axis('X',math.pi)

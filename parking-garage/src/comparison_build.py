@@ -23,6 +23,14 @@ def main():
     G.palette(folder)
     tower=G.root('Tower8',module_kind='Tower8');pieces.tower(tower,8);templates['Tower8']=tower
     p=garage(202,system='pt',levels=8,tee_count=24,comparison=True);rt=make_garage(p,templates,layout);upgrade(rt,p,layout)
+    # This photograph has a cast edge downstand below the slab. It belongs
+    # to this reference variant; the accepted town has its original edge.
+    fascia=G.Mesh('Reference cast edge downstand',rt)
+    for lev in range(1,p['levels']):
+        for a,c in zip(p['structural_stations'],p['structural_stations'][1:]):
+            if c-a<.8:continue
+            fascia.box(((a+c)/2,-p['width']/2+.07,lev*FLOOR-.49),(c-a-.762,.32,.54))
+    fascia.finish();p['reference_edge_downstand_m']=.54
     keep=set(members(rt))
     for ob in list(bpy.context.scene.objects):
         if ob not in keep:bpy.data.objects.remove(ob,do_unlink=True)

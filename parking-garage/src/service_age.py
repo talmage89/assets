@@ -116,8 +116,8 @@ def placed(root,p,mats):
                 x=rng.choice((a+.08,c-.08));w=rng.uniform(.20,.48);top=z+(.94 if old else .5)
                 stamp([(x-w/2,y,z-.22),(x+w/2,y,z-.22),(x+w/2,y,top),(x-w/2,y,top)],'mineral',age*.62)
                 if rng.random()<.65:
-                    x=rng.uniform(a+.5,c-.5);zz=z+rng.uniform(-.08,.40);w=rng.uniform(.20,.48)
-                    stamp([(x-w/2,y,zz),(x+w/2,y,zz),(x+w/2,y,zz+.23),(x-w/2,y,zz+.23)],'spall',.8)
+                    x=rng.uniform(a+.5,c-.5);zz=z+rng.uniform(-.08,.40);w=rng.uniform(.28,.68);h=rng.uniform(.16,.34)
+                    stamp([(x-w/2,y,zz),(x+w/2,y,zz),(x+w/2,y,zz+h),(x-w/2,y,zz+h)],'spall',.8)
     construction(root,p,rng,age,stamp,floor_mark)
     ob=batch.finish();ob['allow_boundary']=True # open pigment films, never a collision solid
     attr=ob.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER');ob.data.color_attributes.active_color=attr

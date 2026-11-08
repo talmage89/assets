@@ -490,3 +490,44 @@ Add exterior pull handles to the refined doors, recheck their full motions,
 and close the small remaining town gap visible beside the municipal entry.
 The large turf plot still needs a more convincing maintained edge. These
 are review findings, not claims that the look-dev checkpoint is finished.
+
+## Look pass 2 — neutral cement, stronger cap history, remaining light tells
+
+Color/value first: opened all 18 full-size scene views in `renders/look-pass2/`,
+all three baked and three original-field pairs, and the revised form pairs in
+`renders/form-pass5-matches/`. The bare-column ROI is now Y .0926 against the
+photo's .1093; the dark soffit is .00810 against .00794, and the floor is .0443
+against .0696. The green/yellow cast is much smaller. The remaining floor
+miss needs more broad side light, not a global albedo/exposure increase that
+would spoil the already close soffit. The interior reference looks into an
+open landscaped lot, while the specimen still imports opposing town blocks.
+Remove those buildings from the comparison only and retain the real towns.
+
+Both heroes have a usable sun/shade range: display-Y p1/p99 is .0053/.8592
+municipal and .0269/.8729 commercial, with zero clipped RGB pixels. These
+include sky and context. The lower normal amplitude and coated upper-deck
+roughness stop the whole asset looking like spongy cement. Cap runoff now
+reads in the full hero, but some tails still reveal their rectangular stamp
+limits. Taper them out with gravity, and start them on the actual vertical
+face at the cap edge. Keep the visible repair patches angular.
+
+The interior is legible throughout the aisle, with proper paired stems,
+supports and open sides. The near uplight hotspot still advertises an area
+light beside a closed black housing. Make the fixture a real wraparound
+diffuser, put the presentation emitter above its exposed lens edge, reduce
+its upward power and shift the balance toward sky/floor bounce. This can
+retain the fixture's existing triangle count. The new exterior pulls remain
+clear through all 60 measured motions.
+
+The Harmon downstand fixes the opening/solid ratio, and its hazier illumination
+is closer to the photo. The square town columns still differ from the photo's
+round forms. Use a round cast-column variant only in this private specimen;
+the measured fronts stay at the same diameter and coordinates. Pleasant Hill
+keeps its accepted fit with a lower-sun lighting match. Source and baked
+pairs preserve the intended response without a broad color-space shift.
+
+The municipal entry still finds a small flat horizon to its northeast; add
+one instanced closing frontage there. The lawns now use the School/Ground
+maps and maintained tints, plus a mown edge. Their distant large plots still
+read simpler than a photograph. Fine stains, oil and droppings resolve in
+close views; the full hero carries the larger cap/joint service history.

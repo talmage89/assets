@@ -5,6 +5,11 @@ from geometry import Mesh, root
 from plan import TEE, SPAN, FLOOR
 
 
+def door_pull(b):
+    for z in (.94,1.20):b.box((.88,.04,z),(.035,.07,.035),'Steel')
+    b.beam((.88,.075,.94),(.88,.075,1.20),.025,.025)
+
+
 def tee(r):
     b=Mesh(r.name+'__Mesh',r)
     w=TEE-.020;h=.6096;fl=.1016
@@ -218,7 +223,9 @@ def tower(r,levels=4,elevator=True,refined=False):
             k=(j+1)%4
             faces.extend([(j,k,k+4,j+4),(j+8,j+12,k+12,k+8),(j,j+8,k+8,k),(j+4,k+4,k+12,j+12)])
         d.geom(vertices,faces,'Blue');d.box((.55,0,1.47),(.38,.006,.45),'Glass')
-        d.beam((.2,-.08,1.02),(.88,-.08,1.02),.025,.04);d.finish()
+        d.beam((.2,-.08,1.02),(.88,-.08,1.02),.025,.04)
+        if refined:door_pull(d)
+        d.finish()
         # Elevator doors slide in front of a recessed dark car opening.
         b.box((1.30,2.515,z+1.08),(1.50,.08,2.16),'Seal')
         for sign in (-1,1):
@@ -236,7 +243,9 @@ def tower(r,levels=4,elevator=True,refined=False):
     # Hinge at the opposite jamb: the open leaf moves away from the garage
     # corner column when this core is placed on either end of the building.
     pv=root(r.name+'__StreetDoor',(-2.815,1.28,0),r,pivot_axis='Z',range_degrees=[0.,95.]);pv.rotation_euler.z=math.pi/2
-    d=Mesh(pv.name+'__Leaf',pv);d.box((.55,0,1.0825),(1.10,.045,2.115),'Blue');d.beam((.2,-.08,1.02),(.88,-.08,1.02),.025,.04);d.finish()
+    d=Mesh(pv.name+'__Leaf',pv);d.box((.55,0,1.0825),(1.10,.045,2.115),'Blue');d.beam((.2,-.08,1.02),(.88,-.08,1.02),.025,.04)
+    if refined:door_pull(d)
+    d.finish()
     root(r.name+'__StreetThreshold',(-2.85,1.83,0),r,socket_kind='pedestrian_threshold')
     root(r.name+'__GarageStairThreshold',(-1.45,2.85,0),r,socket_kind='pedestrian_threshold')
     root(r.name+'__GarageLiftThreshold',(1.30,2.85,0),r,socket_kind='accessible_threshold')

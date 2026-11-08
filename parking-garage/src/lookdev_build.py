@@ -21,6 +21,7 @@ def modules():
     layout=json.loads(Path('textures/lookdev/layout.json').read_text());mats=palette();p=garage(101);report={}
     for root in roots:
         root.location=(0,0,0);name=root.name;parameters=dict(p)
+        if name.startswith('PT'):parameters['system']='pt'
         if name.startswith('Tower'):
             levels=int(name[-1]) if name[-1].isdigit() else 4
             parameters['levels']=levels

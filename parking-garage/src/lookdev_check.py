@@ -45,6 +45,21 @@ def modules():
     return results
 
 
+def tile_edges(layout):
+    results=[]
+    for channel in ('BaseColor','Normal','ORM'):
+        data=read_png(Path(f'textures/lookdev/ship/T_ParkingGarage_{channel}.png'))[:,:,:3]
+        for name in ('precast','cast','steel'):
+            a,b,c,d=layout[name]['rect'];lo=round((1-d)*len(data));hi=round((1-b)*len(data))
+            # Bilinear samples on each guarded V boundary must agree. This
+            # checks the shipped pixels, independently of the field generator.
+            low=(data[lo-1]+data[lo])/2;high=(data[hi-1]+data[hi])/2
+            error=float(np.max(np.abs(low-high)))
+            assert error<(.025 if channel=='Normal' else .008),(name,channel,error)
+            results.append(dict(chart=name,channel=channel,max_boundary_error=error))
+    return results
+
+
 def main():
     bake=json.loads(Path('build/lookdev/atlas-bake/ParkingGarage-bake.json').read_text())
     assert all(row['size']==4096 for row in bake['channels'].values())
@@ -109,7 +124,7 @@ def main():
     for channel in ('BaseColor','Normal','ORM'):
         q=Path(f'textures/lookdev/ship/T_ParkingGarage_{channel}.png');arr=read_png(q);assert arr.shape[:2]==(2048,2048)
         if channel=='Normal':assert np.max(np.abs(np.linalg.norm(arr*2-1,axis=2)-1))<.008
-    report=dict(passed=True,bake=bake,preservation=saved,modules=module_results,garages=rows,uv_contract='Manufacture tile reuse; no unique-lightmap overlap claim',shared_family_image_mib=sum(Image.open(p).width*Image.open(p).height*4/3/2**20 for p in canonical.values()))
+    report=dict(passed=True,bake=bake,preservation=saved,modules=module_results,garages=rows,tile_edges=tile_edges(layout),uv_contract='Manufacture tile reuse; no unique-lightmap overlap claim',shared_family_image_mib=sum(Image.open(p).width*Image.open(p).height*4/3/2**20 for p in canonical.values()))
     Path('build/lookdev/check.json').write_text(json.dumps(report,indent=2)+'\n');print('LOOK-DEV CHECK PASS',[(r['seed'],r['triangles'],r['max_route_height_error_m']) for r in rows],flush=True)
 
 

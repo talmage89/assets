@@ -20,7 +20,9 @@ MARKS=('runoff','rust','mineral','oil','rubber','spall','droppings','scuff')
 
 def field(w,h,seed,scale=32):
     rng=np.random.default_rng(seed);small=rng.uniform(0,1,(max(2,h//scale),max(2,w//scale))).astype('float32')
-    return np.asarray(Image.fromarray(small).resize((w,h),Image.Resampling.BICUBIC)).copy()
+    ny,nx=small.shape
+    wrapped=Image.fromarray(np.tile(small,(3,3)))
+    return np.asarray(wrapped.resize((w,h),Image.Resampling.BICUBIC,box=(nx,ny,2*nx,2*ny))).copy()
 
 
 def generate(folder=Path('build/lookdev/atlas-source'),layout_path=Path('build/lookdev/atlas-layout.json')):
@@ -29,19 +31,22 @@ def generate(folder=Path('build/lookdev/atlas-source'),layout_path=Path('build/l
     orm=np.empty((N,N,3),dtype=np.uint8);orm[:]=[255,220,0]
     height=np.full((N,N),.5,np.float32);layout={};rng=np.random.default_rng(81288)
     for j,(key,(y0,y1)) in enumerate(BANDS.items()):
-        h=y1-y0;noise=field(N,h,31+j);fine=field(N,h,75+j,3)
+        h=y1-y0
+        guarded=lambda seed,scale=32:np.pad(field(N,h-32,seed,scale),((16,16),(0,0)),mode='wrap')
+        noise=guarded(31+j);fine=guarded(75+j,3)
         if key=='steel':
-            color=np.array([93,99,95]);grain=field(N,h,12,2);variation=(noise-.5)*9+(grain-.5)*3
+            color=np.array([93,99,95]);grain=guarded(12,2);variation=(noise-.5)*9+(grain-.5)*3
             orm[y0:y1]=[255,127,225];height[y0:y1]=.5+(fine-.5)*.008
         else:
-            color=np.array([178,172,159] if key=='precast' else [165,160,148])
-            variation=(noise-.5)*13+(fine-.5)*3
-            pores=field(N,h,981+j,2)<.14
-            variation-=pores*12
+            color=np.array([178,175,167] if key=='precast' else [165,162,154])
+            variation=(noise-.5)*7+(fine-.5)*3
+            pores=guarded(981+j,2)<.14
+            variation-=pores*7
             # Faint form-bed drag and cement laitance; no fake brick grid.
-            drag=np.sin(np.arange(h)[:,None]*1.71)*.7 if key=='precast' else 0
+            drag=np.pad(np.sin(np.arange(h-32)[:,None]*2*np.pi*round((h-32)/3.6)/(h-32)),((16,16),(0,0)),mode='wrap')*.7 if key=='precast' else 0
             variation+=drag;orm[y0:y1,:,1]=np.clip(213+(noise-.5)*28,0,255)
             height[y0:y1]=.5+(fine-.5)*.055-pores*.10
+            if key=='cast':orm[y0:y1,:,1]=np.clip(165+(noise-.5)*24,0,255)
         bc[y0:y1,:,:3]=np.clip(color+variation[:,:,None],0,255)
         layout[key]=dict(rect=[0,1-(y1-16)/N,1,1-(y0+16)/N],coverage=[6.096,(y1-y0)/N*6.096],repeat_u=True)
     for j,(key,(color,r,m)) in enumerate(PALETTE.items()):
@@ -61,12 +66,13 @@ def generate(folder=Path('build/lookdev/atlas-source'),layout_path=Path('build/l
                 center=-.7+k*.23+.035*np.sin(v*(7+k)+k)
                 tracks+=np.exp(-((u-center)/(.018+.025*(1-v)))**2)*np.clip(1-v*(.65+.05*k),0,1)
             alpha=(tracks*.65+macro*.12)*rim*(.5+.5*grain)
+            alpha=np.clip(alpha*1.8,0,1)
             rgb={'runoff':(78,72,52),'rust':(119,61,30),'mineral':(210,202,175)}[key]
         elif key in ('oil','spall','droppings'):
             warp=(macro-.5)*.42;rad=(u*1.1+warp)**2+((v-.5)*2.25+warp)**2
             alpha=np.clip((.8-rad)*3,0,1)*(.35+.65*grain)*rim
             if key=='spall':
-                fracture=np.abs(u*.95+warp)+np.abs((v-.5)*1.8-warp)+.09*np.sin(u*17+v*13)
+                fracture=np.maximum(np.abs(u*1.15+warp),np.abs((v-.5)*2.2-warp))+.09*np.sin(u*17+v*13)
                 alpha=np.clip((.82-fracture)*9,0,1)*(.5+.5*grain)*rim
             if key=='oil':alpha*=.7+.3*np.sin(v*29+u*4)**2
             if key=='droppings':alpha*=np.clip((grain-.35)*4,0,1)

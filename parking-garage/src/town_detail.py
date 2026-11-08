@@ -3,7 +3,7 @@
 School's ground_finish supplies the .62/.68/.58 maintained-turf tint idiom.
 No turf, paving, car, tree or host texture is changed or regenerated.
 """
-import math
+import math,random
 from pathlib import Path
 import bpy,bmesh
 from mathutils import Vector
@@ -20,10 +20,30 @@ def refine(rt,p,layout):
     # Actual World-XY turf projection, rather than each lawn box's ambiguous
     # normal-sorted axes. Color stations break the felt green at mowing scale.
     lawn=tiling.material('Lawn',G.ROOT/'ground/textures/ship',tint=True);lawn.name='Garage town maintained turf'
+    G.M['TurfFringe']=lawn;fringe=G.Mesh('Mown verge boundary blades',rt);rng=random.Random(p['seed']+958)
     for ob in rt.children_recursive:
         if ob.type!='MESH' or not any(m and m.name.split('.')[0]=='Lawn' for m in ob.data.materials):continue
         ob.data=ob.data.copy();bm=bmesh.new();bm.from_mesh(ob.data)
         ids={i for i,m in enumerate(ob.data.materials) if m and m.name.split('.')[0]=='Lawn'}
+        # A few centimetres of mown blades soften the actual paving boundary.
+        # Reuse Lawn itself, no alpha atlas or second turf texture set.
+        border={}
+        for f in ob.data.polygons:
+            if f.material_index not in ids or f.normal.z<.7:continue
+            seq=list(f.vertices)
+            for a,c in zip(seq,seq[1:]+seq[:1]):border.setdefault(tuple(sorted((a,c))),[]).append((a,c))
+        for uses in border.values():
+            if len(uses)!=1:continue
+            a,c=[ob.matrix_world@ob.data.vertices[i].co for i in uses[0]];delta=c-a
+            if delta.xy.length<.2:continue
+            inside=Vector((-delta.y,delta.x,0)).normalized()
+            for j in range(min(70,int(delta.length/.65))):
+                base=a.lerp(c,(j+.35)/max(1,int(delta.length/.65)))+inside*.045
+                for k in range(5):
+                    foot=base+inside*rng.uniform(0,.045);foot.z+=.002
+                    tip=foot+Vector((rng.uniform(-.02,.02),rng.uniform(-.02,.02),rng.uniform(.025,.055)))
+                    side=Vector((math.cos(k*1.7),math.sin(k*1.7),0))*rng.uniform(.002,.004)
+                    fringe.geom([foot-side,foot+side,tip],[(0,1,2)],'TurfFringe')
         turf=[f for f in bm.faces if f.material_index in ids and f.normal.z>.7]
         edges=list({e for f in turf for e in f.edges})
         bmesh.ops.subdivide_edges(bm,edges=edges,cuts=5,use_grid_fill=True)
@@ -38,10 +58,14 @@ def refine(rt,p,layout):
                     var=.88+.10*math.sin(q.x*.27+math.sin(q.y*.15))+.06*math.sin(q.y*.64)
                     attr.data[li].color=(.62*var,.68*var,.58*var,1)
                     if abs(f.normal.z)>.6:uv.data[li].uv=(q.x/3.048,q.y/3.048)
+    grass=fringe.finish()
+    if grass:
+        attr=grass.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER');grass.data.color_attributes.active_color=attr
+        for row in attr.data:row.color=(.62,.68,.58,1)
     # Native main-street rows close the right-hand vanishing street and rear
     # cross streets at different setbacks; no billboard backdrop is used.
     block=next(o for o in rt.children if o.name.startswith('Native Main Street row'))
-    for i,(pos,yaw) in enumerate([((134,0,0),90),((-135,0,0),-90),((65,112,0),0),((-60,110,0),0)]):
+    for i,(pos,yaw) in enumerate([((134,0,0),90),((-135,0,0),-90),((65,78 if municipal else 112,0),0),((-60,110,0),0)]):
         G.clone(block,'Closing town block '+str(i),pos,yaw,rt)
     b=G.Mesh('Street markings and meter hardware',rt)
     for sign in (-1,1):

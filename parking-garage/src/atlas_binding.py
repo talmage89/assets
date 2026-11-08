@@ -17,6 +17,7 @@ def palette():
     global LAYOUT
     LAYOUT=json.loads(Path('build/lookdev/atlas-layout.json').read_text())
     opaque=tiling.material('ParkingGarage',Path('textures/lookdev/ship'),tint=True);opaque.name='Garage concrete and steel / baked'
+    next(n for n in opaque.node_tree.nodes if n.type=='NORMAL_MAP').inputs['Strength'].default_value=.35
     alpha=opaque.copy();alpha.name='Garage causal deposits / shared coverage';bs=alpha.node_tree.nodes.get('Principled BSDF')
     tex=next(n for n in alpha.node_tree.nodes if n.type=='TEX_IMAGE' and n.image.name.endswith('BaseColor.png'))
     alpha.node_tree.links.new(tex.outputs['Alpha'],bs.inputs['Alpha']);alpha.surface_render_method='DITHERED';alpha.use_backface_culling=False
@@ -42,6 +43,7 @@ def concrete_tint(q,normal,ob,p,salt,role):
     variation=.77+.11*salt;warm=.98+.035*math.sin(salt*71)
     factor=1.0
     if role=='Deck' and normal.z>.7:factor*=.78 # maintained, traffic-darkened sealer; pale soffits retain cement tone
+    if role=='Concrete' and p['system']=='pt':factor*=.85
     if ob.name.startswith('Tower_'):
         panel=math.floor((q.z+.002)/p['floor_to_floor']);variation*=1+.025*math.sin(panel*2.31+salt*73)
     if normal.z>.7 and q.z>(p['levels']-1)*p['floor_to_floor']-.3:
@@ -68,7 +70,11 @@ def bind(root,p,mats):
                 index=slot(mat);cuv=[tuple(olduv.data[li].uv) for li in f.loop_indices]
                 start=len(vs);vs.extend(poly);fs.append(tuple(range(start,len(vs))));uvs.append(cuv);colors.append([(1,1,1,1)]*len(poly));indices.append(index);continue
             role='Light' if role=='fluorescent' else role
-            cell=('precast' if p['system']=='precast' and role=='Concrete' else 'cast') if role in ('Concrete','Deck') else 'steel' if role=='Steel' else role
+            # The cast traffic finish occupies its own roughness band. Bare
+            # soffits share cement manufacture, with cast/precast tint, so a
+            # second material/draw is not required on each structural tile.
+            if role=='Deck' and f.normal.z<.7:role='Concrete'
+            cell='precast' if role=='Concrete' else 'cast' if role=='Deck' else 'steel' if role=='Steel' else role
             chart=LAYOUT[cell];a,b,c,d=chart['rect'];axes=sorted(range(3),key=lambda k:abs(f.normal[k]))[:2]
             # U repeats across the whole width of each strip. Put the long
             # direction there so thin tee soffits do not pay for V-band cuts.
@@ -135,6 +141,6 @@ def source_finish():
         normal=next((n for n in mat.node_tree.nodes if n.type=='NORMAL_MAP'),None)
         if normal is None:continue
         n=mat.node_tree.nodes.new('ShaderNodeTexImage');n.image=bpy.data.images.load(str(Path('build/lookdev/atlas-source/T_ParkingGarage_Height.png').resolve()),check_existing=True);n.image.colorspace_settings.name='Non-Color'
-        bump=mat.node_tree.nodes.new('ShaderNodeBump');bump.inputs['Distance'].default_value=.008
+        bump=mat.node_tree.nodes.new('ShaderNodeBump');bump.inputs['Distance'].default_value=.008;bump.inputs['Strength'].default_value=.35
         mat.node_tree.links.new(n.outputs['Color'],bump.inputs['Height'])
         bs=mat.node_tree.nodes.get('Principled BSDF');mat.node_tree.links.new(bump.outputs['Normal'],bs.inputs['Normal'])
