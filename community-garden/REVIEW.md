@@ -939,3 +939,14 @@ compost mounds and small vessels, straight suspended hose spans, regular
 tracks, repeated native tree crowns, and flatter Eevee foliage/glass. These
 limits remain in the README. The eight requested fixes are complete; proceed
 to the bounded five-JPG gallery, then commit those images last by themselves.
+
+
+Gallery closeout: color and value survive the final JPEG encoding in all five
+images, which were opened at original size before staging. The nine-detail
+sheet initially exceeded the byte cap; using three existing kit review-sheet
+columns gives readable views within the limit. A width fallback also enforces
+the cap for future inputs. Final widths are all 1600 px; byte sizes are
+198,081 / 196,818 / 194,859 for the three heroes, 196,925 for the family sheet
+and 199,169 for the detail sheet. The gallery keeps the full native PNGs and
+comparisons locally; only these five bounded JPGs enter git. Close-view CG
+limits above remain visible and disclosed. No kit or protected delivery changed.

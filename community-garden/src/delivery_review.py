@@ -64,13 +64,17 @@ def docs(folder):
     contact(construction,folder/'family-gallery.jpg',width=1600,title='Three gardens / growth stages / construction')
     files['family.jpg']=folder/'family-gallery.jpg'
     detail=[folder/'117/corner.png',folder/'117/tomato.png',folder/'341/bean.png',folder/'341/squash.png',folder/'117/compost.png',folder/'117/water.png',folder/'117/shed.png',folder/'117/scale.png',folder/'117/eevee.png']
-    contact(detail,folder/'detail-gallery.jpg',width=1600,title='Construction / midsummer crops / scale / Eevee')
+    review_sheet([detail[i:i+3] for i in range(0,len(detail),3)],folder/'detail-gallery.jpg',width=1600,title='Construction / midsummer crops / scale / Eevee')
     files['details.jpg']=folder/'detail-gallery.jpg';rows=[]
     for name,source in files.items():
-        im=Image.open(source).convert('RGB');im.thumbnail((1600,8000),Image.Resampling.LANCZOS);path=target/name
-        for q in range(94,24,-2):
-            im.save(path,quality=q,optimize=True)
+        original=Image.open(source).convert('RGB');path=target/name;width=1600
+        while True:
+            im=original.copy();im.thumbnail((width,8000),Image.Resampling.LANCZOS)
+            for q in range(94,24,-2):
+                im.save(path,quality=q,optimize=True)
+                if path.stat().st_size<=200000:break
             if path.stat().st_size<=200000:break
+            width=round(width*.9);assert width>=800,'Gallery remains too large at readable width'
         assert path.stat().st_size<=200000
         rows.append(dict(path=str(path),size=list(im.size),bytes=path.stat().st_size,source=str(source),sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
     Path('build/docs.json').write_text(json.dumps(rows,indent=2))
