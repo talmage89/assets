@@ -828,3 +828,45 @@ review in pass 11. This is the candidate for a complete clean build and final
 export review, not approval of unrendered final views. Remaining CG tells are
 uniform car finishes/cabins, repeated coverage kernels at very close range,
 and perfectly manufactured small edges. No docs yet.
+
+## Cold-build audit — native crossover input still needs a decision
+
+The first empty-cache `make` stopped at the original-delivery hash guard.
+All 59 original garage/module/graphics files rebuilt identically. The two
+historical form-site JSON/BIN pairs changed because their local native car
+caches had been regenerated with a different evaluation profile. All 570
+other-family delivery files remain byte-identical.
+
+The hatchback regenerates exactly with four workers. Two independent
+four-worker crossover builds agree exactly with each other, but differ from
+the previously accepted cache by four triangles (73,422 versus 73,426).
+Tests of the other likely worker counts did not reproduce that cache.
+Actual triangle-distance samples at every vertex and face centroid, in both
+directions, give at most 0.174263mm on the liftgate and under 0.5 micrometers
+on the three other affected meshes. This is a sampled surface comparison,
+not a continuous bound and not a byte-identity claim.
+
+Do not silently replace the accepted baseline. A narrow question is pending
+about regenerating those historical form-site outputs with the repeatable
+native source recipe. In the meantime the original native caches and site
+files were restored from the local archive, and the candidate gallery is
+being completed from those accepted inputs. That candidate build is not
+claimed as a successful empty-cache rebuild. No docs or visual acceptance
+recipe are committed while the cold-build requirement remains unresolved.
+
+## Delivery pass 13 — preserve the level colors under the new sun
+
+Color/value first: inspected the municipal hero at 1600px. The −22° sun
+gives the desired dark visible shaft faces, warm sunlit panels and deep
+openings, but the front level signs lose their accepted colors to glare.
+Reject this hero. The sun and street camera lie near the reflection geometry
+of those front panels. Compare −35°, −45° and −60° directions with equal
+direct illumination of the facade, including each roof deck. Keep the
+printed colors, textures and accepted facade construction unchanged.
+
+The interrupted render batch's five partial outputs were deleted by Make;
+only its hero was inspected, so no review of its other frames is claimed.
+Preserve future interrupted render groups with `.PRECIOUS`, and explicitly
+require the complete 33-view and 25-module receipt inventory before a final
+gallery can pass. No docs are approved. Uniform context-car finishes and
+repeated small wear kernels remain the other known CG tells.

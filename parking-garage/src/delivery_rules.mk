@@ -10,6 +10,7 @@ FINAL_PAIRS := $(foreach n,precast pleasant harmon,renders/final-matches/$(n).pn
 FINAL_SCRIPTS := src/light_review.py src/lookdev_render.py src/render.py src/delivery_render.py src/match_render.py
 FINAL_BASES := $(foreach s,101 202,ParkingGarage-$(s) sites/ParkingGarageSite-$(s)) $(addprefix modules/,$(MODULE_NAMES)) comparison-precast comparison-harmon
 FINAL_EXPORTS := $(foreach n,$(FINAL_BASES),export/final/$(n).gltf export/final/$(n).bin build/final-glb/$(n).glb)
+.PRECIOUS: $(FINAL_VIEWS) $(FINAL_PIECES) $(FINAL_PAIRS) renders/final/modules.png renders/final/views.json
 .PHONY: delivery delivery-review delivery-fixes docs check-texture-repeat
 delivery: refs check delivery-review
 $(FINAL_EXPORTS) build/final-package.json &: $(LOOK_EXPORTS) $(LOOK_MODULES) $(LOOK_MAPS) src/delivery_package.py
@@ -30,6 +31,10 @@ delivery-review: renders/final/contact.jpg
 delivery-fixes: delivery-review
 	$(PYTHON) src/delivery_review.py
 repeat: lookdev-repeat
+repeat: context-repeat
+.PHONY: context-repeat
+context-repeat:
+	$(PYTHON) src/context_repeat.py
 lookdev-repeat: $(FINAL_EXPORTS)
 check-texture-repeat: lookdev-bake-repeat
 docs: delivery-review

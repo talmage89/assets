@@ -42,6 +42,11 @@ def fixes(folder):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--pass-name',default='final');a=p.parse_args();folder=Path('renders')/a.pass_name
     receipts=json.loads((folder/'views.json').read_text());rows=[]
+    if a.pass_name=='final':
+        names='hero above aisle tee_detail ramp_turn tower tower_landing tower_open entry top_deck scale eevee front side back top'.split()
+        expected={(seed,name) for seed in (101,202) for name in names}|{(101,'plan_path')}
+        assert {(r['seed'],r['name']) for r in receipts}==expected,'Incomplete final scene gallery'
+        assert len(json.loads((folder/'module-views.json').read_text()))==25,'Incomplete module gallery'
     for r in receipts:verify_receipt(r)
     modules=folder/'module-views.json'
     if modules.exists():
