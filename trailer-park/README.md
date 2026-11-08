@@ -354,6 +354,27 @@ Neither fit proves that this fictional park reproduces a photographed site.
 Neutral patches are identified and balanced in linear RGB before comparing
 values. The final critique records what still reads as CG.
 
+## Known flaws
+
+- **Older-home age is only partly landed.** Upkeep values, drip-edge grime,
+  sill-corner runoff, lower-wall damp and skirt splash read better in the
+  row and entrance. The lane hero still lets cars obscure the useful lower
+  construction and does not show three complete older homes. Pale upper
+  walls remain too dominant beside the used-home photograph. Missing skirt
+  panels expose the real crawl space and piers, but are not a strong hero cue.
+- **Lawn has a remaining planar read.** The July base and individual narrow
+  blades replace the tan/rosette contrast. Broad middle-distance areas still
+  flatten into the repeated Ground tile; peripheral native weeds repeat
+  their silhouettes, and the sunny lawn remains more uniform than the photos.
+- **Road fatigue remains an atlas treatment.** Dusty gray 2–4 in overbands
+  and darker wheel paths improve the lane. Fine alligator cracks share a
+  bounded, rotated atlas cell, whose pattern can be recognized in a close
+  inspection. The road is less convincing close up than at lane distance.
+- The house and road layout is regular, some household plants and the
+  dumpster are schematic, and native shed/pole/playground adapters use
+  simpler finishes. The aerial is a construction overview with brighter
+  exposure than the lane heroes. There are no interiors or collision meshes.
+
 There are no interiors. This delivery does not claim structural/civil
 certification, unique lightmap packing, full-site motion clearance or final
 draw-call batching. Native shed/pole/playground adapters, household plants
