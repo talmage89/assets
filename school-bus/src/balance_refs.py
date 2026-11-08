@@ -9,7 +9,8 @@ PATCHES={'front':((30,140,190,180),'background snow'),
          'vision':((700,905,725,920),'near white parking stripe'),
          'c2':((320,870,350,900),'white parking stripe beside entrance side'),
          'used':((60,450,105,477),'unlettered white trailer panel behind the nose')}
-PAINT_PATCHES={'front':(1010,545,1050,565),'vision':(450,525,490,540)}
+PAINT_PATCHES={'front':(1010,545,1050,565),'vision':(450,525,490,540),
+               'used':(1075,543,1085,553)}
 def main():
     out=BASE/'build/balanced';out.mkdir(parents=True,exist_ok=True);rows={}
     for name,(box,neutral) in PATCHES.items():

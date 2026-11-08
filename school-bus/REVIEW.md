@@ -394,3 +394,88 @@ landmarks cover hubs, ground contacts and both upper/lower body ends:
 23.62 native px RMS at 26.84 mm (16.40 px at 1400 px width), versus the
 original 82.8 native px. Different makers' body/hood details remain visible;
 the accepted 40 ft body is unchanged.
+
+The completed pass-3 probes still have a dark aisle. Direct sunlight now
+reaches the seats, but the low exterior sky strength is unsuitable for this
+interior exposure. Use a broad bright procedural daylight sky for the two
+aisle views, retaining the real glazing and omitting interior fill lamps.
+The adult-height view also exposes yellow window-post returns: paint the
+inside faces and glass reveals gray while retaining each outward yellow face.
+
+The independent-build audit initially compared raw loop arrays, which can
+rotate/reorder between BMesh conversions. Comparing corresponding oriented
+triangles shows identical vertices and topology. Remaining smooth-normal
+differences are float accumulation rounding (about 1e-7), not a different
+form. The audit now measures this difference explicitly against 1e-6 and
+requires exact geometry, bindings, transforms and functional metadata. Mesh
+updates after mirror deformation and final triangulation are explicit.
+
+## Round 2 — exported look pass 4, reject the remaining pale read
+
+Color/value first: all eight 1000 px exported probes and all four source
+and four exported photo pairs have been opened. The balanced used side
+photograph is more orange and saturated than the render. In the low-eye
+hero the side panes still reflect/transmit a bright, empty horizon; the
+higher fleet camera sees the dark cabin and its panes read black. This is
+a context/angle contribution, not evidence that the export lacks
+transmission: its delivered Glass has transmission 1 and IOR 1.52.
+Both source and export show the miss, so it is not hidden by a source-only
+shader correction. Reject the current hero/window/paint read.
+
+The brighter procedural daylight sky makes the aisle readable. The adult
+view shows rounded padded tops and crowned cushions; the original low
+camera remains for the exact before/after. The source's gray post reveals
+have now reached the refreshed atlas/export. The 4k rebake checks 5,165,308
+interior texels per channel with zero missing texels/reversed normals; the
+dense hood transfer retains 99.885% area coverage under its stricter 1%
+fallback gate. Source/export geometry, optical and lane checks still pass.
+
+The first school hero has a native building, actual loading curb and three
+queued exports, but clips the left mirror, hides the canopy and barely
+shows the third bus. Move back and aim farther along the queue. Add only
+read-only instances of the native campus tree meshes beside the loop,
+without editing any original geometry/material/image. Their dark horizon
+should replace the empty sky seen by the glass. Studio photo comparisons
+use explicit original charcoal horizon flags to approximate the service
+photographs' enclosed tree/bus surroundings. These are recorded scene
+conditions, not photographic texture plates. Test the existing paint
+against a modest green-channel palette reduction before changing its
+baked base. The current lower splash/chips are still too subtle at hero
+distance; strengthen cause-specific coverage after the color decision.
+
+## Round 2 — look pass 5, context and palette calibration
+
+Color/value first: opened all eight native context/palette trial renders.
+The modest palette change (green factor .78) gives the desired orange-yellow
+under the same hero light. Adopt linear enamel (.95,.332,.004), with matching
+249/156/13 sRGB graphic substrates. Source deposition colors remain separate.
+The used-photo field measures 223/130/1 after neutral balance; the earlier
+render field is 185/147/59 (hues 34.86° / 41.90°). These are photographed
+appearances under different illumination, not laboratory albedo samples.
+The very dark first horizon flags reduce the render field to 139/102/0,
+and the warmer candidate to 138/89/0. Reject that exposure as too dark.
+Use lighter charcoal horizon reflectance and a 2.0 EV photographic exposure
+for the next controlled source/export pairs. The hero keeps its low-sun
+exterior exposure.
+
+Native foliage improves the upper-pane read, but the mature crowns leave
+a bright low horizon under them. Add original procedural understory only
+where five actual native ground rays reject roads, walks and roofs. Reuse
+native tree meshes without editing their data and place them on measured
+ground. Remove the speculative north-side tree belt, which could overlap
+the school buildings. The studio flags remain explicit visible geometry.
+
+The wider campus-101 view holds all three buses and the mirrors, but its
+canopy is occluded by the contiguous queue. Campus 102 has a long canopy
+extending ahead of the lead nose; use that native lane for the hero, keep
+the accepted campus-101 socket proof separately, and audit all three body
+envelopes as well as all eighteen tires. The rear bus follows the real east
+transition rather than extending straight over its curb. Final exposure,
+framing and support results remain to be inspected.
+
+Strengthen only causal coverage: irregular lower splash height, wheel wakes,
+opaque primer exposed by leading chips, skirt-edge salt/rust, roof runoff
+and rear soot, with duller rail crowns and bumper corrosion. The previous
+chip mask faded primer into yellow; wear now changes its coverage. Give
+the entrance treads and first two bench rows more of the existing atlas so
+wear/ribs survive downsampling. Triangle and texture allocations do not grow.
