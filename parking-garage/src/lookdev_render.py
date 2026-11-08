@@ -44,7 +44,8 @@ def main():
             else:
                 direction=[shot['location'][i]-shot['target'][i] for i in range(2)]
                 inspect=math.degrees(math.atan2(direction[1],direction[0]))+35 if name in ('front','side','back') else None
-                lighting(interior=shot.get('interior',False),front_lit=name in ('above','plan_path','top_deck','top','entry','tower','eevee'),inspection_azimuth=inspect)
+                lighting(interior=shot.get('interior',False),front_lit=name in ('above','plan_path','top_deck','top','entry','tower','eevee'),inspection_azimuth=inspect,
+                         commercial_hero=seed==202 and name in ('hero','retained_hero'))
             culled=[]
             if shot.get('roof_inspection'):
                 # These lights are beneath opaque slabs and cannot illuminate

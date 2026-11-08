@@ -54,7 +54,8 @@ if __name__=='__main__':
     ap=argparse.ArgumentParser();ap.add_argument('--out',default='final');ap.add_argument('--width',default='1600');ap.add_argument('--samples',default='64');ap.add_argument('--checkpoint',action='store_true');ap.add_argument('--resume',action='store_true');ap.add_argument('--force-shots',default='');ap.add_argument('--pieces-only',action='store_true');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
     if a.pieces_only:
         pieces(Path('renders')/a.out,int(a.samples));sys.exit(0)
-    shots='hero,aisle,top_deck,entry,tower,ramp_turn' if a.checkpoint else 'hero,above,aisle,tee_detail,ramp_turn,tower,tower_landing,tower_open,entry,top_deck,scale,eevee,plan_path,front,side,back,top'
+    # Judge the exposed wear first, before spending the rest of the render set.
+    shots='hero,aisle,top_deck,entry,tower,ramp_turn' if a.checkpoint else 'top_deck,hero,above,aisle,tee_detail,ramp_turn,tower,tower_landing,tower_open,entry,scale,eevee,plan_path,front,side,back,top'
     common=['--stage','final','--out','renders/'+a.out,'--width',a.width,'--samples',a.samples]
     if a.resume:
         receipt=Path('renders')/a.out/'views.json';existing=json.loads(receipt.read_text()) if receipt.exists() else []

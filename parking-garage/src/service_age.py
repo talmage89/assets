@@ -29,11 +29,11 @@ def floor_surface(root,details=False):
 
 def placed(root,p,mats):
     rng=random.Random(p['seed']+3717);old=p['system']=='precast';age=1 if old else .65
-    G.M['Age']=mats[1];batch=G.Mesh('Cause-driven service history',root);strengths=[];counts={};projection=[]
+    G.M['Age']=mats[1];batch=G.Mesh('Cause-driven service history',root);strengths=[];tints=[];counts={};projection=[]
     surface=floor_surface(root)
     from floor_deposits import Projector
     floor_projector=Projector(root,surface)
-    def stamp(pts,key,strength=1,uv=None):
+    def stamp(pts,key,strength=1,uv=None,tint=(1,1,1)):
         if uv is None:
             a,b,c,d=A.LAYOUT[key]['rect'];uv=[(a,b),(c,b),(c,d),(a,d)]
         for i in range(1,len(pts)-1):
@@ -50,12 +50,12 @@ def placed(root,p,mats):
             def encoded(p):return Vector((p.x,1-struct.unpack('<f',struct.pack('<f',1-p.y))[0]))
             a,b,c=map(encoded,(a,b,c))
             if abs((b-a).cross(c-a))<1e-13:continue
-            batch.geom([pts[j] for j in tri],[(0,1,2)],'Age',[uv[j] for j in tri]);strengths.append(strength)
+            batch.geom([pts[j] for j in tri],[(0,1,2)],'Age',[uv[j] for j in tri]);strengths.append(strength);tints.append(tint)
         counts[key]=counts.get(key,0)+1
-    def floor_stamp(pts,key,strength=1,uv=None):
+    def floor_stamp(pts,key,strength=1,uv=None,tint=(1,1,1)):
         if uv is None:
             a,b,c,d=A.LAYOUT[key]['rect'];uv=[(a,b),(c,b),(c,d),(a,d)]
-        for polygon,coords in floor_projector.polygons(pts,uv):stamp(polygon,key,strength,coords)
+        for polygon,coords in floor_projector.polygons(pts,uv):stamp(polygon,key,strength,coords,tint)
     def floor_mark(x,y,z,w,d,key,strength=1,angle=0):
         ca,sa=math.cos(angle),math.sin(angle);pts=[]
         for u,v in ((-w/2,-d/2),(w/2,-d/2),(w/2,d/2),(-w/2,d/2)):
@@ -109,25 +109,48 @@ def placed(root,p,mats):
                     floor_stamp(q,'rubber',strength,[(u0,vstart),(u0,vend),(u1,vend),(u1,vstart)])
     L,W=p['length'],p['width']
     ymin,ymax=p.get('comparison_y_bounds_m',(-W/2,W/2))
-    # The exposed drive lane loses sealer where vehicles travel. This is a
-    # projected soft ribbon with roughness, rather than vertex gradients
-    # stretching a 20cm wear mask across a whole 18m deck triangle.
+    # Two wheel tracks in each half of the two-way aisle. Keep the matte
+    # concrete between lanes and between the tires; never wash a whole aisle.
+    # Offset the sampled centerline continuously through each turn, widening
+    # the contact distribution there as successive drivers take different arcs.
     paths=[row for row in p['paths'] if row['name'].startswith('Drive_Up_') or row['name']=='Drive_Entry_to_L1']
     for path in paths:
-      pts=[Vector(v) for v in path['points']];length=sum((b-a).xy.length for a,b in zip(pts,pts[1:]));distance=0
-      for a,b in zip(pts,pts[1:]):
+      pts=[Vector(v) for v in path['points']];length=sum((b-a).xy.length for a,b in zip(pts,pts[1:]));distance=0;stations=[];travel=0
+      for i,point in enumerate(pts):
+        if i:travel+=(point-pts[i-1]).xy.length
+        incoming=(point-pts[max(0,i-1)]).xy;outgoing=(pts[min(len(pts)-1,i+1)]-point).xy
+        if incoming.length<1e-5:incoming=outgoing.copy()
+        if outgoing.length<1e-5:outgoing=incoming.copy()
+        tangent=(incoming.normalized()+outgoing.normalized()).normalized()
+        side=Vector((-tangent.y,tangent.x,0))
+        bend=1-abs(incoming.normalized().dot(outgoing.normalized()))
+        turn=min(1,bend*45)
+        # Smooth centimeter-scale steering drift; both tires follow the axle.
+        wander=.055*math.sin(travel*.37+p['seed'])+.027*math.sin(travel*1.13)
+        stations.append((side,turn,wander))
+      for i,(a,b) in enumerate(zip(pts,pts[1:])):
         delta=b-a;segment=delta.xy.length;start=distance;distance+=segment
         if segment<.06:continue
         roof=min(a.z,b.z)>=(p['levels']-1)*FLOOR-.05
-        tangent=delta.xy.normalized();normal=Vector((-tangent.y,tangent.x,0));corners=[]
-        for v in (a-normal*2.6,b-normal*2.6,b+normal*2.6,a+normal*2.6):
-            hit=surface.ray_cast(v+Vector((0,0,.2)),Vector((0,0,-1)),.4)
-            if hit[0] is None:break
-            corners.append(tuple(hit[0]+Vector((0,0,.0018))))
-        if len(corners)==4:
-            key='scuff' if roof else 'rubber'
-            u0,v0,u1,v1=A.LAYOUT[key]['rect'];va=v0+start/max(length,.001)*(v1-v0);vb=v0+distance/max(length,.001)*(v1-v0)
-            floor_stamp(corners,key,(.85 if roof else .62)*age,[(u0,va),(u0,vb),(u1,vb),(u1,va)])
+        sa,ta,wa=stations[i];sb,tb,wb=stations[i+1]
+        for lane in (-1.65,1.65):
+          for wheel in (-.78,.78):
+            ha=(.20 if roof else .18)+ta*.12;hb=(.20 if roof else .18)+tb*.12
+            ca=a+sa*(lane+wheel+wa);cb=b+sb*(lane+wheel+wb)
+            corners=[]
+            for v in (ca-sa*ha,cb-sb*hb,cb+sb*hb,ca+sa*ha):
+                hit=surface.ray_cast(v+Vector((0,0,.2)),Vector((0,0,-1)),.4)
+                if hit[0] is None:break
+                corners.append(tuple(hit[0]+Vector((0,0,.0012))))
+            if len(corners)==4:
+                key='scuff' if roof else 'rubber'
+                u0,v0,u1,v1=A.LAYOUT[key]['rect'];va=v0+start/max(length,.001)*(v1-v0);vb=v0+distance/max(length,.001)*(v1-v0)
+                # Sealer loss traps dark tire fines in exposed cement, rather
+                # than leaving a tan line resembling paint. Keep that cement
+                # rough; the covered deck's polished rubber stays glossier.
+                strength=(.80+.20*math.sin(start*.19+wheel)) if roof else .97
+                tint=(.12,.13,.175) if roof else (1,1,1)
+                floor_stamp(corners,key,strength*age,[(u0,va),(u0,vb),(u1,vb),(u1,va)],tint)
     for lev in range(p['levels']):
         z=lev*FLOOR
         for x in (-L/3,0,L/3):
@@ -174,7 +197,7 @@ def placed(root,p,mats):
     # independently of bmesh's triangulation ordering.
     for f in ob.data.polygons:
         strength=strengths[f.index]
-        for li in f.loop_indices:attr.data[li].color=(1,1,1,strength)
+        for li in f.loop_indices:attr.data[li].color=(*tints[f.index],strength)
     report=dict(seed=p['seed'],maintenance='1988 municipal: aged joints / 1996 commercial: more frequent patching',marks=counts,
         triangles=G.triangles([ob]),floor_corner_surface_samples=len(projection),max_corner_height_difference_m=max(projection,default=0))
     return report

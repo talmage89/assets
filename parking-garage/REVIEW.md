@@ -1040,3 +1040,84 @@ mean normalized errors 2.34e-10 / 3.12e-10, and byte-identical ORM. Canonical
 maps remain unchanged. The repository check reports 2299 source files and
 zero errors. All render/bake workers and GPU-lock waits finished before
 reporting; no detached job remains.
+
+## Pass 17 — final ruling and fixed-camera previews
+
+Color/value first: opened all three 1600px GLB previews in
+`renders/ruling-preview/`. The commercial hero now has warm sun on its long
+facade and tower, dark opening returns and diagonal beam/spandrel shadows
+on the shafts. Its camera is unchanged; only its sun moves to 14 degrees
+elevation / -148 degrees azimuth. Municipal hero illumination is unchanged.
+The comparison basis remains Harmon's bare-concrete white balance and the
+accepted photo calibration. No photograph becomes an albedo measurement.
+
+The aisle's former whole-lane gray cloud is gone. Four narrow tracks serve
+the two traffic lanes: 1.56m between a car's tires, lane centers 3.30m apart,
+36cm contact distributions, widened at turns, with centimeter steering drift.
+Matte concrete survives between each axle's tires. Engine drips stay along
+stall centers and remain independent of wheel paths. Against the precast
+interior photograph, the floor still lacks the reference's irregular trowel
+relief; do not claim that finer finish is solved.
+
+The roof preview's tan abrasion strips looked like paint. Rejected that
+finish and neutralized only the roof-track vertex tint toward exposed gray
+cement, with stronger/weaker cumulative-use sections. The shared maps, all
+facade age, cars, accessible markings and construction modules stay intact.
+This revision awaits its next exported view; it is not accepted by a test.
+
+The cache ruling is explicit: native car names/material assignments and
+material definitions must agree, triangle totals may vary by 0.1%, and
+30 surface points per named mesh (six extent face interiors plus 24 seeded
+area-weighted points) must remain within 1mm of the accepted surface. Both
+accepted cars pass; deliberate name, material, triangle and surface faults
+are rejected. Mixed sites additionally compare every non-car node and
+mesh attribute/index payload exactly, with bidirectional car samples. The
+only removed historical hash guards cover the four garage-owned site
+glTF/BIN files the owner authorized regenerating. No car-family file changes.
+
+## Pass 18 — reject weak roof wear in the cold-build close-up
+
+Color/value first: opened the new 101 hero, above, aisle, tee, ramp turn,
+tower, closed/open landing, entry and roof frames at their full 1600px.
+The municipal hero retains exactly its accepted camera, sun, sky, exposure
+and lens; its warm facade and deep openings hold. The paired aisle polish
+is darker and distinct from the matte concrete between the wheels. The
+photo comparison basis remains the neutral bare column strip in the
+precast interior and the bare spandrel in Harmon, with the retained gains.
+
+The eye-height roof view exposed what the aerial hid: neutralizing the
+abrasion's tan color also made its value contrast too weak. Rejected this
+roof, terminated the serial render worker, and did not make docs. The
+rough exposed-cement chart now gets a darker neutral tire-fines tint only
+in the wheel tracks. Interior polish, all maps, geometry and triangle
+counts stay intact. This difference must be judged in the next final roof
+view, not certified by its parameter. The ramp marks remain a little too
+regular, the trowel microrelief is weak, and close tower hardware/cabs are
+plain procedural forms; these remain CG tells.
+
+The discarded cold build's construction checks did pass, and its four-
+triangle crossover delta passed the owner's ruling (73,422 against 73,426;
+0.322mm maximum sampled distance). All 59 protected garage files were
+byte-identical to the previous delivery. BaseColor/ORM were exact and the
+normal differed by at most one code from the accepted set. These results
+are retained under `../build/garage-ruling/cold-roof-weak/`; they are not
+reported as a complete final build. A second cold start removes all four
+generated folders again; its receipt is `../build/garage-ruling/cold-final-start.json`.
+
+The next cold attempt produced a larger native crossover outlier: 73,308
+triangles, SHA `b9f6d230ccbfb6d04cf040d55ac374270256a7b2704b344912f971e0e89f576b`,
+118 below the accepted 73,426 (0.160706%). Its sampled surface distance was
+0.322mm, but the triangle criterion correctly rejected it. The input and
+measurements remain at `../build/garage-ruling/cold-native-outlier/` and
+`../build/garage-ruling/rejected-crossover.json`. No threshold was widened.
+
+The family adapter now allows at most three unchanged native source attempts
+per requested cache. Failed candidates are archived under `build/context/
+rejected/`; append-only `*-history.json` receipts keep every hash and measured
+bound even after later cache rechecks. Three failures stop the build. The
+positive native guards and four deliberate negative cases still pass. A
+separate wrapper fixture proves one rejection followed by a passing rebuild,
+a cached recheck that retains rejection history, and a stop after exactly
+three rejected candidates. This is input rejection/retry, not a car-generator
+fix or a substituted baseline. The complete empty-cache build starts again
+with these final guards; earlier incomplete runs are not called delivery proof.
