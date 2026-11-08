@@ -10,7 +10,8 @@ Two original, scripted freeway places in a town of 2012: maintained 1970s
 concrete beneath an arterial diamond, and a curved asphalt corridor with a
 wide median and residential sound walls. The first hero looks across the cut
 from an exit shoulder toward the signal queue, gas canopy, strip storefronts
-and the town's roof/tree/pole skyline. The second looks down afternoon traffic
+and the town's roof/tree/pole skyline, with foreground turf reduced to a band.
+Its camera is 1.65m above the sampled shoulder surface. The second looks down afternoon traffic
 with roofs, varied yard trees and a utility line above its wall.
 
 [REVIEW.md](REVIEW.md) records the photographic critiques and remaining CG cues;
@@ -72,6 +73,10 @@ The house, tree and traffic placements are retained from the accepted delivery.
 Near ROW grass adds linked crossed-card tiles to the optional Town package;
 eight 64-triangle patterns share the maintenance atlas. Smaller .65m patches
 fit terrain creases, with height and density fading into a mown textured base.
+The base uses the native lawn's blade normal detail and alignment-following
+1.524m mowing swaths. Terrain shading is smoothed without moving the accepted
+graded surfaces. Taller growth stays beyond the mowing line; shorter edge
+rows lead into the narrow soil/gravel margin. Barrier drains retain weeds.
 Their extra expanded triangles are 5.87M / 1.47M net,
 including removal of old cosmetic grass skins. Civil color sampling adds
 24,240 / 1,984 triangles for lane-center oil, column runoff and barrier joints.
@@ -233,7 +238,7 @@ make repeat                  # exact deterministic CPU fields, caches, glTF/BIN 
 make check-texture-repeat    # fresh GPU rebake within the kit's tolerance
 make render sheet scale      # Cycles scenes, labeled modules and 1.8 m human/car scale
 make matches source-pairs    # four balanced-photo pairs, shipped and 4096 source-field views
-make evidence                # nine native before/after pairs from identical cameras
+make evidence                # nine earlier pairs plus eight round-four fix panels
 ```
 
 Blender runs serially, and each render/bake set uses the shared kit GPU lock.
@@ -260,8 +265,18 @@ all close-ups, 17 individually framed modules, the labeled sheet, human/car
 scale and `contact.jpg`. `renders/final-eevee/101/hero.png` is the Eevee view.
 `renders/final-matches/` contains four photographic comparisons and its contact;
 `renders/final-source-matches/` has the explicitly labeled source-field pairs
-for bake-loss inspection. `renders/fix-crops/` contains nine native before/after
-panels (980–1400 px per side, with no enlargement) and camera receipts. All of these are rebuildable and
+for bake-loss inspection. `renders/fix-crops/` contains nine earlier native
+before/after panels (980–1400 px per side). The latest handoff comparisons in
+`renders/round4-crops/` have 1400 native pixels per side, without enlargement:
+
+- Grass: [101](renders/round4-crops/grass-101.jpg), [202](renders/round4-crops/grass-202.jpg).
+- Composition: [101](renders/round4-crops/framing-101.jpg), explicitly labeled as a camera change.
+- Age: [columns](renders/round4-crops/columns.jpg), [barrier](renders/round4-crops/barrier.jpg),
+  [101 lanes](renders/round4-crops/lanes-101.jpg), [101 road view](renders/round4-crops/lanes-101-road.jpg),
+  [202 lanes](renders/round4-crops/lanes-202.jpg).
+
+The seven physical-change panels retain identical cameras. All evidence includes
+source hashes and camera receipts. All of these are rebuildable and
 ignored; only the five bounded gallery JPGs are committed.
 
 `build/check.json`, `edge-audit.json`, `bridge-audit.json`, `context-audit.json`
@@ -279,8 +294,10 @@ and tolerant GPU receipts are separate. `REVIEW.md` records full-size visual
 judgment and the concrete/asphalt neutral patches used to balance each photo.
 
 The town's repeated native house/tree silhouettes and orderly block rhythms
-remain visible. The long slopes are smoother than real turf, and broad asphalt
-variation and fine alpha rib/wire parallax remain CG cues at close distance.
+remain visible. Grass clump and mowing rhythms, especially the near median
+edge and terminal, remain more procedural than the photographs. Lane wear and
+barrier joint staining remain regular. Broad asphalt variation and fine alpha
+rib/wire parallax remain CG cues at close distance.
 The supplementary wall close-up is strongly backlit and has limited material
 readability. Raking light makes the zinc grain look coarse in the gore view.
 The bridge's fine manufacture grain remains more uniform than the reference.
@@ -296,8 +313,9 @@ Native context comes from the original [houses](../houses/README.md),
 [apartments](../apartments/README.md), [commercial lots](../commercial/README.md),
 [ground](../ground/README.md), [signals](../signals/README.md),
 [utility poles](../utility/README.md) and [street lights](../street-light/README.md).
-The [school](../school/README.md) lawn stations informed exposure/root-shade
-variation; no existing family delivery is rewritten.
+The [school](../school/README.md), [skatepark](../skatepark/README.md) and
+[playground](../playground/README.md) lawns informed exposure/root shade and
+instanced sward construction; no existing family delivery is rewritten.
 
 Credits: original procedural geometry/materials and native library construction;
 FHWA, USGS, TxDOT/TTI and the period agency documents in
