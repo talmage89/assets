@@ -14,6 +14,7 @@ def main():
            *sorted((ASSET/'textures/ship').glob('*.png')),*sorted((ASSET/'textures/4k-plants').glob('*.png')),*sorted((ASSET/'textures/source-surfaces').glob('*.png')),
            ASSET/'build/pieces.json',*[ASSET/f'build/garden-{s}.json' for s in (117,229,341)],
            ASSET/'build/context/shed.glb',ASSET/'build/context/shed.json',ASSET/'build/context/chain/tile-report.json',ASSET/'build/surface-layout.json',*[ASSET/f'build/context/costs-{s}.json' for s in (117,229,341)],*sorted((ASSET/'build/context/chain').glob('*.png'))]
+    if (ASSET/'build/detail-cameras.json').exists():files.append(ASSET/'build/detail-cameras.json')
     for path in files:
         dst=baseline/path.relative_to(ASSET);dst.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(path,dst)
     commands=[['blender','-b','--factory-startup','-t','4','--python-exit-code','1','--python',str(HERE/'context_build.py')],
@@ -51,6 +52,9 @@ def main():
             subprocess.run(['blender','-b','--factory-startup','-t','4','--python-exit-code','1','--python',str(HERE/'match.py'),'--','--calibrate-only'],cwd=ASSET,check=True,stdout=log,stderr=subprocess.STDOUT)
         for path,data in before.items():
             assert path.read_bytes()==data,('Photographic calibration differs',path.name)
+    if (ASSET/'build/detail-cameras.json').exists():
+        with (target/'detail-calibration.log').open('w') as log:
+            subprocess.run(['blender','-b','--factory-startup','-t','4','--python-exit-code','1','--python',str(HERE/'detail_camera.py'),'--','--seeds','117','229','341'],cwd=ASSET,check=True,stdout=log,stderr=subprocess.STDOUT)
     exact=[]
     for path in files:
         original=baseline/path.relative_to(ASSET)

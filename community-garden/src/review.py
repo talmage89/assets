@@ -78,6 +78,10 @@ def main():
             if 'bundle_sha256' not in r:continue
             assert bundle(r['source'])==r['bundle_sha256'],('Render uses stale export',str(receipt))
             if r.get('render_script_sha256'):assert r['render_script_sha256']==recipe,('Render uses stale recipe',str(receipt))
+            if receipt.parent.name in ('117','229','341') and receipt.stem in ('tomato','front','side','back'):
+                assert r.get('detail_recipe_sha256')==hashlib.sha256((HERE/'detail_views.py').read_bytes()+(HERE/'detail_camera.py').read_bytes()).hexdigest(),('Stale detail/inspection camera',str(receipt))
+            if receipt.parent==folder and receipt.stem in ('pieces','plants'):
+                assert r.get('sheet_recipe_sha256')==hashlib.sha256((HERE/'sheet_views.py').read_bytes()).hexdigest(),('Stale catalogue layout',str(receipt))
             assert receipt.with_suffix('.png').is_file()
             if receipt.stem=='hero':assert 35<=r['camera']['lens']<=50 and abs(r['camera']['location'][2]-1.65)<1e-5
             checked.append(str(receipt))

@@ -63,7 +63,7 @@ def docs(folder):
     construction=[folder/str(s)/'above.png' for s in (117,229,341)]+[folder/'plants.png',folder/'pieces.png']
     contact(construction,folder/'family-gallery.jpg',width=1600,title='Three gardens / growth stages / construction')
     files['family.jpg']=folder/'family-gallery.jpg'
-    detail=[folder/'117/corner.png',folder/'117/tomato.png',folder/'229/bean.png',folder/'341/squash.png',folder/'117/compost.png',folder/'229/water.png',folder/'117/shed.png',folder/'117/scale.png',folder/'117/eevee.png']
+    detail=[folder/'117/corner.png',folder/'117/tomato.png',folder/'341/bean.png',folder/'341/squash.png',folder/'117/compost.png',folder/'117/water.png',folder/'117/shed.png',folder/'117/scale.png',folder/'117/eevee.png']
     contact(detail,folder/'detail-gallery.jpg',width=1600,title='Construction / midsummer crops / scale / Eevee')
     files['details.jpg']=folder/'detail-gallery.jpg';rows=[]
     for name,source in files.items():

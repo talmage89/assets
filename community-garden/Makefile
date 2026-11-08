@@ -77,8 +77,11 @@ SCENES := $(foreach s,$(SEEDS),export/final/Site_$(s).gltf)
 SCENE_OUTPUTS := $(SCENES) $(SCENES:.gltf=.bin) $(foreach s,$(SEEDS),build/context/site-$(s).json build/context/costs-$(s).json build/context/Site_$(s)-native-tangent.json)
 $(SCENE_OUTPUTS) &: $(CHECKPOINT_OUTPUTS) $(NATIVE_CONTEXT) $(addprefix src/,neighborhood.py package.py render.py park_hall.py groundcover.py)
 	$(BP) --python src/package.py -- --seeds $(SEEDS)
-.PHONY: scenes check-scenes check-motion check-look match fixes docs repeat check-texture-repeat look-review
+.PHONY: scenes calibrate check-scenes check-motion check-look match fixes docs repeat check-texture-repeat look-review
 scenes: model $(SCENE_OUTPUTS)
+calibrate: scenes
+	$(BP) --python src/match.py -- --calibrate-only
+	$(BP) --python src/detail_camera.py -- --seeds $(SEEDS)
 check-scenes: scenes
 	$(PYTHON) src/review.py --sites-only
 check-motion: scenes
@@ -86,7 +89,7 @@ check-motion: scenes
 check-look: model
 	$(PYTHON) src/look_audit.py
 check: check-scenes check-motion check-look
-$(CHECKPOINT_RENDER_OUTPUTS): $(SCENE_OUTPUTS) $(addprefix src/,blender.sh render_driver.py look_batch.py match.py photo_matches.py) | check-scenes
+$(CHECKPOINT_RENDER_OUTPUTS): $(SCENE_OUTPUTS) $(addprefix src/,blender.sh render_driver.py detail_views.py detail_camera.py sheet_views.py look_batch.py match.py photo_matches.py) | check-scenes calibrate
 match: render
 look-review:
 	$(PYTHON) src/look_review.py --out $(CHECKPOINT_OUT)
