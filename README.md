@@ -99,6 +99,8 @@ Vehicles
     liftgate, diamond grille and projector lamps.
   - [Alder S240 sedan](cars/README.md#alder-s240--midsize-sedan): midsize four-door on 18-inch touring tires, with a
     hinged trunk, hexagonal mesh grille and swept lamps.
+- [Morrow C75 school bus](school-bus/README.md): late-2000s Type C conventional in three district seeds; entrance
+  and emergency doors, stop and crossing arms, roof hatches, steering and wheels move.
 
 Recreation
 - [Skateboard](skateboard/README.md): seven-ply street skateboard with cast trucks, urethane wheels and three original
