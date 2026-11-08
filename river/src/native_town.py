@@ -6,6 +6,7 @@ the native baked surfaces are read-only inputs. No other delivery is rebuilt.
 import os
 import sys
 import json
+import random
 from pathlib import Path
 
 HERE=Path(__file__).resolve().parent
@@ -21,8 +22,16 @@ def long_row(seed,region):
     # Combine two native parameter draws; its unchanged Building factory and
     # per-building budget checks still generate every part and door.
     p=generate(seed,region,12);p['lots']+=generate(seed+1000,region,8)['lots']
-    cursor=0
+    cursor=0;rng=random.Random(seed+918)
     for i,lot in enumerate(p['lots']):
+        # Adjacent parcels differ in depth and storey count, rather than
+        # merely changing brick on an almost uniform roof footprint.
+        lot['stories']=(1,3,2,2,1,2,3)[(i+seed)%7]
+        lot['depth']=rng.choice((80,90,100,110,120))*.3048
+        if i and abs(lot['depth']-p['lots'][i-1]['depth'])<1:
+            lot['depth']=(80 if lot['depth']>30 else 120)*.3048
+        lot['roof']=lot['floor_first']+(lot['stories']-1)*lot['upper']
+        lot['height']=lot['roof']+lot['parapet']
         # Wide three-storey corners can exceed the native 30k cap. Retain
         # their construction with a narrower, validated native frontage.
         lot['width']=min(lot['width'],9.144 if lot['stories']==3 else 10.9728)

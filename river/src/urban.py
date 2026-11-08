@@ -18,7 +18,7 @@ def add(p,rt):
     rows=json.loads((base/'manifest.json').read_text())
     paving=G.Batch('MainStreetAndServiceAlleys',rt,'context')
     furniture=G.Batch('RearAlleyServiceEquipment',rt,'context')
-    frontage=max(lot['depth'] for row in rows[:4] for lot in json.loads((base/row['block']).read_text())['lots'])+11.5
+    frontage=max(lot['depth'] for row in rows[:4] for lot in json.loads((base/row['block']).read_text())['lots'])+14.5
     rt['main_street_offset_m']=frontage
     rt['main_street_front_m']=p.halfwidth(0)+frontage
     rt['unique_building_seeds']=[r['seed'] for r in rows]
@@ -27,13 +27,25 @@ def add(p,rt):
         block=json.loads((base/rows[index]['block']).read_text());cursor=15.5
         for i,lot in enumerate(block['lots']):
             width=lot['width'];depth=lot['depth']
+            gap=12 if i in (4,11) else 3.4 if i%5==2 else .12
+            if i and cursor+gap+width<150:
+                # Empty plots become a parking court or cross alley. They
+                # cut through the entire block depth to the street.
+                a=direction*cursor;c=direction*(cursor+gap)
+                for yy0 in range(math.floor(min(a,c)),math.ceil(max(a,c)),2):
+                    yy1=min(max(a,c),yy0+2);pts=[]
+                    for yy,off in ((yy0,7),(yy0,frontage),(yy1,frontage),(yy1,7)):
+                        pts.append((p.center(yy)+side*(p.halfwidth(yy)+off),yy,3.775+p.water_z(yy)))
+                    paving.geom(pts,[(0,1,2,3)],'asphalt',up=True)
+                cursor+=gap
             if cursor+width>150:
                 unused.append((rows[index],lot));continue
             y=direction*(cursor+width/2);cursor+=width+.12
             # Rear additions can project 4m. Their toes, not the front
             # facades, meet the working service lane 4.6m above the shore.
             edge=p.center(y)+side*p.halfwidth(y)
-            rear=frontage-depth;x=edge+side*(frontage-depth/2)
+            setback=(0,1.1,0,2.8,.4)[i%5]
+            rear=frontage-depth-setback;x=edge+side*(frontage-depth/2-setback)
             src=base/Path(rows[index]['block']).parent/(lot['id']+'.gltf')
             C.instance(src,f'MainStreetBack_{side}_{direction}_{i}',(x,y,3.70+p.water_z(y)),rt,-90 if side<0 else 90)
             riverfront.append(dict(side=side,y_m=y,source=lot['id']))
@@ -88,8 +100,8 @@ def add(p,rt):
             width=lot['width'];depth=lot['depth']
             if cursor+width>150:
                 unused.append((rows[index+4],lot));continue
-            y=direction*(cursor+width/2);cursor+=width+.12
-            edge=p.center(y)+side*p.halfwidth(y);x=edge+side*(outer_front+depth/2)
+            y=direction*(cursor+width/2);cursor+=width+(3.2 if i%4==1 else .12)
+            edge=p.center(y)+side*p.halfwidth(y);x=edge+side*(outer_front+depth/2+(i%3)*1.2)
             src=base/Path(rows[index+4]['block']).parent/(lot['id']+'.gltf')
             C.instance(src,f'OuterTownBlock_{side}_{direction}_{i}',(x,y,3.70+p.water_z(y)),rt,90 if side<0 else -90)
             lots.append((x-depth/2-4,x+depth/2+4,y-width/2,y+width/2))
