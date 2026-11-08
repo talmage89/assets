@@ -11,7 +11,8 @@ def digest(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
 def recipe():
-    return {str(p):digest(p) for p in sorted(Path('src').glob('*')) if p.suffix in ('.py','.mk','.sh')}
+    return {str(p):digest(p) for p in sorted(Path('src').glob('*'))
+            if p.suffix in ('.py','.mk','.sh') or p.name.endswith('-surface.json')}
 
 
 def encode(source,dest):
