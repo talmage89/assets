@@ -4,7 +4,7 @@ from kit import vehicle_materials as V
 from kit.materials import Nodes
 import spec as S
 
-def build(wear):
+def build(wear,coat=.25):
     axles=(S.FRONT_AXLE,S.REAR_AXLE)
     m={'yellow':V.paint('Bus yellow',(.95,.332,.004),wear,axles,front=-5.94,rear=6.006,metallic=0,flakes=0)}
     for key,c,kind in [('black',(.008,.009,.009),'rubber'),('frame',(.013,.014,.013),'steel'),
@@ -67,6 +67,10 @@ def build(wear):
     n.feed(bs.inputs['Coat Weight'],n.mul(old,.28))
     from weathering import apply
     apply(m,wear)
+    # Match stock glTF: its two lobes share the causal ORM roughness field.
+    for link in list(bs.inputs['Coat Weight'].links):n.nt.links.remove(link)
+    bs.inputs['Coat Weight'].default_value=coat
+    n.feed(bs.inputs['Coat Roughness'],n.nt.nodes['OUT_rough'].outputs[0])
     return m
 
 def printed(name,image,wear=.46):

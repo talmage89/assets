@@ -22,12 +22,17 @@ def main():
     finally:sys.argv[index]=old_source
     path=Path(a.out);glb=GLB(path);d=glb.json
     root=next(n for n in d['nodes'] if n['name']=='SchoolBus');root.setdefault('extras',{})['seed']=a.variant
-    from spec import SEEDS
+    from spec import SEEDS,COAT_FACTORS
     root['extras'].update(SEEDS[a.variant])
     for mat in d['materials']:
         if 'Lamps' in mat['name']:mat.setdefault('extras',{}).update(alpha_semantic='emission power divided by 80',states={'red':14,'amber':10,'headlight':5,'dome':2,'strobe':20},default='off')
         if 'Paint' in mat['name']:
-            mat['extensions']['KHR_materials_clearcoat']['clearcoatFactor']={101:.25,102:.20,103:.14}[a.variant]
+            coat=mat['extensions']['KHR_materials_clearcoat']
+            coat['clearcoatFactor']=COAT_FACTORS[a.variant]
+            # Standard glTF reads coat roughness from green, so the existing
+            # ORM can dull the top lobe over causal deposits without a new map.
+            coat['clearcoatRoughnessFactor']=1
+            coat['clearcoatRoughnessTexture']=dict(mat['pbrMetallicRoughness']['metallicRoughnessTexture'])
     d['asset']['extras']=dict(checkpoint='round 2 look development',seed=a.variant,
         age_variation='Shared baked wear; seed-specific causal vertex deposits and enamel coat loss')
     shared=path.parent/'shared';shared.mkdir(exist_ok=True);image_views=[];image_hashes={}

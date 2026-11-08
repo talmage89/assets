@@ -34,3 +34,9 @@ Photo descriptions/licenses: [side](https://commons.wikimedia.org/wiki/File:IC_B
 Licenses: [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/),
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 Comparison pairs remain ignored. Fonts are installed Noto Sans (SIL OFL) through `kit/fonts.py`.
+
+Implementation reference, read on the web only: The Khronos Group,
+[KHR_materials_clearcoat](https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat),
+2018–2020 copyright retained. Its specified green-channel coat roughness permits
+the existing ORM to dull the coating over service deposits, without another map.
+No source code or asset data was downloaded or incorporated.

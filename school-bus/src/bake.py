@@ -1,7 +1,7 @@
-"""Car-family direct surface bake on the finalized UV skin; no optical projection rays.
+"""Frozen car-family surface channels plus dense fiberglass normal projection.
 
-Source coordinates are frozen by cars/src/prepare_bake.py. This checkpoint
-retains quick channels; fine look development is intentionally deferred.
+Service wear is generated in meter-space source fields. The optical covers
+keep direct normals; selected-to-active rays are confined to the hood mold.
 """
 import argparse,json,sys,time
 from pathlib import Path

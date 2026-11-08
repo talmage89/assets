@@ -23,6 +23,7 @@ SEAT_START=-2.23
 BARRIER_Y=-2.84
 ROWS=13
 SIDE_EXIT_ROW=4
+COAT_FACTORS={101:.25,102:.20,103:.14}
 SEEDS={101:dict(fleet='218',district='CEDAR VALE SCHOOLS',wear=.46,age=3),
        102:dict(fleet='307',district='NORTH CREEK DISTRICT',wear=.67,age=4),
        103:dict(fleet='164',district='OAK HOLLOW SCHOOLS',wear=.84,age=5)}

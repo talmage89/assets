@@ -21,7 +21,7 @@ class Bus:
         self.seed=seed;self.high=False;self.detail=True;self.info=S.SEEDS[seed]
         self.root=G.pivot('SchoolBus',(0,0,0));self.root['static_root']=True;self.root['seed']=seed
         self.root['passengers']=75;self.root['body_maker']='Morrow';self.root['model']='C75'
-        self.m=finishes.build(self.info['wear']);self.images={}
+        self.m=finishes.build(self.info['wear'],coat=S.COAT_FACTORS[seed]);self.images={}
         for key in ['school','emergency','maker','stop']+[f'{kind}-{sid}' for sid in S.SEEDS for kind in ['district','fleet','plate']]:
             self.images[key]=bpy.data.images.load(str(ROOT/'school-bus/build/markings'/f'{key}.png'))
             self.m[key]=finishes.printed(key,self.images[key],self.info['wear'])

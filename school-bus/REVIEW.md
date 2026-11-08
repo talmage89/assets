@@ -495,3 +495,67 @@ All 24 downward probes at the failed region now hit the actual hood, and
 all-face normals and optical intersections still pass. The repair adds 66
 triangles (hood 6,198; total 86,554, exterior 69,290). Rebuild the UV/bake and
 all delivery proofs; previous 86,488-triangle receipts are superseded.
+
+## Round 2 — exported look pass 6, finish the visible age and exposure
+
+Color/value first: opened all eighteen 1400px Cycles gallery views, four
+source and four delivery pairs, the Eevee view and historical hero. The new
+school hero has saturated orange-yellow, dark cabin panes with local
+reflections, a visible canopy/curb and three queued buses. Its bus-only
+pixels have 31.45% below 25/255 display luma; paint median/p99 are .543/.642,
+with no clipped RGB channels. These measurements support the image review;
+they are not albedo values or an appearance pass by themselves.
+
+The used side field is now 195/137/21 versus the neutral-balanced photo's
+223/130/1. The render's nominally neutral plate is also cool, so replace
+the residual blue sky contribution in photographic views with neutral
+overcast light before changing the baked yellow again. A blanket 2 EV
+overexposes the rear comparison: both source and export are pale and their
+glass reflects white. Use an individual photographic exposure for each
+view, preserving all solved camera geometry and recording those settings.
+
+The integrated hood, recessed lamps/grille, gray lining, crowned seats and
+shallow step are substantial improvements in the same-camera comparisons.
+The adult-height aisle shows the padded tops, but the original low-eye
+aisle is still too dark; raise its photographic exposure about one stop.
+The front/side/rear orthographic rays see below the finite ground plane.
+Extend a real studio wall below that plane and use it behind all three
+views, without changing their cameras.
+
+Reject the age read at this stage: lower dirt is visible in the close-up
+but too faint in the hero, and roof runoff disappears beneath the coating
+highlight. Increase the existing localized coverage, use opaque sparse
+leading-edge chips at a less extreme noise threshold, and dull the source
+coating over the same masks stored in delivery alpha. Strengthen hatch and
+marker runoff, skirt salt/rust, bumper corrosion, rear soot, rail chalk and
+seat contact scuffs. Keep all changes on their causal surfaces, within the
+same geometry and shared atlas. The service photos show duller low panels
+and wheels, not a uniform noise wash. Archive this rejected set in
+`renders/round2-export-pass6/` and repeat the source/export judgement.
+
+## Round 2 — source look pass 7, narrow the runoff and carry coating response
+
+Color/value first: opened all seven new source probes and all eight pairs
+under neutral overcast light. The used-side field is 191/117/0 against
+223/130/1: its hue is now close, but value is low. Increase photographic
+exposures moderately, without changing the yellow again. The added rear
+reflection horizon fixes its white panes; its trial .8 EV is now too dark.
+Restore a normal daylight exposure for that view. These trials remain in
+`renders/round2-look-pass7/`; their delivery panels still use the prior atlas.
+
+The brighter aisle reveals curved padded tops, welts, contact scuffs, tape
+repairs and gray lining. Leading chips, skirt deposits and bumper corrosion
+now read at useful distance. Retain those changes. Roof runoff follows the
+correct crossfall, but its broad marks look like painted stripes. Reject
+them: narrow and taper each path, break its coverage and keep slight drift.
+The studio wall fills the old void, but the ground slab still occludes its
+lower portion. Orthographic elevations should use the full-height card
+without that horizontal slab; the camera framing stays unchanged.
+
+The delivered coat had uniform .22 roughness despite dirt in the base
+roughness map. Use the existing ORM green channel for both lobes through
+standard `KHR_materials_clearcoat`, and match that response in the source.
+The seed-specific .25/.20/.14 coat factors now have one shared parameter
+table. This keeps the four bindings, three images and geometry unchanged.
+Rebuild and bake these final shader refinements, then judge the refreshed
+delivery rather than the earlier atlas under the new light.
