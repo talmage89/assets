@@ -531,3 +531,70 @@ one instanced closing frontage there. The lawns now use the School/Ground
 maps and maintained tints, plus a mown edge. Their distant large plots still
 read simpler than a photograph. Fine stains, oil and droppings resolve in
 close views; the full hero carries the larger cap/joint service history.
+
+## Look pass 3 — reject sun on the neutral column and the commercial framing
+
+Color/value first: opened all 25 full-size exported scene views, the two
+baseline open-door views, and all three baked plus three original-field
+pairs, archived in `renders/look-pass3/` and its paired folders. Removing the
+comparison's opposing buildings admits the needed floor daylight: floor Y
+is .06253 against .06963 in the concrete-balanced photo. But it also admits
+direct low sun onto the camera-facing column, lifting it to .26164 against
+.10930; the soffit is .01143 against .00794. Reject that column lighting.
+Put the comparison sun behind the visible face, as the shaded photograph
+requires, before judging material color again. Keep the new broad sky and
+open lot. These display-linear readings are not albedo measurements.
+
+The municipal hero has display-linear p1/p99 .00030/.70944, commercial
+.00206/.73499, and neither has clipped RGB pixels. The wraps now expose a
+real diffuser edge below the uplight, rather than a light beside an opaque
+housing. Regular floor pools remain a procedural tell. The deeper paired
+stems, actual seats and brighter floor resolve the former tunnel/flat-ceiling
+read. The new cab and inner sliding panels make the opened elevator usable;
+the surface leaves still lack enclosed pockets and the cab does not travel.
+
+The northeast frontage closes the municipal entry horizon, and the exported
+queue tires now meet the actual sloped apron. The commercial hero still puts
+the crossing tree and meters outside the frame. Move only its public hero
+camera farther across the crossing street, retaining 35mm/1.65m and the old
+camera for the direct before/after. Re-render the set with that correction.
+
+Cap runoff is visible in the heroes and tapers off instead of ending at a
+rectangular stamp, but close-ups still reveal comb-like stream groups.
+Small engine leaks, mineral deposits and roost marks remain detail-scale;
+the full hero does not make each independently identifiable. The reference
+precast floor is wet and carries broad cleaning/tire swirls; the dry specimen
+does not yet reproduce that state. Harmon has the correct round cast forms
+and an improved edge/opening ratio, but its surfaces remain more uniform
+than the photo. Tight 15.81/14.92/5.67px fits do not erase those look misses.
+
+## Look pass 4 — useful public views, unresolved column illumination
+
+Color/value first: opened all 25 final scene views and all six original-field
+and baked pairs, archived as `renders/look-pass4/` and its paired folders.
+The sun is now behind the photographed column face. The concrete-balanced
+floor median is .06970 against .06963 in the photo; the near dark soffit is
+.00955 against .00794. The bare column is still .22498 against .10930.
+Checked diagnostic ROI overlays on both full-size images: the column patch
+is bare cement in each, not a sign. Reject the remaining column illumination
+before changing finer surface detail. Separate sky, sun and practicals on the
+same exported specimen to identify the cause rather than tinting that patch.
+
+The public heroes retain deep shade and unclipped sunlit concrete: municipal
+display-linear p1/p99 is .00030/.70944, commercial .00126/.72468, zero clipped
+RGB pixels in both. The new commercial camera includes its crossing tree and
+walk while exposing the flights through the glazed return. The surface car
+row still hides much of its entry queue; meters are partly hidden by the tree.
+The dedicated entry views make the actual queue/apron contact clear.
+
+Closed 2mm formed pockets now conceal the opened lift leaves. Zero-thickness
+pockets failed the solid-parity check despite no triangle crossings; real
+skins pass all sixty motions without a new collision exemption. Six-sided
+small stair tubes fund that construction, reducing the tallest tower to 7756
+triangles. The fixed ground cab is usable and lit, but does not travel.
+
+The independent GPU repeat passes the predeclared tolerance: BaseColor and
+ORM are exact; three normal-map pixels differ by one eight-bit code each.
+Canonical maps remain frozen. Runoff combs, smooth distant turf, repeated
+native actors and detail-scale minor stains remain visible CG tells. The
+dry floor still differs from the photograph's wet cleaning/tire swirls.

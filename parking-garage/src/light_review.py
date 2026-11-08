@@ -45,7 +45,13 @@ def views(p,original):
     # to the walk/curb, meters, trees and intersecting traffic lanes.
     s['hero']['aspect']=2.35
     if not municipal:
-        s['hero']=dict(s['retained_hero'],aspect=2.35)
+        eye=Vector(s['retained_hero']['location'])+Vector((-9,13,0))
+        garage=next(o for o in bpy.context.scene.objects if o.name.startswith('Garage_') and o.get('system')==p['system'])
+        points=[o.matrix_world@Vector(c) for o in garage.children_recursive if o.type=='MESH' for c in o.bound_box]
+        angles=[math.atan2(v.y-eye.y,v.x-eye.x) for v in points];az=(min(angles)+max(angles))/2
+        forward=Vector((math.cos(az),math.sin(az),0));elev=[math.atan2(v.z-eye.z,(v-eye).dot(forward)) for v in points];el=(min(elev)+max(elev))/2
+        direction=Vector((math.cos(el)*math.cos(az),math.cos(el)*math.sin(az),math.sin(el)))
+        s['hero']=dict(location=list(eye),target=list(eye+direction),lens=35,aspect=2.35)
     s['aisle']=dict(location=(-L/2+10,p['flat_y']-1.6,1.65),target=(L/2-8,p['flat_y']+5,1.9),lens=32,interior=True)
     # Additional construction view angles across the tee stems; the retained
     # aisle itself is unchanged for the required before/after evidence.
