@@ -2309,3 +2309,11 @@ Both family rebuild/render/check sequences return zero, and every literal
 The tool was not edited during adoption. The assembled-joint proof and all
 post-build original checks remain pending; passing isolated modules is not
 reported as proof of their assembled support contacts.
+
+The four adopter original checks have now completed after the frozen builds:
+street-light, privacy fences, picket and chain-link all return zero. The privacy
+command freezes its recursive family target and the two subfamilies are checked
+explicitly; their construction and motion checks are included. Complete commands
+and results are in `build/lod-v4/adopter-original-checks.json`. The four current
+adopter manifests, checks and all 60 recorded render-file hashes match. The
+reduced assembled-joint proof remains queued and is still a separate obligation.
