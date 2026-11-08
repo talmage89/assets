@@ -64,7 +64,7 @@ def context(plan):
         if kind=='car':
             # Some driveways hold two vehicles, some one. Every occupied street
             # includes three native body types with varied factory paint.
-            if 'CarportCar' in o.name and j%3==0:continue
+            if not o.get('occupied',True):continue
             path=cars[int(o.get('vehicle_index',j%3))];r=lib.place(path,'Resident car '+str(j),pos,yaw)
             # Distribute colors independently of vehicle/lot seed modulo.
             # The leading pair deliberately uses Atlantic and Graphite.

@@ -8,6 +8,7 @@ from pathlib import Path
 import numpy as np
 import bpy
 from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE),str(HERE.parents[1])]
 from kit.gltf import GLB
 from plans import park,home
@@ -40,6 +41,16 @@ def imported_count():
     for ob in bpy.context.scene.objects:
         if ob.type=='MESH' and not ('Icosphere' in ob.name and not ob.data.materials):ob.data.calc_loop_triangles();n+=len(ob.data.loop_triangles)
     return n
+
+
+def mesh_tree(objects):
+    points=[];triangles=[]
+    for ob in objects:
+        if ob.type!='MESH':continue
+        ob.data.calc_loop_triangles();start=len(points)
+        points.extend([ob.matrix_world@v.co for v in ob.data.vertices])
+        triangles.extend([tuple(start+i for i in t.vertices) for t in ob.data.loop_triangles])
+    return BVHTree.FromPolygons(points,triangles,all_triangles=True)
 
 
 def check():
@@ -88,6 +99,14 @@ def check():
             actual_width=right[1]-left[1];assert abs(actual_width-spec['width'])<.03,(stem,'skin width',actual_width,spec['width'])
             cap=35000 if stem.startswith('Single') else 50000;assert triangles<=cap
             construction[stem]=dict(wall_width_ray_m=actual_width,footprint_socket_span_m=delta.tolist(),mesh_envelope_m=size.tolist(),triangle_cap=cap)
+            seam_x=-spec['length']/2+spec['length']/math.ceil(spec['length']/.4064)
+            skirt_hit,_=probe(stem,(seam_x,-spec['width'],.25),(0,1,0))
+            assert abs(skirt_hit[1]+spec['width']/2)<.04,(stem,'open skirt seam',skirt_hit)
+            construction[stem]['skirt_seam_ray_hit_m']=skirt_hit
+            if spec['era']!='1972':
+                rake_hit,_=probe(stem,(spec['length']/2+1,spec['width']/2-.10,spec['eave']+.05),(-1,0,0))
+                assert abs(rake_hit[0]-spec['length']/2)<.02,(stem,'open rake closure',rake_hit)
+                construction[stem]['rake_closure_ray_hit_m']=rake_hit
         if stem=='SupportFrame':
             # Main rail lower flange is sampled at a non-pier station. The CMU
             # pier cap, shim and flange contacts use actual vertical intervals.
@@ -97,13 +116,51 @@ def check():
             construction[stem]=dict(sampled_main_rail_bottom_m=main_rail_bottom,minimum_comparator_m=.3048)
         if stem=='Deck':
             top,_=probe(stem,(.7,0,2),(0,0,-1));bottom,_=probe(stem,(-1.35,-2.2,2),(0,0,-1))
-            construction[stem]=dict(sampled_deck_top_m=top[2],sampled_low_tread_m=bottom[2])
+            beam_bottom,_=probe(stem,(.7,-.9268,.2),(0,0,1))
+            beam_top,_=probe(stem,(.7,-.9268,.68),(0,0,-1))
+            joist_bottom,_=probe(stem,(.2010833,0,.2),(0,0,1))
+            post_top,_=probe(stem,(-1.7288,-.9678,.7),(0,0,-1))
+            assert abs(beam_top[2]-joist_bottom[2])<.001
+            assert abs(beam_bottom[2]-post_top[2])<.001
+            construction[stem]=dict(sampled_deck_top_m=top[2],sampled_low_tread_m=bottom[2],sampled_beam_interval_m=[beam_bottom[2],beam_top[2]],sampled_joist_bottom_m=joist_bottom[2],sampled_post_top_m=post_top[2])
         if stem.startswith('Park'):
-            p=meta['plan'];widths=[]
+            p=meta['plan'];widths=[];addon_clearance=[]
+            car_points=[o.matrix_world.translation.copy() for o in bpy.context.scene.objects if o.get('socket_kind')=='car']
+            car_spacing=min((a-b).length for j,a in enumerate(car_points) for b in car_points[j+1:])
+            assert car_spacing>2.5,(stem,'duplicate or crowded car sockets',car_spacing)
             for lot in p['lots']:
                 h=meta['assemblies'][f'Lot_{lot["number"]:02}_Home']
                 cap=50000 if lot['home']['double'] else 35000
                 assert h['triangles']<=cap,(stem,lot['number'],'seeded home budget',h['triangles'],cap)
+                if lot['home']['carport']:
+                    def tree(suffix):
+                        ob=next(o for o in bpy.context.scene.objects if o.name==f'Lot_{lot["number"]:02}_{suffix}__Mesh')
+                        ob.data.calc_loop_triangles()
+                        return BVHTree.FromPolygons([ob.matrix_world@v.co for v in ob.data.vertices],[list(t.vertices) for t in ob.data.loop_triangles],all_triangles=True)
+                    overlaps=tree('Deck').overlap(tree('Carport'))
+                    assert not overlaps,(stem,lot['number'],'deck / carport mesh intersections',len(overlaps))
+                    addon_clearance.append(dict(lot=lot['number'],deck_carport_intersection_pairs=len(overlaps)))
+            # Independent assemblies must not overlap their neighbors. Include
+            # actual native props and all moving meshes in their rest pose.
+            lot_trees=[]
+            for lot in p['lots']:
+                root=bpy.data.objects[f'Lot_{lot["number"]:02}']
+                lot_trees.append((lot['number'],mesh_tree(root.children_recursive)))
+            placement_pairs=0
+            for j,(number,aa) in enumerate(lot_trees):
+                for other,bb in lot_trees[j+1:]:
+                    collisions=aa.overlap(bb)
+                    assert not collisions,(stem,'neighboring lot intersections',number,other,len(collisions))
+                    placement_pairs+=1
+            common_fixed=mesh_tree([bpy.data.objects['CommonFacilities__Mesh']])
+            facilities=[common_fixed]
+            for name in ('Office','Clubhouse','Laundry'):
+                if name in bpy.data.objects:facilities.append(mesh_tree(bpy.data.objects[name].children_recursive))
+            for number,aa in lot_trees:
+                for bb in facilities:
+                    collisions=aa.overlap(bb)
+                    assert not collisions,(stem,'lot / common facility intersections',number,len(collisions))
+                    placement_pairs+=1
             # Source physical road surface is selected by a ray through its
             # center; width is measured on its actual imported mesh vertices.
             private=next(o for o in bpy.context.scene.objects if o.type=='MESH' and o.name.startswith('Private asphalt 0'))
@@ -117,7 +174,7 @@ def check():
                     av=vertices(g,f'Lot_{aa["number"]:02}_Home__Mesh');bv=vertices(g,f'Lot_{bb["number"]:02}_Home__Mesh')
                     if len(av) and len(bv):separations.append(float(bv[:,1].min()-av[:,1].max()))
             assert not separations or min(separations)>3.0,(stem,'home separation',separations)
-            construction[stem]=dict(road_width_mesh_m=road_width,home_separation_mesh_m=separations,net_lot_area_m2=p['lot_frontage']*p['lot_depth'],home_count=len(p['lots']),road_graph=p['roads'])
+            construction[stem]=dict(road_width_mesh_m=road_width,home_separation_mesh_m=separations,minimum_car_socket_spacing_m=car_spacing,static_assembly_pairs_checked=placement_pairs,deck_carport_mesh_checks=addon_clearance,net_lot_area_m2=p['lot_frontage']*p['lot_depth'],home_count=len(p['lots']),road_graph=p['roads'])
         rows[stem]=dict(triangles=triangles,geometry_bytes=meta['geometry_bytes'],materials=len(d['materials']),collapsed_triangles=collapsed,collapsed_diagnostic_uv_triangles=uv_bad,max_normal_length_error=maxnormal,mesh_size_m=size.tolist(),fresh_import=True)
         print('CHECK',stem,triangles,'UV diagnostics',uv_bad,flush=True)
     baseline=Path('build/preserved.json');preserved=0

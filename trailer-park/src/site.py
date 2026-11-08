@@ -77,8 +77,12 @@ def lot(p,record,lib,parent):
     place(d.root,(-L*.035,-W/2-1.11,0),parent=a.root)
     back=A.deck(a.root.name+'_BackSteps',1.22,1.0,spec['floor']-.025,seed+1)
     place(back.root,(L*.26,W/2+.55,0),180,parent=a.root)
+    cp_x=L/2-2.9
     if spec['carport']:
-        cp=A.carport(a.root.name+'_Carport',sag=spec['awning_sag']);place(cp.root,(L/2-3.4,-W/2-1.82,0),parent=a.root)
+        cp=A.carport(a.root.name+'_Carport',sag=spec['awning_sag']);place(cp.root,(cp_x,-W/2-1.82,0),parent=a.root)
+        marker=next(o for o in cp.root.children if o.get('socket_kind')=='car')
+        marker.name=a.root.name+'__CarportCar';marker['vehicle_index']=(seed+1)%3
+        marker['paint_index']=(seed+2)%5;marker['occupied']=seed%5!=0
     if spec['room']:place(A.room(a.root.name+'_AddedRoom').root,(-L*.32,-W/2-1.20,0),parent=a.root)
     if spec['propane']:place(A.propane(a.root.name+'_Propane').root,(L*.13,W/2+.55,0),parent=a.root)
     ac=A.conditioner(a.root.name+'_AC',spec['ac'])
@@ -119,13 +123,22 @@ def lot(p,record,lib,parent):
         for j in range(3):native(lib,path,a.root.name+'_Post'+str(j),(-L/2-1.024+j*3.048,-W/2-3.55,0),0,'Chain_Terminal' if j in (0,2) else 'Chain_Line',a.root)
         native(lib,path,a.root.name+'_Gate',(-L/2+5.60,-W/2-3.55,0),0,'Chain_GateBay',a.root)
     a.socket('Car',(L/2+3.1,-1.1,.015),'car',yaw=90,vehicle_index=2 if p['kind']=='old' and record['number']==1 else seed%3,paint_index=seed%5)
-    a.socket('CarportCar',(L/2-3.2,-W/2-1.8,.015),'car',yaw=90,vehicle_index=(seed+1)%3,paint_index=(seed+2)%5)
     a.socket('Mailbox',(L/2+3.2,1.7,0),'mailbox')
     # Real paving between uncurbed private lane and the home end.
     concrete=library_material(lib,'Concrete');gravel=seed%3==0
     mat=concrete if not gravel else library_material(lib,'Asphalt')
-    ground_box(a.root,'Lot drive apron',(L/2+3.0,-.6,-.015),(6.0,5.6,.06),mat,3.048 if not gravel else 1.5,(.80,.77,.67) if gravel else (.90,.89,.84))
-    if spec['carport']:ground_box(a.root,'Carport pad',(L/2-3.4,-W/2-1.82,-.015),(6.9,3.55,.06),concrete,3.048,(.86,.85,.79))
+    # Partition the union at the carport pad rather than laying coplanar
+    # slabs on top of one another. The approach meets the actual lane edge.
+    cp_rect=(cp_x-3.45,cp_x+3.45,-W/2-3.595,-W/2-.045)
+    xs=[L/2,L/2+6.096];ys=[-3.4,2.2]
+    if spec['carport']:
+        xs=sorted(set(xs+[v for v in cp_rect[:2] if xs[0]<v<xs[-1]]))
+        ys=sorted(set(ys+[v for v in cp_rect[2:] if ys[0]<v<ys[-1]]))
+    for x0,x1 in zip(xs,xs[1:]):
+        for y0,y1 in zip(ys,ys[1:]):
+            if spec['carport'] and cp_rect[0]<(x0+x1)/2<cp_rect[1] and cp_rect[2]<(y0+y1)/2<cp_rect[3]:continue
+            ground_box(a.root,'Lot drive apron',((x0+x1)/2,(y0+y1)/2,-.015),(x1-x0,y1-y0,.06),mat,3.048 if not gravel else 1.5,(.80,.77,.67) if gravel else (.90,.89,.84))
+    if spec['carport']:ground_box(a.root,'Carport pad',(cp_x,-W/2-1.82,-.015),(6.9,3.55,.06),concrete,3.048,(.86,.85,.79))
     # A narrow resident-made walk connects the parking approach to the stairs.
     x0=-L*.035-spec['deck_width']/2+.475;x1=L/2+1.2;wy=-W/2-3.0
     ground_box(a.root,'Resident walk',((x0+x1)/2,wy,-.008),(x1-x0,.80,.045),concrete,3.048,(.78,.77,.70))
@@ -157,7 +170,7 @@ def common(p,lib,parent):
     sg=A.sign('EntranceSign',p['name'].upper());place(sg.root,(7 if old else 8,base-3,0),0,a.root)
     for j in range(5):a.socket('EntrancePlant_'+str(j),(5+j*1.2,base-2.3,0),'shrub')
     m=a.mesh('ClusterMail',component='cluster_mail')
-    mx,my=(14,base+3) if old else (6,-7)
+    mx,my=(14,base+3) if old else (-11,-.2)
     m.box((mx,my,.04),(3.5,2.0,.08),'Concrete')
     for dx in (-.5,.5):m.box((mx+dx,my,.65),(.10,.10,1.2),'Trim',(.24,.25,.22))
     m.box((mx,my,1.26),(1.62,.44,.78),'Trim',(.29,.30,.26),r=.012)

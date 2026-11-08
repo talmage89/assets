@@ -184,7 +184,12 @@ def roof(a,p):
             poly.extend((sx*(L/2+.002),y,height(y)-.03) for y in reversed(ys))
             trim.prism(poly,(-sx,0,0),.06,'Siding')
         else:
-            trim.prism([(sx*(L/2+.002),-W/2,E),(sx*(L/2+.002),W/2,E),(sx*(L/2+.002),0,height(0)-.03)],(-sx,0,0),.06,'Siding')
+            # Close to the actual roof underside at the wall stations. A
+            # triangle ending at E left a daylight slit above each rake.
+            trim.prism([(sx*(L/2+.002),-W/2,E),(sx*(L/2+.002),W/2,E),
+                        (sx*(L/2+.002),W/2,height(W/2)-.025),
+                        (sx*(L/2+.002),0,height(0)-.025),
+                        (sx*(L/2+.002),-W/2,height(-W/2)-.025)],(-sx,0,0),.06,'Siding')
     # Vented plumbing boots and furnace flue, at measured roof surface.
     for x,y,r,h in ((L*.27,.43,.045,.30),(-L*.28,.38,.075,.42)):
         z=height(y);trim.box((x,y,z+.007),(.27,.27,.020),'Trim',(.10,.11,.095))
@@ -204,7 +209,9 @@ def skirting(a,p):
         along=face<2;sign=-1 if face%2==0 else 1;length=L if along else W
         count=math.ceil(length/.4064)
         for j in range(count):
-            u=-length/2+(j+.5)*length/count;w=length/count-.003
+            # Interlocking panels overlap at their seams; open butt gaps
+            # leaked sky through the chassis in the end-on turnaround.
+            u=-length/2+(j+.5)*length/count;w=length/count+.001
             # One intentional missing panel exposes real support construction.
             if p['missing_skirt'] and face==0 and j==count//2+3:continue
             vent=j%7==2 and along;z=.045+height/2

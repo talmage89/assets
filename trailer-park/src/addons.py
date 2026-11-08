@@ -9,13 +9,19 @@ WOOD=(.22,.195,.14)
 def deck(name='Deck',width=3.6576,depth=2.1336,height=.885,seed=1):
     a=Assembly(name);m=a.mesh('Timber',component='deck');r=random.Random(seed)
     # Footings, 4x4 posts, beams, 2x8 rim/joists and 5/4 deck boards.
+    joist_top=height-.0254;joist_bottom=joist_top-.1842
+    beam_top=joist_bottom;beam_bottom=beam_top-.1842
     for x in (-width/2+.10,width/2-.10):
         for y in (-depth/2+.14,depth/2-.14):
             m.box((x,y,.05),(.33,.33,.1),'Concrete')
-            m.box((x,y,(height-.15+.10)/2),(.0889,.0889,height-.15-.10),'Veneer',WOOD)
-    for y in (-depth/2+.10,depth/2-.10):m.box((0,y,height-.17),(width,.0762,.1842),'Veneer',WOOD)
-    for j in range(math.ceil(width/.4064)+1):
-        x=-width/2+j*width/math.ceil(width/.4064);m.box((x,0,height-.118),(.0381,depth,.1842),'Veneer',WOOD)
+            m.box((x,y,(beam_bottom+.10)/2),(.0889,.0889,beam_bottom-.10),'Veneer',WOOD)
+    for sy in (-1,1):
+        m.box((0,sy*(depth/2-.14),(beam_top+beam_bottom)/2),(width,.0762,.1842),'Veneer',WOOD)
+        m.box((0,sy*(depth/2-.01905),(joist_top+joist_bottom)/2),(width,.0381,.1842),'Veneer',WOOD)
+    count=math.ceil((width-.0381)/.4064)
+    for j in range(count+1):
+        x=-width/2+.01905+j*(width-.0381)/count
+        m.box((x,0,(joist_top+joist_bottom)/2),(.0381,depth-.0762,.1842),'Veneer',WOOD)
     n=math.ceil(depth/.145)
     for j in range(n):
         y=-depth/2+(j+.5)*depth/n;c=tuple(v*r.uniform(.92,1.08) for v in WOOD)
@@ -26,14 +32,15 @@ def deck(name='Deck',width=3.6576,depth=2.1336,height=.885,seed=1):
     stairs(a,width,depth,height,m)
     # Front opening aligns to stair flight; home side remains open at the door.
     gap=.98;left=-width/2;right=width/2
-    for x in (left,left+.95,right):m.box((x,-depth/2,height+.43),(.0889,.0889,.99),'Veneer',WOOD)
+    rail_post_top=height+.925
+    for x in (left,left+.95,right):m.box((x,-depth/2,(rail_post_top+joist_bottom)/2),(.0889,.0889,rail_post_top-joist_bottom),'Veneer',WOOD)
     for x0,x1 in ((left+.99,right),):
         for z in (height+.12,height+.86):m.box(((x0+x1)/2,-depth/2,z),(x1-x0,.0381,.0889),'Veneer',WOOD)
         m.box(((x0+x1)/2,-depth/2,height+.935),(x1-x0+.09,.1397,.032),'Veneer',WOOD)
         n=math.ceil((x1-x0)/.125)
         for j in range(n):m.box((x0+(j+.5)*(x1-x0)/n,-depth/2,height+.46),(.0381,.0381,.64),'Veneer',WOOD)
     for x in (left,right):
-        m.box((x,depth/2,height+.43),(.0889,.0889,.99),'Veneer',WOOD)
+        m.box((x,depth/2,(rail_post_top+joist_bottom)/2),(.0889,.0889,rail_post_top-joist_bottom),'Veneer',WOOD)
         for z in (height+.12,height+.86):m.box((x,0,z),(.0381,depth,.0889),'Veneer',WOOD)
         m.box((x,0,height+.935),(.1397,depth+.09,.032),'Veneer',WOOD)
         for j in range(math.ceil(depth/.125)):

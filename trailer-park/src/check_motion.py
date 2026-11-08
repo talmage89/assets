@@ -1,4 +1,4 @@
-"""Sample true home hinges and reused lot hinges on imported geometry."""
+"""Sample three real hinges on each imported standalone home."""
 import json,sys
 from pathlib import Path
 import bpy
