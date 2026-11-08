@@ -1,5 +1,8 @@
 # Manufactured communities / form gate
 
+The historical checkpoint reviews below are retained. The delivery reviews at
+the end judge the five remaining corrections; their visual gate is still open.
+
 This is the form and construction checkpoint. Home finishes are explicit quick
 materials; there is no new family bake, finished wear pass, final gallery or
 game-readiness claim. Every review render imports the external glTF package.
@@ -505,3 +508,49 @@ Repeat uses cached native inputs and does not repeat the GPU bake.
 All 44 render source/image receipts pass. These checks prove their stated
 geometry, serialization, resource and sampled-motion scopes; they do not
 override the visual weaknesses above.
+
+## Delivery pass 1 — reject weak wall/apron age and the drawn road seal
+
+**Color and value first.** Inspected all ten native 1440px frames in
+`renders/age-pass1/`, then all four full-size neutral-balanced pairs. The
+2009 storm-door frame, 2007 white addition fascia, 2015 bare aluminum pan
+and newer PVC post remain the balance assumptions. The older lot still
+has much less value variation than the used photograph: its light skirt,
+clean apron and smooth siding dominate the few dark marks. The street
+heroes keep deep shade and unclipped highlights: old/new max-channel
+p5/p95 are .0706/.7804 and .1412/.7961; near-clip fractions are .00000773
+and .00000258. These are display statistics, not measured albedos.
+
+Traffic now has blue, charcoal, black, red and tan among the light paints.
+However, the newer hero still puts the same pickup body on both foreground
+drives: a nine-lot row correlated with the three-body cycle. Offset the body
+cycle by row as well as by lot, retaining independently seeded paint.
+The three native body geometries necessarily recur across a whole park.
+
+Reject the age and turf gate. The older row remains too clean. Roof runoff
+is cut off above window heads and hidden by the awnings; redirect it beside
+their ends and let exposed streaks reach lower. Broaden selected neglected
+streaks, increase irregular lower-skirt splash, and expose a missing end
+panel on patched homes so underfloor darkness reads from the lane.
+The apron repairs exist, but their placement hugs the house. Fresh-import
+surface and camera rays hit the actual repair skins; projected patch
+centers occupy only a small strip beside the cart. Move the caused repair,
+crack and former-parking oil history across the existing exposed apron.
+Do not change the accepted slab or lane dimensions to match this photo.
+
+The long black seal reads as a drawn zigzag. Smooth its path, vary its
+width, interrupt the repaired sections, reduce repeated large oil stamps,
+and break the uniform brown shoulder band. Keep the charcoal pavement's
+value; add restrained binder/wheel-lane and exposed-margin differences.
+Broad lawns remain felt-like. Soil at the skirt is largely hidden, and
+the drive-edge scars are too small. Ground the soil skins on the actual
+undulating sward, open the mailbox/drive turning scars and add sparse native
+grass clumps beyond the slab fringes, without another image set.
+
+The replacement 2007 view now shows the actual old lane and occupied
+neighbors. Its 18.737px fit uses four inferred lane stations, rather than
+the old six addition corners; it is a weaker construction comparison.
+The 29.39mm pose has a conspicuous tilt and substantially more open street
+than the photograph. The other three accepted fits are unchanged. No final
+gallery or docs image is approved by this pass. First-pass native crops
+are in `renders/age-fixes/`; they document the miss as well as the progress.

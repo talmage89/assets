@@ -10,11 +10,12 @@ COLORS=dict(Oxblood=(.19,.018,.012),Pine=(.035,.085,.045),Sand=(.31,.25,.16))
 MIX=('Aluminum',)*18+('Graphite',)*19+('Carbon',)*17+('Porcelain',)*18+('Atlantic',)*14+('Oxblood',)*8+('Pine',)*3+('Sand',)*3
 
 
-def selection(seed,number,slot=0):
+def selection(seed,number,slot=0,rows=9):
     r=random.Random(seed*100003+number*397+slot*1301)
     # Three bodies repeat across a whole park, but neighboring drives cycle
     # bodies and use independently seeded paint, never one repeated fleet.
-    return (number+slot+seed)%3,r.choice(MIX)
+    row,station=divmod(number-1,rows)
+    return (station+2*row+slot+seed)%3,r.choice(MIX)
 
 
 def paint(lib,root,preset):
@@ -36,7 +37,14 @@ def paint(lib,root,preset):
                 nt.links.new(delta.outputs[0],scale.inputs[0]);nt.links.new(tex.outputs['Alpha'],scale.inputs['Scale'])
                 add=nt.nodes.new('ShaderNodeVectorMath');add.operation='ADD'
                 nt.links.new(tex.outputs['Color'],add.inputs[0]);nt.links.new(scale.outputs[0],add.inputs[1]);nt.links.new(add.outputs[0],bs.inputs['Base Color'])
-                bs.inputs['Metallic'].default_value=json.loads(original.get('paint_metallic','{}')).get(preset,.10)
+                metal=json.loads(original.get('paint_metallic','{}')).get(preset,.10);socket=bs.inputs['Metallic']
+                if socket.is_linked:
+                    incoming=socket.links[0].from_socket;factor=nt.nodes.new('ShaderNodeMath');factor.operation='MULTIPLY';factor.inputs[1].default_value=metal/.12
+                    nt.links.new(incoming,factor.inputs[0]);nt.links.new(factor.outputs[0],socket)
+                else:socket.default_value=metal
+                for name,a,b in (('Coat Weight',.90,.10),('Coat Roughness',-.35,.385)):
+                    node=nt.nodes.new('ShaderNodeMath');node.operation='MULTIPLY_ADD';node.inputs[1].default_value=a;node.inputs[2].default_value=b
+                    nt.links.new(tex.outputs['Alpha'],node.inputs[0]);nt.links.new(node.outputs[0],bs.inputs[name])
                 ma['park_factory_color']=preset;lib.paint[key]=ma
             slot.link='OBJECT';slot.material=lib.paint[key];found.add(preset)
     assert found,('Native paint coverage missing',root.name)

@@ -109,7 +109,7 @@ def age(q,n,c,role,component,p,seed):
         color=color.lerp(Vector((.22,.075,.022)),oxide)
     if component in ('skirting','skirt_access'):
         color=Vector((.62,.61,.55)).lerp(Vector((.40,.39,.32)),severity*.36)
-        splash=.13+.13*(.5+.5*math.sin(x*2.1+y*2.8+seed))**2
+        splash=.20+.18*(.5+.5*math.sin(x*2.1+y*2.8+seed))**2
         soil=severity*.94*math.exp(-max(0,z-.04)/splash)*(.35+.65*ripple)
         color=color.lerp(Vector((.075,.067,.033)),soil)
         damp=severity*north*.44*(.5+.5*math.sin(x*1.9+seed))**2

@@ -4,6 +4,10 @@ import bpy
 from kit.tiling import world_uv
 
 
+def sward_height(x,y):
+    return -.008-.018*(.5+.5*math.sin(x*.61+math.sin(y*.29)))*(.5+.5*math.sin(y*.83+x*.3))
+
+
 def mesh(parent,name,vs,fs,mat,coverage=3.048):
     # Open ground skins have authored upward winding. A volume-oriented
     # normal recalculation can reverse isolated cards according to position.
@@ -21,7 +25,7 @@ def turf(parent,plan,mat):
     for j in range(ny+1):
         for i in range(nx+1):
             x,y=-W/2+i*W/nx,-D/2+j*D/ny
-            z=-.008-.018*(.5+.5*math.sin(x*.61+math.sin(y*.29)))*(.5+.5*math.sin(y*.83+x*.3))
+            z=sward_height(x,y)
             vs.append((x,y,z))
     for j in range(ny):
         for i in range(nx):k=j*(nx+1)+i;fs.append((k,k+1,k+nx+2,k+nx+1))
@@ -81,10 +85,11 @@ def pavement(a,p,lib,library_material):
         for j in range(16):
             # Native fissures are millimeters wide after atlas mapping;
             # the wider strip retains their ragged sides in the park shot.
-            decal(a.root,'Corner apron settlement crack',(-L*.46+j*L*.061,-W/2-2.0+r.uniform(-1.1,1.1)),(.45,2.5+r.random()),trim,(.5,0,.625,.25),r.uniform(-65,65),seed,z=.003)
+            decal(a.root,'Corner apron settlement crack',(-L*.46+j*L*.061,-6.25+r.uniform(-.75,.75)),(.75,2.0+r.random()*.7),trim,(.5,0,.625,.25),r.uniform(-65,65),seed,z=.003)
         for j in range(8):
-            decal(a.root,'Corner apron repair',(-L*.40+j*L*.11,-W/2-1.8+r.uniform(-1,1)),(.6+r.random(),.35+r.random()),trim,(.25,.25,.5,.5),r.uniform(-70,70),seed,z=.002)
+            decal(a.root,'Corner apron repair',(-L*.40+j*L*.11,-6.1+r.uniform(-.8,.8)),(.6+r.random(),.35+r.random()),trim,(.25,.25,.5,.5),r.uniform(-40,40),seed,z=.002)
         decal(a.root,'Corner parked engine oil',(-L*.31,-7.2),(1.2,1.5),trim,(.5,.5,.75,.75),33,seed,z=.004)
+        decal(a.root,'Former parking position engine drips',(L*.08,-7.0),(1.7,1.2),trim,(.5,.5,.75,.75),-17,seed,z=.008)
         for j in range(4):
             decal(a.root,'Gravel at aged hardstanding edge',(-L*.35+j*5.7,-8.23),(.20,6.096),trim,(0,.5,.5,.75),90,seed,z=.003)
     if seed%3==0:

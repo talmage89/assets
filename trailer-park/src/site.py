@@ -37,7 +37,10 @@ def road(parent,p,lib):
     tint=(.48,.47,.44) if old else (.43,.43,.41)
     radius=5.0
     ranges=[(x,0,w,span+20) for x in (-xx,xx)] if old else [(-xx,0,w,span),(xx,0,w,span),(0,-span/2-5,2*xx-2*radius,w),(0,span/2+5,2*xx-2*radius,w),(0,-span/2-9,w,8)]
-    for i,(x,y,sx,sy) in enumerate(ranges):ground_box(a.root,'Private asphalt '+str(i),(x,y,-.035),(sx,sy,.10),asphalt,6.096,tint)
+    from site_age import road_tone
+    for i,(x,y,sx,sy) in enumerate(ranges):
+        ob=ground_box(a.root,'Private asphalt '+str(i),(x,y,-.035),(sx,sy,.10),asphalt,6.096,tint)
+        road_tone(ob,tint,p['seed']+i)
     from terrain import road_edge
     road_edge(a.root,p,asphalt,tint)
     from site_age import road as age_road
@@ -181,11 +184,11 @@ def lot(p,record,lib,parent,instances):
     from site_age import pad as age_pad
     age_pad(a,spec,lib,library_material)
     from site_age import soil
-    soil(a,spec,lib,library_material)
+    soil(a,spec,lib,library_material,record)
     from traffic import selection
     for marker in a.root.children_recursive:
         if marker.get('socket_kind')!='car':continue
-        model,color=selection(p['seed'],record['number'],int('Carport' in marker.name))
+        model,color=selection(p['seed'],record['number'],int('Carport' in marker.name),round(p['span']/p['lot_frontage']))
         if spec['corner_apron']:model=2
         marker['vehicle_index']=model;marker['factory_color']=color;marker['occupant_seed']=seed
     # Sparse pad dressing is geometry now; oil and causal weather remain look-dev.
@@ -301,4 +304,15 @@ def build(p):
     for i,x in enumerate((-p['loop_x'],p['loop_x']) if p['kind']=='old' else (0,)):
         a.socket('TownEntry_'+str(i),(x,-D/2,.015),'street_connection',yaw=180)
         if p['kind']=='old':a.socket('TownExit_'+str(i),(x,D/2,.015),'street_connection')
+    # Ship the crown variation with each planting socket so a game obtains
+    # the same species/scale/rotation as the reviewed presentation.
+    import hashlib
+    for marker in a.root.children_recursive:
+        if marker.get('socket_kind')!='tree':continue
+        seed=int.from_bytes(hashlib.sha256((str(p['seed'])+marker.name).encode()).digest()[:4],'little')&0x7fffffff;tr=random.Random(seed)
+        marker.rotation_euler.z=tr.uniform(0,math.tau);marker['plant_seed']=seed
+        marker['plant_scale']*=tr.uniform(.88,1.12)
+        marker['plant_aspect']=[tr.uniform(.85,1.12),tr.uniform(.85,1.12)]
+    from sward import add as lawn_clumps
+    lawn_clumps(a.root,p,lib)
     lib.clear();return a

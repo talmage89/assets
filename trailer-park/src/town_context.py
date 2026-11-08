@@ -91,14 +91,15 @@ def context(plan):
             if not o.get('occupied',True):continue
             import re
             lot=re.search(r'Lot_(\d+)',o.name);number=int(lot.group(1)) if lot else 100+j
-            model,color=selection(plan['seed'],number,int('Carport' in o.name))
+            model,color=selection(plan['seed'],number,int('Carport' in o.name),round(plan['span']/plan['lot_frontage']))
             if lot and number==1 and old:model=2
             rt=put(cars[model],'Resident car',pos,yaw,category='cars');paint(lib,rt,color)
             fleet.append(dict(socket=o.name,lot=number,model=cars[model],color=color,position=list(pos)))
         elif kind=='tree':
-            tr=random.Random(plan['seed']*997+j*83);scale=float(o.get('plant_scale',1))*tr.uniform(.88,1.12)
-            rt=put('trees/export/'+('PinOak.glb' if o.get('species')=='oak' else 'RedMaple.glb'),'Mature lot canopy' if old else 'Young lot tree',pos,tr.uniform(0,360),scale=scale,category='vegetation')
-            rt.scale.x*=tr.uniform(.85,1.12);rt.scale.y*=tr.uniform(.85,1.12)
+            tr=random.Random(plan['seed']*997+j*83);variation=tr.uniform(.88,1.12);angle=tr.uniform(0,360);aspect=[tr.uniform(.85,1.12),tr.uniform(.85,1.12)]
+            authored='plant_aspect' in o;scale=float(o.get('plant_scale',1))*(1 if authored else variation)
+            rt=put('trees/export/'+('PinOak.glb' if o.get('species')=='oak' else 'RedMaple.glb'),'Mature lot canopy' if old else 'Young lot tree',pos,yaw if authored else angle,scale=scale,category='vegetation')
+            aspect=o['plant_aspect'] if authored else aspect;rt.scale.x*=aspect[0];rt.scale.y*=aspect[1]
         else:put('shrubs/export/Shrubs.glb','Resident planting',pos,j*31,'Hydrangea' if j%4==0 else 'Boxwood',.84,'vegetation')
     for j in range(-6,7):
         x=j*24+3;entries=(-plan['loop_x'],plan['loop_x']) if old else (0,)

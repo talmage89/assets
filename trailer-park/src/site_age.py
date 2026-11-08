@@ -7,20 +7,33 @@ def road(a,p,lib,material):
     trim=material(lib,'GroundTrim');r=random.Random(p['seed']+1371);old=p['kind']=='old'
     w,span=p['street_width'],p['span'];m=a.mesh('CrackSeals',component='street_age')
     def seal(points,width):
-        for (x,y),(xx,yy) in zip(points,points[1:]):
-            d=math.hypot(xx-x,yy-y);nx,ny=-(yy-y)/d*width,(xx-x)/d*width
-            m.geom([(x+nx,y+ny,.0175),(x-nx,y-ny,.0175),(xx-nx,yy-ny,.0175),(xx+nx,yy+ny,.0175)],[(0,1,2,3)],'Trim',(.017,.018,.016))
+        smooth=[]
+        for j in range(len(points)-1):
+            a0,a1,a2,a3=points[max(0,j-1)],points[j],points[j+1],points[min(len(points)-1,j+2)]
+            for k in range(7):
+                t=k/7;smooth.append(tuple(.5*(2*a1[axis]+(-a0[axis]+a2[axis])*t+(2*a0[axis]-5*a1[axis]+4*a2[axis]-a3[axis])*t*t+(-a0[axis]+3*a1[axis]-3*a2[axis]+a3[axis])*t**3) for axis in (0,1)))
+        smooth.append(points[-1]);vs=[];fs=[];colors=[]
+        for j,(x,y) in enumerate(smooth):
+            before=smooth[max(0,j-1)];after=smooth[min(len(smooth)-1,j+1)];dx,dy=after[0]-before[0],after[1]-before[1];d=math.hypot(dx,dy)
+            half=width*(.70+.30*math.sin(j*.47)**2);nx,ny=-dy/d*half,dx/d*half
+            vs.extend([(x+nx,y+ny,.017),(x,y,.0185),(x-nx,y-ny,.017)])
+            colors.extend([(.037,.037,.033,1),(.014,.015,.013,1),(.037,.037,.033,1)])
+            if j:
+                k=(j-1)*3;fs.extend([(k,k+3,k+4,k+1),(k+1,k+4,k+5,k+2)])
+        m.geom(vs,fs,'Trim');m.col[-len(colors):]=colors
     for lane in (-p['loop_x'],p['loop_x']):
         # Longitudinal fatigue seal; offset from the centerline oil drips.
         points=[(lane-.85+r.uniform(-.32,.32),-span/2+1+j*1.5) for j in range(math.floor((span-2)/1.5)+1)]
-        seal(points,.018 if old else .012)
+        for start in range(0,len(points)-3,7):
+            if r.random()<(.92 if old else .68):seal(points[start:min(start+r.randint(5,8),len(points))],.017 if old else .011)
         for j in range(math.ceil(span/7)):
-            y=-span/2+3+j*7+r.uniform(-1,1)
+            y=-span/2+3+j*7+r.uniform(-2.4,2.4)
             branch=[(lane-.85,y),(lane+.25,y+.4),(lane+w/2-.10,y+1.0)]
-            seal(branch,r.uniform(.012,.029) if old else r.uniform(.009,.019))
+            if old or r.random()<.58:seal(branch,r.uniform(.011,.025) if old else r.uniform(.008,.016))
             if j%3!=1:
                 decal(a.root,'Settled service-cut patch',(lane+r.uniform(-1.1,1.1),y+2),(r.uniform(.7,1.5),r.uniform(1.0,2.5)),trim,(.25,.25,.5,.5),r.uniform(-8,8),p['seed'],z=.019)
-            decal(a.root,'Centerline traffic oil',(lane+r.uniform(-.3,.3),y-1.5),(r.uniform(.75,1.4),r.uniform(1.2,2.5)),trim,(.5,.5,.75,.75),r.uniform(-15,15),p['seed'],z=.020)
+            variant=r.randrange(3);rect=(.5+variant/12,.5,.5+(variant+1)/12,.75)
+            decal(a.root,'Centerline traffic oil',(lane+r.uniform(-.45,.45),y-1.5),(r.uniform(.35,.75),r.uniform(.55,1.3)),trim,rect,r.uniform(-35,35),p['seed'],z=.020)
         for side in (-1,1):
             for j in range(math.ceil(span/3.3)):
                 y=-span/2+(j+.5)*3.3
@@ -31,8 +44,8 @@ def road(a,p,lib,material):
             vs=[];fs=[]
             for j in range(math.ceil(span/.65)+1):
                 y=-span/2+j*span/math.ceil(span/.65);depth=r.uniform(.03,.25) if old else r.uniform(.02,.13)
-                vs.extend([(lane+side*(w/2-depth),y,.0165),(lane+side*(w/2+.32),y,.002)])
-                if j:k=(j-1)*2;f=(k,k+2,k+3,k+1);fs.append(tuple(reversed(f)) if side>0 else f)
+                vs.extend([(lane+side*(w/2-depth),y,.0165),(lane+side*(w/2+r.uniform(.10,.44)),y,-.004)])
+                if j and r.random()<.72:k=(j-1)*2;f=(k,k+2,k+3,k+1);fs.append(tuple(reversed(f)) if side>0 else f)
             earth=mesh(a.root,'Eroded shoulder dirt',vs,fs,material(lib,'Concrete'),.72)
             for c in earth.data.color_attributes.active_color.data:c.color=(.28,.23,.14,1)
     ob=m.finish()
@@ -41,24 +54,51 @@ def road(a,p,lib,material):
     ob.data.update()
 
 
+def road_tone(ob,tint,seed):
+    """Wheel lanes retain binder; exposed loose margins oxidize lighter."""
+    import bmesh
+    bm=bmesh.new();bm.from_mesh(ob.data)
+    lo=min(v.co.y for v in bm.verts);hi=max(v.co.y for v in bm.verts);half=max(abs(v.co.x) for v in bm.verts)
+    if hi-lo<10:bm.free();return
+    for axis,values in ((1,[lo+j*(hi-lo)/math.ceil((hi-lo)/4) for j in range(1,math.ceil((hi-lo)/4))]),(0,[-half*.70,-half*.45,0,half*.45,half*.70])):
+        for value in values:
+            co=[0,0,0];n=[0,0,0];co[axis]=value;n[axis]=1
+            bmesh.ops.bisect_plane(bm,geom=[*bm.verts,*bm.edges,*bm.faces],plane_co=co,plane_no=n,dist=1e-6)
+    bm.to_mesh(ob.data);bm.free();ob.data.update()
+    for attr in ob.data.color_attributes:
+        if attr.domain!='POINT':continue
+        for row,v in zip(attr.data,ob.data.vertices):
+            x,y=v.co.x,v.co.y;track=math.exp(-((abs(x)-half*.48)/.43)**2)
+            factor=1+.16*(abs(x)/half)**3-.08*track+.035*math.sin(y*.17+seed)
+            row.color=(*(c*factor for c in tint),1)
+
+
 def pad(a,p,lib,material):
     trim=material(lib,'GroundTrim');r=random.Random(p['occupant_seed']+610);L,W=p['length'],p['width'];old=p['era']!='1996'
     # Wheel-loaded concrete has narrow actual fissures as well as old infills.
     n=10 if p.get('corner_apron') else 4 if old else 2
     for j in range(n):
-        if p.get('corner_apron'):x,y=-L*.45+j*L*.09,-W/2-2.3+r.uniform(-1,1)
+        if p.get('corner_apron'):x,y=-L*.45+j*L*.09,-6.9+r.uniform(-.35,.35)
         else:x,y=L/2+r.uniform(.4,4.7),-1.1+r.uniform(-.65,.65)
         decal(a.root,'Concrete shrinkage and settlement',(x,y),(r.uniform(.65,1.4),r.uniform(1.3,2.6)),trim,(.5,0,.625,.25),r.uniform(-85,85),p['occupant_seed'],z=.018 if not p.get('corner_apron') else .006)
     if old:
         for j in range(2):
-            x,y=(L*.15+j*2.7,-W/2-2.3) if p.get('corner_apron') else (L/2+1.2+j*1.7,-1+r.uniform(-.45,.45))
-            decal(a.root,'Old concrete repair',(x,y),(r.uniform(.5,1.1),r.uniform(.7,1.3)),trim,(.25,.25,.5,.5),r.uniform(-8,8),p['occupant_seed'],z=.019 if not p.get('corner_apron') else .007)
+            x,y=(L*.08+j*2.7,-6.7-j*.32) if p.get('corner_apron') else (L/2+1.2+j*1.7,-1+r.uniform(-.45,.45))
+            decal(a.root,'Old concrete repair',(x,y),(r.uniform(.9,1.5),r.uniform(1.1,1.6)),trim,(.25,.25,.5,.5),r.uniform(-8,8),p['occupant_seed'],z=.019 if not p.get('corner_apron') else .007)
 
 
-def soil(a,p,lib,material):
+def soil(a,p,lib,material,record):
     from ground_edges import edges
+    from terrain import sward_height
     r=random.Random(p['occupant_seed']+374);L,W=p['length'],p['width'];old=p['era']!='1996';paths=[]
     concrete=material(lib,'Concrete')
+    angle=math.radians(record['yaw']);cs,sn=math.cos(angle),math.sin(angle)
+    def grade(x,y):
+        xx=record['origin'][0]+cs*x-sn*y;yy=record['origin'][1]+sn*x+cs*y
+        return sward_height(xx,yy)+.0015
+    def ground(ob):
+        for v in ob.data.vertices:v.co.z=grade(v.co.x,v.co.y)
+        ob.data.update()
     # Roof rain/splash and lack of sun kill the sward beside skirting.
     # Separate narrow lobes, plus traffic-scuffed drive margins.
     for j in range(7 if old else 3):
@@ -68,12 +108,23 @@ def soil(a,p,lib,material):
         pts=[(x-length/2,y-near,.001),(x-length*.12,y-near,.001),(x+length/2,y-near,.001),
              (x+length*.40,y-far*.55,.001),(x+length*.12,y-far,.001),(x-length*.32,y-far*.78,.001)]
         ob=mesh(a.root,'Bare soil under skirt runoff',pts,[(0,5,4,3,2,1)],concrete,.65)
+        ground(ob)
         for c in ob.data.color_attributes.active_color.data:c.color=(r.uniform(.24,.33),.23,.12,1)
         paths.append([(x-length*.32,y-far*.78,.001),(x+length*.12,y-far,.001),(x+length*.40,y-far*.55,.001)])
     for j in range(3 if old else 1):
         x=L/2+1+j*1.4;y=-2.72;length=r.uniform(.7,1.4)
-        pts=[(x-length/2,y+.15,.001),(x+length/2,y+.15,.001),(x+length*.40,y-.15,.001),(x-length*.25,y-.32,.001)]
+        pts=[(x-length/2,y+.22,.001),(x+length/2,y+.22,.001),(x+length*.40,y-.48,.001),(x-length*.25,y-.72,.001)]
         ob=mesh(a.root,'Drive-edge worn soil',pts,[(0,3,2,1)],concrete,.72)
+        ground(ob)
         for c in ob.data.color_attributes.active_color.data:c.color=(.33,.27,.16,1)
-        paths.append([(x-length*.25,y-.32,.001),(x+length*.40,y-.15,.001)])
+        paths.append([(x-length*.25,y-.72,.001),(x+length*.40,y-.48,.001)])
+    if p['upkeep']!='kept' or p['occupant_seed']%4==0:
+        # Turning toward the mailbox compacts the unpaved side of the drive.
+        x=L/2+2.2;y=1.2;length=r.uniform(1.0,2.0) if old else .85
+        pts=[(x-length*.6,y-.65,.001),(x+length*.4,y-.52,.001),(x+length*.6,y-.10,.001),
+             (x+length*.38,y+.55,.001),(x-length*.25,y+.65,.001),(x-length*.62,y+.08,.001)]
+        ob=mesh(a.root,'Dry compacted mailbox approach',pts,[(0,1,2,3,4,5)],concrete,.7);ground(ob)
+        for c in ob.data.color_attributes.active_color.data:c.color=(r.uniform(.42,.58),.38,.19,1)
+        paths.append([pts[3],pts[4],pts[5]])
+    paths=[[(x,y,grade(x,y)) for x,y,z in path] for path in paths]
     if paths:edges(a.root,paths,p['occupant_seed']+922,lib)

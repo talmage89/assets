@@ -19,18 +19,24 @@ def runoff(a,p):
         length=L if along else W;holes=openings(p,face)
         normal=Vector((0,sign,0) if along else (sign,0,0))
         def xf(u,z):return (u,sign*(W/2+.0008),z) if along else (sign*(L/2+.0008),u,z)
-        count=math.ceil(length/.9144)
+        count=math.ceil(length/.9144);used=[]
         for j in range(1,count):
             if r.random()>.35+.60*severity:continue
-            u=-length/2+j*length/count;drop=r.uniform(.24,.95)*(.50+severity)
+            u=-length/2+j*length/count;drop=r.uniform(.65,1.75)*(.65+severity)
+            # A hood diverts runoff to its ends; do not truncate every
+            # seam above the awnings and hide the entire age treatment.
+            for h in holes:
+                if abs(u-h['u'])<h['w']/2+.14:u=h['u']+(1 if u>=h['u'] else -1)*(h['w']/2+.17)
+            if abs(u)>length/2-.14 or any(abs(u-v)<.43 for v in used):continue
+            used.append(u)
             bottom=max(F+.78,E-drop)
             for h in holes:
                 if abs(u-h['u'])<h['w']/2+.08:bottom=max(bottom,h['z']+h['h']+.075)
             if bottom>E-.06:continue
-            width=r.uniform(.014,.047)*(.6+severity);levels=[bottom+(E-bottom)*v for v in (0,.20,.50,.80,1)]
+            width=r.uniform(.035,.115)*(.6+severity);levels=[bottom+(E-bottom)*v for v in (0,.16,.42,.72,1)]
             vs=[];colors=[]
             for k,z in enumerate(levels):
-                strength=(k/4)**.6*severity*r.uniform(.50,.90)
+                strength=(k/4)**.4*severity*r.uniform(.66,.98)
                 drift=.008*math.sin(k*1.7+j);spread=width*(.35+.65*(k/4))
                 for t in (-1,0,1):
                     q=xf(u+drift+spread*t,z);base=Vector(age(q,normal,p['color'],'Siding','wall',p,p['seed']))

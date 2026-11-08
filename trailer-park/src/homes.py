@@ -213,6 +213,7 @@ def skirting(a,p):
             u=-length/2+(j+.5)*length/count;w=length/count+.001
             # One intentional missing panel exposes real support construction.
             if p['missing_skirt'] and face==0 and j==count//2+3:continue
+            if p['missing_skirt'] and face in (2,3) and j==1:continue
             vent=j%7==2 and along;z=.045+height/2
             xf=lambda v,along=along,sign=sign:(v[0],sign*(W/2+.005+v[1]),v[2]) if along else (sign*(L/2+.005+v[1]),v[0],v[2])
             if p['era']=='1972' and p['seed']%4==0 and face==0 and j==count//3:
