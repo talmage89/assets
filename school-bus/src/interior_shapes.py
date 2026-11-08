@@ -73,6 +73,16 @@ def lining(b):
 def paint_reverse_faces(b,ob):
     """Paint the actual inside of closures and headers gray, on their pivots."""
     name=ob.name;direction=None
+    if name.startswith(('Body post ','Last corner post ','Forward window bay closure ',
+                        'Window header ','Window sill ','Driver window frame')):
+        # The outer sheet stays yellow. The greenhouse channel's inner face
+        # and perpendicular glass reveals belong to the gray cabin lining.
+        sign=1 if sum((ob.matrix_world@v.co).x for v in ob.data.vertices)>0 else -1
+        slot=len(ob.data.materials);ob.data.materials.append(b.m['ceiling'])
+        normal=ob.matrix_world.to_3x3().inverted().transposed()
+        for face in ob.data.polygons:
+            if (normal@face.normal).normalized().x*sign<.7:face.material_index=slot
+        return
     if name.startswith(('Rear emergency','Rear window jamb','Rear lower field','Rear upper field',
                         'Rear lower sill','Rear exit header','Rear roof cap')):direction=(0,-1,0)
     elif name.startswith(('Side emergency lower','Side emergency upper frame','Driver lower side')):direction=(-1,0,0)

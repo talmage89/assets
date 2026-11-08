@@ -475,6 +475,7 @@ def fittings(b):
         ob.data.materials.append(b.m['black']);ob.data.materials.append(b.m['mirror'])
         for face in ob.data.polygons:face.material_index=int(sum(ob.data.vertices[i].co.y for i in face.vertices)/len(face.vertices)>.28)
         for v in ob.data.vertices:v.co.y*=.028 if v.co.y>0 else .025
+        ob.data.update()
         G.smooth(ob);b.add(ob)
     # Stop arm folds flat rearwards on the driver's side, swings out 90 degrees.
     p=pivot(b,'Stop_arm',(1.302,-2.70,1.78),axis='Z',limits=(-90,0))
@@ -520,6 +521,7 @@ def finish_scene(b,out):
         bad=[f for f in bm.faces if f.calc_area()<1e-12]
         if bad:bmesh.ops.delete(bm,geom=bad,context='FACES')
         bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
+        ob.data.update()
         paint_reverse_faces(b,ob)
         attr=ob.data.attributes.new('VehicleRest','FLOAT_VECTOR','POINT')
         for row,v in zip(attr.data,ob.data.vertices):row.vector=ob.matrix_world@v.co
