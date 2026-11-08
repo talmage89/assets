@@ -356,3 +356,40 @@ inferred, and it only supplements the three construction comparisons.
 All construction, UV/resource and motion checks pass for this model state.
 The new town corrections were prepared after its context module loaded and
 are reserved for pass 3; they are not claimed as present in these images.
+
+## Look-dev pass 3 — full checkpoint and historical comparison
+
+**Color and value first.** Viewed all 44 exported-GLB frames at native
+1440px, the balanced photo pairs and their contact. The four park hero /
+above p95 values are .784/.769 and .804/.718, with less than .001% near
+clipping. Blue sky and neutral surface fill now coexist; white skirting
+stays distinct from the faded siding, and openings retain deep shade.
+The neutral references remain the 2009 door frame, 2007 white fascia,
+2015 aluminum pan and 2024 white PVC post, balanced in linear RGB.
+
+The paired 1980s infill now has its end bank, rake/fascia, proud frames,
+steps, occupied apron and neighboring carport in frame. All five anchors
+are clear. The old-lane comparison now binds an actual addition, not the
+rejected imaginary lot-18 box. The aerial compares two existing carports
+in the populated park. Their residuals remain 9.59, 17.00 and 16.56px;
+these measure selected construction landmarks, not the complete scene.
+The supplementary newer lane fit remains 8.53px with inferred depth.
+
+Still CG against the photographs: the old apron is too smooth despite its
+fine cracks; the road's light aggregate is too close to the concrete pads;
+the turf interiors remain flat beside the native edge tufts. Carport posts
+have a continuous finish now, but its galvanized pattern misstates their
+painted-steel construction and hides the foot corrosion. Correct these
+with caused repair/crack placements, darker road vertex tint, stronger
+existing blade normals and a separate painted-post finish within the
+same atlas/material. The corner tool heap should have a supported cover.
+
+The 36/33-home layouts, occupied gaps, mature interior trees, varied ranch
+blocks, gas station/strip entrance and field/tree edge are all present.
+The eight historical frames import the frozen original deliveries and
+legacy context, then use the current camera matrices and physical light.
+The matrix/lens/light comparison passes for eight full-size pairs. They
+show the actual change in density, construction and surroundings rather
+than moving the camera to flatter either state. Leaf-card silhouettes,
+the tidy repeated plant pots and broad planar ground still reveal the
+procedural scene. These remain explicit limitations for the next pass.
