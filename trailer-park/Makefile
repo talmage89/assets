@@ -43,7 +43,7 @@ build/native.stamp: src/native_build.py src/dependencies.py $(wildcard ../shed/s
 build/preserved.json: src/preservation.py
 	$(PYTHON) src/preservation.py check
 
-textures/source/.stamp: src/textures.py src/weather_fields.py
+textures/source/.stamp: src/textures.py src/weather_fields.py ../ground/src/organic.py
 	$(PYTHON) src/textures.py
 	@touch $@
 textures/4k/.stamp: textures/source/.stamp src/pack_alpha.py
