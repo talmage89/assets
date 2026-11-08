@@ -21,17 +21,18 @@ def main():
     if stage.exists():shutil.rmtree(stage)
     folder=stage/'parking-garage';folder.mkdir(parents=True);shutil.copytree(HERE,folder/'src')
     for family in ('kit','ground','street-light','cars','trees'):(stage/family).symlink_to(ROOT/family,target_is_directory=True)
-    (folder/'build').mkdir();env=dict(os.environ,TMPDIR=str(ASSET/'build/tmp'));Path(env['TMPDIR']).mkdir(parents=True,exist_ok=True)
+    (folder/'build').mkdir();(folder/'build/context').symlink_to(ASSET/'build/context',target_is_directory=True)
+    env=dict(os.environ,TMPDIR=str(ASSET/'build/tmp'));Path(env['TMPDIR']).mkdir(parents=True,exist_ok=True)
     with (ASSET/'build/repeat.log').open('w') as log:
-        subprocess.run([str(folder/'src/blender.sh'),'-b','--factory-startup','--python-exit-code','1','--python','src/build.py','--','--out','build/ParkingGarage.blend'],cwd=folder,env=env,stdout=log,stderr=subprocess.STDOUT,check=True)
-    wanted=[p for p in (ASSET/'export').rglob('*') if p.is_file() and p.suffix in ('.gltf','.bin') and 'sites' not in p.relative_to(ASSET/'export').parts]
-    wanted += list((ASSET/'textures/checkpoint').glob('*.png'))
-    wanted += [ASSET/'build'/n for n in ('manifest.json','modules.json','garage-101.json','garage-202.json')]
+        subprocess.run([str(folder/'src/blender.sh'),'-b','--factory-startup','--python-exit-code','1','--python','src/repeat_worker.py'],cwd=folder,env=env,stdout=log,stderr=subprocess.STDOUT,check=True)
+    wanted=[p for p in (ASSET/'export').rglob('*') if p.is_file() and p.suffix in ('.gltf','.bin')]
+    wanted += list((ASSET/'textures/checkpoint').rglob('*.png'))
+    wanted += [ASSET/'build'/n for n in ('manifest.json','modules.json','garage-101.json','garage-202.json','actors-101.json','actors-202.json','sites.json')]
     rows=[]
     for p in wanted:
         q=folder/p.relative_to(ASSET);assert q.exists(),q
         rows.append(dict(path=str(p.relative_to(ASSET)),bytes=p.stat().st_size,sha256=sha(p),repeated_sha256=sha(q),identical=p.read_bytes()==q.read_bytes()))
-    report=dict(files=rows,passed=all(r['identical'] for r in rows),scope='Independent form geometry, shared-image glTF manifests and original graphics; no baked look-dev maps or stochastic renders.')
+    report=dict(files=rows,passed=all(r['identical'] for r in rows),scope='Independent garage/module/site glTF, instance and route manifests and original graphics; native context caches are immutable inputs. No baked look-dev maps or stochastic renders.')
     (ASSET/'build/repeat.json').write_text(json.dumps(report,indent=2)+'\n')
     assert report['passed'],[r['path'] for r in rows if not r['identical']]
     print('REPEAT PASS',len(rows),'files',sum(r['bytes'] for r in rows),'bytes',flush=True)

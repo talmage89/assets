@@ -15,20 +15,19 @@ def run(name,args=()):
 
 def main():
     run('build.py',('--out','build/ParkingGarage.blend'))
-    failure=None
-    try:
-        run('check.py')
-        run('motion_check.py')
-    except Exception:
-        failure=traceback.format_exc();Path('build/check-failure.txt').write_text(failure);print(failure,flush=True)
+    failures=[]
+    for script in ('check.py','motion_check.py'):
+        try:run(script)
+        except Exception:
+            failure=traceback.format_exc();failures.append(failure);Path('build/check-failure.txt').write_text('\n'.join(failures));print(failure,flush=True)
     run('site.py')
-    run('render.py',('--out','renders/pass2','--width','900','--samples','12','--shots','hero,above,aisle'))
+    run('render.py',('--out','renders/pass3','--width','900','--samples','12','--shots','hero,above,aisle'))
     from matches import solve
     solve()
     run('render.py',('--out','renders/matches','--width','900','--samples','12','--matches'))
     from kit import photo_match
     photo_match.compose('build/matches/calibration.json','renders/matches','renders/matches')
-    if failure:raise RuntimeError('Construction check failed; inspect build/check-failure.txt and the preview images')
+    if failures:raise RuntimeError('Construction check failed; inspect build/check-failure.txt and the preview images')
 
 
 if __name__=='__main__':main()
