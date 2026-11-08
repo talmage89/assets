@@ -17,11 +17,16 @@ def main():
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     bpy.ops.wm.open_mainfile(filepath=str(Path(a.source).resolve()));sc=bpy.context.scene
     obs=[o for o in sc.objects if o.type=='MESH' and o.get('asset_set')=='SchoolBus'];mats={m for o in obs for m in o.data.materials if m};require_attribute_coordinates(mats)
+    high=bpy.data.objects.get('Dense front mold')
+    if high is None:raise ValueError('Independent dense front mold missing')
+    hood=bpy.data.objects['Compound hood shell'];low=hood.copy();low.data=hood.data.copy()
+    low.name='Front normal target';sc.collection.objects.link(low);low.hide_render=True
+    high.hide_render=True
     bpy.ops.object.select_all(action='DESELECT')
     for ob in obs:ob.select_set(True)
     bpy.context.view_layer.objects.active=obs[0];bpy.ops.object.join();target=obs[0]
     for ob in list(sc.objects):
-        if ob!=target:bpy.data.objects.remove(ob,do_unlink=True)
+        if ob not in [target,low,high]:bpy.data.objects.remove(ob,do_unlink=True)
     uv=target.data.uv_layers['BakeUV'];target.data.uv_layers.active=uv;uv.active_render=True
     target.data.calc_loop_triangles();mask=Image.new('L',(a.size,a.size),0);draw=ImageDraw.Draw(mask)
     for tri in target.data.loop_triangles:draw.polygon([(uv.data[i].uv.x*a.size,(1-uv.data[i].uv.y)*a.size) for i in tri.loops],fill=255)
@@ -50,10 +55,24 @@ def main():
         if name=='normal':stats[name]['backward_interior']=int(np.count_nonzero(interior&(values[:,:,2]<.499)))
         bpy.data.images.remove(im);print('BUS_BAKE',name,stats[name],flush=True)
     bake('base','EMIT','base');bake('alpha','EMIT','paint_coverage');bake('rough','EMIT','rough');bake('metal','EMIT','metal');bake('ao','AO');bake('normal','NORMAL')
+    from front_normal_bake import project
+    target.hide_render=True
+    geometric,chosen,front_report=project(low,high,a.size,a.samples)
+    # Rotate the exact-surface micro-normal into the dense mold's normal frame.
+    # Rodrigues' formula uses v = Z cross N and c = Z dot N; this preserves
+    # both the material's chips/seams and the sculpted mold curvature.
+    direct=channels['normal'][chosen,:3]*2-1;dense=geometric[chosen,:3]*2-1
+    dense/=np.maximum(np.linalg.norm(dense,axis=1,keepdims=True),1e-8)
+    axis=np.c_[-dense[:,1],dense[:,0],np.zeros(len(dense))]
+    rotated=direct+np.cross(axis,direct)+np.cross(axis,np.cross(axis,direct))/np.maximum(1+dense[:,2:3],1e-6)
+    rotated/=np.maximum(np.linalg.norm(rotated,axis=1,keepdims=True),1e-8)
+    channels['normal'][chosen,:3]=np.clip(rotated*.5+.5,0,1)
+    front_report['normal_composition']='Dense geometric normal rotation composed with direct material micro-normal'
+    print('BUS_FRONT_NORMAL',front_report,flush=True)
     write_png(out/'T_SchoolBus_BaseColor.png',np.concatenate([linear_to_srgb(channels['base'][:,:,:3]),channels['alpha'][:,:,:1]],axis=2))
     write_png(out/'T_SchoolBus_ORM.png',np.stack([channels['ao'][:,:,0],channels['rough'][:,:,0],channels['metal'][:,:,0]],axis=2))
     nm=channels['normal'];invalid=(nm[:,:,3]<.5)|(nm[:,:,2]<.5);nm[invalid,:3]=(.5,.5,1)
     write_png(out/'T_SchoolBus_Normal.png',nm[:,:,:3],16)
-    (out/'bake-report.json').write_text(json.dumps(dict(channels=stats,size=a.size,samples=a.samples,device=sc.cycles.device,method='Car-family frozen-attribute finalized-surface channels; direct tangent-normal bake'),indent=2))
+    (out/'bake-report.json').write_text(json.dumps(dict(channels=stats,front_projection=front_report,size=a.size,samples=a.samples,device=sc.cycles.device,method='Frozen-attribute direct surface channels, dense mold normal projection composed on the hood'),indent=2))
     if stats['base']['unfilled_black_interior'] or any(row['missing_alpha_interior'] for row in stats.values()):raise ValueError('Unfilled interior bake texels')
 if __name__=='__main__':main()
