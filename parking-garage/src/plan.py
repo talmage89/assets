@@ -48,8 +48,8 @@ def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
     system = system or ('precast' if seed % 2 else 'pt')
     if system not in ('precast', 'pt'): raise ValueError(system)
     municipal = system == 'precast'
-    count = tee_count or ((22 if municipal else 16) if seed in SEEDS else rng.choice((20,21,22,24) if municipal else (16,17,18)))
-    levels = levels or ((4 if municipal else 3) if seed in SEEDS else rng.choice((4,5) if municipal else (3,4)))
+    count = tee_count if tee_count is not None else ((22 if municipal else 16) if seed in SEEDS else rng.choice((20,21,22,24) if municipal else (16,17,18)))
+    levels = levels if levels is not None else ((4 if municipal else 3) if seed in SEEDS else rng.choice((4,5) if municipal else (3,4)))
     if not 3 <= levels <= 5 or not 12 <= count <= 24: raise ValueError('3–5 levels, 12–24 tee stations')
     length = count*TEE
     end = 3*TEE
@@ -64,17 +64,23 @@ def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
              end_length=end, transition=0 if municipal else 10*FT,
              occupancy=occupancy if occupancy is not None else (.67 if municipal else .74),
              structural_grid=3*TEE, stalls=[], paths=[], pedestrian_paths=[],
-             towers=[[-length/2-2.5,-width/2+4.0,0], [length/2+2.5,-width/2+4.0,0]],
+             towers=[[-length/2-2.5,-width/2+4.35,0], [length/2+2.5,-width/2+4.35,0]],
              joint_y=(SPAN-rw)/2)
+    if not 0<=p['occupancy']<=1:raise ValueError('Occupancy must be a fraction in [0,1]')
     p['ramp_slope'] = FLOOR/(p['ramp_limits'][1]-p['ramp_limits'][0]-p['transition'])
+    a,b=p['ramp_limits']
+    stations=[-length/2+i*3*TEE for i in range(count//3+1)]
+    p['structural_stations']=sorted({-length/2,a,b,length/2,*[x for x in stations if a<x<b]})
     if municipal and p['ramp_slope'] > 1/15+1e-9: raise ValueError('Parking slope exceeds 1:15')
     if not municipal and p['ramp_slope'] > .125: raise ValueError('Speed ramp exceeds 12.5%')
     # Avoid end turning bays and column envelopes; stall lines are independent
     # of tee joints. Accessible block is reserved on the ground south row.
     n = int((length-2*end-6*FT)//STALL)
     x0 = -n*STALL/2
-    pairs=4 if municipal else 2
-    reserved_width=sum((11 if j<(2 if municipal else 1) else 8)*FT+5*FT+8*FT for j in range(pairs))
+    raw_capacity=2*n*((2*levels-1) if municipal else levels)
+    required=next(number for limit,number in ((25,1),(50,2),(75,3),(100,4),(150,5),(200,6),(300,7),(400,8),(500,9)) if raw_capacity<=limit)
+    pairs=math.ceil(required/2);van_pairs=math.ceil(2*pairs/6)
+    reserved_width=sum((11 if j<van_pairs else 8)*FT+5*FT+8*FT for j in range(pairs))
     reserved_normal=math.ceil(reserved_width/STALL)
     p['accessible_interval']=[x0,x0+reserved_width]
     p['ground_lane_shift']=.5148
@@ -100,7 +106,7 @@ def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
     # the smaller garage. Two / one vans respectively (one in every six).
     x = x0
     for pair in range(pairs):
-        is_van=pair<(2 if municipal else 1)
+        is_van=pair<van_pairs
         w = 11*FT if is_van else 8*FT
         aisle = 5*FT
         for side in (0,1):
@@ -147,7 +153,7 @@ def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
         if municipal and yy<-width/2-(6.1-1.8288):
             return [xx,yy,-.14605*((-width/2-(6.1-1.8288))-yy)/1.8288]
         return [xx,yy,max(0,deck_z(p,0,xx,yy,yy>p['joint_y'])-FLOOR*ramp_fraction(xx,p)*(yy>p['joint_y']))]
-    entry=[ground_point(entry_x,-width/2-6.05),ground_point(entry_x,-width/2-(6.1-1.8288)),ground_point(entry_x,fy-turn)]
+    entry=[ground_point(entry_x,-width/2-6.05),ground_point(entry_x,-width/2-5.3),ground_point(entry_x,-width/2-(6.1-1.8288)),ground_point(entry_x,fy-turn)]
     for j in range(1,9):
         th=j*math.pi/16;entry.append(ground_point(entry_x-turn*(1-math.cos(th)),fy-turn+turn*math.sin(th)))
     entry_start=entry[-1][0]
@@ -158,23 +164,28 @@ def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
     exit_route.extend(ground_point(a+(exit_x-turn-a)*j/32,fy) for j in range(1,33))
     for j in range(1,9):
         th=j*math.pi/16;exit_route.append(ground_point(exit_x-turn+turn*math.sin(th),fy-turn*(1-math.cos(th))))
-    exit_route.extend([ground_point(exit_x,-width/2-(6.1-1.8288)),ground_point(exit_x,-width/2-6.05)])
-    p['paths'].extend([dict(name='Drive_Entry_to_L1',points=entry,width=3.3,two_way=False),dict(name='Drive_L1_to_Exit',points=exit_route,width=3.3,two_way=False)])
+    exit_route.extend([ground_point(exit_x,-width/2-(6.1-1.8288)),ground_point(exit_x,-width/2-5.3),ground_point(exit_x,-width/2-6.05)])
+    p['paths'].extend([dict(name='Drive_Entry_to_L1',points=entry,width=2.925,two_way=False),dict(name='Drive_L1_to_Exit',points=exit_route,width=2.925,two_way=False)])
     # Access aisles connect behind the stalls to the lift approach, rather
     # than attempting to pass through the front vehicle barrier.
+    ty=p['towers'][0][1]
     for pair in range(pairs):
         s=next(s for s in p['stalls'] if s['id']==f'ACCESS-{2*pair+1}')
         xx=sum(s['access_aisle'])/2;yy=fy-1.4
-        coords=[(xx,s['y']),(xx,yy),(a-.9,yy),(-length/2+1.2,yy),(-length/2+1.2,-width/2+2.7),(-length/2+.215,-width/2+2.7)]
+        coords=[(xx,s['y']),(xx,yy),(a-.9,yy),(-length/2+1.2,yy),(-length/2+1.2,ty-1.3),(-length/2+.215,ty-1.3)]
         p['pedestrian_paths'].append(dict(name=f'AccessAisle_{pair+1}_to_Lift',width=1.524,points=[[x,y,deck_z(p,0,x,y)] for x,y in coords]))
     p['pedestrian_paths'].append(dict(name='WestStair_to_PublicWalk',width=.9144,points=[
-        [-length/2+.215,-width/2+5.45,0],[-length/2-.67,-width/2+5.45,0],
-        [-length/2-.67,-width/2+7.4,0],[-length/2-5.35,-width/2+7.4,0]]))
+        [-length/2+.215,ty+1.45,0],[-length/2-.67,ty+1.45,0],
+        [-length/2-.67,ty+4.65,0],[-length/2-5.35,ty+4.65,0]]))
     for level in range(levels):
         pts=[]
         for xx,yy in ((b,fy+2.2),(0,fy+2.2),(a,fy+2.2),(-length/2+.35,fy+2.2),(-length/2+.215,p['towers'][0][1]+1.45)):
             pts.append([xx,yy,deck_z(p,level,xx,yy)])
         p['pedestrian_paths'].append(dict(name=f'Walk_L{level+1}_to_WestStair',width=1.524,points=pts))
+    counters={}
+    for stall in p['stalls']:
+        level=stall['level'];counters[level]=counters.get(level,0)+1
+        stall['paint_number']=f'{counters[level]:03d}'
     return p
 
 

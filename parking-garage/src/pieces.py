@@ -196,7 +196,18 @@ def tower(r,levels=4,elevator=True):
                         t=j/9;pt=Vector(aa).lerp(Vector(cc),t);b.tube([(pt.x,pt.y,base+(j+1)*rise-.025),pt],.015,'Steel')
         # Stair door at actual back-wall jamb. Outward swing into clear end bay.
         pv=root(f'{r.name}__StairDoor_L{lev+1}',(-2.00,2.715,z),r,pivot_axis='Z',range_degrees=[0.,95.])
-        d=Mesh(pv.name+'__Leaf',pv);d.box((.55,0,1.0825),(1.10,.045,2.115),'Blue');d.box((.55,-.028,1.47),(.38,.01,.45),'Glass');d.beam((.2,-.08,1.02),(.88,-.08,1.02),.025,.04);d.finish()
+        d=Mesh(pv.name+'__Leaf',pv)
+        # Closed hollow plate around a real vision aperture. A glass patch
+        # over an uncut solid leaf would never transmit the stair interior.
+        outer=[(0,.025),(1.10,.025),(1.10,2.14),(0,2.14)]
+        inner=[(.36,1.245),(.74,1.245),(.74,1.695),(.36,1.695)]
+        vertices=[(x,y,zz) for y in (-.0225,.0225) for loop in (outer,inner) for x,zz in loop]
+        faces=[]
+        for j in range(4):
+            k=(j+1)%4
+            faces.extend([(j,k,k+4,j+4),(j+8,j+12,k+12,k+8),(j,j+8,k+8,k),(j+4,k+4,k+12,j+12)])
+        d.geom(vertices,faces,'Blue');d.box((.55,0,1.47),(.38,.006,.45),'Glass')
+        d.beam((.2,-.08,1.02),(.88,-.08,1.02),.025,.04);d.finish()
         # Elevator doors slide in front of a recessed dark car opening.
         b.box((1.30,2.515,z+1.08),(1.50,.08,2.16),'Seal')
         for sign in (-1,1):
@@ -211,7 +222,9 @@ def tower(r,levels=4,elevator=True):
         if lev<levels-1:b.box((-1.32,-2.66,z+3.175),(2.62,.10,.37),'Blue')
         for x in (-2.61,-1.32,-.03):b.box((x,-2.71,z+1.5),(.06,.07,3.0),'Steel')
     b.box((0,0,H+.10),(5.8,5.6,.20));b.finish()
-    pv=root(r.name+'__StreetDoor',(-2.815,2.38,0),r,pivot_axis='Z',range_degrees=[-95.,0.]);pv.rotation_euler.z=-math.pi/2
+    # Hinge at the opposite jamb: the open leaf moves away from the garage
+    # corner column when this core is placed on either end of the building.
+    pv=root(r.name+'__StreetDoor',(-2.815,1.28,0),r,pivot_axis='Z',range_degrees=[0.,95.]);pv.rotation_euler.z=math.pi/2
     d=Mesh(pv.name+'__Leaf',pv);d.box((.55,0,1.0825),(1.10,.045,2.115),'Blue');d.beam((.2,-.08,1.02),(.88,-.08,1.02),.025,.04);d.finish()
     root(r.name+'__StreetThreshold',(-2.85,1.83,0),r,socket_kind='pedestrian_threshold')
     root(r.name+'__GarageStairThreshold',(-1.45,2.85,0),r,socket_kind='pedestrian_threshold')

@@ -14,6 +14,15 @@ from setting import town
 
 
 def main():
+    from kit.gltf import GLB
+    # Preserve the original local library generators' sign pixels once, at a
+    # stable delivery path. These are original scripted font pages, not photos.
+    folder=Path('textures/checkpoint/context');folder.mkdir(parents=True,exist_ok=True)
+    for kind in ('downtown','commercial'):
+        g=GLB(Path('build/context')/(kind+'.glb'))
+        for im in g.json.get('images',[]):
+            view=g.json['bufferViews'][im['bufferView']];start=view.get('byteOffset',0)
+            dest=folder/(im['name']+'.png');dest.write_bytes(g.binary[start:start+view['byteLength']])
     receipts=[]
     for seed in (101,202):
         bpy.ops.wm.read_factory_settings(use_empty=True)

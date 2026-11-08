@@ -29,7 +29,8 @@ def export(path,obs):
     path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
     tmp=Path('build/embedded')/path.with_suffix('.glb').name
     tiling.export(tmp,obs);g=GLB(tmp);doc=g.json;binary=g.binary
-    known={hashlib.sha256(p.read_bytes()).hexdigest():p for folder in (ROOT/'ground/textures/ship',ROOT/'street-light/textures/ship',ROOT/'cars/textures/sedan/ship',ROOT/'trees/textures/ship',ROOT/'trees/textures/oak/ship',Path('textures/checkpoint')) for p in folder.glob('*.png')}
+    known={hashlib.sha256(p.read_bytes()).hexdigest():p for folder in (ROOT/'ground/textures/ship',ROOT/'street-light/textures/ship',ROOT/'cars/textures/sedan/ship',ROOT/'trees/textures/ship',ROOT/'trees/textures/oak/ship') for p in folder.glob('*.png')}
+    known.update({hashlib.sha256(p.read_bytes()).hexdigest():p for p in Path('textures/checkpoint').rglob('*.png')})
     for im in doc.get('images',[]):
         v=doc['bufferViews'][im.pop('bufferView')];a=v.get('byteOffset',0);payload=binary[a:a+v['byteLength']]
         h=hashlib.sha256(payload).hexdigest();assert h in known,im
@@ -116,8 +117,7 @@ def make_garage(p,templates,layout):
                 yy=cy+side*width/2
                 if municipal and abs(yy-joint)<1e-5:yy+=(-.43 if not ramp else .43)
                 edge_yaw=0
-                grid=[-L/2+i*3*TEE for i in range(math.ceil(L/(3*TEE))+1)]
-                grid=[min(v,L/2) for v in grid];grid=sorted(set(grid+[a,b]))
+                grid=p['structural_stations']
                 for x in grid:
                     # The central column is shared, with two differently
                     # elevated corbel rows; duplicated offset shafts would
@@ -143,7 +143,7 @@ def make_garage(p,templates,layout):
             if not municipal and (level>0 or ramp):
                 # Long-span cast PT beams run ACROSS the parking bay. The
                 # slab spans the 36ft distance between these transverse beams.
-                for i,xx in enumerate(sorted({a,b,*[min(-L/2+j*3*TEE,L/2) for j in range(math.ceil(L/(3*TEE))+1)]})):
+                for i,xx in enumerate(p['structural_stations']):
                     central=ramp and a<xx<b
                     if (level==0 and not central) or (central and level==p['levels']-1):continue
                     def xf(v,xx=xx,cy=cy,width=width,central=central):
@@ -168,7 +168,7 @@ def make_garage(p,templates,layout):
         for side in (-1,1):
             yy=side*W/2
             extra=[a+p['transition'],b-p['transition']] if side==1 and not municipal else []
-            edges=sorted({-L/2,L/2,a,b,*extra,*[min(-L/2+i*3*TEE,L/2) for i in range(math.ceil(L/(3*TEE))+1)]})
+            edges=sorted({*p['structural_stations'],*extra})
             for i,(x0,x1) in enumerate(zip(edges,edges[1:])):
                 xx=(x0+x1)/2
                 if level==0 and side==-1 and xx>L/2-p['end_length']-3:continue
@@ -191,11 +191,12 @@ def make_garage(p,templates,layout):
         if level>0:
             for side in (-1,1):
                 mb=G.Mesh(f'End guard {level} {side}',rt)
-                for y0,y1 in ((-W/2,-W/2+1.15),(-W/2+6.85,joint),(joint,W/2)):
+                tower_y=p['towers'][0 if side==-1 else 1][1]
+                for y0,y1 in ((-W/2,tower_y-2.85),(tower_y+2.85,joint),(joint,W/2)):
                     mb.box((side*L/2,(y0+y1)/2,level*FLOOR+.55),(.24,y1-y0,1.10))
                 mb.finish()
         # Expansion line and transverse pour strips at structural grid.
-        for x in (-L/2+i*3*TEE for i in range(1,math.ceil(L/(3*TEE)))):
+        for x in p['structural_stations'][1:-1]:
             bay_surface(f'Pour joint {level} {x}',rt,x-.0115,x+.0115,-W/2,joint,lambda xx,yy:deck_z(p,level,xx,yy)+.003,.006,'Seal')
     for i,(xx,yy) in enumerate(sorted(shafts)):
         h=(p['levels']-1)*FLOOR
@@ -252,7 +253,7 @@ def make_garage(p,templates,layout):
     marks=G.Mesh('Parking markings and signs',rt)
     for index,s in enumerate(p['stalls']):
         x,y,z=s['x'],s['y'],s['z'];row=-1 if s['yaw']==180 else 1;dep=s['depth']
-        root=G.root('Stall_'+s['id'],(x,y,z),rt,socket_kind='parked_car',yaw_degrees=s['yaw'],width_m=s['width'],depth_m=s['depth'],occupied=s['occupied'],level=s['level'])
+        root=G.root('Stall_'+s['id'],(x,y,z),rt,socket_kind='parked_car',yaw_degrees=s['yaw'],width_m=s['width'],depth_m=s['depth'],occupied=s['occupied'],level=s['level'],paint_number=s['paint_number'])
         root.rotation_mode='QUATERNION'
         normal=Vector((-s['slope_x'],-s['crossfall'],1)).normalized()
         root.rotation_quaternion=Vector((0,0,1)).rotation_difference(normal)@Quaternion((0,0,1),math.radians(s['yaw']))
@@ -260,8 +261,10 @@ def make_garage(p,templates,layout):
             y0,y1=y-dep/2,y+dep/2
             marks.quad([(xx-.05,y0,deck_z(p,s['level'],xx,y0,s['ramp'])+.006),(xx+.05,y0,deck_z(p,s['level'],xx,y0,s['ramp'])+.006),(xx+.05,y1,deck_z(p,s['level'],xx,y1,s['ramp'])+.006),(xx-.05,y1,deck_z(p,s['level'],xx,y1,s['ramp'])+.006)])
         wy=y+row*(dep/2-.90)
-        put('WheelStop','Stop_'+s['id'],(x,wy,deck_z(p,s['level'],x,wy,s['ramp'])))
-        num=f'{index%120+1:03d}';ny=y-row*(dep/2-.45)
+        stop=put('WheelStop','Stop_'+s['id'],(x,wy,deck_z(p,s['level'],x,wy,s['ramp'])))
+        stop.rotation_mode='QUATERNION';stop.rotation_quaternion=Vector((0,0,1)).rotation_difference(normal)
+        rows[-1]['rotation_quaternion']=list(stop.rotation_quaternion)
+        num=s['paint_number'];ny=y-row*(dep/2-.45)
         marks.quad([(x-.34,ny-.18,deck_z(p,s['level'],x-.34,ny-.18,s['ramp'])+.008),
                     (x+.34,ny-.18,deck_z(p,s['level'],x+.34,ny-.18,s['ramp'])+.008),
                     (x+.34,ny+.18,deck_z(p,s['level'],x+.34,ny+.18,s['ramp'])+.008),
@@ -280,9 +283,12 @@ def make_garage(p,templates,layout):
             # Standard blue sign with an original geometric wheelchair glyph.
             sg=G.Mesh('Accessible sign '+s['id'],rt);sy=y-dep/2-.20
             sx=s['access_aisle'][0]-.10 if int(s['id'].split('-')[-1])%2 else s['access_aisle'][1]+.10
-            sg.tube([(sx,sy,0),(sx,sy,2.10)],.025,'Steel');sg.box((sx,sy,1.82),(.34,.035,.48),'Blue')
-            circle=[(sx+.083*math.cos(t*math.tau/16),sy-.022,1.77+.083*math.sin(t*math.tau/16)) for t in range(17)]
-            sg.tube(circle,.009,'White',6);sg.tube([(sx-.015,sy-.024,1.92),(sx-.015,sy-.024,1.80),(sx+.075,sy-.024,1.80),(sx+.12,sy-.024,1.71)],.010,'White',6);sg.finish()
+            sg.tube([(sx,sy,0),(sx,sy,2.35)],.025,'Steel');sg.box((sx,sy,2.07),(.34,.035,.48),'Blue')
+            sg.quad([(sx-.13,sy-.0185,1.94),(sx+.13,sy-.0185,1.94),(sx+.13,sy-.0185,2.20),(sx-.13,sy-.0185,2.20)],layout['♿'],'Graphics')
+            if s.get('van'):
+                sg.box((sx,sy,1.70),(.60,.035,.20),'Blue')
+                sg.quad([(sx-.29,sy-.0185,1.61),(sx+.29,sy-.0185,1.61),(sx+.29,sy-.0185,1.79),(sx-.29,sy-.0185,1.79)],layout['VAN ACCESSIBLE'],'Graphics')
+            sg.finish()
     # Arrows are original cut polygons, using Ground's paint chart.
     for level in range(p['levels']):
         for xx in (-L/4,L/4):
@@ -309,15 +315,16 @@ def make_garage(p,templates,layout):
         for x0,x1,z0,z1 in ((ex-4.9,ex-3.9,0,-.14605),(ex-3.9,ex+3.9,-.14605,-.14605),(ex+3.9,ex+4.9,-.14605,0)):
             apron.prism([(x0,-W/2-6.1,z0-.16),(x1,-W/2-6.1,z1-.16),(x1,-W/2-inner,-.16),(x0,-W/2-inner,-.16)],(0,0,.16),'GroundConcrete')
     else:apron.box((0,-W/2-3.05,-.08),(L+10,6.1,.16),'GroundConcrete')
-    for side in (-1,1):apron.box((side*(L/2+2.7),-W/2+4,-.08),(5.4,8,.16),'GroundConcrete')
+    for side in (-1,1):apron.box((side*(L/2+2.7),-W/2+5,-.08),(5.4,10,.16),'GroundConcrete')
     apron.finish()
     islands=G.Mesh('Entry control islands',rt)
     for i,dx in enumerate((-1.65,1.65)):
-        lane=ex+dx;floor=0
-        islands.box((lane-1.8,-W/2-2.5,floor+.075),(.65,4.2,.15))
+        lane=ex+dx;floor=0;side=-1 if i==0 else 1
+        islands.box((lane+side*1.8,-W/2-1.75,floor+.075),(.65,6.3,.15))
         # Full-length arms open in the uncovered apron, not through a deck.
-        put('Gate',f'{"Entry" if i==0 else "Exit"}_Gate',(lane-1.57,-W/2-.8,floor+.15))
-        put('Ticket',f'Ticket_{i}',(lane-1.8,-W/2-2.7,floor+.15),90)
+        put('Gate',f'{"Entry" if i==0 else "Exit"}_Gate',(lane+side*1.57,-W/2-.8,floor+.15),0 if i==0 else 180)
+        put('Ticket',f'Ticket_{i}',(lane+side*1.8,-W/2+(-2.7 if i==0 else 1.1),floor+.15),90 if i==0 else -90)
+    islands.box((ex,-W/2-1.75,.075),(.40,5.3,.15))
     islands.finish()
     put('PayStation','PedestrianPay',(p['towers'][0][0]-1.5,-W/2-1.3,0))
     gy=-W/2-5.3
@@ -328,10 +335,13 @@ def make_garage(p,templates,layout):
     # Hanging bar lower edge measured at precisely 98in above route grade.
     head.box((ex,gy,2.4892+.06),(6.7,.10,.12),'Yellow')
     for x in (ex-2.7,ex+2.7):head.tube([(x,gy,2.61),(x,gy,3.3)],.006,'Steel',6)
-    head.quad([(ex-2.7,gy-.10,2.66),(ex+2.7,gy-.10,2.66),(ex+2.7,gy-.10,3.07),(ex-2.7,gy-.10,3.07)],layout['CLEARANCE  8 FT 2 IN'],'Graphics')
-    head.quad([(ex-1.3,gy-.11,3.5),(ex+1.3,gy-.11,3.5),(ex+1.3,gy-.11,4.03),(ex-1.3,gy-.11,4.03)],layout['PUBLIC PARKING'],'Graphics')
+    head.quad([(ex-2.7,gy-.096,2.66),(ex+2.7,gy-.096,2.66),(ex+2.7,gy-.096,3.07),(ex-2.7,gy-.096,3.07)],layout['CLEARANCE  8 FT 2 IN'],'Graphics')
+    head.box((ex,gy-.07,2.865),(5.5,.05,.45),'Steel')
+    for x in (ex-2.7,ex+2.7):head.beam((x,gy,2.85),(x,gy-.05,2.85),.025,.025)
+    head.quad([(ex-1.3,gy-.096,3.5),(ex+1.3,gy-.096,3.5),(ex+1.3,gy-.096,4.03),(ex-1.3,gy-.096,4.03)],layout['PUBLIC PARKING'],'Graphics')
+    head.box((ex,gy-.07,3.765),(2.7,.05,.58),'Steel')
     # FULL display is installed, off in this weekday partially occupied state.
-    head.quad([(ex+3.7,gy+.4,2.1),(ex+4.9,gy+.4,2.1),(ex+4.9,gy+.4,2.5),(ex+3.7,gy+.4,2.5)],layout['FULL'],'Graphics')
+    head.quad([(ex+3.7,gy+.409,2.1),(ex+4.9,gy+.409,2.1),(ex+4.9,gy+.409,2.5),(ex+3.7,gy+.409,2.5)],layout['FULL'],'Graphics')
     head.box((ex+4.3,gy+.435,2.3),(1.3,.05,.5),'Steel')
     head.beam((ex+3.45,gy,2.3),(ex+4.3,gy+.435,2.3),.06,.06)
     head.finish()
@@ -339,9 +349,18 @@ def make_garage(p,templates,layout):
     for level in range(p['levels']):
         z=level*FLOOR
         for xx in (-L/2+2,0,L/2-2):
-            signage.quad([(xx-.9,-W/2-.14,z+.32),(xx+.9,-W/2-.14,z+.32),(xx+.9,-W/2-.14,z+.82),(xx-.9,-W/2-.14,z+.82)],layout['LEVEL '+str(level+1)],'Graphics')
+            if level==0 and xx>L/2-p['end_length']-3:continue
+            if level==p['levels']-1 and xx==0:continue
+            signage.box((xx,-W/2-.128,z+.57),(1.85,.006,.54),'Steel')
+            if not municipal:
+                for dx in (-.7,.7):signage.beam((xx+dx,-W/2-.125,z+.4),(xx+dx,-W/2-.087,z+.4),.025,.025)
+            signage.quad([(xx-.9,-W/2-.132,z+.32),(xx+.9,-W/2-.132,z+.32),(xx+.9,-W/2-.132,z+.82),(xx-.9,-W/2-.132,z+.82)],layout['LEVEL '+str(level+1)],'Graphics')
     label='ALDER QUAY' if municipal else 'BELLWETHER COMMONS';z=(p['levels']-1)*FLOOR+.5
-    signage.quad([(-7,-W/2-.16,z-.2),(7,-W/2-.16,z-.2),(7,-W/2-.16,z+.5),(-7,-W/2-.16,z+.5)],layout[label],'Graphics');signage.finish()
+    name_x=-TEE/2
+    signage.box((name_x,-W/2-.128,z+.15),(7.1,.006,.75),'Steel')
+    if not municipal:
+        for xx in (-3,-1.5,0,1.5,3):signage.beam((name_x+xx,-W/2-.125,z-.1),(name_x+xx,-W/2-.087,z-.1),.03,.03)
+    signage.quad([(name_x-3.5,-W/2-.133,z-.2),(name_x+3.5,-W/2-.133,z-.2),(name_x+3.5,-W/2-.133,z+.5),(name_x-3.5,-W/2-.133,z+.5)],layout[label],'Graphics');signage.finish()
     # Conform sampled routes to the triangles the engine actually drives.
     # The tapered end crossfall is bilinear; its triangulated interpolation
     # differs from the ideal formula by up to a few centimetres at turns.
@@ -353,16 +372,26 @@ def make_garage(p,templates,layout):
         vs.extend(ob.matrix_world@v.co for v in ob.data.vertices)
         for tri in ob.data.loop_triangles:
             mat=ob.data.materials[tri.material_index].name
-            if 'form Deck' in mat or 'form Seal' in mat or mat.split('.')[0]=='Concrete':
+            if ('form Deck' in mat or 'form Seal' in mat or mat.split('.')[0]=='Concrete') and (ob.matrix_world.to_3x3()@tri.normal).z>.7:
                 faces.append(tuple(offset+i for i in tri.vertices))
-    surface=BVHTree.FromPolygons(vs,faces,all_triangles=True);corrections=[]
+    surface=BVHTree.FromPolygons(vs,faces,all_triangles=True);corrections=[];unsupported=[];probed=0
     for row in p['paths']+p['pedestrian_paths']:
         for pt in row['points']:
-            hit=surface.ray_cast(Vector((pt[0],pt[1],pt[2]+.15)),Vector((0,0,-1)),.30)
-            assert hit[0] is not None,('Unsupported route sample',row['name'],pt)
-            corrections.append(abs(hit[0].z-pt[2]));pt[2]=float(hit[0].z)
+            heights=[]
+            for dx,dy in ((0,0),(0,.001),(0,-.001),(.001,.001),(-.001,-.001)):
+                hit=surface.ray_cast(Vector((pt[0]+dx,pt[1]+dy,pt[2]+.15)),Vector((0,0,-1)),.30)
+                if hit[0] is None:continue
+                # Probe every side before selecting the uppermost plane:
+                # overlapping 2mm tee seals and 3mm pour covers both count.
+                z=hit[0].z-(hit[1].x*(pt[0]-hit[0].x)+hit[1].y*(pt[1]-hit[0].y))/hit[1].z
+                heights.append(z)
+            if not heights:
+                unsupported.append(dict(path=row['name'],point=list(pt)))
+                continue
+            z=max(heights);probed+=1
+            corrections.append(abs(z-pt[2]));pt[2]=float(z)
     p['route_surface_projection']=dict(samples=len(corrections),max_correction_m=max(corrections),
-        method='Source floor-triangle projection; independently ray-checked after glTF import')
+        unsupported_samples=unsupported,offset_probe_queries=probed,method='Source upward floor planes; edge probes ≤1.5mm extrapolate to original XY. Independent imported float64 barycentric check.')
     # Curves are engine-authoritative metadata, not exported render tubes.
     # Their point samples also travel as JSON extras because glTF has no curves.
     for row in p['paths']+p['pedestrian_paths']:

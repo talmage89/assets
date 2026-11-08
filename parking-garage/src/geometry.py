@@ -112,7 +112,7 @@ def clone(rt,name,pos=(0,0,0),yaw=0,parent=None,xf=None):
             c.data=c.data.copy()
             for v in c.data.vertices:v.co=xf(v.co)
             bm=bmesh.new();bm.from_mesh(c.data);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(c.data);bm.free();c.data.update()
-    r=copies[rt];r.parent=parent;r.location=pos;r.rotation_euler=(0,0,math.radians(yaw));return r
+    r=copies[rt];r.parent=parent;r.location=pos;r.rotation_mode='XYZ';r.rotation_euler=(0,0,math.radians(yaw));return r
 
 
 def bounds(obs):

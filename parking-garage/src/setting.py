@@ -94,7 +94,7 @@ def town(p,garage_root,with_cars=True):
                 xx=i*3.048
                 # Crossing gaps around the connecting streets and actual entry.
                 if min(abs(xx-east_sx),abs(xx+sx))<rw/2+2.0:continue
-                if sign==-1 and abs(xx-(L/2-p['end_length']/2))<4.0:continue
+                if sign==-1 and abs(xx-(L/2-p['end_length']/2))<4.9+1.524:continue
                 rr=G.clone(curb,f'NativeCurb_{sign}_{i}',(xx,sign*(sy-rw/2),-.1524),90 if sign<0 else -90,rt)
             for i in range(-30,31):
                 yy=i*3.048
@@ -144,6 +144,11 @@ def town(p,garage_root,with_cars=True):
         # are the actual baked atlas; no regeneration or decimation is performed.
         car_templates.append(imported(ROOT/'cars/export/AlderS240.glb','Car template sedan'))
         for cr in car_templates:
+            for mat in {m for o in cr.children_recursive if o.type=='MESH' for m in o.data.materials if m and m.use_nodes}:
+                for bs in [n for n in mat.node_tree.nodes if n.type=='BSDF_PRINCIPLED']:
+                    for key in ('Emission Color','Emission Strength'):
+                        for link in list(bs.inputs[key].links):mat.node_tree.links.remove(link)
+                    bs.inputs['Emission Strength'].default_value=0;bs.inputs['Emission Color'].default_value=(0,0,0,1)
             # Context-only join: retain all native vertices/materials while
             # reducing hundreds of parked assemblies to one mesh each.
             bpy.context.view_layer.update();obs=[o for o in cr.children_recursive if o.type=='MESH']
@@ -177,8 +182,10 @@ def town(p,garage_root,with_cars=True):
                     slot.link='OBJECT';slot.material=paints[key]
             actors.append(dict(socket='Stall_'+s['id'],category='surface court' if s['id'].startswith('Surface') else 'garage',kind=source.name,triangles=G.triangles([source,*source.children_recursive]),position=list(position),parking_bias_m=bias))
         for i,x in enumerate((-28,-15,4,19,32)):
-            s=car_templates[i%3];G.clone(s,'Street parked '+str(i),(x,-sy+rw/2-1.2,-.12205),90,rt)
-            actors.append(dict(socket=None,category='street',kind=s.name,triangles=G.triangles([s,*s.children_recursive]),position=[x,-sy+rw/2-1.2,-.12205]))
+            # A full weekday frontage still leaves the garage access clear.
+            if abs(x-(L/2-p['end_length']/2))<7.4:continue
+            s=car_templates[i%3];G.clone(s,'Street parked '+str(i),(x,-sy+rw/2-1.2,-.12205),-90,rt)
+            actors.append(dict(socket=None,category='street',kind=s.name,triangles=G.triangles([s,*s.children_recursive]),position=[x,-sy+rw/2-1.2,-.12205],yaw=-90))
         for source in car_templates:
             for o in [source,*source.children_recursive]:bpy.data.objects.remove(o,do_unlink=True)
     bpy.context.view_layer.update()
