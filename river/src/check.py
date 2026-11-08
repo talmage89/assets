@@ -122,7 +122,22 @@ def construction(seed):
         row=[v.co for v in water.data.vertices if abs(v.co.y-y)<.02]
         if not row:continue
         world=[water.matrix_world@v for v in row];samples.append(dict(y_m=y,width_m=max(v.x for v in world)-min(v.x for v in world)))
-    headroom=[];socket_gaps={};building_walk_checks=0;light_gaps=[];alley_gaps=[]
+    headroom=[];socket_gaps={};building_walk_checks=0;light_gaps=[];alley_gaps=[];drift=[]
+    wood=next(o for o in obs if o.name=='CutbankExposedRootsAndDrift')
+    wood_points=[wood.matrix_world@v.co for v in wood.data.vertices];wet=bvh(water)
+    pier_trees=[bvh(o) for o in obs if o.type=='MESH' and o.name.startswith('Pier_')]
+    for x in [-meta['plan']['spans']*meta['plan']['span']/2+i*meta['plan']['span'] for i in range(1,meta['plan']['spans'])]:
+        points=[v for v in wood_points if abs(v.x-x)<2 and -meta['plan']['deck_width']*.65<v.y<-meta['plan']['deck_width']*.20]
+        assert points,('Missing snagged drift',x)
+        distances=[t.find_nearest(v)[3] for t in pier_trees for v in points]
+        assert min(distances)<.03,('Drift has no pier contact',x,min(distances))
+        immersion=[]
+        for v in points:
+            hit=wet.ray_cast(Vector((v.x,v.y,1)),Vector((0,0,-1)),3)[0]
+            assert hit is not None,('Drift outside water',tuple(v))
+            immersion.append(v.z-hit.z)
+        assert min(immersion)<-.02 and max(immersion)>.05,('Drift not afloat',x,min(immersion),max(immersion))
+        drift.append(dict(pier_x_m=x,closest_wood_vertex_to_pier_m=min(distances),wood_minus_water_range_m=[min(immersion),max(immersion)]))
     for name in ('BoatLaunch','FishingSpot'):
         socket=next((o for o in obs if o.name==name),None)
         if socket is None:continue
@@ -180,6 +195,7 @@ def construction(seed):
                 riverwalk_headroom_samples=len(headroom),minimum_sampled_riverwalk_headroom_m=min(headroom) if headroom else None,
                 gameplay_socket_surface_gaps_m=socket_gaps,building_walk_bounds_checks=building_walk_checks,
                 alley_soil_samples=len(alley_gaps),alley_paving_minus_soil_range_m=[min(alley_gaps),max(alley_gaps)] if alley_gaps else None,
+                drift_surface_samples=drift,
                 lamp_base_surface_samples=len(light_gaps),maximum_lamp_pedestal_gap_m=max(light_gaps) if light_gaps else None,
                 guardrail_foot_samples=len(rail_gaps),guardrail_foot_minus_soil_range_m=[min(rail_gaps),max(rail_gaps)])
 

@@ -87,8 +87,16 @@ def terrain(p,parent):
             debris.tube([(x+.3,y,z+.15),(x-.10,y+.2,z-.2),(x-.45-k*.10,y+.2+k*.23,z-.9)],.018/(k+1),'wood',5)
     for j in range(1,p.spans):
         xx=-p.length/2+j*p.span
-        debris.tube([(xx-.9,-p.deck_width/2-1.4,.17),(xx+.1,-p.deck_width/2-.35,.12),(xx+.8,-p.deck_width/2+.3,.19)],.13,'wood',9)
-        for k in range(8):debris.tube([(xx-.8+k*.19,-p.deck_width/2-.5,.12),(xx-1+k*.17,-p.deck_width/2-1.3,.23)],.025,'wood',5)
+        tx,ty=p.tangent(0);cross=(ty,-tx)
+        if p.pier=='columns':nx,ny=xx-tx*.60,-p.deck_width*.29-ty*.60
+        else:nx,ny=xx-tx*p.deck_width*.83/2,-ty*p.deck_width*.83/2
+        cx,cy=nx-tx*.115,ny-ty*.115
+        pts=[(cx+a*cross[0]-tx*slack,cy+a*cross[1]-ty*slack,p.water_z(cy)+z)
+             for a,slack,z in ((-.9,.04,.05),(0,0,.04),(.8,.03,.02))]
+        debris.tube(pts,.13,'wood',9)
+        for k in range(8):
+            a=-.75+k*.19;x=cx+a*cross[0];y=cy+a*cross[1]
+            debris.tube([(x,y,p.water_z(y)+.05),(x-tx*.65-cross[0]*.1,y-ty*.65-cross[1]*.1,p.water_z(y)+.025)],.025,'wood',5)
     debris.finish()
     G.path('FlowCenterline',[(p.center(y),y,p.water_z(y)) for y in ys],rt,'flow',flow_direction='+Y',nominal_speed_m_s=.38)
     return rt
