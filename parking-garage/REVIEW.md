@@ -930,3 +930,39 @@ is nearly black, hiding dark metal, and the tee/bay cameras hide the stems.
 Replace that presentation with a neutral procedural studio and an underside
 view for the tee/bays. The replacement frames still require review. No docs
 or final acceptance recipe yet; the cold-build preservation block remains.
+
+## Delivery pass 16 — finish the exported inspection gallery
+
+Color/value first: the first neutral-studio module attempt clipped concrete
+to white. Rejected it after opening the full sheet and its first five native
+frames. Reduced the area-light powers, then opened all 25 replacement frames
+at their native 800px. Concrete now retains its manufacture variation,
+dark metal is legible, and underside views expose the tee stems and bearing
+construction. The module geometry and baked maps were not overridden.
+
+Opened the two Eevee roof views and all eight orthographic views at 1600px.
+The final elevations use a 6.8-degree inspection angle and a larger neutral
+ground, removing the visible ground edge. Grazing reflections still stretch
+along the polished floor in the isolated elevations; the street, aisle,
+roof and above views are the material judgment views. Eevee omits practical
+lights hidden below the opaque roof; this is recorded in its receipts.
+
+Opened the completed scene contact, module sheet, correction contact and
+the full-size hero/aisle/roof/tower/entry before-and-after comparisons. All
+14 comparisons assert identical camera positions, targets and lenses; their
+panels are 1280px wide. Froze the commercial proof camera's accepted target
+because the new films otherwise shifted the bounds fit by 0.0002m at its
+one-meter aiming point. The final hero remains at 1.65m and 35mm.
+
+The final inventory is 33 exported-GLB scene frames, 25 module frames and
+three pairs each for source and baked surfaces. Every final individual frame
+has now been opened at native size. Receipts verify actual GLB, buffer,
+texture and image hashes. The accepted photographic fits remain 15.8px,
+5.7px and 14.9px. All five requested corrections show in their respective
+views; the material limitations from pass 15 remain visible and reported.
+
+An independent 4096px GPU bake and 2048px filter passed the fixed tolerance.
+BaseColor and ORM are byte-identical; the normal differs by at most one
+8-bit code, mean normalized error 9.35e-10. Canonical maps were untouched.
+This is a tolerance result, not byte determinism for GPU baking. The native
+crossover cold-build block remains unresolved; do not approve final docs.

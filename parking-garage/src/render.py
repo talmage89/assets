@@ -98,6 +98,8 @@ def render_shot(out,shot,width,samples,engine='CYCLES',source=None):
     receipt.update(target=list(shot['target']),rotation_quaternion=list(cam.rotation_euler.to_quaternion()),sensor_width_mm=float(cam.data.sensor_width),roll=shot.get('roll',0))
     sun=next((ob for ob in sc.objects if ob.type=='LIGHT' and ob.data.type=='SUN'),None)
     if sun:receipt['sun']=dict(energy=float(sun.data.energy),color=list(sun.data.color),angle_radians=float(sun.data.angle),direction_to_source=list(sun.matrix_world.to_quaternion()@Vector((0,0,1))))
+    areas=[ob.data for ob in sc.objects if ob.type=='LIGHT' and ob.data.type=='AREA']
+    receipt['area_lights']=dict(count=len(areas),total_power=sum(float(ld.energy) for ld in areas))
     if sc.world and sc.world.use_nodes:
         sky=next((n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY'),None)
         bg=next((n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND'),None)

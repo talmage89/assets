@@ -10,17 +10,18 @@ import bpy
 from mathutils import Vector
 
 
-def lighting(elevation=18,azimuth=-135,interior=False,matched=False,roof=False):
+def lighting(elevation=18,azimuth=-135,interior=False,matched=False,front_lit=False,inspection_azimuth=None):
     # Keep accepted interior and photo illumination. Public exterior daylight
     # has a low oblique sun, a clean atmosphere and less diffuse sky fill.
     exterior=not interior and not matched
-    if exterior:elevation,azimuth=12,(-158 if roof else -45)
+    inspection=exterior and inspection_azimuth is not None
+    if exterior:elevation,azimuth=(25,inspection_azimuth) if inspection else (12,-158 if front_lit else -45)
     sc=bpy.context.scene;world=bpy.data.worlds.new('Clear sky with daylight bounce');world.use_nodes=True;sc.world=world
     nodes=world.node_tree.nodes;links=world.node_tree.links
     sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(elevation);sky.sun_rotation=math.radians(azimuth);sky.sun_disc=False
     sky.altitude=100;sky.air_density=1;sky.aerosol_density=.08 if exterior else .35
-    links.new(sky.outputs[0],nodes.get('Background').inputs['Color']);nodes.get('Background').inputs['Strength'].default_value=.50 if interior else .058 if exterior else .22
-    light=bpy.data.lights.new('Low raking daylight','SUN');light.energy=(9.5 if roof else 5.0328463) if exterior else 4.5;light.color=(1,.88,.70) if exterior else (1,.91,.79);light.angle=math.radians(.53 if exterior else .65)
+    links.new(sky.outputs[0],nodes.get('Background').inputs['Color']);nodes.get('Background').inputs['Strength'].default_value=.50 if interior else .16 if inspection else .058 if exterior else .22
+    light=bpy.data.lights.new('Low raking daylight','SUN');light.energy=4.5 if inspection else (9.5 if front_lit else 5.0328463) if exterior else 4.5;light.color=(1,.88,.70) if exterior else (1,.91,.79);light.angle=math.radians(.53 if exterior else .65)
     ob=bpy.data.objects.new(light.name,light);sc.collection.objects.link(ob)
     sun=Vector((math.cos(math.radians(elevation))*math.cos(math.radians(azimuth)),math.cos(math.radians(elevation))*math.sin(math.radians(azimuth)),math.sin(math.radians(elevation))))
     ob.rotation_euler=(-sun).to_track_quat('-Z','Y').to_euler()
@@ -56,6 +57,10 @@ def views(p,original):
         forward=Vector((math.cos(az),math.sin(az),0));elev=[math.atan2(v.z-eye.z,(v-eye).dot(forward)) for v in points];el=(min(elev)+max(elev))/2
         direction=Vector((math.cos(el)*math.cos(az),math.cos(el)*math.sin(az),math.sin(el)))
         s['hero']=dict(location=list(eye),target=list(eye+direction),lens=35,aspect=2.35)
+        if p['seed']==202:
+            # Freeze the accepted 950b6d2 proof camera. New surface films
+            # must not subtly reframe the before/after comparison bounds.
+            s['hero']['target']=[-64.4244384765625,-34.26311492919922,1.7525770664215088]
     s['aisle']=dict(location=(-L/2+10,p['flat_y']-1.6,1.65),target=(L/2-8,p['flat_y']+5,1.9),lens=32,interior=True)
     # Additional construction view angles across the tee stems; the retained
     # aisle itself is unchanged for the required before/after evidence.
@@ -63,11 +68,18 @@ def views(p,original):
     tower=p['towers'][0]
     s['tower_landing']=dict(location=(-L/2+6,tower[1]+.3,1.65),target=(tower[0]+2.78,tower[1],1.45),lens=35,interior=True)
     s['tower_open']=dict(s['tower_landing'],open_lift=True)
-    s['eevee']=dict(s['hero'],engine='BLENDER_EEVEE')
+    s['eevee']=dict(s['top_deck'],engine='BLENDER_EEVEE',roof_inspection=True)
     garage=next(o for o in bpy.context.scene.objects if o.name.startswith('Garage_') and o.get('system')==p['system'])
     points=[o.matrix_world@Vector(c) for o in garage.children_recursive if o.type=='MESH' for c in o.bound_box]
     lo=Vector([min(v[k] for v in points) for k in range(3)]);hi=Vector([max(v[k] for v in points) for k in range(3)]);center=(lo+hi)/2
-    for name,direction,aspect,scale in [('front',(0,-1,0),2.35,hi.x-lo.x),('back',(0,1,0),2.35,hi.x-lo.x),('side',(-1,0,0),1.6,hi.y-lo.y),('top',(0,0,1),2.0,max(hi.x-lo.x,(hi.y-lo.y)*2))]:
-        s[name]=dict(location=list(center+Vector(direction)*150),target=list(center),lens=50,ortho_scale=scale*1.15,aspect=aspect,garage_only=True)
+    for name,direction,aspect in [('front',(0,-1,.12),2.35),('back',(0,1,.12),2.35),('side',(-1,0,.12),1.6),('top',(0,0,1),2.0)]:
+        outward=Vector(direction).normalized()
+        rotation=(-outward).to_track_quat('-Z','Y')
+        right=rotation@Vector((1,0,0));up=rotation@Vector((0,1,0))
+        # A 6.8-degree downward inspection angle avoids looking precisely
+        # along coplanar floor films. Fit both projected bounds explicitly.
+        extent=lambda axis:max(v.dot(axis) for v in points)-min(v.dot(axis) for v in points)
+        scale=max(extent(right),extent(up)*aspect)*1.15
+        s[name]=dict(location=list(center+outward*150),target=list(center),lens=50,ortho_scale=scale,aspect=aspect,garage_only=True)
     for shot in s.values():shot['max_bounces']=12
     return s
