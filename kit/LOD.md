@@ -239,6 +239,14 @@ justify mean .03, p95 .13 and local .10 for that level only. Alpha and silhouett
 limits stay unchanged. Broad proxy color errors, such as the pickup's lamp
 surround, are not explained by these house controls.
 
+Near source controls at +/- .75 pixel also justify local bounds .11 for the
+colonial's .30 switch, .095 for its .12 switch, and .09 for the grill's .12
+switch. Unchanged-source maxima are .10650, .09038 and .08409 respectively;
+the selected native results are .10721, .08589 and .08805. The differences
+follow bright trim and highlight contours. Other near metrics retain their
+defaults. This calibration does not excuse a changed lamp interior: the
+pickup's red-to-gray reflector defect required preserving its source contact.
+
 ## Configuration and assembly
 
 Include `../kit/lod_rules.mk` at the end of the asset's Makefile, and supply

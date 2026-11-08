@@ -2069,3 +2069,53 @@ message mistakenly read an older completion receipt while the new suite was
 running; that claim was corrected before this verified completion. Helpers
 now record run starts and the monitor gives live wrappers precedence. The
 six GPU test files and final frozen adoption proof are still pending.
+
+## Pass 54 — source phase, real lens contact, and unchanged proxy failure
+
+Opened all eighteen native strips under `source-pixel-controls-near/`: both
+.75-pixel film shifts at all three views for grill LOD2 and house LOD1/2.
+The unmodified surfaces retain color and construction while their bright
+contours alone exceed generic local limits. Source local maxima are
+.08409/.10650/.09038 respectively. Selected candidates are .08805/.10721/
+.08589. Scoped local bounds are .09/.11/.095; other near metrics remain.
+The grill source control reaches alpha .05041, but the candidate is .022–.024,
+so no alpha relaxation is needed or made. The new grill open-lid proof is
+queued at the original rest-bound switch distance, not a farther posed bound.
+
+Opened all native pickup .125/.15/.20 local-protection near strips and both
+whole-component 25648 and local 23502 middle sets. Near counts are 33260,
+33100 and 32508; the last meets 55%. Grille, hood and rim reflections remain
+close, but all three local near controls lose a small red rear reflector
+region, local .08713. The diagnostic native crop and fourfold explanatory
+crop are `previews/cars/local-power-near/worst-patch.jpg`; acceptance still
+uses the full native strips. This is a material loss, not a phase exception.
+
+Double-precision geometric layer rays locate the source's 92-triangle opaque
+insert at the same z=-2.875 plane as the glass back. Its 42-triangle reduction
+moves that face approximately 80–90 micrometers deeper, past the interface.
+The glass itself is unchanged. This is a straight geometric layer diagnostic,
+not a refraction simulation; the native render independently shows the loss.
+Added sampled opposed transmission contacts to local protection. It pins source
+opaque triangles where their vertices/centers meet the lens surface within
+the established micrometer convention, and reports measured distances and pins.
+The meaningful fixture keeps a real contact while rejecting a separated panel
+and a same-facing sheet. The complete shared-map fixture passes. Default
+whole-component behavior remains unchanged. The public builder's repaired
+near level measures 32612: 104 triangles above the faulty 32508 control and
+still below 55%. Middle build and repaired native review are pending.
+
+Opened all six light-free shader-input strips and all three optical-cap8
+native strips. BaseColor/transmission inputs retain the broad source fields;
+the emission-input comparison intentionally differs because the proxy carries
+transmitted emission while the diagnostic source glass is opaque. It cannot
+be read as a radiance error measurement. Cap8 plus ordinary .5 yields means
+.02987/.01914/.02451 and local .16969/.19454/.15792: still a clear failure.
+Cap4 is the better all-view allocation control, but also fails. No car far
+color limit is changed. A same-layout 1024 filtering control is queued solely
+to test texture capacity; it is outside the delivery budget and cannot ship.
+
+Merged coffee-shop main `941c8c0` without kit changes. The previous 496 protected
+files remain identical; append-only protection now also covers its five gallery
+images, 501 total. Repository check: 2134 source files, zero errors. The full
+kit suite must refresh after the new local/contact features; only their complete
+shared-map fixture has been rerun so far. Fresh recipe adoption is still pending.
