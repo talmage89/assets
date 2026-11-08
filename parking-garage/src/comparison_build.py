@@ -22,7 +22,16 @@ def main():
     for rr in templates.values():rr.location=(0,0,0)
     G.palette(folder)
     tower=G.root('Tower8',module_kind='Tower8');pieces.tower(tower,8);templates['Tower8']=tower
-    p=garage(202,system='pt',levels=8,tee_count=24,comparison=True);rt=make_garage(p,templates,layout);upgrade(rt,p,layout)
+    p=garage(202,system='pt',levels=8,tee_count=24,comparison=True)
+    p['structural_stations']=sorted({round(x,9) for x in p['structural_stations']})
+    rt=make_garage(p,templates,layout);upgrade(rt,p,layout)
+    for rr in list(rt.children):
+        if not rr.name.startswith('ColumnShaft_'):continue
+        height=max(v.co.z for ob in rr.children if ob.type=='MESH' for v in ob.data.vertices)
+        for ob in list(rr.children):
+            if ob.type=='MESH':bpy.data.objects.remove(ob,do_unlink=True)
+        column=G.Mesh(rr.name+'__Round cast form',rr)
+        column.tube([(0,0,0),(0,0,height)],.381,'Concrete',64);column.finish();rr['round_column']=True
     # This photograph has a cast edge downstand below the slab. It belongs
     # to this reference variant; the accepted town has its original edge.
     fascia=G.Mesh('Reference cast edge downstand',rt)

@@ -7,7 +7,7 @@ import geometry as G
 from build import export,members
 from atlas_binding import palette,bind
 from service_age import placed
-from form import remove_paint,tower_signs
+from form import remove_paint,tower_signs,refine_fixture
 from plan import garage
 import pieces
 
@@ -36,6 +36,8 @@ def modules():
             for o in list(root.children):
                 if o.type=='MESH':bpy.data.objects.remove(o,do_unlink=True)
             pieces.spandrel(root,refined=True)
+        elif name=='Fixture':
+            refine_fixture(root)
         elif name in ('StructuralBay','EndBay','RampBay'):
             from tee_detail import source
             from plan import FLOOR,TEE
@@ -47,6 +49,10 @@ def modules():
                 ob=source(deck)
                 for v in ob.data.vertices:v.co.z+=rise*(deck.location.x+v.co.x)
                 bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free();ob.data.update()
+        if name in ('StructuralBay','EndBay','RampBay','PTStructuralBay'):
+            for rr in list(root.children):
+                if rr.get('module_kind')!='Fixture':continue
+                refine_fixture(rr,.10 if name.startswith('PT') else .40)
         for ob in root.children_recursive:remove_paint(ob)
         bpy.context.view_layer.update();bind(root,parameters,mats)
         report[name]=export(f'export/lookdev/modules/{name}.gltf',members(root),images())

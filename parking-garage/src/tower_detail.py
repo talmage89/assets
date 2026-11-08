@@ -38,8 +38,8 @@ def add(r,levels,H):
         b.box((2.77,0,z+.005),(.10,1.78,.12),'Steel')
         for yy in (-.85,.85):b.box((2.77,yy,z+1.5),(.10,.065,3.0),'Steel')
         # Landing call panel and a conventional recessed door surround.
-        b.box((2.22,2.725,z+1.10),(.12,.025,.25),'Steel')
-        for zz in (1.06,1.15):b.box((2.22,2.742,z+zz),(.035,.008,.035),'White')
+        b.box((2.09,2.855,z+1.10),(.12,.025,.25),'Steel')
+        for zz in (1.06,1.15):b.box((2.09,2.8715,z+zz),(.035,.008,.035),'White')
         for xx in (.51,2.09):b.box((xx,2.825,z+1.1),(.065,.035,2.2),'Steel')
     # Elevator overrun and separate machine-room hood, vent and folded coping.
     b.box((1.48,0,H+.51),(2.42,5.37,.84))
@@ -55,12 +55,19 @@ def add(r,levels,H):
     for yy in (1.10,2.53):b.beam((-2.83,yy,2.0),(-3.68,yy,2.4),.035,.035)
     b.box((-2.84,2.54,1.72),(.10,.12,.30),'Steel')
     b.box((-2.898,2.54,1.72),(.018,.085,.22),'Light')
-    for yy in (-.70,.70):b.beam((2.05,yy,.05),(2.05,yy,H+.4),.055,.07)
+    for xx,wall in ((.40,.35),(2.53,2.60)):
+        b.beam((xx,1.435,.05),(xx,1.435,H+.4),.055,.07)
+        for lev in range(levels):b.box(((xx+wall)/2,1.435,lev*FLOOR+1), (abs(xx-wall),.10,.045),'Steel')
     # Fixed ground-level car enclosure visible through the shaft inspection
     # glazing; no moving cab or simulated lift mechanics are claimed.
-    b.box((1.43,0,2.31),(1.9,2.05,.12),'Steel')
-    b.box((1.43,0,.07),(1.9,2.05,.14),'Steel')
-    for yy in (-1.0,1.0):b.box((1.43,yy,1.17),(1.90,.06,2.2),'Steel')
+    b.box((1.43,1.435,2.31),(1.9,2.6,.12),'White')
+    b.box((1.43,1.435,-.07),(1.9,2.6,.14),'Steel')
+    b.box((1.43,1.435,.002),(1.78,2.45,.004),'Seal')
+    b.box((1.43,.165,1.125),(1.9,.06,2.25),'Stainless')
+    for xx in (.48,2.38):b.box((xx,1.4125,1.125),(.06,2.555,2.25),'Stainless')
+    for xx in (.43,2.48):
+        for zz in (.35,2.0):b.box((xx,1.435,zz),(.10,.14,.10),'Steel')
+    b.box((1.43,1.435,2.246),(.25,.65,.008),'Light')
     for lev in range(levels):
         b.box((.105,1.9,lev*FLOOR+2.65),(.09,.70,.18),'Steel')
         b.box((.055,1.9,lev*FLOOR+2.65),(.012,.62,.13),'Light')
@@ -68,3 +75,5 @@ def add(r,levels,H):
     root(r.name+'__StairDaylight',(-2.10,-.7,H/2),r,socket_kind='daylight_core')
     for lev in range(levels):
         root(r.name+f'__StairFixture_{lev}',(.025,1.9,lev*FLOOR+2.55),r,socket_kind='light_emitter',emitter_down_watts=35,emitter_up_watts=0)
+    root(r.name+'__CabinLamp',(1.43,1.435,2.235),r,socket_kind='light_emitter',emitter_down_watts=14,emitter_up_watts=0,emitter_size_x=.25,emitter_size_y=.65,downlight_offset=.002)
+    root(r.name+'__CabinFloor',(1.43,1.435,.004),r,socket_kind='fixed_cabin_floor')

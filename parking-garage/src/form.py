@@ -40,6 +40,13 @@ def tower_signs(r,levels,layout,label):
     b.finish()
 
 
+def refine_fixture(rr,strap=.40):
+    old=next((ob.name for ob in rr.children if ob.get('socket_kind')=='light_emitter'),None)
+    for ob in reversed(list(rr.children_recursive)):bpy.data.objects.remove(ob,do_unlink=True)
+    pieces.fixture(rr,refined=True,strap=strap)
+    if old:next(ob for ob in rr.children if ob.get('socket_kind')=='light_emitter').name=old
+
+
 def upgrade(rt,p,layout):
     for ob in list(rt.children_recursive):remove_paint(ob)
     if p['system']=='precast':
@@ -58,6 +65,9 @@ def upgrade(rt,p,layout):
                     v.co.x*=(c-a)/(3*TEE)
                     if ramp:v.co.z+=FLOOR*ramp_fraction(rr.location.x+v.co.x,p)
                 bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free();ob.data.update()
+    for rr in list(rt.children):
+        if rr.get('module_kind')!='Fixture':continue
+        refine_fixture(rr,.5524 if p['system']=='precast' else .10)
     towers=[o for o in rt.children if o.name.startswith('Tower_') and o.get('module_kind')]
     for old in towers:
         matrix=old.matrix_basis.copy();name=old.name;kind=old['module_kind']

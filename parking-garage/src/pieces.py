@@ -121,12 +121,19 @@ def ptbeam(r):
     b.geom(vs,fs);b.finish()
 
 
-def fixture(r):
-    b=Mesh(r.name+'__Mesh',r);b.box((0,0,-.045),(.12,1.24,.09),'Steel')
-    b.box((0,0,-.096),(.10,1.16,.018),'Light')
+def fixture(r,refined=False,strap=.40):
+    b=Mesh(r.name+'__Mesh',r)
+    if refined:
+        b.box((0,0,-.0125),(.06,1.24,.025),'Steel')
+        b.box((0,0,-.07),(.12,1.16,.08),'Light')
+    else:
+        b.box((0,0,-.045),(.12,1.24,.09),'Steel')
+        b.box((0,0,-.096),(.10,1.16,.018),'Light')
     for y in (-.55,.55):b.box((0,y,-.11),(.135,.025,.04),'Steel')
-    for x in (-.04,.04):b.tube([(x,-.45,0),(x,-.45,.40)],.0035,'Steel',6)
-    b.finish();root(r.name+'__Emitter',(0,0,-.12),r,socket_kind='light_emitter')
+    for x in (-.04,.04):b.tube([(x,-.45,0),(x,-.45,strap)],.0035,'Steel',6)
+    b.finish();emitter=root(r.name+'__Emitter',(0,0,-.12),r,socket_kind='light_emitter')
+    if refined:
+        for key,value in dict(uplight_x=.045,uplight_z=.098,uplight_size_x=.022,emitter_size_x=.10,emitter_size_y=1.15,downlight_offset=.002).items():emitter[key]=value
 
 
 def wheelstop(r):
@@ -227,10 +234,12 @@ def tower(r,levels=4,elevator=True,refined=False):
         if refined:door_pull(d)
         d.finish()
         # Elevator doors slide in front of a recessed dark car opening.
-        b.box((1.30,2.515,z+1.08),(1.50,.08,2.16),'Seal')
+        if not refined:b.box((1.30,2.515,z+1.08),(1.50,.08,2.16),'Seal')
         for sign in (-1,1):
             pv=root(f'{r.name}__ElevatorDoor_L{lev+1}_{sign}',(1.30,2.78,z),r,slide_axis='X',range_m=[0.,sign*.72])
-            d=Mesh(pv.name+'__Leaf',pv);d.box((sign*.355,0,1.0825),(.70,.035,2.115),'Steel');d.finish()
+            d=Mesh(pv.name+'__Leaf',pv);d.box((sign*.355,0,1.0825),(.70,.035,2.115),'Stainless' if refined else 'Steel')
+            if refined and lev==0:d.box((sign*.355,-.06,1.0825),(.70,.02,2.115),'Stainless')
+            d.finish()
         b.box((1.30,2.81,z+2.22),(1.65,.14,.10),'Steel')
     # Glazed stair face, individually divided by floor and mullion.
     for lev in range(levels):

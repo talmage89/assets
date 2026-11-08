@@ -14,7 +14,8 @@ from kit.image_io import write_png
 N=4096
 BANDS={'precast':(0,2048),'cast':(2048,3072),'steel':(3072,3328)}
 PALETTE={'Seal':('#252725',.90,0),'Yellow':('#c59728',.65,0),'Blue':('#294955',.65,0),
-         'White':('#d5cdb4',.68,0),'Red':('#813b2d',.68,0),'Patch':('#938f7e',.91,0),'Light':('#e7e2c8',.38,0)}
+         'White':('#d5cdb4',.68,0),'Red':('#813b2d',.68,0),'Patch':('#938f7e',.91,0),'Light':('#e7e2c8',.38,0),
+         'Stainless':('#b1b9b9',.44,.9)}
 MARKS=('runoff','rust','mineral','oil','rubber','spall','droppings','scuff')
 
 
@@ -67,6 +68,7 @@ def generate(folder=Path('build/lookdev/atlas-source'),layout_path=Path('build/l
                 tracks+=np.exp(-((u-center)/(.018+.025*(1-v)))**2)*np.clip(1-v*(.65+.05*k),0,1)
             alpha=(tracks*.65+macro*.12)*rim*(.5+.5*grain)
             alpha=np.clip(alpha*1.8,0,1)
+            alpha*=np.clip((1-v)*1.8,0,1)*np.clip((1-v*.55-np.abs(u))*8,0,1)
             rgb={'runoff':(78,72,52),'rust':(119,61,30),'mineral':(210,202,175)}[key]
         elif key in ('oil','spall','droppings'):
             warp=(macro-.5)*.42;rad=(u*1.1+warp)**2+((v-.5)*2.25+warp)**2

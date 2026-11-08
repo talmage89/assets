@@ -10,6 +10,7 @@ import bpy
 import numpy as np
 from PIL import Image
 from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];sys.path[:0]=[str(ROOT),str(HERE)]
 import geometry as G
 from check import measured_height
@@ -60,7 +61,35 @@ def tile_edges(layout):
     return results
 
 
+def queue_support(seed):
+    """Independent support audit on the fresh complete-site delivery."""
+    path=Path(f'export/lookdev/sites/ParkingGarageLookSite-{seed}.gltf')
+    bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
+    car=bpy.data.objects['Entry queue vehicle'];inverse=car.matrix_world.inverted();local=[]
+    for ob in car.children_recursive:
+        if ob.type=='MESH':local.extend(inverse@ob.matrix_world@v.co for v in ob.data.vertices)
+    low=min(v.z for v in local);groups={}
+    for v in local:
+        if v.z<low+.003:groups.setdefault((v.x>0,v.y>0),[]).append(v)
+    assert len(groups)==4,(seed,'Wheel patches',len(groups))
+    apron=next(o for o in bpy.context.scene.objects if o.name.startswith('Private entry and accessible street walk'))
+    apron.data.calc_loop_triangles();vertices=[apron.matrix_world@v.co for v in apron.data.vertices]
+    faces=[tuple(t.vertices) for t in apron.data.loop_triangles if (apron.matrix_world.to_3x3()@t.normal).z>.7]
+    surface=BVHTree.FromPolygons(vertices,faces,all_triangles=True);gaps=[]
+    for points in groups.values():
+        values=[]
+        for local_point in points:
+            point=car.matrix_world@local_point;hit=surface.ray_cast(point+Vector((0,0,1)),Vector((0,0,-1)),2)
+            assert hit[0] is not None,(seed,point)
+            values.append(point.z-hit[0].z)
+        gaps.append(min(values)) # closest actual tire vertex, not a declared wheel center
+    error=max(abs(v) for v in gaps);assert error<.0015,(seed,'Queue wheel support',gaps)
+    return dict(wheels=4,tire_vertices=sum(len(v) for v in groups.values()),signed_contact_gaps_m=gaps,max_abs_gap_m=error,
+        method='Fresh site import / native low-tire vertices / actual apron BVH; 1.5mm accommodates the discrete tire surface')
+
+
 def main():
+    Path('build/lookdev/check.json').unlink(missing_ok=True)
     bake=json.loads(Path('build/lookdev/atlas-bake/ParkingGarage-bake.json').read_text())
     assert all(row['size']==4096 for row in bake['channels'].values())
     for folder,key in (('atlas-source','source_sha256'),('atlas-bake','baked_sha256')):
@@ -121,6 +150,7 @@ def main():
         rows.append(dict(seed=seed,triangles=tris,materials=len(doc['materials']),images=images,texture_mib=sum(v['mib'] for v in images),
             gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,route_surface_samples=len(errors),max_route_height_error_m=max(errors),
             uv_band_violations=uv_bad,collapsed_uv_triangles=collapsed,raw_normal_max_unit_error=normal_error,headroom=headroom,area_weighted_density_p5_p50_p95=percentiles))
+        rows[-1]['queue_support']=queue_support(seed)
     for channel in ('BaseColor','Normal','ORM'):
         q=Path(f'textures/lookdev/ship/T_ParkingGarage_{channel}.png');arr=read_png(q);assert arr.shape[:2]==(2048,2048)
         if channel=='Normal':assert np.max(np.abs(np.linalg.norm(arr*2-1,axis=2)-1))<.008

@@ -43,6 +43,8 @@ def palette(graphics_folder=Path('textures/checkpoint')):
          ('Patch',(.25,.25,.23),.88,0)]:M[key]=material('Garage form '+key,color,rough,metal)
     M['Glass']=material('Garage form glass',(.88,.94,.95),.06,transmission=1)
     M['Light']=material('Garage form fluorescent',(.80,.74,.55),.4,emission=5)
+    if Path(graphics_folder)!=Path('textures/checkpoint'):
+        M['Stainless']=material('Garage form Stainless',(.48,.52,.53),.44,.9)
     for key in ('Asphalt','Concrete','Lawn','GroundTrim'):
         if key=='Concrete':continue
         M[key]=tiling.material(key,ROOT/'ground/textures/ship',alpha=key=='GroundTrim')

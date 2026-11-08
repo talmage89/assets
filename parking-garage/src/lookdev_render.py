@@ -29,11 +29,16 @@ def main():
                 old_lighting(interior=shot.get('interior',False))
                 shot['max_bounces']=7
             else:lighting(interior=shot.get('interior',False))
+            presented=[]
+            if shot.get('open_lift'):
+                for pv in bpy.context.scene.objects:
+                    if pv.get('slide_axis')=='X' and 'ElevatorDoor_L1_' in pv.name:
+                        pv.location.x+=pv['range_m'][-1];presented.append(dict(name=pv.name,translation_m=pv['range_m'][-1]))
             output_name={'retained_hero':'hero','retained_aisle':'aisle'}.get(name,name) if args.stage=='baseline' else name
             r=render_shot(args.out/str(seed)/(output_name+'.png'),shot,args.width,args.samples,shot.get('engine','CYCLES'),path)
             from hashlib import sha256
             d=json.loads(path.read_text());r['images']={im['uri']:sha256((path.parent/im['uri']).read_bytes()).hexdigest() for im in d.get('images',[])}
-            r.update(seed=seed,name=name,stage=args.stage,source_finish=args.source_finish)
+            r.update(seed=seed,name=name,stage=args.stage,source_finish=args.source_finish,presented_pivots=presented)
             receipts.append(r);(args.out/'views.json').write_text(json.dumps(receipts,indent=2)+'\n')
     print('EXPORTED REVIEW COMPLETE',args.out,len(receipts),flush=True)
 

@@ -111,7 +111,7 @@ def placed(root,p,mats):
                 if side==1 and p['ramp_limits'][0]<mid<p['ramp_limits'][1]:continue
                 for j in range(rng.randint(5,9) if old else rng.randint(3,6)):
                     x=rng.uniform(a+.15,c-.15);width=rng.uniform(.18,.72);length=rng.uniform(.45,1.28)
-                    top=z+(1.06 if old else .55);bottom=max(z-.30,top-length)
+                    top=z+((1.02 if side==-1 else .98) if old else .54);bottom=max(z-.30,top-length)
                     stamp([(x-width/2,y,bottom),(x+width/2,y,bottom),(x+width/2,y,top),(x-width/2,y,top)],'runoff',age*rng.uniform(.45,.85))
                 x=rng.choice((a+.08,c-.08));w=rng.uniform(.20,.48);top=z+(.94 if old else .5)
                 stamp([(x-w/2,y,z-.22),(x+w/2,y,z-.22),(x+w/2,y,top),(x-w/2,y,top)],'mineral',age*.62)
@@ -177,6 +177,7 @@ def construction(root,p,rng,age,stamp,floor_mark):
     # Concrete corner abrasion follows bumper contact on the end-turn shafts.
     for rr in list(root.children):
         if not rr.name.startswith('ColumnShaft_'):continue
+        if rr.get('round_column'):continue # no planar deposits across the round reference form
         x,y,z=rr.location
         if rng.random()<.6*age:
             xx=x+rng.uniform(-.12,.12);w=rng.uniform(.24,.42);top=rng.uniform(.19,.34);yy=y-.382

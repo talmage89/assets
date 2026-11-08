@@ -3,13 +3,43 @@
 School's ground_finish supplies the .62/.68/.58 maintained-turf tint idiom.
 No turf, paving, car, tree or host texture is changed or regenerated.
 """
-import math,random
+import math,random,numpy as np
 from pathlib import Path
 import bpy,bmesh
 from mathutils import Vector
+from mathutils import Quaternion
+from mathutils.bvhtree import BVHTree
 from kit import tiling
 import geometry as G
 from plan import TEE
+
+
+def fit_queue(car):
+    """Fit four native wheel patches to the actual apron triangles."""
+    bpy.context.view_layer.update();inv=car.matrix_world.inverted();points=[]
+    for ob in car.children_recursive:
+        if ob.type=='MESH':points.extend(inv@ob.matrix_world@v.co for v in ob.data.vertices)
+    low=min(v.z for v in points);groups={}
+    for v in points:
+        if v.z<low+.003:groups.setdefault((v.x>0,v.y>0),[]).append(v)
+    assert len(groups)==4,('Native wheel patch groups',len(groups))
+    contacts=[Vector((sum(v.x for v in vs)/len(vs),sum(v.y for v in vs)/len(vs),min(v.z for v in vs))) for vs in groups.values()]
+    apron=next(o for o in bpy.context.scene.objects if o.name.startswith('Private entry and accessible street walk'))
+    apron.data.calc_loop_triangles();vs=[apron.matrix_world@v.co for v in apron.data.vertices]
+    faces=[tuple(t.vertices) for t in apron.data.loop_triangles if (apron.matrix_world.to_3x3()@t.normal).z>.7]
+    surface=BVHTree.FromPolygons(vs,faces,all_triangles=True)
+    def sample(point):
+        hit=surface.ray_cast(point+Vector((0,0,1)),Vector((0,0,-1)),2)
+        assert hit[0] is not None,point
+        return hit[0].z
+    world=[car.matrix_world@v for v in contacts];heights=[sample(v) for v in world]
+    a,b,c=np.linalg.lstsq([[v.x,v.y,1] for v in world],heights,rcond=None)[0]
+    before=max(abs(v.z-z) for v,z in zip(world,heights));yaw=car.rotation_euler.z
+    car.rotation_mode='QUATERNION';car.rotation_quaternion=Vector((0,0,1)).rotation_difference(Vector((-a,-b,1)).normalized())@Quaternion((0,0,1),yaw)
+    car.location.z=float(a*car.location.x+b*car.location.y+c-low);bpy.context.view_layer.update()
+    errors=[abs((car.matrix_world@v).z-sample(car.matrix_world@v)) for v in contacts]
+    assert max(errors)<.001,errors
+    return dict(samples=4,before_max_gap_m=before,after_max_abs_gap_m=max(errors),method='Native low tire patches / actual apron BVH / fitted rigid support plane')
 
 
 def refine(rt,p,layout):
@@ -67,6 +97,7 @@ def refine(rt,p,layout):
     block=next(o for o in rt.children if o.name.startswith('Native Main Street row'))
     for i,(pos,yaw) in enumerate([((134,0,0),90),((-135,0,0),-90),((65,78 if municipal else 112,0),0),((-60,110,0),0)]):
         G.clone(block,'Closing town block '+str(i),pos,yaw,rt)
+    if municipal:G.clone(block,'Northeast closing frontage',(146,88,0),90,rt)
     b=G.Mesh('Street markings and meter hardware',rt)
     for sign in (-1,1):
         yy=sign*sy
@@ -106,4 +137,5 @@ def refine(rt,p,layout):
     ex=L/2-p['end_length']/2
     pos=(ex-1.65,-W/2-3.3,0)
     queued=G.clone(car,'Entry queue vehicle',pos,180,rt)
-    return [dict(socket='Entry queue',category='entry queue',kind=car.name,triangles=G.triangles([queued,*queued.children_recursive]),position=list(pos),yaw=180)]
+    support=fit_queue(queued)
+    return [dict(socket='Entry queue',category='entry queue',kind=car.name,triangles=G.triangles([queued,*queued.children_recursive]),position=list(queued.location),quaternion=list(queued.rotation_quaternion),wheel_support=support,yaw=180)]

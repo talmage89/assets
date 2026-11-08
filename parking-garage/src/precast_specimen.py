@@ -26,6 +26,11 @@ def build(layout):
         actors.append(dict(name=cr.name,triangles=G.triangles(members(cr))))
     for rr in [old,*parked]:
         for ob in reversed(members(rr)):bpy.data.objects.remove(ob,do_unlink=True)
+    # The reference looks into a landscaped open lot. Opposing town blocks
+    # belong to the delivered garage, not this daylight calibration specimen.
+    for rr in list(town.children):
+        if rr.name.startswith(('Native Main Street row','Continuing block','Native commercial center')):
+            for ob in reversed(members(rr)):bpy.data.objects.remove(ob,do_unlink=True)
     G.palette(Path('textures/lookdev'));rt=G.root('Garage_101',system='precast',stage='Flat two-bay calibration specimen')
     L=6*TEE;W=2*SPAN;p=garage(101)
     p.update(length=L,width=W,levels=2,tee_count=6,flat_y=-SPAN/2,ramp_y=SPAN/2,ramp_width=SPAN,
@@ -52,11 +57,7 @@ def build(layout):
             rr=G.root(f'Flat_L2_R{row}_T{i}',(x,cy,FLOOR),rt,module_kind='DoubleTee');source(rr)
             if i%2==0:
                 for yy in (cy-2.5,cy+2.5):
-                    fr=G.root(f'Fixture_{row}_{i}_{yy}',(x,yy,FLOOR-.7024),rt,module_kind='Fixture');pieces.fixture(fr)
-                    for ob in fr.children:
-                        if ob.type=='MESH':
-                            for v in ob.data.vertices:
-                                if v.co.z>.30:v.co.z+=.1524
+                    fr=G.root(f'Fixture_{row}_{i}_{yy}',(x,yy,FLOOR-.7024),rt,module_kind='Fixture');pieces.fixture(fr,refined=True,strap=.5524)
     closure=G.Mesh('Inner closure pour comparison',rt);closure.box((0,0,FLOOR-.025),(L,.08,.05),'Deck');closure.finish()
     marks=G.Mesh('Parking markings comparison',rt)
     for i,x in enumerate((-7.0,-2.7,4.2,8.4)):
