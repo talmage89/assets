@@ -64,7 +64,10 @@ $(SHIP_MAPS) &: $(BAKE_MAPS) src/filter_textures.py
 textures: $(SHIP_MAPS)
 check-look: model
 	$(PYTHON) src/look_audit.py
-check: check-look
+check: check-look check-retained
+.PHONY: check-retained
+check-retained: model
+	$(PYTHON) src/retained_context.py
 build/cameras.json: src/matches.py | refs
 	$(PYTHON) src/matches.py
 build/camera-verification.stamp: build/cameras.json $(KIT)/photo_match.py
