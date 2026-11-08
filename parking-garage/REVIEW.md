@@ -598,3 +598,39 @@ ORM are exact; three normal-map pixels differ by one eight-bit code each.
 Canonical maps remain frozen. Runoff combs, smooth distant turf, repeated
 native actors and detail-scale minor stains remain visible CG tells. The
 dry floor still differs from the photograph's wet cleaning/tire swirls.
+
+## Look pass 5 — surrounding construction before color tuning
+
+Color/value first: inspected the isolated sky, practical and sun renders,
+the longer-roof probe, all three wet-floor probes, all three camera-side
+continuation probes, and both narrower-distribution probes at native size.
+The short comparator's sky-only column was Y .17090; practical-only was
+.02522 and sun-only .00006. Direct sun was no longer the main error. The
+small roof admitted sky from sides that the photographed structure continues
+beyond. Extending the eighteen-tee assembly behind the camera lowers the
+column to .10235 with the public fixture preset, against photo .10930.
+Its floor then falls to .03533 against .06963, and soffit .00414 against
+.00794. This is a construction/illumination issue, not a reason to darken
+the shared column material.
+
+Retain the surrounded flat assembly and broad wraparound practicals at 1.5
+times the public preset. The 960px probe gives column .13066, soffit .00674
+and floor .05241. That reduces the former twofold column miss, while leaving
+the floor about a quarter darker than the photo. The visible central measured
+coordinates and 15.806px native fit do not change. The surrounding roof's
+extent outside the crop is inferred; it is not a surveyed full footprint.
+The public garages, their lighting and accepted programs are unchanged.
+
+Reject the wet-floor probes: their stronger clearcoat/darker cement lowered
+the foreground without correcting the column. Reject the 100/120-degree
+downward spreads: they made isolated bright pools and a darker foreground,
+unlike the photo's broad reflected light. Those variants remain diagnostic
+build files only. The photo's wet cleaning/tire swirls and cooler bounced
+light remain unreplicated; do not call this a complete material match.
+
+Opened all sixteen 1200–1280px-per-panel fixed-camera comparisons. Daylight
+now reaches the public aisle floors and soffits, stair flights read through
+the tower returns, and the enclosed lift pockets conceal opened leaves.
+The aligned retained aisle still foreshortens the tee depth; the transverse
+tee detail and the matched interior are the clearer construction evidence.
+Cap runoff still forms comb-like groups and distant turf remains smooth.
