@@ -1190,3 +1190,32 @@ dark car cabins and some grazing-angle floor-reflection stretch in isolated
 elevations. These are disclosed in the README. Both requested corrections
 are visible, the accepted facade/tower/markings/car palette/street treatment
 is retained, and the exported final recipe is suitable for the bounded docs.
+
+## Final cold-build and delivery audit
+
+The final start receipt, `../build/garage-ruling/cold-final-start.json`,
+records `build/`, `renders/`, `export/` and `textures/` absent. The build
+regenerated native inputs, construction, fields, the GPU bake and exports.
+Its rendering process later received SIGTERM (exit 143, without a Blender
+error); one ordinary resume was also terminated. The same reviewed recipe
+then completed under a live, polled terminal, resuming only frames whose
+receipts and inputs still agreed. No old generated geometry, maps or final
+images were restored. Historical before images were copied back only after
+the fresh final renders, for the optional comparison compositions.
+
+The original cold log is `../build/garage-ruling/cold-final-make.log`; the
+successful remaining render log is `final-resume2.log` in that audit folder.
+`make -C parking-garage -j1` then completed with exit 0 (`final-make.log`),
+followed by an explicit `make -C parking-garage -j1 check`, exit 0
+(`final-check.log`). This is a completed empty-cache build with verified
+render resumption, not a claim of an uninterrupted first invocation.
+
+Checks cover scale, UV bands/density, normals, deck/tee/beam bearing and
+headroom, independently imported final actors and films, 60 motion sweeps,
+45 valid parameter configurations, 33 short-ramp rejections and four invalid
+parameter rejections. All 59 protected original garage outputs and all 580
+existing other-family delivery files still match their original hashes.
+The four historical garage-owned site glTF/BIN files are the authorized
+exception; they regenerate from the current recipe. Re-import/buffer checks
+prove serialization; contact rays and motion sweeps measure actual exported
+surface relationships, subject to their documented sampling limits.
