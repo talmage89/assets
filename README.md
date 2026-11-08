@@ -111,6 +111,8 @@ Recreation
   riders, and three seeded playgrounds of 1996, 2005 and 2013 on wood fiber and poured rubber.
 - [Miniature golf](minigolf/README.md): two seeded 18-hole roadside courses, an older repainted classic with its
   lighthouse and a terraced 1990s adventure course with rockwork, a waterfall and ponds, each with its clubhouse.
+- [Community gardens](community-garden/README.md): raised and in-ground plots with July crops by growth stage,
+  sheds, compost bays and water, in three seeded gardens: a city lot, a park's plots and an accessible garden.
 
 Trees and shrubs
 - [Trees](trees/README.md): summer street trees with leaf cards and wind weights.
