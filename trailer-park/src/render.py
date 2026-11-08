@@ -61,16 +61,20 @@ def clear_raking_direction(plan):
     lane=-plan['loop_x'];start=-plan['span']/2;probes=[]
     for row in plan['lots']:
         if row['lane']!=lane or row['origin'][1]>start+36:continue
-        h=row['home'];probes.append(Vector((row['origin'][0]-row['side']*(h['length']/2+.08),row['origin'][1],1.75)))
-    probes += [Vector((lane+x,start+y,.12)) for x in (-1.2,1.2) for y in (8,18,28)]
+        h=row['home'];point=Vector((row['origin'][0]-row['side']*(h['length']/2+.08),row['origin'][1],1.75))
+        probes.append((point,Vector((-row['side'],0,0)),2.0))
+    probes += [(Vector((lane+x,start+y,.12)),Vector((0,0,1)),1.0) for x in (-1.2,1.2) for y in (8,18,28)]
     choices=[]
     for az in range(210,331,15):
         angle=math.radians(az);toward=Vector((math.cos(angle),math.sin(angle),math.tan(math.radians(18)))).normalized()
-        score=sum(not scene.ray_cast(deps,p,toward,distance=180)[0] for p in probes)
-        choices.append((score,-abs(az-270),az,toward))
-    score,_,az,toward=max(choices,key=lambda q:q[:2])
-    return dict(direction=list(-toward),visibility_score=score,probe_count=len(probes),sun_azimuth_degrees=az,
-                visibility_scope='Imported triangles, conservative for alpha foliage; exposed lane and home-end probes')
+        score=0.;clear=0
+        for point,normal,weight in probes:
+            incidence=max(0,normal.dot(toward))
+            if incidence>.05 and not scene.ray_cast(deps,point,toward,distance=180)[0]:score+=weight*incidence;clear+=1
+        choices.append((score,-abs(az-270),az,toward,clear))
+    score,_,az,toward,clear=max(choices,key=lambda q:q[:2])
+    return dict(direction=list(-toward),weighted_lambert_score=score,clear_probe_count=clear,probe_count=len(probes),sun_azimuth_degrees=az,
+                visibility_scope='Imported triangles and surface-normal incidence; conservative for alpha foliage; lane and home-end probes')
 
 
 def landmark_visibility(points,camera):
