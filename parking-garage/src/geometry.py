@@ -7,7 +7,7 @@ import math
 from pathlib import Path
 import bpy
 import bmesh
-from mathutils import Vector
+from mathutils import Vector,Matrix
 from kit import tiling
 
 M = {}
@@ -112,6 +112,12 @@ def clone(rt,name,pos=(0,0,0),yaw=0,parent=None,xf=None):
             c.data=c.data.copy()
             for v in c.data.vertices:v.co=xf(v.co)
             bm=bmesh.new();bm.from_mesh(c.data);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(c.data);bm.free();c.data.update()
+        if xf and o.parent==rt and c.type=='EMPTY' and c.get('socket_kind'):
+            origin=o.matrix_basis.translation;basis=o.matrix_basis.to_3x3();point=xf(origin)
+            u=(xf(origin+basis@Vector((.001,0,0)))-point).normalized()
+            v=(xf(origin+basis@Vector((0,.001,0)))-point).normalized()
+            normal=u.cross(v).normalized();v=normal.cross(u).normalized()
+            c.location=point;c.rotation_mode='QUATERNION';c.rotation_quaternion=Matrix((u,v,normal)).transposed().to_quaternion()
     r=copies[rt];r.parent=parent;r.location=pos;r.rotation_mode='XYZ';r.rotation_euler=(0,0,math.radians(yaw));return r
 
 

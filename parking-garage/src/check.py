@@ -50,7 +50,45 @@ def measured_height(triangles,point):
 
 
 def main():
-    data=json.loads(Path('build/manifest.json').read_text());results=[]
+    data=json.loads(Path('build/manifest.json').read_text());results=[];assembly_results=[]
+    for name in ('StructuralBay','EndBay','RampBay'):
+        bpy.ops.wm.read_factory_settings(use_empty=True)
+        bpy.ops.import_scene.gltf(filepath=str(Path('export/modules')/(name+'.gltf')));bpy.context.view_layer.update()
+        meshes=[o for o in bpy.context.scene.objects if o.type=='MESH']
+        for ob in meshes:ob.data.calc_loop_triangles()
+        beams=[o for o in meshes if '__Beam' in o.name and 'LBeam' in o.name]
+        columns=[o for o in meshes if '__Column' in o.name]
+        assert beams and columns,(name,'Missing framing')
+        column_solids=[tree([o]) for o in columns];caps=0
+        for ob in beams:
+            for poly in ob.data.polygons:
+                normal=ob.matrix_world.to_3x3()@poly.normal
+                if abs(normal.x)<.999:continue
+                pt=ob.matrix_world@(sum((ob.data.vertices[i].co for i in poly.vertices),Vector())/len(poly.vertices));caps+=1
+                for column in column_solids:
+                    assert not motion.inside(column,pt),(name,'Girder end embedded in column',ob.name,list(pt))
+        assert caps
+        socket_errors=[]
+        for root in [o for o in bpy.context.scene.objects if o.get('module_kind')=='DoubleTee']:
+            for socket in [o for o in root.children_recursive if 'Socket_Bearing_' in o.name]:
+                centers=[];pad_normals=[]
+                for ob in [o for o in root.children_recursive if o.type=='MESH']:
+                    for poly in ob.data.polygons:
+                        if 'form Seal' not in ob.data.materials[poly.material_index].name:continue
+                        if (ob.matrix_world.to_3x3()@poly.normal).z>-.98:continue
+                        vertices=[ob.matrix_world@ob.data.vertices[i].co for i in poly.vertices]
+                        center=sum(vertices,Vector())/len(vertices);low=min(v.y for v in vertices);high=max(v.y for v in vertices)
+                        # A triangle centroid is offset from the pad center;
+                        # select its actual footprint, not a centroid equality.
+                        if high-low<.5 and low-.00001<=socket.matrix_world.translation.y<=high+.00001:
+                            centers.append(center);pad_normals.append((ob.matrix_world.to_3x3()@poly.normal).normalized())
+                assert len(centers)>=4,(name,socket.name,'Missing actual pad underside faces',len(centers),list(socket.matrix_world.translation))
+                socket_errors.append((sum(centers,Vector())/len(centers)-socket.matrix_world.translation).length)
+                actual_up=(-sum(pad_normals,Vector())).normalized()
+                socket_up=(socket.matrix_world.to_3x3()@Vector((0,0,1))).normalized()
+                assert actual_up.dot(socket_up)>.9999,(name,socket.name,'Bearing plane orientation')
+        assert socket_errors and max(socket_errors)<.001,(name,socket_errors)
+        assembly_results.append(dict(module=name,girder_cap_surface_samples=caps,bearing_sockets=len(socket_errors),measured_socket_to_pad_midpoint_max_m=max(socket_errors),passed=True))
     for p in data['garages']:
         seed=p['seed'];bpy.ops.wm.read_factory_settings(use_empty=True);path=Path(f'export/ParkingGarage-{seed}.gltf')
         doc=json.loads(path.read_text());bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
@@ -229,7 +267,7 @@ def main():
             serialization='triangle/bounds/socket roundtrip',construction='independent imported floor triangle planes, upward soffit rays, bearing rays, contact/sign/bar vertices, stall rectangle separation',passed=True))
     before=json.loads(Path('build/preservation.json').read_text()) if Path('build/preservation.json').exists() else {}
     changed=[p for p,h in before.items() if hashlib.sha256((ROOT/p).read_bytes()).hexdigest()!=h];assert not changed,changed
-    out=dict(stage='form checkpoint, not baked final certification',garages=results,preserved_existing_files=len(before),passed=True)
+    out=dict(stage='form checkpoint, not baked final certification',precast_assemblies=assembly_results,garages=results,preserved_existing_files=len(before),passed=True)
     Path('build/check.json').write_text(json.dumps(out,indent=2)+'\n');print('CHECK PASS',[(r['seed'],r['triangles'],r['measured_aisle_clearance_min_m']) for r in results],flush=True)
 
 

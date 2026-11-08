@@ -265,10 +265,12 @@ def make_garage(p,templates,layout):
         stop.rotation_mode='QUATERNION';stop.rotation_quaternion=Vector((0,0,1)).rotation_difference(normal)
         rows[-1]['rotation_quaternion']=list(stop.rotation_quaternion)
         num=s['paint_number'];ny=y-row*(dep/2-.45)
-        marks.quad([(x-.34,ny-.18,deck_z(p,s['level'],x-.34,ny-.18,s['ramp'])+.008),
+        number_vertices=[(x-.34,ny-.18,deck_z(p,s['level'],x-.34,ny-.18,s['ramp'])+.008),
                     (x+.34,ny-.18,deck_z(p,s['level'],x+.34,ny-.18,s['ramp'])+.008),
                     (x+.34,ny+.18,deck_z(p,s['level'],x+.34,ny+.18,s['ramp'])+.008),
-                    (x-.34,ny+.18,deck_z(p,s['level'],x-.34,ny+.18,s['ramp'])+.008)],layout[num],'Graphics')
+                    (x-.34,ny+.18,deck_z(p,s['level'],x-.34,ny+.18,s['ramp'])+.008)]
+        if row<0:number_vertices=number_vertices[2:]+number_vertices[:2]
+        marks.quad(number_vertices,layout[num],'Graphics')
         if s['compact']:
             yy=y-row*(dep/2-1.15)
             marks.quad([(x-.8,yy-.19,deck_z(p,s['level'],x-.8,yy-.19)+.009),(x+.8,yy-.19,deck_z(p,s['level'],x+.8,yy-.19)+.009),(x+.8,yy+.19,deck_z(p,s['level'],x+.8,yy+.19)+.009),(x-.8,yy+.19,deck_z(p,s['level'],x-.8,yy+.19)+.009)],layout['COMPACT'],'Graphics')
@@ -412,23 +414,33 @@ def main():
         rr=G.root(name,module_kind=name);fn(rr)
         # Source connection frames survive glTF extras and engine placement.
         if name=='DoubleTee':
-            for side in (-1,1):G.root('Socket_Bearing_'+str(side),(0,side*(SPAN/2-.34),-.6596),rr,socket_kind='module_connection')
+            for side in (-1,1):G.root('Socket_Bearing_'+str(side),(0,side*(SPAN/2-.34),-.6846),rr,socket_kind='module_connection')
         if name in ('InvertedT','LBeam','PTBeam','Spandrel','CableBarrier'):
-            for side in (-1,1):G.root('Socket_End_'+str(side),(side*1.5*TEE,0,0),rr,socket_kind='module_connection')
+            half_span=SPAN/2 if name=='PTBeam' else 1.5*TEE
+            for side in (-1,1):G.root('Socket_End_'+str(side),(side*half_span,0,0),rr,socket_kind='module_connection')
         if 'Column' in name:
             for z in (0,FLOOR):G.root('Socket_Stack_'+str(z),(0,0,z),rr,socket_kind='module_connection')
         templates[name]=rr;report[name]=export(Path('export/modules')/(name+'.gltf'),members(rr))
         report[name]['bounds_m']=G.bounds(members(rr));assert report[name]['triangles']<=(8000 if name.startswith('Tower') else 2000),(name,report[name]['triangles'])
-    for name,count,rise,pt in [('StructuralBay',3,0,False),('EndBay',2,0,False),('RampBay',3,FLOOR/(16*TEE),False),('PTStructuralBay',3,0,True)]:
+    for name,count,rise,pt in [('StructuralBay',3,0,False),('EndBay',3,0,False),('RampBay',3,FLOOR/(16*TEE),False),('PTStructuralBay',3,0,True)]:
         rr=G.root(name,module_kind=name);length=count*TEE
         def placed(kind,n,pos,yaw=0,scale=1):
-            def xf(v):return Vector((v.x*scale,v.y,v.z+rise*(v.x*scale+pos[0])))
+            angle=math.radians(yaw)
+            def xf(v):
+                xx=v.x*scale;world_x=pos[0]+math.cos(angle)*xx-math.sin(angle)*v.y
+                # Grade is evaluated after yaw, so the front L girder does
+                # not acquire the opposite slope. Column feet stay flat;
+                # the shaft extends vertically and the corbel seats incline.
+                grade=rise*world_x
+                if 'Column' in kind:
+                    grade=0 if v.z<1.3 else rise*pos[0] if v.z>FLOOR-.01 else grade
+                return Vector((xx,v.y,v.z+grade))
             return G.clone(templates[kind],name+'__'+n,pos,yaw,rr,xf)
         for i in range(count):placed('PTSlab' if pt else 'DoubleTee','Deck'+str(i),((i-(count-1)/2)*TEE,0,FLOOR))
         for side in (-1,1):
             for end in (-1,1):placed('PTColumn' if pt else 'ColumnCorbel',f'Column{side}{end}',(end*length/2,side*SPAN/2,0))
             if pt:placed('PTBeam','Beam'+str(side),(side*length/2,0,FLOOR),90)
-            else:placed('LBeam','Beam'+str(side),(0,side*SPAN/2,FLOOR),180 if side==-1 else 0,length/(3*TEE))
+            else:placed('LBeam','Beam'+str(side),(0,side*SPAN/2,FLOOR),180 if side==-1 else 0,(length-.82)/(3*TEE-.82))
         for side in (-1,1):G.root('Socket_Bay_'+str(side),(side*length/2,0,FLOOR+rise*side*length/2),rr,socket_kind='structural_bay')
         templates[name]=rr;report[name]=export(Path('export/modules')/(name+'.gltf'),members(rr));report[name]['bounds_m']=G.bounds(members(rr));assert report[name]['triangles']<=2000,(name,report[name]['triangles'])
     # Display sheet keeps meaningful mating-origin templates in individual files.
