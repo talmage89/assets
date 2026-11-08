@@ -12,7 +12,7 @@ def soil_tree():
     bpy.context.view_layer.update();return BVHTree.FromObject(ob,bpy.context.evaluated_depsgraph_get())
 
 
-def seat(rt,soil):
+def seat(rt,soil,merge_points=()):
     """Close exposed paving boundaries with real granular shoulder or curb return.
 
     Locate the external boundary from actual source faces; ray-sample adjacent
@@ -29,10 +29,24 @@ def seat(rt,soil):
             for a,c in zip(pts,pts[1:]+pts[:1]):
                 key=tuple(sorted((tuple(round(v,5) for v in a),tuple(round(v,5) for v in c))))
                 edges.setdefault(key,[]).append((a,c,role))
+    boundary=[entries[0] for entries in edges.values() if len(entries)==1]
+    # Lane-center color samples subdivide a straight boundary. Rejoin only
+    # those added sample points before building the old edge returns: splitting
+    # a nonplanar return quad would otherwise change its physical diagonals.
+    for point in map(Vector,merge_points):
+        found=[i for i,(a,c,role) in enumerate(boundary) if min((a-point).length,(c-point).length)<.00005]
+        if len(found)!=2:continue
+        i,j=found;a,c,role=boundary[i];d,e,other=boundary[j]
+        if role!=other:continue
+        if (c-point).length<.00005 and (d-point).length<.00005:joined=(a,e,role)
+        elif (e-point).length<.00005 and (a-point).length<.00005:joined=(d,c,role)
+        else:continue
+        if abs((c-a).normalized().dot((e-d).normalized()))<.9999:continue
+        for index in sorted((i,j),reverse=True):boundary.pop(index)
+        boundary.append(joined)
     b=Q.Batch(rt.name+'__SeatedEdges',rt);corners={}
-    for entries in edges.values():
-        if len(entries)!=1:continue
-        a,c,role=entries[0];d=c-a
+    for a,c,role in boundary:
+        d=c-a
         if d.xy.length<.03:continue
         outward=Vector((d.y,-d.x,0)).normalized();foot=[]
         asphalt=role in (Q.M['Asphalt'],Q.M.get('AsphaltPolish'))

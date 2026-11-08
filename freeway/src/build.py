@@ -147,7 +147,9 @@ def scene(p,lib):
     bpy.context.view_layer.update()
     soil=roadside.soil_tree();support=[]
     for rt in roots:
-        if rt.get('module_kind') in ('roadway','ramp','arterial'):support.extend(roadside.seat(rt,soil))
+        if rt.get('module_kind') in ('roadway','ramp','arterial'):
+            centers=[p.xyz(s,p.lane(side,lane)) for s in (rt['station_start'],rt['station_end']) for side in (-1,1) for lane in range(2)] if rt.get('module_kind')=='roadway' and Q.LOOKDEV else []
+            support.extend(roadside.seat(rt,soil,merge_points=centers))
     Path('build/edge-support-'+str(p.seed)+'.json').write_text(json.dumps(support,indent=2))
     roots.append(roadside.landscape(p))
     if getattr(Q,'LOOKDEV',False):
