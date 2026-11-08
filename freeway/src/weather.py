@@ -13,7 +13,7 @@ def road_tint(p,s,u):
     traveled=.68+.18*math.sin(s/21+lane*3+side*1.7)+.09*math.sin(s/7.7+p.seed*.37+side*.8)
     wheel=max(math.exp(-((d-.82)/.31)**4),math.exp(-((d+.82)/.31)**4))
     oil=math.exp(-(d/.16)**2)*(.60+.35*math.sin(s/8.1+side*.9+lane*1.2)**2)
-    use=.25*wheel*traveled+.16*oil
+    use=.39*wheel*traveled+.23*oil
     if abs(d)>LANE_HALF:return (1,1,1,1)
     return (1-use,1-use*1.04,1-use*1.12,1)
 LANE_HALF=1.80
@@ -111,26 +111,47 @@ def construction(root):
             if ma not in (Q.M['Bridge'],Q.M['Barrier'],Q.M['Steel']):continue
             for i in face.vertices:
                 v=ob.data.vertices[i].co
-                low=math.exp(-max(0,v.z)/.22)*(.08+.16*(.5+.5*math.sin(v.y*2.3+root.location.y*.7))) if root.get('module_kind') in ('barrier','soundwall') else 0
+                station=v.y+root.location.y
+                low=math.exp(-max(0,v.z)/.34)*(.35+.10*math.sin(station*.067)+.06*math.sin(station*.71)) if root.get('module_kind') in ('barrier','soundwall') else 0
                 value=1-low
                 if ma==Q.M['Steel'] and root.get('module_kind')=='guardrail':
                     value=1.0 if ob.get('maintenance') else .86
                 if root.get('module_kind')=='bridge' and ob.parent and ob.parent.get('module_kind')=='bridge_girder':
                     p=root.matrix_world.inverted()@ob.matrix_world@v
-                    if abs(p.y)>8.7:
-                        drain=math.exp(-((abs(p.x)-16)/.55)**2)
-                        joint=math.exp(-((abs(p.x)-.2)/.7)**2)+math.exp(-((abs(p.x)-23.8)/.7)**2)
-                        fall=math.exp(-max(0,7.15-p.z)/1.7)
-                        value-=.26*drain*fall+.20*min(1,joint)*fall
-                ca.data[i].color=(value,value*.995,value*.98,1)
+                    drain=math.exp(-((abs(p.x)-16)/.55)**2) if abs(p.y)>8.7 else 0
+                    joint=math.exp(-((abs(p.x)-.2)/.9)**2)+math.exp(-((abs(p.x)-23.8)/.9)**2)
+                    fall=math.exp(-max(0,7.15-p.z)/1.7)
+                    value-=.34*drain*fall+.48*min(1,joint)*fall
+                if root.get('module_kind')=='bridge' and ob.parent and ob.parent.get('module_kind')=='bridge_pier' and v.z>4.3:
+                    # Persistent damp film under the deck's leaking joint is
+                    # strongest at the bearing shelf, with separate fine drips.
+                    value-=.12+.10*max(0,min(1,(v.z-4.3)/1.15))
+                if root.get('module_kind')=='bridge' and v.z>=7.18 and abs(v.y)>8.3:
+                    value-=.28*math.exp(-max(0,v.z-7.18236)/.27)
+                # Damp deposits retain their brown/olive soil spectrum.
+                ca.data[i].color=(value,value*(1-(1-value)*.08),value*(1-(1-value)*.22),1)
     if root.get('module_kind')!='bridge':return
     b=Q.Batch('Joint bearing and scupper deposits',root)
     # Outer girder faces face the freeway shoulder. Runoff is top-connected,
     # with calcite discharge below each actual scupper, and staining at joints.
     for side in (-1,1):
         profile=[(.3302,5.7284),(.3302,5.9316),(.1016,6.1602),(.1016,6.7444),(.254,6.8968),(.254,7.10)]
+        # The overhang's longitudinal joint and drip line also wet the outer
+        # webs between scuppers. Keep these faint; drain concentrations below
+        # are stronger, wider and calcium-bearing at their actual outlets.
+        for x in (-22.7,-18.1,-13.4,-8.0,-3.2,2.6,7.9,12.3,18.7,22.5):
+            width=.65+.28*math.sin(x*1.7);u0,v0,u1,v1=rect('runoff')
+            for (ua,za),(uc,zc) in zip(profile,profile[1:]):
+                ya=side*(9.144+ua+.0014);yc=side*(9.144+uc+.0014)
+                h=.018*math.sin(math.pi*max(0,min(1,(abs(x)-.16)/23.82)))
+                pts=[(x-width,ya,za+h),(x+width,ya,za+h),(x+width,yc,zc+h),(x-width,yc,zc+h)]
+                va=v0+(za-5.7284)/1.3716*(v1-v0);vc=v0+(zc-5.7284)/1.3716*(v1-v0)
+                uv=[(u0,va),(u1,va),(u1,vc),(u0,vc)]
+                if math.sin(x)>0:uv=[(u1,va),(u0,va),(u0,vc),(u1,vc)]
+                if side>0:pts.reverse();uv.reverse()
+                b.face(pts,'Maintenance',uv=uv,tint=(1,1,1,.22+.08*math.sin(x*.7+side)))
         for x in (-23.0,-16,-.6,.6,16,23.):
-            kind='salts' if abs(x)==16 else 'runoff';width=.48 if kind=='salts' else .75
+            kind='salts' if abs(x)==16 else 'runoff';width=.67 if kind=='salts' else 1.12
             u0,v0,u1,v1=rect(kind)
             for (ua,za),(uc,zc) in zip(profile,profile[1:]):
                 ya=side*(9.144+ua+.0018);yc=side*(9.144+uc+.0018)
@@ -141,11 +162,22 @@ def construction(root):
                 if side>0:pts.reverse();uv.reverse()
                 b.face(pts,'Maintenance',uv=uv)
     for side in (-1,1):
-        for y in (-9.144,-6.096,-3.048,0,3.048,6.096,9.144):
-            u0,v0,u1,v1=rect('runoff');x=side*1.152
-            pts=[(x,y-.35,4.40),(x,y+.35,4.40),(x,y+.35,5.435),(x,y-.35,5.435)];uv=[(u0,v0),(u1,v0),(u1,v1),(u0,v1)]
-            if side<0:pts.reverse();uv.reverse()
-            b.face(pts,'Maintenance',uv=uv)
+        rng=random.Random(719+side)
+        for index,y in enumerate((-9.144,-6.096,-3.048,0,3.048,6.096,9.144)):
+            y+=rng.uniform(-.12,.12)
+            u0,v0,u1,v1=rect('runoff')
+            width=rng.uniform(.34,.86);bottom=rng.uniform(4.34,4.78)
+            alpha=rng.uniform(.50,.78)
+            levels=[bottom,*[z for z in (4.3884,5.3884) if bottom<z<5.435],5.435]
+            for a,c in zip(levels,levels[1:]):
+                # Follow the real cap's 50 mm chamfers; a flat decal would
+                # float across them even if its main vertical face is seated.
+                xa=side*(1.152-max(0,4.3884-a,a-5.3884));xc=side*(1.152-max(0,4.3884-c,c-5.3884))
+                va=v0+(a-bottom)/(5.435-bottom)*(v1-v0);vc=v0+(c-bottom)/(5.435-bottom)*(v1-v0)
+                pts=[(xa,y-width,a),(xa,y+width,a),(xc,y+width,c),(xc,y-width,c)];uv=[(u0,va),(u1,va),(u1,vc),(u0,vc)]
+                if index%2:uv=[(u1,va),(u0,va),(u0,vc),(u1,vc)]
+                if side<0:pts.reverse();uv.reverse()
+                b.face(pts,'Maintenance',uv=uv,tint=(1,1,1,alpha))
     # Fresh formed repairs use the same concrete manufacture, without a tar
     # perimeter intended for paving. Their irregular boundary follows the column.
     for row,(y,z) in enumerate([(-7,3.2),(0,2.1),(7,3.65)]):

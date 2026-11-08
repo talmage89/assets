@@ -19,6 +19,7 @@ for name,spec in SETS.items():
  # and physical bake parameters attest the existing channels before sealing.
  legacy=('source_signature' not in old and old.get('coverage_m')==spec['coverage'] and old.get('height_distance_m')==spec['height'] and old.get('samples')==8 and all(p.exists() for p in outputs) and min(p.stat().st_mtime for p in outputs)>=max(p.stat().st_mtime for p in sources))
  if not (same or legacy):
+  assert '--cache-only' not in sys.argv,'Cache changed after dispatch; rerun make for a locked bake'
   bake(Path('textures/source'),Path('textures/bake'),name,spec['coverage'],4096,8,spec['height'])
   if name=='FreewayMaintenance':
    p=outputs[0];rgb=read_png(p);alpha=read_png(sources[-1])[:,:,0];write_png(p,np.dstack([rgb[:,:,:3],alpha]),bits=8)

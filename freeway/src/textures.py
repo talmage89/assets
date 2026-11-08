@@ -15,7 +15,7 @@ def manufacture(name,size):
  def field(n):return np.asarray(Image.fromarray(rng.random((n,n),dtype=np.float32)).resize((size,size),Image.Resampling.BICUBIC),np.float32)-.5
  if name=='FreewayConcrete':
   sand=field(size//8);pores=np.minimum(0,grain+2);v=.008*grain+.018*sand+.006*field(32)
-  rgb=np.stack([.28+v,.269+v,.243+v],axis=2);height=np.clip(.55+.08*grain+.13*sand+pores*.25,0,1)
+  rgb=np.stack([.245+v,.227+v,.195+v],axis=2);height=np.clip(.55+.08*grain+.13*sand+pores*.25,0,1)
   orm=np.dstack([np.clip(1+pores*.08,0,1),np.clip(.87+.025*grain,0,1),np.zeros_like(grain)])
  else:
   # Weathered zinc is a subdued crystalline coating. Strong roughness/metal
@@ -49,12 +49,23 @@ def maintenance(size):
     d.rectangle((x-ww,y-hh,x+ww,y+hh),fill=color)
    tile=tile.filter(ImageFilter.GaussianBlur(w*.006))
   elif name in ('runoff','salts','rust'):
-   for j in range(75):
-    x=w*.5+rng.normal(0,w*.19);length=rng.uniform(.12,.92);ww=rng.uniform(.005,.06)*w
-    color=(59,53,40) if name=='runoff' else (206,202,177) if name=='salts' else (117,58,23)
-    for k in range(35):
-     y=g+length*(w-2*g)*k/35;a=int((1-k/35)**1.5*rng.uniform(45,170));d.rectangle((x-ww,y,x+ww,y+w/35),fill=(*color,a))
-   tile=tile.filter(ImageFilter.GaussianBlur(w*.005))
+   # Continuous gravity channels, with soft lateral and downstream limits.
+   # Drawing translucent rectangles used to overwrite previous marks and
+   # leave a visible rectangular stamp on the cap. No rectangle enters this
+   # field: feeder widths narrow, wander and lose flow as they descend.
+   xx=(np.arange(w,dtype=np.float32)[None,:]+.5)/w*2-1
+   yy=(np.arange(w,dtype=np.float32)[:,None]+.5)/w
+   channels=np.zeros((w,w),np.float32)
+   for j in range(53):
+    center=rng.uniform(-.85,.85);length=rng.uniform(.18,1.2);width=rng.uniform(.006,.047)
+    wander=center+rng.uniform(.004,.02)*np.sin(yy*rng.uniform(6,18)+rng.uniform(0,6))
+    stream=np.exp(-((xx-wander)/(width*(1-.50*yy)))**2)
+    channels+=rng.uniform(.18,.60)*stream*np.maximum(0,1-yy/length)**.7
+   feeder=.14*np.exp(-(xx/.78)**6)*np.exp(-yy*9)
+   alpha=np.clip((1-np.exp(-channels))*.90+feeder,0,.88)*(1-np.exp(-((1-np.abs(xx))*24)**2))
+   color=(68,61,44) if name=='runoff' else (204,199,174) if name=='salts' else (117,58,23)
+   pixels=np.empty((w,w,4),np.uint8);pixels[:,:,:3]=color;pixels[:,:,3]=np.round(alpha*255).astype(np.uint8)
+   tile=Image.fromarray(pixels)
   elif name in ('patch','repair'):
    pts=[(g+int(rng.integers(-g//3,g//3)),g),(w-g,g+7),(w-g-4,w-g),(g,w-g-8)]
    d.polygon(pts,fill=(103,101,87,240) if name=='patch' else (149,147,128,245));d.line(pts+[pts[0]],fill=(50,47,37,215),width=max(2,w//65))

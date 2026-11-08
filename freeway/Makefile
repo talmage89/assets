@@ -57,8 +57,8 @@ $(FORM_MAPS) &: src/graphics.py
 	$(PYTHON) src/graphics.py
 $(SOURCE_MAPS) &: src/textures.py $(FORM_MAPS)
 	$(PYTHON) src/textures.py --size 4096
-$(BAKE_MAPS) &: $(SOURCE_MAPS) src/bake.py
-	$(KIT)/with_gpu.sh $(BP) --python src/bake.py
+$(BAKE_MAPS) &: $(SOURCE_MAPS) src/bake.py src/bake_dispatch.py
+	$(PYTHON) src/bake_dispatch.py --blender '$(BLENDER)'
 $(SHIP_MAPS) &: $(BAKE_MAPS) src/filter_textures.py
 	$(PYTHON) src/filter_textures.py
 textures: $(SHIP_MAPS)

@@ -1,10 +1,13 @@
-# Freeway look-dev materials
+# Freeway materials
 
-This checkpoint uses stock external glTF PBR, shared images and ordinary vertex
+The civil delivery uses stock external glTF PBR, shared images and ordinary vertex
 color. Every pixel is scripted. Reference photographs only inform the visual
 review; none is sampled by a material generator.
 
 Ground Asphalt, Concrete, Lawn and GroundTrim remain byte-identical inputs.
+The freeway's seasonal lawn derivative changes only the original scripted
+Lawn BaseColor pigment; its canonical blade normal and ORM stay shared. This
+2048 color map adds 5⅓ MiB when a scene also loads the native commercial lawn.
 World/meter tile UVs intentionally repeat. Existing manufacture remains in
 those maps; broad traffic causes belong to lane-space vertex colors and
 placement-owned maintenance charts. The wheel-polish material shares Ground
@@ -45,7 +48,10 @@ joints, spalls follow seals, shoulder crack sealants stay on asphalt, and the
 later overlay is confined to a maintained stretch. Old dashes are offset from
 the restripe and raised markers are omitted by a deterministic seed.
 
-Bridge deposits begin at joints, scuppers and bearing locations. Girder drips
+Bridge deposits begin at joints, scuppers and bearing locations. Seven separate
+cap concentrations follow the actual bearing lines, with variable width,
+opacity and run length. Broad damp film remains below the bearing shelf.
+Girder drips
 follow the actual flange/web profile and camber. Column repairs follow the
 cylinder; no flat patch floats in front of it. A few ramp-rail bays are bent,
 with neighboring replacements brighter than the older zinc. Litter and rooted
@@ -61,8 +67,20 @@ not replace the working native vehicle deliveries.
 
 `context_colors.py` decodes the canonical GLB's embedded PNG explicitly from
 sRGB, applies the native factory-reference delta through its coverage alpha,
-filters in linear light and encodes once. Twelve 1024 RGB variants serve four
-additional colors on three bodies; Atlantic reuses the native reference map.
+filters in linear light and encodes once. Twenty-one 1024 RGB variants serve
+seven additional colors on three bodies; Atlantic reuses the native reference
+map. Porcelain, Carbon, Aluminum, Graphite and Atlantic are native car-family
+presets. Garnet, Spruce and Sand are original local tints. The exported ORM
+metallic factor follows each factory preset, rather than retaining Atlantic's
+factor for every finish. The fleet weights are 22/16/22/12/12/10/4/2 percent
+for silver/gray/black/white/blue/red/green/tan; seeds select individual actors.
 The inverse audit follows actual exported material bindings and recovers the
 filtered native reference within 8-bit quantization on unclipped pixels. This
 guards against the pale-fleet conversion error rejected in review pass 4.
+
+The town export preserves native house CORNER color through its import/export
+boundary. COLOR_0 is required wherever a native tiling material declares
+vertex tint. Tree finals use the tree family's documented two-sided thin-leaf
+response with the actual exported baked images. Stock glTF MASK is the portable
+fallback; an engine needs the corresponding foliage shader for that response.
+No new foliage image or procedural leaf field is substituted in final renders.
