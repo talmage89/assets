@@ -897,3 +897,45 @@ rebuild of every native family. All render/bake batches finished and released
 their GPU leases before the final handoff.
 
 Delivery gate: REJECTED
+
+## Completion pass 5 — last round; a blade export defect caught in the hero
+
+**Color and value first.** Reopened the supplied full-size older hero and
+three correction pairs before editing. Rebalanced the 2009 and 2015 photos
+on the same concrete pad patches recorded in `build/color-audit/values.json`.
+The resulting lawn-to-concrete luminance ratios are 0.251 and 0.110; these
+are display/reference values under different lights, not measured albedos.
+The first new older hero, oblique and entrance were opened at native size
+in `renders/last-round-rejected-grass/`. The greener continuous base is a
+clear improvement over tan with bright rosettes. Exposed dry color is now
+localized. But the replacement narrow blades are white: reject that result.
+
+Raw glTF inspection finds no `COLOR_0` on the grass primitive. Its source
+`Tint` existed, but removing the Cards helper's Wind attribute left Blender's
+render color index unset. Explicit active/render indices and a raw exported
+grass hue/value assertion address this defect. It was visible in the hero
+and absent from the previous general finite-UV/image checks. The interrupted
+set remains archived with its exact embedded geometry/images and three
+per-frame receipts; it is excluded from the final gallery.
+
+Broad upkeep values and dirt under eaves now separate the older homes more
+than the sparse small stains did. Splash is visible at the entrance. The
+street hero still hides much of the useful skirt and siding behind cars;
+it does not demonstrate three complete aged homes. Do not call this fully
+landed from shader parameters or the presence of a missing panel.
+
+The oxidized lane has better value separation from its darker wheel paths.
+Dusty gray overbands sit within it rather than reading black ink; fine
+fatigue now belongs to an alpha/normal field in the existing atlas, without
+separate polygon-net strokes. The foreground fatigue patch still reads as
+a bounded texture treatment. Keep that limitation in the final judgment.
+
+The implementation budget correction replaces unused regular wall stations
+with targeted sill samples. Actual older park homes are 29,482–33,884
+triangles. All 21 exports, 936 hinge poses, resource/cell checks and 1,217
+immutable sibling files passed before this additional blade assertion.
+The batch was explicitly stopped and reaped before the replacement render
+set; no background render is intentionally retained. The last-round brief
+requires complete delivery with known flaws after the final review.
+
+Delivery gate: REJECTED
