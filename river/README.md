@@ -89,24 +89,38 @@ fields and coarse placed maintenance remain provisional, not final baked art.
 | Piece | Triangles |
 | --- | ---: |
 | TypeIII_Girder18 | 360 |
-| DeckPanel6 | 88 |
+| DeckPanel6 | 260 |
 | Parapet6 | 52 |
 | PierColumns | 340 |
 | PierWall | 226 |
-| Abutment | 76 |
+| Abutment | 100 |
 | GuardrailTerminal | 428 |
 
 Flat panels intentionally stay below 300 triangles; no subdivisions are added for a minimum.
 
+| Assembled mesh type | Downtown count × max triangles | Edge count × max triangles |
+| --- | ---: | ---: |
+| Abutment | 2 × 100 | 2 × 100 |
+| ApproachRail | 4 × 428 | 4 × 428 |
+| ApproachSlab | 2 × 12 | 2 × 12 |
+| BearingStation | 4 × 396 | 3 × 396 |
+| DateAndNamePlaques | 1 × 14 | 1 × 14 |
+| Deck | 9 × 285 | 6 × 264 |
+| Girder | 15 × 360 | 10 × 360 |
+| Parapet | 18 × 52 | 12 × 52 |
+| Pier | 2 × 340 | 1 × 226 |
+| Span DiaphragmsHaunches | 3 × 204 | 2 × 204 |
+| Span DrainConduit | 3 × 1,024 | 2 × 1,024 |
+
 | Seed | Bridge | Bed / banks | Water | Site | Vegetation | Cars | Town / people | Total |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 101 | 13,370 | 67,438 | 20,560 | 11,592 | 1,935,212 | 561,418 | 826,816 | 3,436,406 |
-| 202 | 9,332 | 60,470 | 20,560 | 760 | 2,664,902 | 388,674 | 719,352 | 3,864,050 |
+| 101 | 15,821 | 67,438 | 20,560 | 11,592 | 1,935,154 | 561,418 | 826,816 | 3,438,799 |
+| 202 | 10,940 | 60,470 | 20,560 | 760 | 2,664,858 | 388,674 | 719,352 | 3,865,614 |
 
 | Seed | glTF + BIN bytes | Material states / unbatched placed draws |
 | --- | ---: | ---: |
-| 101 | 41,541,427 | 68 / 2609 |
-| 202 | 33,666,859 | 38 / 4721 |
+| 101 | 41,570,069 | 69 / 2609 |
+| 202 | 33,676,544 | 39 / 4721 |
 
 Both crossings share 35 unique image payloads, estimated **148.67 MiB** at 8bpp with full mips. PNG dependency bytes and uncompressed residency differ. These totals include native context; the new river-only allocation is listed above.
 <!-- measured-costs:end -->

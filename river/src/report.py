@@ -5,6 +5,17 @@ from pathlib import Path
 from PIL import Image
 
 
+def piece_census(doc):
+    groups={}
+    for node in doc['nodes']:
+        if 'mesh' not in node or node.get('extras',{}).get('river_category')!='bridge':continue
+        name=node['name'];key=name.split('_')[0]
+        if name.startswith('Span_'):key='Span '+name.split('__')[1]
+        n=sum(doc['accessors'][p['indices']]['count']//3 for p in doc['meshes'][node['mesh']]['primitives'])
+        groups.setdefault(key,[]).append(n)
+    return {key:dict(count=len(v),maximum=max(v),total=sum(v)) for key,v in sorted(groups.items())}
+
+
 def main():
     manifest=json.loads(Path('build/manifest.json').read_text());rows=[];images={}
     for row in manifest['crossings']:
@@ -15,13 +26,24 @@ def main():
             w,h=Image.open(path).size
             images[digest]=dict(uri=im['uri'],size=[w,h],bytes=path.stat().st_size,mib_bc8_mips=w*h*4/3/1048576)
         counts=row['triangles'];rows.append(dict(seed=seed,categories=counts,total=sum(counts.values()),
-            gltf_bytes=row['gltf_bytes'],bin_bytes=row['bin_bytes'],material_states=row['materials'],placed_draws=draws))
+            gltf_bytes=row['gltf_bytes'],bin_bytes=row['bin_bytes'],material_states=row['materials'],placed_draws=draws,
+            bridge_piece_census=piece_census(d)))
     costs=dict(crossings=rows,unique_images=list(images.values()),image_count=len(images),
                texture_mib_bc8_mips=sum(i['mib_bc8_mips'] for i in images.values()))
     Path('build/costs.json').write_text(json.dumps(costs,indent=2)+'\n')
     lines=['| Piece | Triangles |','| --- | ---: |']
     lines += [f'| {m["name"]} | {m["triangles"]:,} |' for m in manifest['modules']]
     lines += ['','Flat panels intentionally stay below 300 triangles; no subdivisions are added for a minimum.','',
+              '| Assembled mesh type | Downtown count × max triangles | Edge count × max triangles |',
+              '| --- | ---: | ---: |']
+    groups=sorted(set().union(*(r['bridge_piece_census'] for r in rows)))
+    for key in groups:
+        cells=[]
+        for r in rows:
+            c=r['bridge_piece_census'].get(key)
+            cells.append(f'{c["count"]} × {c["maximum"]:,}' if c else '—')
+        lines.append('| '+key+' | '+' | '.join(cells)+' |')
+    lines += ['',
               '| Seed | Bridge | Bed / banks | Water | Site | Vegetation | Cars | Town / people | Total |',
               '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
     for r in rows:
