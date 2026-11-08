@@ -536,10 +536,10 @@ def finish_scene(b,out):
         ob.data.calc_loop_triangles();n=len(ob.data.loop_triangles);parts[ob.name]=n
         cat=ob['part_category'];counts[cat]=counts.get(cat,0)+n
     data=dict(seed=b.seed,triangles=sum(counts.values()),categories=counts,parts=parts,
-              stage='round 2 form and look development')
+              stage='C75 source construction and look development')
     Path(out).parent.mkdir(parents=True,exist_ok=True)
     Path(out).with_suffix('.counts.json').write_text(json.dumps(data,indent=2))
-    bpy.context.scene['stage']='round 2 look development';bpy.ops.wm.save_as_mainfile(filepath=str(Path(out).resolve()))
+    bpy.context.scene['stage']='C75 authoring source';bpy.ops.wm.save_as_mainfile(filepath=str(Path(out).resolve()))
     print('BUS_BUILD',json.dumps({k:v for k,v in data.items() if k!='parts'}),flush=True)
 
 def fleet_templates(b):

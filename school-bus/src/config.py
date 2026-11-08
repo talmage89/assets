@@ -1,4 +1,4 @@
-"""Checkpoint atlas and construction policy; not a final look-dev acceptance."""
+"""Shared-atlas delivery budgets, surface bindings and independent UV limits."""
 BUDGETS={'SchoolBus':90000}
 BOUNDS={'SchoolBus':dict(size=(3.35,12.3005,3.330),tolerance=(.002,.003,.002))}
 MAX_MATERIALS=4

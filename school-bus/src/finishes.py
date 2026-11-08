@@ -1,4 +1,4 @@
-"""Checkpoint surfaces reuse the car family's manufacturing and optical shaders."""
+"""Bus surfaces reuse the car family's manufacturing and optical shaders."""
 import bpy
 from kit import vehicle_materials as V
 from kit.materials import Nodes

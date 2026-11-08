@@ -73,6 +73,64 @@ the center twice. Flush the dependency graph before deforming those rebased
 vertices. Recheck actual bulb/signal seating and crossings, and open the
 dedicated lamp camera. Do not proceed to docs on this pass.
 
+## Round 3 — pass 3, first cold export rejects the optical return
+
+Color/value first: opened all 21 native 1400px exported gallery views. The
+school yellow stays saturated in the accepted courtyard queue and the studio
+front. The cabin has gray lining, brown vinyl and a black rubber aisle.
+The hero has zero clipped paint pixels; paint median/p99 displayed luma are
+.586/.669 and 30.63% of bus pixels are below 25/255. These are display
+measurements, not albedo. The gray strip above the windshield is gone.
+
+The ten-station mold's isolated dense/source/export stripes show continuous
+crown bands. The old broad waviness has improved. The export still loses
+cleanliness at extreme chrome roughness .055: eight-bit normal quantization,
+UV filtering and small chip relief roughen stripe edges. Ordinary enamel
+does not expose that level of pixel grain. Reflected mirror heads account
+for the remaining oval marks in the complete product scene; the isolated
+mold removes those objects without altering the delivered normals or UVs.
+
+Reject the lamp macro despite passing numerical checks. The yellow surround
+pinches into a thin fin above the outside corner. Connecting the true swept
+fender to the old nearly planar cassette is not a fair manufactured return.
+No docs are made. Rebuild the optical die and pocket together, on the frontal
+land of the original hood, rather than allowing the upper corner to stand
+above that land. Preserve the two reflectors, amber insert and black seal.
+
+The cold command completed its construction, determinism, motion, UV, bake,
+three fresh imports, marking corners, six direct leak views, both school
+fits, full gallery, Eevee, camera verification and section plots. All those
+checks pass; none proves the failed return looks real. The shared maps total
+5,794,287 PNG bytes; the rejected export is 85,894 triangles and 16 MiB of
+compressed full-mip texture allocation. Every other family's 340 protected
+delivery/doc files remains unchanged.
+
+Remaining CG tells elsewhere: simple warning/rear optics, soft small type and
+fasteners, a schematic underside, repetitive benches and softened tape patches
+at the shared atlas density. Retain the accepted scene, glass and mechanisms.
+
+## Round 3 — pass 4, fair optical source retained for the next export
+
+Color/value first: opened the three 1400px/48-sample source views in
+`renders/round3-optics-source/`. The yellow and cabin balance are retained.
+The narrow black seal, clear lens and separate amber window now read as parts
+seated within the yellow molding. The fin above the lamp is gone; the fender
+continues into its return. Retain this source and verify its baked delivery.
+
+The optical die is a smooth quadratic tensor fit to measured rays on our own
+dense hood. The pocket, cover, bucket, reflectors and seal share that die.
+The land was kept within the actual frontal molding by making the cassette
+slightly smaller/lower; the hood, grille, fenders, wheels and body package are
+unchanged. Three measured cover rays per side give about 6–9mm setback. All
+original hood-roof probes still hit the hood, all front meshes pass and no
+cover crosses a reflector, bucket or body. No check or tolerance was relaxed.
+
+The source remains within the accepted allocation: 86,394 shipping triangles,
+69,130 exterior, the same 17,264 interior and 25,632 wheels. The extra curved
+glass samples are paid for within the original 86.6k count. Fine reflector
+construction and warning optics remain simple at macro range. Do not infer
+final acceptance from the source; rebuild the actual atlas/exports next.
+
 This is the requested stop before look development. Quick surfaces are baked
 and judged on the export later in this log; this is not final game-ready acceptance.
 

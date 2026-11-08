@@ -4,6 +4,8 @@ The crown, shoulder and fender share one cage. A transverse wheelhouse cut
 and finite laminate gauge follow subdivision. No photographic contour enters it.
 """
 import math
+from functools import lru_cache
+import numpy as np
 import bpy
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
@@ -38,15 +40,15 @@ def section(row):
     half=[(x,z*(1-t)+(top+offsets[i])*t) if i<9 else (x,z) for i,(x,z) in enumerate(half)]
     return [(-x,y,z) for x,z in reversed(half[1:])]+[(x,y,z) for x,z in half]
 
-def optical_bow(ob,center_x):
-    """Seat every cassette layer behind the same bowed cover mold."""
+def optical_bow(ob,skin_y,reference_y):
+    """Conform cassette layers to the mold, keeping their authored depth."""
     # attach() has just rebased box vertices into the bus root. Flush its
     # identity transform before bending: a stale box-location matrix applies
     # the center twice and pushes the small bulbs/signals into the bucket back.
     bpy.context.view_layer.update()
     world=ob.matrix_world.copy();inverse=world.inverted()
     for vertex in ob.data.vertices:
-        p=world@vertex.co;p.y+=.09*((p.x/1.1)**2-(center_x/1.1)**2)
+        p=world@vertex.co;p.y+=skin_y(p.x,p.z)+.008-reference_y
         vertex.co=inverse@p
     ob.data.update()
     return ob
@@ -116,30 +118,53 @@ def sculpt(b):
     bpy.context.view_layer.update();ob.data.calc_loop_triangles()
     skin=BVHTree.FromPolygons([ob.matrix_world@v.co for v in ob.data.vertices],
         [tuple(t.vertices) for t in ob.data.loop_triangles],all_triangles=True)
+    high.data.calc_loop_triangles()
+    optical_mold=BVHTree.FromPolygons([high.matrix_world@v.co for v in high.data.vertices],
+        [tuple(t.vertices) for t in high.data.loop_triangles],all_triangles=True)
+    def measured_y(x,z):
+        hit=optical_mold.ray_cast(Vector((x,-6.5,z)),Vector((0,1,0)),3)[0]
+        if hit is None:raise ValueError('Optical surface misses the dense mold')
+        return hit.y
+    # Fair optical die over the actual molding, inside its frontal land. The
+    # glass needs C2 curvature, rather than every triangle of the projection.
+    samples=[(u,v) for u in np.linspace(-1,1,7) for v in np.linspace(-1,1,7)]
+    design=np.array([[u**i*v**j for i in range(3) for j in range(3)] for u,v in samples])
+    heights=np.array([measured_y(.840+.180*u,1.000+.150*v) for u,v in samples])
+    coefficients=np.linalg.lstsq(design,heights,rcond=None)[0]
+    @lru_cache(maxsize=20000)
+    def front_y(x,z):
+        u=(abs(x)-.840)/.180;v=(z-1.000)/.150
+        return float(sum(c*u**i*v**j for c,(i,j) in zip(coefficients,[(i,j) for i in range(3) for j in range(3)])))
     # Each lamp is a bonded cassette inside a real cut in the common molding.
     for sign in [-1,1]:
-        x=sign*.882;z=1.070
+        x=sign*.840;z=1.040
         # The cover seats 8 mm behind the surrounding nose, sweeping rearward
         # toward the wheel. A yellow laminate reveal encloses the thin gasket.
-        face_y=-5.956+.055*(x/1.1)**2
+        face_y=front_y(x,z)+.008
+        def warp(part):return optical_bow(part,front_y,face_y)
         # The dense source is the smooth mold before these routed cassette
         # openings. Their narrow laminate returns use exact game normals;
         # projecting the original mold onto those perpendicular walls is wrong.
         # Route only the nose wall. Extending this tool behind the cassette
         # pierced the swept fender roof, leaving two small top-view holes.
-        cut=G.box('Optical pocket tool',(x,-5.98,1.035),(.395,.26,.305),None,.040,5)
+        # The routed aperture follows the same curved die as the cover. A
+        # planar cutter stopped short beneath the swept upper outside corner.
+        aperture=G.rounded_rectangle(.355,.275,.036,6)
+        cut=G.loft('Optical pocket tool',[
+            [(x+xx,-6.30,1.000+zz) for xx,zz in aperture],
+            [(x+xx,front_y(x+xx,1.000+zz)+.150,1.000+zz) for xx,zz in aperture]],None)
         G.boolean(ob,cut)
         # A lapped, molded yellow return hides the cassette wall: the housing
         # is behind the fender skin, with only its thin seal exposed.
-        contours=[(.405,.315,.040,0),(.389,.303,.033,.35),(.375,.290,.028,1)]
+        contours=[(.365,.285,.040,0),(.349,.273,.033,.35),(.335,.260,.028,1)]
         reveal=[]
         for w,h,r,blend in contours:
             ring=[]
             for xx,zz in G.rounded_rectangle(w,h,r,4):
-                px,pz=x+xx,1.035+zz
+                px,pz=x+xx,1.000+zz
                 hit=skin.ray_cast(Vector((px,-6.5,pz)),Vector((0,1,0)),3)[0]
                 if hit is None:raise ValueError('Optical surround misses the actual mold')
-                cassette=face_y+.09*((px/1.1)**2-(x/1.1)**2)+.010
+                cassette=front_y(px,pz)+.018
                 ring.append((px,hit.y+.001+(cassette-hit.y)*blend,pz))
             reveal.append(ring)
         flange=G.ring_loft('Headlamp molded reveal '+str(sign),reveal,b.m['yellow'])
@@ -147,25 +172,25 @@ def sculpt(b):
         # twisted return, rather than on non-planar quads before tessellation.
         tri=flange.modifiers.new('Mold return triangles','TRIANGULATE');tri.quad_method='BEAUTY'
         G.apply(flange);G.smooth(flange,35);b.add(flange)
-        bucket=b.box('Headlamp closed bucket '+str(sign),(x,face_y+.050,1.035),(.374,.104,.294),'black',r=.027)
-        G.boolean(bucket,G.box('Optical bucket interior',(x,face_y+.020,1.035),(.364,.160,.274),None,.022,4))
-        optical_bow(bucket,x)
-        for dx in [-.092,.092]:
-            contour=G.rounded_rectangle(.146,.125,.023,4)
+        bucket=b.box('Headlamp closed bucket '+str(sign),(x,face_y+.050,1.000),(.334,.104,.264),'black',r=.027)
+        G.boolean(bucket,G.box('Optical bucket interior',(x,face_y+.020,1.000),(.324,.160,.244),None,.022,4))
+        warp(bucket)
+        for dx in [-.082,.082]:
+            contour=G.rounded_rectangle(.130,.110,.023,4)
             rings=[[(x+dx+xx*scale,face_y+depth,z+zz*scale) for xx,zz in contour]
-                   for scale,depth in [(1,.008),(.72,.035),(.21,.065)]]
+                   for scale,depth in [(1,.020),(.72,.040),(.21,.070)]]
             reflector=G.loft('Headlamp formed reflector '+str(sign)+str(dx),rings,b.m.get('reflector',b.m['aluminum']),caps=False)
             wall=reflector.modifiers.new('Reflector gauge','SOLIDIFY');wall.thickness=.001
-            G.smooth(reflector,65);b.add(reflector,category='lamps');optical_bow(reflector,x)
-            optical_bow(b.box('Lamp front lowbeam '+str(sign)+str(dx),(x+dx,face_y+.063,z),(.044,.005,.038),'headlight',category='lamps',r=.010),x)
+            G.smooth(reflector,65);b.add(reflector,category='lamps');warp(reflector)
+            warp(b.box('Lamp front lowbeam '+str(sign)+str(dx),(x+dx,face_y+.068,z),(.038,.005,.034),'headlight',category='lamps',r=.010))
         def cover(u,v,x=x,z=z):
-            xx=x+(u-.5)*.360;zz=z+(v-.5)*.192
-            return xx,face_y+.09*((xx/1.1)**2-(x/1.1)**2)-.003*math.sin(math.pi*u)*math.sin(math.pi*v),zz
-        obc=panel('Glass sealed headlamp cover '+str(sign),cover,[0,.10,.25,.5,.75,.9,1],[0,.2,.5,.8,1],b.m.get('lens',b.m['windshield']),(0,-1,0),gauge=.0024,return_depth=0)
+            xx=x+(u-.5)*.320;zz=z+(v-.5)*.170
+            return xx,front_y(xx,zz)+.008-.0015*math.sin(math.pi*u)*math.sin(math.pi*v),zz
+        obc=panel('Glass sealed headlamp cover '+str(sign),cover,[i/8 for i in range(9)],[i/6 for i in range(7)],b.m.get('lens',b.m['windshield']),(0,-1,0),gauge=.0024,return_depth=0)
         b.add(obc,category='glass')
-        bezel=[(x+xx,face_y+.09*(((x+xx)/1.1)**2-(x/1.1)**2),z+zz) for xx,zz in G.rounded_rectangle(.376,.211,.025,4)]
+        bezel=[(x+xx,front_y(x+xx,z+zz)+.008,z+zz) for xx,zz in G.rounded_rectangle(.336,.189,.025,6)]
         b.tube('Bonded headlamp bezel '+str(sign),bezel+[bezel[0]],.004,'black',sides=6)
-        optical_bow(b.box('Front amber signal '+str(sign),(x,face_y+.004,.915),(.245,.010,.054),'amber',category='lamps',r=.017),x)
+        warp(b.box('Front amber signal '+str(sign),(x,face_y+.014,.906),(.225,.010,.046),'amber',category='lamps',r=.017))
         # Backed parting line follows the full curved cowl, rather than a plate.
         b.box('Hood rubber latch '+str(sign),(sign*1.175,-4.11,1.31),(.032,.058,.138),'black',r=.008)
     gasket=G.loft('Hood cowl parting line',
