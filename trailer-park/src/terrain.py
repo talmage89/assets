@@ -33,7 +33,7 @@ def turf(parent,plan,mat):
     col=ob.data.color_attributes.active_color;old=plan['kind']=='old'
     for index,(x,y,z) in enumerate(vs):
         # Solar moisture differences at the parcel scale, with no noise wash.
-        dry=.5+.25*math.sin(x*.19+y*.12+plan['seed'])+.25*math.sin(x*.37-y*.24)
+        dry=max(0,(.5+.25*math.sin(x*.19+y*.12+plan['seed'])+.25*math.sin(x*.37-y*.24)-.76)/.24)
         wear=0.;shade=0.
         for lot in plan['lots']:
             px,py,_=lot['origin'];h=lot['home'];yaw=lot['yaw']
@@ -46,10 +46,10 @@ def turf(parent,plan,mat):
             edge=min(abs(v-h['width']/2),abs(v+h['width']/2))
             if abs(u)<h['length']/2:shade=max(shade,math.exp(-(edge/.70)**2)*(.4+.3*math.sin(u*.7)**2))
             if lot['home']['occupant_seed']%3==0 and abs(u-h['length']/2)<5:
-                dry=max(dry,.68+.18*math.sin(v*1.9+u*.6))
+                dry=max(dry,.55*math.exp(-((u-h['length']/2-2.8)/1.1)**2-((v-1.5)/.8)**2))
         # Garden July albedo recipe; retain the native 3.048m blade repeat.
         clump=.86+.09*math.sin(x*2.3+y*.77)+.05*math.sin(y*3.1-x*.9)
-        c=(.78*clump,.84*clump*(1-dry*.43),.64*clump*(1-dry*.47))
+        c=(.56*clump*(1+dry*.42),.76*clump*(1-dry*.38),.80*clump*(1-dry*.22))
         soil=(.47,.29,.105);c=tuple(c[k]*(1-wear)+soil[k]*wear for k in range(3))
         c=tuple(c[k]*(1-shade*.22) for k in range(3));col.data[index].color=(*c,1)
     return ob

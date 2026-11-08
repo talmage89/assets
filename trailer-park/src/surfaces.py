@@ -65,6 +65,14 @@ def cut(ob,p):
                     levels += [L*station+off for station in (-.27,.19) for off in (-.35,0,.35)]
                 if axis==1 and p.get('era')!='1996':
                     levels += [p.get('width',4.2)*station+off for station in (-.37,.37) for off in (-.15,0,.15)]
+                if p.get('era')!='1996':
+                    from homes import openings
+                    # Carry the broad sill-corner runoff in actual surface
+                    # colors, with stations on both sides of each stain.
+                    for face in (('front','back') if axis==0 else ('left','right')):
+                        for h in openings(p,face):
+                            if h['kind']=='window':
+                                levels += [h['u']+s*h['w']/2+off for s in (-1,1) for off in (-.16,0,.16)]
         for value in sorted(set(levels)):
             if not lo[axis]+.002<value<hi[axis]-.002:continue
             co=[0,0,0];co[axis]=value;n=[0,0,0];n[axis]=1
@@ -91,15 +99,29 @@ def age(q,n,c,role,component,p,seed):
     if role=='Siding' and component in ('wall','roof_trim','era_details','added_room'):
         # UV-scale manufacture supplies ribs; these broad masks follow exposure.
         exposure=max(sunny,.65*abs(n.x))
-        fade=severity*exposure*.60*max(0,min(1,(z-F)/1.4))
-        color=color.lerp(Vector((.64,.62,.53)),fade)
+        fade=severity*exposure*.42*max(0,min(1,(z-F)/1.4))
+        color=color.lerp(Vector((.44,.43,.38)),fade)
+        if old:color*=1-.30*severity
         # Protected damp gathers below the eaves and beside the lower trim;
         # exposure dries the sunny face. Corrosion is separately sourced by
         # actual selected fasteners, never a periodic seam-color function.
         mottled=.28+.72*(.5+.5*math.sin(x*2.1+y*3.3+seed)*math.cos(x*.77-y*.9))
         wet=severity*(north*.78+(.25 if old else .02))*mottled
-        damp=wet*(math.exp(-max(0,E-z)/.21)+.86*math.exp(-max(0,z-F)/.28))
+        damp=wet*(math.exp(-max(0,E-z)/.26)+1.2*math.exp(-max(0,z-F)/.36))
         color=color.lerp(Vector((.045,.065,.033)),min(.82,damp))
+        if old:
+            drip=severity*.48*math.exp(-max(0,E-z)/.18)
+            color=color.lerp(Vector((.055,.054,.043)),drip)
+            if component=='wall':
+                from homes import openings
+                face=('front' if n.y<0 else 'back') if abs(n.y)>.5 else ('left' if n.x<0 else 'right')
+                u=x if abs(n.y)>.5 else y
+                for h in openings(p,face):
+                    if h['kind']!='window' or z>h['z']+.01:continue
+                    drop=h['z']-z
+                    corner=sum(math.exp(-((u-h['u']-s*h['w']/2)/(.085+.045*drop))**2) for s in (-1,1))
+                    film=severity*.66*corner*math.exp(-drop/.52)
+                    color=color.lerp(Vector((.065,.064,.047)),min(.70,film))
     if component=='roof' and old and p.get('roof')!='shingle' and max(c[:3])<.30:
         L=p.get('length',18);stride=L/math.ceil(L/.9144)
         seam=abs((x+L/2+stride/2)%stride-stride/2)
@@ -112,8 +134,8 @@ def age(q,n,c,role,component,p,seed):
         color=color.lerp(Vector((.10,.115,.075)),film)
     if component in ('skirting','skirt_access'):
         color=Vector((.62,.61,.55)).lerp(Vector((.40,.39,.32)),severity*.36)
-        splash=.20+.18*(.5+.5*math.sin(x*2.1+y*2.8+seed))**2
-        soil=min(.98,severity*(1.55 if old else .94)*math.exp(-max(0,z-.04)/splash)*(.25+.75*ripple))
+        splash=.20+.10*(.5+.5*math.sin(x*2.1+y*2.8+seed))**2
+        soil=min(.98,severity*(1.90 if old else .94)*math.exp(-max(0,z-.04)/splash)*(.65+.35*ripple))
         color=color.lerp(Vector((.035,.029,.014)),soil)
         damp=severity*north*.70*(.5+.5*math.sin(x*1.9+seed))**2*math.exp(-max(0,z-.10)/.42)
         color=color.lerp(Vector((.09,.12,.055)),damp)
