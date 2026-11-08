@@ -1910,3 +1910,55 @@ At the pickup near switch, a half-pixel unchanged-source shift reaches local
 .15051 front and .08789 rear, despite matching material response. Native
 appearance still distinguishes a harmless edge shift from the hood's wrong
 surface layer. No near limit has been changed on this evidence alone.
+
+## Pass 50 — selected canopy junctions and complete resident storage counts
+
+The selected station chain now has measured closure at both near levels:
+9130/4542 triangles. The same ten old valence-three junctions that became open
+at handoff have three incident faces again in each selected mesh. Spatial
+tracking finds **zero of ten still unmatched** at both levels. Whole-canopy
+boundaries are 442 in source versus 298/274; nonmanifold edges 130 versus
+97/42. This closes the ten reported failures without claiming that the whole
+construction is watertight. Receipts: `build/lod-v4/station-near-v6-junctions.json`
+and `station-near-v6-junction-coverage.json`.
+
+Added a measured whole-chain storage table to the report and README output:
+all default stored mesh triangles, canonical material resources, stored
+primitive placements, distinct payload bytes and resident GPU estimate.
+Full immutable source containers count once across modular kinds. Active draw
+calls are stated separately; resident alternatives are not drawn simultaneously.
+The actual-file fixture passes with two source meshes, one additional source
+instance and two independently selected module chains: four stored mesh
+triangles, two canonical materials, five stored placements, and the measured
+filesystem bytes. All five report unit tests pass. The final clean suite still
+needs its complete refresh.
+
+Merged school/minigolf main `380a67f` as `27e55e1`; no kit code changed there.
+The original 486 protected files remained unchanged; the receipt now also
+covers ten newly merged gallery images, 496 total. Repository check: 2095
+source files, zero errors. The recipe now explains that requested ratios must
+remain nonincreasing even for an absolute-budget proxy. The station's .02
+middle request requires a proxy request no greater than .02; its corrected
+.01 request retains the same 1800 absolute budget. All ten canonical configs
+pass configuration validation.
+
+The pickup density control finishes LOD1 at 35212 (58.85%), only 756 below
+the 35968 control including the original hood. Its middle level is pending.
+This remains a scratch .35 optical-classification control, not an adopted
+production chain. A source receipt shows a 1992-triangle construction retained
+without a collapse attempt by whole-component powered-source protection.
+A triangle-local protection control is queued, keeping existing glass and
+emissive masks and all UV/frame/topology/visibility checks.
+
+Source optical-receiver UV measurements also expose a far-atlas sampling gap:
+all 1772 glass faces exceed the ordinary 22.03 texels/m switch cap; the frontmost
+784 glass faces have p05/median/p95 densities 194.75/219.25/221.87 texels/m.
+The existing high-frequency class excludes transmission receivers. A control
+adds them to its four-texel/pixel cap (about 88 texels/m), within the same 512
+atlas. No production layout change is adopted before native review.
+
+The shared GPU lease remained unavailable outside this process namespace for
+almost three hours. A read-only descriptor audit found no leftover own holder.
+The CPU runner yielded with genuine completed caches intact when a lease
+became available; queued native reviews have begun. No interrupted build is
+reported as a successful chain and no image gate is waived by the wait.
