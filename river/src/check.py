@@ -24,11 +24,15 @@ def accessor(d,bin,index):
 
 
 def raw(path):
-    d=json.loads(path.read_text());binary=(path.parent/d['buffers'][0]['uri']).read_bytes();tris=0;norm=[];uv=[];flows=[]
+    d=json.loads(path.read_text());binary=(path.parent/d['buffers'][0]['uri']).read_bytes();tris=0;norm=[];uv=[];flows=[];heightfield_faces=0
     for me in d['meshes']:
         for pr in me['primitives']:
             inds=accessor(d,binary,pr['indices']).ravel();tris+=len(inds)//3
             v=accessor(d,binary,pr['attributes']['POSITION']);assert np.isfinite(v).all()
+            if me['name'] in ('BedBanksFloodplain','DistantValleySkins','DistantWaterContinuation'):
+                tv=v[inds.reshape(-1,3)];cross=np.cross(tv[:,1]-tv[:,0],tv[:,2]-tv[:,0])
+                assert (cross[:,1]>=-1e-8).all(),('Downward terrain winding',me['name'],int((cross[:,1]<-1e-8).sum()))
+                heightfield_faces+=len(cross)
             n=accessor(d,binary,pr['attributes']['NORMAL']);norm.extend(np.linalg.norm(n,axis=1))
             if 'TEXCOORD_0' in pr['attributes']:
                 u=accessor(d,binary,pr['attributes']['TEXCOORD_0']);assert np.isfinite(u).all()
@@ -48,7 +52,7 @@ def raw(path):
     return dict(stored_triangles=tris,placed_triangles=expanded,materials=len(d['materials']),images=len(d.get('images',[])),
         normal_length_error=float(abs(norm-1).max()),density_at_1024_px_m=np.percentile(uv,[5,50,95]).tolist(),
         flow_vertices=len(flow),flow_speed_m_s=np.percentile(np.linalg.norm(flow[:,:2],axis=1),[0,50,100]).tolist(),
-        max_flow_depth_m=float(flow[:,2].max()),bytes_gltf=path.stat().st_size,bytes_bin=len(binary),bundle_sha256=bundle(path))
+        max_flow_depth_m=float(flow[:,2].max()),upward_heightfield_faces=heightfield_faces,bytes_gltf=path.stat().st_size,bytes_bin=len(binary),bundle_sha256=bundle(path))
 
 
 def bvh(ob):
@@ -84,16 +88,45 @@ def construction(seed):
         row=[v.co for v in water.data.vertices if abs(v.co.y-y)<.02]
         if not row:continue
         world=[water.matrix_world@v for v in row];samples.append(dict(y_m=y,width_m=max(v.x for v in world)-min(v.x for v in world)))
-    return dict(categories=counts,bearing_surface_samples=len(gaps),max_girder_pad_gap_m=max(gaps),girder_lengths_m=sorted(set(round(x,5) for x in lengths)),water_width_samples=samples)
+    headroom=[]
+    if seed==101:
+        trail=next(o for o in obs if o.name=='RiverbankTrail');pts=np.array(json.loads(trail['points_blender_m']))
+        walk=bvh(next(o for o in obs if o.name=='FloodwallTrailAndAccess'))
+        beams=[bvh(o) for o in obs if o.type=='MESH' and o.name.startswith('Girder_')]
+        stations=sorted({round(sum((o.matrix_world@v.co).y for v in o.data.vertices)/len(o.data.vertices),5) for o in obs if o.type=='MESH' and o.name.startswith('Girder_')})
+        for y in stations:
+            center=float(np.interp(y,pts[:,1],pts[:,0]))
+            for offset in (-.8,0,.8):
+                x=center+offset;floor=walk.ray_cast(Vector((x,y,1.0)),Vector((0,0,-1)),2)[0]
+                assert floor is not None,('Walk missing',x,y)
+                hits=[t.ray_cast(floor+Vector((0,0,.002)),Vector((0,0,1)),5)[0] for t in beams]
+                heights=[h.z-floor.z for h in hits if h is not None]
+                assert heights,('No overhead beam at walk',x,y)
+                headroom.append(min(heights))
+        assert min(headroom)>2.3,('Walk headroom',min(headroom))
+    return dict(categories=counts,bearing_surface_samples=len(gaps),max_girder_pad_gap_m=max(gaps),girder_lengths_m=sorted(set(round(x,5) for x in lengths)),water_width_samples=samples,
+                riverwalk_headroom_samples=len(headroom),minimum_sampled_riverwalk_headroom_m=min(headroom) if headroom else None)
 
 
 def main():
     results={}
     for seed in (101,202):results[str(seed)]=dict(raw=raw(Path(f'export/RiverCrossing-{seed}.gltf')),construction=construction(seed))
     modules=json.loads(Path('build/manifest.json').read_text())['modules']
-    for m in modules:assert m['triangles']<=m['limit']
+    for m in modules:
+        path=Path('export/pieces')/(m['name']+'.gltf');d=json.loads(path.read_text())
+        count=sum(sum(d['accessors'][p['indices']]['count']//3 for p in d['meshes'][n['mesh']]['primitives']) for n in d['nodes'] if 'mesh' in n)
+        assert count==m['triangles'] and count<=m['limit'],(m,count)
+        m['serialized_triangles']=count
+    path=Path('export/pieces/TypeIII_Girder18.gltf');d=json.loads(path.read_text());bin=(path.parent/d['buffers'][0]['uri']).read_bytes()
+    v=np.concatenate([accessor(d,bin,p['attributes']['POSITION']) for me in d['meshes'] for p in me['primitives']])
+    end=v[abs(v[:,0]-v[:,0].min())<1e-5];z=end[:,1];y=-end[:,2]
+    section=dict(depth_m=float(z.max()-z.min()),top_width_m=float(np.ptp(y[z>1.14])),bottom_width_m=float(np.ptp(y[z<.21])),web_width_m=float(np.ptp(y[(z>.38)&(z<.90)])))
+    section['vertical_stations_m']=np.unique(np.round(z,5)).tolist()
+    assert np.allclose(section['vertical_stations_m'],[0,.01905,.1778,.3683,.8509,.9652,1.143],atol=2e-5)
+    for key,target in [('depth_m',1.143),('top_width_m',.4064),('bottom_width_m',.5588),('web_width_m',.1778)]:
+        assert abs(section[key]-target)<2e-5,(key,section[key],target)
     report=dict(passed=True,crossings=results,modules=modules,preserved_files=preserved(),
-        scope='form, raw normals/finite tiling UV/density, flow, actual bearing contacts and serialization')
+        measured_girder_end_section=section,scope='form, raw normals/finite tiling UV/density, flow, actual bearing contacts and serialization')
     Path('build/check.json').write_text(json.dumps(report,indent=2)+'\n');print('RIVER_CHECK_PASS')
 
 

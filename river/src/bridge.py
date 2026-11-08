@@ -7,11 +7,12 @@ import math
 import geometry as G
 from plan import FT
 
-# 45 in total, 16 in top, 22 in bottom, 7 in web; 7.5/10/20/7.5 in zones.
-SECTION=[(-.26035,0),(.26035,0),(.2794,.01905),(.2794,.1905),
-         (.0889,.381),(.0889,.889),(.2032,1.0795),(.2032,1.143),
-         (-.2032,1.143),(-.2032,1.0795),(-.0889,.889),(-.0889,.381),
-         (-.2794,.1905),(-.2794,.01905)]
+# FDOT 20130: bottom-to-top 7 / 7.5 / 19 / 4.5 / 7 in zones.
+# 45 in total, 16 in top, 22 in bottom, 7 in web; .75in foot chamfers.
+SECTION=[(-.26035,0),(.26035,0),(.2794,.01905),(.2794,.1778),
+         (.0889,.3683),(.0889,.8509),(.2032,.9652),(.2032,1.143),
+         (-.2032,1.143),(-.2032,.9652),(-.0889,.8509),(-.0889,.3683),
+         (-.2794,.1778),(-.2794,.01905)]
 
 
 def girder(name,length=18.0086,parent=None):
@@ -57,7 +58,12 @@ def abutment(name,width=11.8872,parent=None,seat=2.687,top=4.13):
     b.box((.82,0,(seat+top)/2),(.40,width,top-seat))
     b.box((.30,0,-.40),(1.8,width+.6,.35))
     for s in (-1,1):
-        b.loft([[(x,y,z) for y,z in ((s*(width/2-.12),-.4),(s*(width/2+.22),-.4),(s*(width/2+.22),top),(s*(width/2-.12),top))] for x,top in ((.8,4.10),(3.2,3.75),(6.3,2.5))])
+        rings=[]
+        for x,top in ((.8,4.13),(3.2,4.45),(6.3,4.45)):
+            center=s*(width/2+math.tan(math.radians(30))*(x-.8))
+            rings.append([(x,center+offset,z) for offset,z in ((-.17,-.4),(.17,-.4),(.17,top),(-.17,top))])
+        b.loft(rings)
+        b.beam((.8,s*width/2,-.50),(6.3,s*(width/2+math.tan(math.radians(30))*5.5),-.50),.8,.35,'concrete')
     b.finish();return rt
 
 
@@ -71,20 +77,30 @@ def parapet(name,length=6.096,parent=None):
     b.finish();return rt
 
 
-def deck(name,length=6.096,width=11.8872,parent=None):
+def deck(name,length=6.096,width=11.8872,parent=None,scuppers=(0,)):
     rt=G.root(name,parent=parent,module='DeckPanel')
     b=G.Batch(name+'__Slab',rt)
-    b.box((0,0,-.19),(length,width,.26))
-    # Asphalt crowned at 2%; 5ft walks are integral raised curbs.
-    lane=3.3528
+    lane=3.3528;edge=-.06-.02*lane
+    section=[(-width/2,-.32),(width/2,-.32),(width/2,edge),(lane,edge),(0,-.06),(-lane,edge),(-width/2,edge)]
+    b.loft([[(x,y,z) for y,z in section] for x in (-length/2,length/2)])
+    # Asphalt crowned at 2%; walks are integral raised curbs.
     for s in (-1,1):
         vs=[(x,y,.00-.02*abs(y)) for x,y in ((-length/2,0),(length/2,0),(length/2,s*lane),(-length/2,s*lane))]
         b.geom(vs,[(0,1,2,3)],'asphalt')
-        b.box((0,s*(lane+.1524/2),-.026),(length,.1524,.19))
+        cuts=sorted([-length/2,length/2]+[x+off for x in scuppers for off in (-.18,.18)])
+        for a,c in zip(cuts,cuts[1:]):
+            if any(abs((a+c)/2-x)<.18 for x in scuppers):continue
+            b.box(((a+c)/2,s*(lane+.1524/2),(edge+.085344)/2),(c-a,.1524,.085344-edge))
         walkwidth=width/2-lane-.1524
-        b.box((0,s*(lane+.1524+walkwidth/2),.009144),(length,walkwidth,.1524))
+        b.box((0,s*(lane+.1524+walkwidth/2),(edge+.085344)/2),(length,walkwidth,.085344-edge))
         b.box((0,s*(width/2-.23),-.327),(length,.018,.018),'rubber')
-    b.finish();return rt
+    ob=b.finish()
+    for x in scuppers:
+        for side in (-1,1):
+            cutter=G.model.box('Scupper opening cutter',(x,side*(lane+.0762),-.2),(.36,.22,1),G.M['concrete'],0)
+            G.model.boolean(ob,cutter)
+    mod=ob.modifiers.new('Final drain triangles','TRIANGULATE');G.model.apply(ob)
+    return rt
 
 
 def guardrail(name,length=7.62,parent=None):
@@ -120,8 +136,10 @@ def assemble(p,parent):
         for y in ys:d.box(((a+c)/2,y,soffit+.02),(p.span-.28,.41,.04))
         d.finish()
         for k in range(3):
-            panel=deck(f'Deck_{i}_{k}',(p.span-.04)/3,p.deck_width,rt)
-            panel.location=(a+.02+(k+.5)*(p.span-.04)/3,0,p.deck_z)
+            panel_len=(p.span-.04)/3;center=a+.02+(k+.5)*panel_len
+            openings=[xx-center for xx in (a+p.span*.28,a+p.span*.73) if abs(xx-center)<panel_len/2-.18]
+            panel=deck(f'Deck_{i}_{k}',panel_len,p.deck_width,rt,openings)
+            panel.location=(center,0,p.deck_z)
         for side in (-1,1):
             for j in range(3):
                 ob=parapet(f'Parapet_{i}_{side}_{j}',p.span/3-.016,rt)
@@ -130,9 +148,11 @@ def assemble(p,parent):
         drain=G.Batch(f'Span_{i}__DrainConduit',rt)
         for side in (-1,1):
             for x in (a+p.span*.28,a+p.span*.73):
-                y=side*3.51
-                drain.box((x,y,p.deck_z-.16),(.36,.22,.16),'steel')
-                drain.tube([(x,y,p.deck_z-.21),(x,y,p.deck_z-.67),(x,side*(p.deck_width/2+.12),p.deck_z-.74),(x,side*(p.deck_width/2+.12),p.deck_z-1.28)],.055,'steel',8)
+                y=side*(3.3528+.0762)
+                # Open cast trough directly below the actual curb notch.
+                for dx in (-.18,.18):drain.box((x+dx,y,p.deck_z-.15),(.008,.22,.18),'steel')
+                for dy in (-.11,.11):drain.box((x,y+dy,p.deck_z-.15),(.36,.008,.18),'steel')
+                drain.tube([(x,y,p.deck_z-.24),(x,y,p.deck_z-.67),(x,side*(p.deck_width/2+.12),p.deck_z-.74),(x,side*(p.deck_width/2+.12),p.deck_z-1.28)],.055,'steel',8,thickness=.004)
             y=side*(p.deck_width*.31)
             drain.tube([(a+.15,y,soffit-.23),(c-.15,y,soffit-.23)],.048,'steel',8)
             for x in (a+2,a+7,c-2):

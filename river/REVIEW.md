@@ -62,3 +62,53 @@ depth-dependent absorption; warmer green-brown attenuation, more roughness and
 less normal amplitude; richer sky; actual terrain ray sampling; critical
 water-edge/walk/abutment stations in the mesh; corrected street blocks and low
 walk; distant world continuation. Fine weathering is deferred to look-dev.
+
+## Pass 2 — exported Cycles, 1000px / 24 samples
+
+Color/value first: the water remains too blue/dark, and the boosted sky is
+too cyan. Absorption alone does not communicate suspended sediment. Introduce
+modest green-brown scattering from exported uniform coefficients, keep the
+surface nearly neutral/transmissive, and soften the dominant ripple comb.
+Increase sky fill to read the underside without changing exposure or the
+low-sun direction. Concrete remains a provisional shared Ground finish.
+
+Opened all **19 scene/module frames** at native size and all three composed
+photo pairs. This pass is **rejected**, not a delivery gallery:
+
+- Both aerials show black stripes across terrain and alternating far water.
+  Unit-length normals passed, but that test missed orientation. Recalculating
+  each disconnected open quad had reversed many faces. Preserve authored
+  winding on open faces, force heightfield faces upward, and check signed
+  triangle orientation independently in the glTF. Distant water now uses a
+  surface-only material; an open plane cannot define a finite volume.
+- The downtown hero is blocked by a soil levee. A vectorized ray against the
+  actual export hit RiverBank only **6.13m** ahead, at Z **2.296m**. The old
+  bank-height floor applied at u=1.05 while the walkway cut began at u=1.10,
+  leaving a 2.5m strip. Replace those overlapping conditions with an explicit
+  shore / low walk / raised city profile.
+- The downtown bar and abutment views are black or blocked. Place the bar
+  camera at the actual exposed water edge, and move the abutment camera onto
+  the city bank. The driver camera is too close to a hatchback; move it into
+  the preceding traffic gap.
+- Camera projection agrees within .025px but does not establish visibility.
+  All three photo pairs fail as evidence: a tree/ground blocks the urban
+  bridge, the bank camera is inside a native house, and the under-bridge camera
+  is below the dirt bench. Move country houses back into the high floodplain,
+  keep maintained access sightlines clear, and lower the under-bridge service
+  bench. Do not accept the small fit residual as proof of a visible feature.
+- The module sheet needs a receiving floor and names; black space conceals
+  section thickness. The scale views do show a real 1.8m person and native car.
+- Reopened FDOT 20130 at high resolution. The flange widths/web and overall
+  depth were correct, but the vertical zones were not. Correct them to
+  **7 / 7.5 / 19 / 4.5 / 7in**, with the ¾in foot chamfer. A new end-section
+  accessor check measures all seven stations rather than only the envelope.
+- Scuppers must penetrate the slab, not merely have pipes nearby. Cut the
+  curb and slab, add open troughs and hollow outlets. Carry slab crossfall
+  under the asphalt so its 60mm overlay remains present at the gutter.
+- Flare the wingwalls 30° on real strip footings. Excavate the 12% boat-launch
+  plane so its pavement is not hidden by uncut bank soil.
+
+The new construction gate passes: actual exported section dimensions agree
+within 2e-5m; sampled bearing gaps are zero; minimum sampled riverwalk clearance
+is **2.34795m** (the prestress camber adds to the nominal 2.337m).
+The next images must show the changes before they can be accepted.
