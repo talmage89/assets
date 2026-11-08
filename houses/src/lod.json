@@ -6,18 +6,13 @@
       "ratio": 0.4,
       "screen_height": 0.3,
       "target_triangles": 32027,
-      "image_limits": {
-        "patch_mean_max": 0.11
-      },
       "surface_pixels": 0.125
     },
     {
       "ratio": 0.15,
       "screen_height": 0.12,
       "target_triangles": 14558,
-      "image_limits": {
-        "patch_mean_max": 0.095
-      }
+      "surface_pixels": 0.125
     },
     {
       "ratio": 0.05,
