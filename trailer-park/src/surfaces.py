@@ -65,7 +65,7 @@ def cut(ob,p):
                     levels += [L*station+off for station in (-.27,.19) for off in (-.35,0,.35)]
                 if axis==1 and p.get('era')!='1996':
                     levels += [p.get('width',4.2)*station+off for station in (-.37,.37) for off in (-.15,0,.15)]
-                if p.get('era')!='1996':
+                if p.get('era')=='1972':
                     from homes import openings
                     # Carry the broad sill-corner runoff in actual surface
                     # colors, with stations on both sides of each stain.
