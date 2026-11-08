@@ -70,7 +70,8 @@ def bearing_units(path):
     for i in image_ids:
         file=path.parent/d['images'][i]['uri'];w,h=Image.open(file).size
         images[hashlib.sha256(file.read_bytes()).hexdigest()]=w*h*4/3/1048576
-    return dict(measured_units=len(groups),triangles_per_unit=groups[0],shared_image_mib=sum(images.values()))
+    return dict(measured_units=len(groups),triangles_per_unit=groups[0],material_states=len(materials),
+                shared_image_mib=sum(images.values()))
 
 
 def main():

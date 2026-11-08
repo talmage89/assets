@@ -42,7 +42,7 @@ def main():
         materials=sum(v['material_states'] for v in r['categories'].values())
         lines.append(f'| {name} | {n:,} | {materials} | {r["shared_image_mib"]:.2f} | {r["gltf_bytes"]+r["bin_bytes"]:,} |')
     bearing=resources['RiverCrossing-101']['bearing_unit']
-    lines.append(f'| Bearing stack (placed assembly) | {bearing["triangles_per_unit"]:,} | — | {bearing["shared_image_mib"]:.2f} | included in crossing |')
+    lines.append(f'| Bearing stack (placed assembly) | {bearing["triangles_per_unit"]:,} | {bearing["material_states"]} | {bearing["shared_image_mib"]:.2f} | included in crossing |')
     lines += ['', 'Image allocations are shared, deduplicated full-mip estimates at 8bpp. Rows are not additive.',
               'New river images remain 4⅔ MiB: one 1024 bank/bed triple and two 512 images (plants/weather/foam and water normal).',
               '']

@@ -140,7 +140,9 @@ def baseline(seed,width,samples):
 
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--source');ap.add_argument('--out',type=Path,default=Path('renders/checkpoint'));ap.add_argument('--seeds',nargs='+',type=int,default=[101,202]);ap.add_argument('--width',type=int,default=1280);ap.add_argument('--samples',type=int,default=32);ap.add_argument('--shots',nargs='+',default=list(views(101)));ap.add_argument('--matches',action='store_true');ap.add_argument('--modules',action='store_true');ap.add_argument('--comparison-cameras',action='store_true');ap.add_argument('--with-baseline',action='store_true');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+    ap=argparse.ArgumentParser();ap.add_argument('--source');ap.add_argument('--out',type=Path,default=Path('renders/checkpoint'));ap.add_argument('--seeds',nargs='+',type=int,default=[101,202]);ap.add_argument('--width',type=int,default=1280);ap.add_argument('--samples',type=int,default=32);ap.add_argument('--shots',nargs='+',default=list(views(101)));ap.add_argument('--matches',action='store_true');ap.add_argument('--modules',action='store_true');ap.add_argument('--comparison-cameras',action='store_true');ap.add_argument('--with-baseline',action='store_true')
+    ap.add_argument('--match-names',nargs='+',choices=('urban','bank','under'))
+    a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
     if not a.comparison_cameras:
         for seed in a.seeds:render(seed,a.out,a.width,a.samples,a.shots)
     if a.modules:
@@ -162,6 +164,7 @@ def main():
         shot(sc,cam,dict(location=(39,-63,48),target=(23,15,.3),lens=43),a.out/'modules.png',source,a.width,a.samples)
     if a.matches:
         for name,row in json.loads(Path('build/photo-calibration.json').read_text()).items():
+            if a.match_names and name not in a.match_names:continue
             bpy.ops.wm.read_factory_settings(use_empty=True);source=Path('export')/f'RiverCrossing-{row["seed"]}.gltf'
             bpy.ops.import_scene.gltf(filepath=str(source.resolve()));restore_water();restore_native_leaves();sc,cam=setup(a.width,a.samples)
             # Match view direction/shape; daylight differs by photographic view.
