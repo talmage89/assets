@@ -44,6 +44,9 @@ def run_job(name,args,outputs,exports=Path('export'),camera=None):
     if cache.exists():
         old=json.loads(cache.read_text())
         if old['key']==key and all(Path(p).is_file() and digest(p)==sha for p,sha in old['files'].items()):
+            # Content and every render input were checked above. Mark this
+            # completed build current without changing a single image byte.
+            for path in old['files']:Path(path).touch()
             print('REUSE',name,flush=True);merge(old['folder'],old['rows']);return
     command=[os.environ.get('BLENDER','blender'),'-b','-t','2','--factory-startup','--python-exit-code','1','--python','src/render.py','--',*args,'--exports',str(exports)]
     # Cooperate at scene boundaries: a set stays roughly 5–7 minutes rather
