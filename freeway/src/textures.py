@@ -73,8 +73,19 @@ def maintenance(size):
    for j in range(200):
     x=rng.uniform(w*.30,w*.70);y=rng.uniform(g,w-g);r=rng.uniform(1,w*.02);d.rectangle((x,y,x+r,y+r*3),fill=(193,190,159,int(rng.integers(10,80))))
   elif name=='weed':
-   for j in range(40):
-    x=rng.uniform(g,w-g);y=rng.uniform(g,w-g);d.line([(x,y),(x+w*.03,y-w*.10)],fill=(77,85,39,245),width=max(1,w//90))
+   # Rooted fan: each crossed card contains a complete multi-blade clump.
+   # This chart was unused by the old individual polygon stems.
+   for j in range(73):
+    x=rng.uniform(w*.18,w*.82);base=w-g-1;y=rng.uniform(w*.23,w*.76)
+    lean=rng.uniform(-.17,.17)*w;ww=rng.uniform(.006,.016)*w
+    green=rng.uniform(.72,1.15)
+    color=(int(112*green),int(124*green),int(48*green),255)
+    d.polygon([(x-ww,base),(x+ww,base),(x+lean*.5+ww*.25,(base+y)/2),(x+lean,y),(x+lean*.5-ww*.25,(base+y)/2)],fill=color)
+    if j%9==0:
+     tip=y-w*.12;d.line([(x,base),(x+lean,tip)],fill=(146,137,78,255),width=max(1,w//220))
+     for k in range(5):
+      yy=tip+k*w*.012;rr=w*.009
+      d.ellipse((x+lean-rr,yy-rr,x+lean+rr,yy+rr),fill=(158,148,88,255))
   elif name=='litter':
    d.polygon([(w*.35,w*.35),(w*.69,w*.31),(w*.61,w*.70),(w*.40,w*.62)],fill=(197,189,164,250));d.line([(w*.4,w*.6),(w*.58,w*.42),(w*.64,w*.34)],fill=(127,123,109,245),width=max(1,w//60))
   im.paste(tile,(i%4*w,i//4*w))

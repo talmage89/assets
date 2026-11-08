@@ -16,9 +16,9 @@ SHIP_MAPS := $(foreach n,$(SETS),$(foreach c,$(CHANNELS),textures/ship/T_$(n)_$(
 CHECKPOINT_BLEND := build/Freeway.blend
 CHECKPOINT_OUTPUTS := build/Freeway.blend build/modules.json $(foreach s,$(SEEDS),$(foreach n,Freeway Town Traffic,export/$(n)-$(s).gltf export/$(n)-$(s).bin) build/scene-$(s).json build/Freeway-$(s).blend) export/FreewayModules.gltf export/FreewayModules.bin $(foreach p,$(PARTS),export/modules/$(p).gltf export/modules/$(p).bin)
 CHECKPOINT_ARGS := --seeds $(SEEDS) --stage look
-CHECKPOINT_DEPS := $(addprefix src/,build.py geom.py plan.py pieces.py roads.py site.py roadside.py neighborhood.py weather.py materials.py look_materials.py textures.py external.py context_colors.py town_context.py landscape.py) $(CONTEXT) $(CONTEXT_COLOR_MAPS) $(FORM_MAPS) $(SHIP_MAPS)
+CHECKPOINT_DEPS := $(addprefix src/,build.py geom.py plan.py pieces.py roads.py site.py roadside.py neighborhood.py weather.py column_age.py materials.py look_materials.py textures.py external.py context_colors.py town_context.py landscape.py turf_cards.py) $(CONTEXT) $(CONTEXT_COLOR_MAPS) $(FORM_MAPS) $(SHIP_MAPS)
 CHECKPOINT_OUT := renders/final
-SCENE_SHOTS_101 := hero hero_cut above above_clean alignment barrier guardrail_end sign_structure south_sign pier_girders bearings gore terminal terminal_controls rail_repair
+SCENE_SHOTS_101 := hero hero_previous hero_cut above above_clean alignment barrier guardrail_end sign_structure south_sign pier_girders bearings gore terminal terminal_controls rail_repair
 SCENE_SHOTS_202 := hero hero_old above above_clean alignment sound_wall cable_median
 PRESENTATION_OUTPUTS := renders/final/modules.png renders/final/scale.png renders/final-eevee/101/hero.png renders/final-matches/.stamp renders/final-source-matches/.stamp $(foreach p,$(PARTS),renders/final/modules/$(p).png)
 CHECKPOINT_RENDER_OUTPUTS := renders/final/.stamp $(foreach s,$(SEEDS),$(foreach v,$(SCENE_SHOTS_$(s)),renders/final/$(s)/$(v).png)) $(PRESENTATION_OUTPUTS)
@@ -80,6 +80,7 @@ repeat: model
 	$(PYTHON) src/repeat.py
 evidence: render
 	$(PYTHON) src/final_evidence.py
+	$(PYTHON) src/round4_evidence.py
 
 .PHONY: source-pairs
 source-pairs: renders/final-source-matches/.stamp

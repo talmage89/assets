@@ -36,7 +36,7 @@ class Batch:
             a,b,c=map(Vector,points[:3]);normal=(b-a).cross(c-a);axes=(0,1)
             if abs(normal.z)<max(abs(normal.x),abs(normal.y)):
                 axes=(1,2) if abs(normal.x)>abs(normal.y) else (0,2)
-            tile={'Asphalt':6.096,'Concrete':3.048,'Lawn':3.048}.get(role,3.048)
+            tile={'Asphalt':6.096,'AsphaltPolish':6.096,'Concrete':3.048,'Lawn':3.048}.get(role,3.048)
             uv=[(p[axes[0]]/tile,p[axes[1]]/tile) for p in points]
         self.uv.append(uv);self.colors.extend([tint]*len(points))
 

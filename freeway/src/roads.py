@@ -40,11 +40,11 @@ def road(p,name,s0,s1,mark=True,bank=None):
                 splits=[ua,ub]
                 if getattr(Q,'LOOKDEV',False) and k>0:
                     middle=(ua+ub)/2
-                    splits=sorted(set([ua,ub,*[middle+v for v in (-1.25,-1.08,-.82,-.56,-.35,-.16,.16,.35,.56,.82,1.08,1.25)]]))
+                    splits=sorted(set([ua,ub,*[middle+v for v in (-1.25,-1.08,-.82,-.56,-.35,-.16,0,.16,.35,.56,.82,1.08,1.25)]]))
                 for lo,hi in zip(splits,splits[1:]):
                     pts=[p.xyz(a,side*lo),p.xyz(a,side*hi),p.xyz(c,side*hi),p.xyz(c,side*lo)]
                     role=p.pavement
-                    if getattr(Q,'LOOKDEV',False) and k>0 and p.pavement=='Concrete' and abs(abs((lo+hi)/2-middle)-.82)<.3:role='WheelPolish'
+                    if getattr(Q,'LOOKDEV',False) and k>0 and abs(abs((lo+hi)/2-middle)-.82)<.3:role='WheelPolish' if p.pavement=='Concrete' else 'AsphaltPolish'
                     start=len(b.colors);b.surface(pts,role,tint=(color,color,color,1))
                     if getattr(Q,'LOOKDEV',False) and k>0:
                         from weather import road_tint
@@ -170,16 +170,11 @@ def terrain(p):
                         z=max(z,7.03-max(0,abs(s)-verge)/4)
                     v[2]=z;return v
                 ma='Drain' if j==1 else 'Lawn'
-                start=len(b.colors)
-                b.surface([pos(a,u0,z0),pos(a,u1,z1),pos(c,v1,h1),pos(c,v0,h0)],ma,tint=(.83,.87,.76,1))
+                points=[pos(a,u0,z0),pos(a,u1,z1),pos(c,v1,h1),pos(c,v0,h0)]
                 if getattr(Q,'LOOKDEV',False) and ma=='Lawn':
-                    from landscape import lawn_tint
-                    for index in range(start,len(b.colors)):
-                        x,y,z=b.v[index]
-                        lateral=p.radius-math.hypot(p.radius-x,y) if p.radius else x
-                        limit=(43 if p.kind=='diamond' else 28)+.8*math.sin(a/41)
-                        kind='ditch' if j<2 else 'unmown' if abs(lateral)>limit else 'verge'
-                        b.colors[index]=lawn_tint(x,y,kind,p.seed,z)
+                    from landscape import surface
+                    surface(b,p,points)
+                else:b.surface(points,ma,tint=(.83,.87,.76,1))
     # End extensions use the same grade and width. They create real horizon
     # continuity in the two eye-height heroes, rather than a backdrop at fence.
     for begin,end in [(-half-1800,-half),(half,half+1800)]:
@@ -193,7 +188,11 @@ def terrain(p):
         # A planar far field avoids folding offset coordinates through the
         # circle's center when lateral distance exceeds the curve radius.
         b.surface([(-2400,-2400,-.03),(2400,-2400,-.03),(2400,2400,-.03),(-2400,2400,-.03)],'Lawn',tint=(.83,.87,.76,1))
-    b.finish();return rt
+    ob=b.finish()
+    if getattr(Q,'LOOKDEV',False):
+        from landscape import smooth
+        smooth(ob)
+    return rt
 
 def arterial(p):
     rt=Q.root('JuniperArterial',module_kind='arterial');b=Q.Batch('Five lane arterial and approaches',rt)

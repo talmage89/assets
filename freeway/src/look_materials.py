@@ -12,6 +12,7 @@ def install():
         if role=='Maintenance':m.use_backface_culling=False
         Q.M[role]=m
     Q.M['Barrier']=Q.M['Bridge']
+    Q.M['GrassCard']=Q.M['Maintenance'].copy();Q.M['GrassCard'].name='Freeway_TurfCards'
     from landscape import install as install_turf
     install_turf()
     Q.M['WheelPolish']=Q.M['Concrete'].copy();Q.M['WheelPolish'].name='Freeway Wheel polish / Ground Concrete'
@@ -19,4 +20,8 @@ def install():
     # Same Ground manufacture/normal, attenuated roughness in the wheel paths.
     tree=Q.M['WheelPolish'].node_tree;src=bs.inputs['Roughness'].links[0].from_socket
     multiply=tree.nodes.new('ShaderNodeMath');multiply.operation='MULTIPLY';multiply.inputs[1].default_value=.60
+    tree.links.new(src,multiply.inputs[0]);tree.links.new(multiply.outputs[0],bs.inputs['Roughness'])
+    Q.M['AsphaltPolish']=Q.M['Asphalt'].copy();Q.M['AsphaltPolish'].name='Freeway Wheel polish / Ground Asphalt'
+    tree=Q.M['AsphaltPolish'].node_tree;bs=tree.nodes.get('Principled BSDF');src=bs.inputs['Roughness'].links[0].from_socket
+    multiply=tree.nodes.new('ShaderNodeMath');multiply.operation='MULTIPLY';multiply.inputs[1].default_value=.70
     tree.links.new(src,multiply.inputs[0]);tree.links.new(multiply.outputs[0],bs.inputs['Roughness'])

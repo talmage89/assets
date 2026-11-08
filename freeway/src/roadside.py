@@ -23,7 +23,7 @@ def seat(rt,soil):
         if ob.type!='MESH':continue
         for face in ob.data.polygons:
             role=ob.data.materials[face.material_index]
-            if role not in (Q.M['Asphalt'],Q.M['Concrete'],Q.M.get('WheelPolish',Q.M['Concrete'])):continue
+            if role not in (Q.M['Asphalt'],Q.M['Concrete'],Q.M.get('WheelPolish',Q.M['Concrete']),Q.M.get('AsphaltPolish')):continue
             pts=[ob.matrix_world@ob.data.vertices[i].co for i in face.vertices]
             if len(pts)<3 or (pts[1]-pts[0]).cross(pts[2]-pts[0]).z<=0:continue
             for a,c in zip(pts,pts[1:]+pts[:1]):

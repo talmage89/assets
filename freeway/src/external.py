@@ -27,7 +27,7 @@ def share(path):
                 # if its actual shader consumes it. Only form constants opt out.
                 if mat.get('extras',{}).get('tiling_vertex_tint') is False or mat.get('name','').startswith('Freeway_Form_') or mat.get('name','')=='Freeway_Checkpoint_Signs':prim['attributes'].pop('COLOR_0',None)
     for mat in d.get('materials',[]):
-        if mat.get('name','').startswith('FreewayFenceForm'):
+        if mat.get('name','').startswith(('FreewayFenceForm','Freeway_TurfCards')):
             mat['alphaMode']='MASK';mat['alphaCutoff']=.40;mat['doubleSided']=True
     path.write_text(json.dumps(d,separators=(',',':'))+'\n')
     # The exporter needed these temporary copies only while writing its JSON.
