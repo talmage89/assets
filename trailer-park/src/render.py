@@ -213,13 +213,14 @@ def render(stem,path,meta,views,out,width,samples,dress=True,source=False):
         cam.data.shift_y=v.get('shift_y',0)
         if v.get('roll'):cam.rotation_euler.rotate_axis('Z',v['roll'])
         sc.render.resolution_x=width;sc.render.resolution_y=round(width/v.get('aspect',1.78));sc.render.filepath=str((out/stem/(name+'.png')).resolve());Path(sc.render.filepath).parent.mkdir(parents=True,exist_ok=True)
+        projection_error=None
         if v.get('review_projected_pixels'):
             from bpy_extras.object_utils import world_to_camera_view
             original=(sc.render.resolution_x,sc.render.resolution_y);pw,ph=v['review_resolution']
             sc.render.resolution_x=pw;sc.render.resolution_y=ph;bpy.context.view_layer.update()
             projected=[world_to_camera_view(sc,cam,Vector(point)) for point in v['review_landmarks']]
-            error=max(math.dist((q.x*pw,(1-q.y)*ph),expected) for q,expected in zip(projected,v['review_projected_pixels']))
-            assert error<.05,(name,'Actual render camera/calibrator disagreement',error)
+            projection_error=max(math.dist((q.x*pw,(1-q.y)*ph),expected) for q,expected in zip(projected,v['review_projected_pixels']))
+            assert projection_error<.05,(name,'Actual render camera/calibrator disagreement',projection_error)
             sc.render.resolution_x,sc.render.resolution_y=original
         if not v.get('fixed_camera') and not stem.startswith('Park') and name in ('hero','detail','front','back','side','top','scale'):
             from bpy_extras.object_utils import world_to_camera_view
@@ -246,7 +247,7 @@ def render(stem,path,meta,views,out,width,samples,dress=True,source=False):
         bpy.ops.render.render(write_still=True)
         provenance.append(dict(stem=stem,shot=name,camera=v,source=str(path),delivery=str(delivery),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),images=meta['images'],context=ctx,
                                source_manufacture=source,source_fields=source_fields,light={**light,'sun_elevation_degrees':math.degrees(math.asin(-dv.z)),'sun_visibility':sun_choice if automatic else None},
-                               landmark_visibility=visibility,camera_matrix_world=[list(r) for r in cam.matrix_world],
+                               landmark_visibility=visibility,landmark_projection_max_error_pixels=projection_error,camera_matrix_world=[list(r) for r in cam.matrix_world],
                                camera_parameters=dict(type=cam.data.type,lens=cam.data.lens,ortho_scale=cam.data.ortho_scale,sensor_width=cam.data.sensor_width,
                                                       resolution=[sc.render.resolution_x,sc.render.resolution_y],**({'shift_y':cam.data.shift_y} if cam.data.shift_y else {})),engine=sc.render.engine,width=width,samples=samples))
         # Commit evidence per completed frame; a later scene import must not
