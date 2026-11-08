@@ -144,8 +144,10 @@ def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
     ex=length/2-end/2;turn=15*FT;entry_x=ex-1.65;exit_x=ex+1.65
     def ground_point(xx,yy):
         if abs(yy-fy)<1e-6:yy+=ground_lane_offset(p,xx)
+        if municipal and yy<-width/2-(6.1-1.8288):
+            return [xx,yy,-.14605*((-width/2-(6.1-1.8288))-yy)/1.8288]
         return [xx,yy,max(0,deck_z(p,0,xx,yy,yy>p['joint_y'])-FLOOR*ramp_fraction(xx,p)*(yy>p['joint_y']))]
-    entry=[ground_point(entry_x,-width/2-6.05),ground_point(entry_x,fy-turn)]
+    entry=[ground_point(entry_x,-width/2-6.05),ground_point(entry_x,-width/2-(6.1-1.8288)),ground_point(entry_x,fy-turn)]
     for j in range(1,9):
         th=j*math.pi/16;entry.append(ground_point(entry_x-turn*(1-math.cos(th)),fy-turn+turn*math.sin(th)))
     entry_start=entry[-1][0]
@@ -156,9 +158,18 @@ def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
     exit_route.extend(ground_point(a+(exit_x-turn-a)*j/32,fy) for j in range(1,33))
     for j in range(1,9):
         th=j*math.pi/16;exit_route.append(ground_point(exit_x-turn+turn*math.sin(th),fy-turn*(1-math.cos(th))))
-    exit_route.append(ground_point(exit_x,-width/2-6.05))
+    exit_route.extend([ground_point(exit_x,-width/2-(6.1-1.8288)),ground_point(exit_x,-width/2-6.05)])
     p['paths'].extend([dict(name='Drive_Entry_to_L1',points=entry,width=3.3,two_way=False),dict(name='Drive_L1_to_Exit',points=exit_route,width=3.3,two_way=False)])
-    p['pedestrian_paths']=[dict(name='Accessible_to_street',width=1.524,points=[[x0,-width/2-.8,.01],[-length/2-2.5,-width/2-.8,.01],[-length/2-2.5,-width/2-4.0,0]])]
+    # Access aisles connect behind the stalls to the lift approach, rather
+    # than attempting to pass through the front vehicle barrier.
+    for pair in range(pairs):
+        s=next(s for s in p['stalls'] if s['id']==f'ACCESS-{2*pair+1}')
+        xx=sum(s['access_aisle'])/2;yy=fy-1.4
+        coords=[(xx,s['y']),(xx,yy),(a-.9,yy),(-length/2+1.2,yy),(-length/2+1.2,-width/2+2.7),(-length/2+.215,-width/2+2.7)]
+        p['pedestrian_paths'].append(dict(name=f'AccessAisle_{pair+1}_to_Lift',width=1.524,points=[[x,y,deck_z(p,0,x,y)] for x,y in coords]))
+    p['pedestrian_paths'].append(dict(name='WestStair_to_PublicWalk',width=.9144,points=[
+        [-length/2+.215,-width/2+5.45,0],[-length/2-.67,-width/2+5.45,0],
+        [-length/2-.67,-width/2+7.4,0],[-length/2-5.35,-width/2+7.4,0]]))
     for level in range(levels):
         pts=[]
         for xx,yy in ((b,fy+2.2),(0,fy+2.2),(a,fy+2.2),(-length/2+.35,fy+2.2),(-length/2+.215,p['towers'][0][1]+1.45)):

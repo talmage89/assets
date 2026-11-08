@@ -10,7 +10,7 @@ from mathutils.bvhtree import BVHTree
 import numpy as np
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];sys.path[:0]=[str(ROOT),str(HERE)]
 import geometry as G
-from plan import FLOOR,SPAN,AISLE,DEPTH,STALL
+from plan import FLOOR,SPAN,AISLE,DEPTH,STALL,ramp_fraction
 
 
 def tree(objects,select=lambda m:True):
@@ -66,6 +66,21 @@ def main():
         Path(f'build/path-support-{seed}.json').write_text(json.dumps(sorted(support_rows,key=lambda r:r['error_m'],reverse=True),indent=2)+'\n')
         assert max(support)<.0002,(max(support),support_rows[support.index(max(support))])
         assert min(gaps)>=2.1336,(seed,min(gaps))
+        apertures={}
+        facade_solids=tree(meshes)
+        for side in (-1,1):
+            clear=total=0
+            # Intermediate occupied cells only, avoiding the open roof above
+            # the uppermost rear ramp. This is an aperture sample, not a code
+            # area takeoff or a fire/ventilation engineering certification.
+            for level in range(p['levels']-(1 if side==-1 else 2)):
+                for x in np.linspace(-p['length']/2+.25,p['length']/2-.25,161):
+                    rise=FLOOR*ramp_fraction(float(x),p) if side==1 else 0
+                    for dz in np.linspace(.05,FLOOR-.05,27):
+                        hit=facade_solids.ray_cast(Vector((float(x),side*(p['width']/2+.5),level*FLOOR+rise+float(dz))),Vector((0,-side,0)),1.0)
+                        total+=1;clear+=hit[0] is None
+            apertures['front' if side==-1 else 'rear']=dict(open_samples=clear,total_samples=total,open_fraction=clear/total)
+            assert clear/total>.20,(seed,side,clear/total)
         bearings=[]
         if p['system']=='precast':
             girders=tree([o for o in meshes if o.name.startswith('Girder_')])
@@ -121,7 +136,10 @@ def main():
         # Actual entry bar geometry: lowest yellow gantry face over drive lane.
         gantry=next(o for o in meshes if o.name.startswith('Entry gantry'))
         yellow=[o.matrix_world@o.data.vertices[i].co for o in [gantry] for poly in o.data.polygons if 'Yellow' in o.data.materials[poly.material_index].name for i in poly.vertices]
-        bar_bottom=min(v.z for v in yellow);assert abs(bar_bottom-2.4892)<.0001,bar_bottom
+        bar_bottom=min(v.z for v in yellow);bar_center=sum(yellow,Vector())/len(yellow)
+        grade=floor.ray_cast(Vector((bar_center.x,bar_center.y,bar_bottom+.1)),Vector((0,0,-1)),4)[0]
+        assert grade is not None
+        bar_clearance=bar_bottom-grade.z;assert abs(bar_clearance-2.4892)<.0001,bar_clearance
         moving_nodes=[o for o in obs if o.get('pivot_axis') or o.get('slide_axis')]
         images=[]
         for im in doc.get('images',[]):
@@ -129,9 +147,10 @@ def main():
         results.append(dict(seed=seed,triangles=triangles,bounds_m=bb,materials=len(doc['materials']),image_resources=images,
             normal_unit_error=normal_error,collapsed_uv_triangles=collapsed,uv_policy='Intentional shared/tiled chart reuse; no unique lightmap UV claim',
             measured_uv_area=uv_area,measured_surface_area_m2=area,measured_aisle_clearance_min_m=min(gaps),
-            measured_path_to_floor_max_m=max(support),path_samples=len(support),entry_bar_measured_m=bar_bottom,
+            measured_path_to_floor_max_m=max(support),path_samples=len(support),entry_bar_measured_m=bar_clearance,entry_bar_world_bottom_m=bar_bottom,
             measured_van_route_clearance_min_m=min(van_gaps),van_clearance_samples=len(samples),
             tee_bearing_face_samples=len(bearings),measured_tee_pad_to_girder_max_gap_m=max(bearings,default=None),
+            measured_intermediate_facade_aperture_samples=apertures,
             stall_sockets=len(sockets),accessible=len(accessible),vans=len(vans),moving_nodes=len(moving_nodes),
             serialization='triangle/bounds/socket roundtrip',construction='independent imported floor/soffit rays, bar vertices, stall rectangle separation',passed=True))
     before=json.loads(Path('build/preservation.json').read_text()) if Path('build/preservation.json').exists() else {}

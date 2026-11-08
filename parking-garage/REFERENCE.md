@@ -16,6 +16,7 @@ rights, in [SOURCES](refs/SOURCES.md). Photographs never enter asset materials.
 | End circulation | PCI ch2 and the VA 2014 manual distinguish the ramped bay, flat bay and end turns; consultant turning geometry is a design check, not just a painted arrow | 36ft / 10.9728m end bays, tangent quarter-circle turns: 22ft municipal centerline radius, 21ft compact centerline radius |
 | Clear height | 2009 IBC §§406.2.2 and 406.3.4: 7ft; ADA §502.5: 98in through van stall, aisle and complete vehicle route | Entry bar lower edge 2.4892m; source soffits are independently ray-measured after export |
 | Accessible spaces | US Access Board §§208 and 502: 96in ordinary; 132in van plus 60in aisle (or 96+96); 1:48 max slope; one van per six accessible spaces | Eight spaces/two vans municipal; four/one compact. Paired shared 60in aisles, 1% surface slope, route to elevator and public walk |
+| Tower stairs | 2009 IBC §§1009.1, 1009.4.2 and 1009.5 discuss width, risers/treads and landings | Two straight flights per story; twenty 167.64mm risers, 279.4mm treads, 1.30m concrete width / 1.142m between handrails; 1.22m rear and 1.2654m half-level landings |
 | Drainage | PCI FAQ: 1% minimum, camber alone is not drainage; ACI 362.1R-12 preview identifies water/chlorides, pour strips and maintenance as durability concerns | Deliberately modeled 1% planes toward edge drains, split at bay crowns; no hydraulic capacity or slab deflection analysis |
 | Open facade | 2009 IBC §406.3.3.1: openings on at least two sides, 20% wall area; 40% perimeter length except uniformly distributed opposite sides | Open opposing long faces; actual aperture samples and source spandrel/column dimensions remain diagnostic rather than a legal compliance claim |
 
@@ -45,6 +46,11 @@ The smaller garage has one flat double-loaded bay and a separate 24ft speed
 ramp along its rear. Its clear end landings are deliberately generous; the
 result is less area-efficient than a large municipal structure. These are
 different plan masses and different parking programs, not two recolored seeds.
+The municipal curb approach rises 146.05mm over 1.8288m with lateral flares;
+the commercial court supplies the longer approach. The entry bar is 98in above
+its actual approach pavement, including the municipal grade change. Accessible
+aisles connect behind the stalls to the elevator approach. The public walking
+route passes through the stair's ground landing and side exit without a tread.
 
 The three principal photographic comparisons are the Z22 interior (2014),
 Pleasant Hill exterior (2007) and Harmon exterior (2005 structure, photographed

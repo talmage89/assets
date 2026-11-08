@@ -161,8 +161,8 @@ def tower(r,levels=4,elevator=True):
     # Ground exit pierces the stair's side at its lower landing; there is no
     # door trying to pass underneath the half-level return landing.
     b.box((-2.7,0,(H+2.2)/2),(.20,5.4,H-2.2))
-    b.box((-2.7,-.85,1.1),(.20,3.70,2.2))
-    b.box((-2.7,2.42,1.1),(.20,.56,2.2))
+    b.box((-2.7,-.725,1.1),(.20,3.95,2.2))
+    b.box((-2.7,2.545,1.1),(.20,.31,2.2))
     b.box((.25,0,H/2),(.20,5.4,H))
     b.box((1.50,-2.60,H/2),(2.40,.20,H))
     # Rear wall has actual 1.12m door apertures per level.
@@ -174,8 +174,8 @@ def tower(r,levels=4,elevator=True):
         b.box((1.30,2.60,z+(2.22+head)/2),(1.50,.20,head-2.22))
         b.box((-1.45,2.60,z+(2.20+head)/2),(1.12,.20,head-2.20))
         rear=1.28;front=rear-9*.2794
-        b.box((-1.225,(rear+2.5)/2,z-.08),(2.75,2.5-rear,.16))
-        if lev<levels-1:b.box((-1.225,(-2.5+front)/2,z+FLOOR/2-.08),(2.75,front+2.5,.16))
+        b.box((-1.225,(rear+2.5)/2,z-.08),(2.75,2.5-rear,.16),'Deck')
+        if lev<levels-1:b.box((-1.225,(-2.5+front)/2,z+FLOOR/2-.08),(2.75,front+2.5,.16),'Deck')
         # Ten risers / nine treads per half-level. A single sawtooth section
         # includes the sloping waist and terminal riser; no floating boxes.
         if lev<levels-1:
@@ -211,9 +211,9 @@ def tower(r,levels=4,elevator=True):
         if lev<levels-1:b.box((-1.32,-2.66,z+3.175),(2.62,.10,.37),'Blue')
         for x in (-2.61,-1.32,-.03):b.box((x,-2.71,z+1.5),(.06,.07,3.0),'Steel')
     b.box((0,0,H+.10),(5.8,5.6,.20));b.finish()
-    pv=root(r.name+'__StreetDoor',(-2.815,2.13,0),r,pivot_axis='Z',range_degrees=[-95.,0.]);pv.rotation_euler.z=-math.pi/2
+    pv=root(r.name+'__StreetDoor',(-2.815,2.38,0),r,pivot_axis='Z',range_degrees=[-95.,0.]);pv.rotation_euler.z=-math.pi/2
     d=Mesh(pv.name+'__Leaf',pv);d.box((.55,0,1.0825),(1.10,.045,2.115),'Blue');d.beam((.2,-.08,1.02),(.88,-.08,1.02),.025,.04);d.finish()
-    root(r.name+'__StreetThreshold',(-2.85,1.58,0),r,socket_kind='pedestrian_threshold')
+    root(r.name+'__StreetThreshold',(-2.85,1.83,0),r,socket_kind='pedestrian_threshold')
     root(r.name+'__GarageStairThreshold',(-1.45,2.85,0),r,socket_kind='pedestrian_threshold')
     root(r.name+'__GarageLiftThreshold',(1.30,2.85,0),r,socket_kind='accessible_threshold')
 

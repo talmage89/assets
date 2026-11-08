@@ -301,7 +301,14 @@ def make_garage(p,templates,layout):
     # Entry slots in the end bay keep all queuing on property.
     ex=L/2-p['end_length']/2
     apron=G.Mesh('Private entry and accessible street walk',rt)
-    apron.box((0,-W/2-3.05,-.08),(L+10,6.1,.16),'GroundConcrete')
+    if municipal:
+        inner=6.1-1.8288
+        apron.box((0,-W/2-inner/2,-.08),(L+10,inner,.16),'GroundConcrete')
+        for x0,x1 in ((-L/2-5,ex-4.9),(ex+4.9,L/2+5)):
+            apron.box(((x0+x1)/2,-W/2-(6.1+inner)/2,-.08),(x1-x0,1.8288,.16),'GroundConcrete')
+        for x0,x1,z0,z1 in ((ex-4.9,ex-3.9,0,-.14605),(ex-3.9,ex+3.9,-.14605,-.14605),(ex+3.9,ex+4.9,-.14605,0)):
+            apron.prism([(x0,-W/2-6.1,z0-.16),(x1,-W/2-6.1,z1-.16),(x1,-W/2-inner,-.16),(x0,-W/2-inner,-.16)],(0,0,.16),'GroundConcrete')
+    else:apron.box((0,-W/2-3.05,-.08),(L+10,6.1,.16),'GroundConcrete')
     for side in (-1,1):apron.box((side*(L/2+2.7),-W/2+4,-.08),(5.4,8,.16),'GroundConcrete')
     apron.finish()
     islands=G.Mesh('Entry control islands',rt)
@@ -313,8 +320,9 @@ def make_garage(p,templates,layout):
         put('Ticket',f'Ticket_{i}',(lane-1.8,-W/2-2.7,floor+.15),90)
     islands.finish()
     put('PayStation','PedestrianPay',(p['towers'][0][0]-1.5,-W/2-1.3,0))
-    head=G.Mesh('Entry gantry and signs',rt)
     gy=-W/2-5.3
+    gantry_grade=-.14605*(5.3-(6.1-1.8288))/1.8288 if municipal else 0
+    head=G.Mesh('Entry gantry and signs',rt,xf=lambda v:Vector((v[0],v[1],v[2]+gantry_grade)))
     for x in (ex-3.45,ex+3.45):head.box((x,gy,1.75),(.14,.14,3.5),'Steel')
     head.box((ex,gy,3.40),(7.0,.18,.20),'Steel')
     # Hanging bar lower edge measured at precisely 98in above route grade.
