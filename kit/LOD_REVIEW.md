@@ -2197,3 +2197,41 @@ the previously reviewed better all-view optical-cap4 SS4 allocation (1/4 caps,
 including mapped transmission). Its known color failure remains explicit; the
 tighter-geometry comparison is pending. No far metric is relaxed. This is a
 configuration change under the frozen tool, not a new adoption tool revision.
+
+## Pass 57 — native grill chain and pickup far controls
+
+Opened all nine fresh canonical grill strips, four construction views and the
+contact sheet. The chain is 10620/6144/1796, and its complete `check-lod` passes
+both geometry/re-import and the independent UV/frame audit. Values remain dark,
+metal highlights roll across the same surfaces, and the hose loop, wheels and
+support frame read consistently at their switches. The middle construction
+close-up exposes faceted fittings and a lid-trim discontinuity; those are real
+limitations at that deliberately closer camera, not hidden by a metric. The
+native 12% strips retain the silhouette and construction. Its local maximum is
+.08805 under the source-phase-calibrated .09 bound. The already reviewed forced
+4950 rest-view control remains the cheaper visible-fault witness. The accepted
+1796 proxy remains; its close-up is visibly coarse and blurred, while all three
+3% switch strips pass. No proxy budget exception is reopened.
+
+Opened all three 2794-triangle tight pickup proxy strips at their native 4%
+switch. Alpha errors improve to .01538/.01829/.01838, but color does not:
+means .03350/.02021/.02240, local .19191/.21734/.18446. Front lamps and rear
+trim still differ; reject it in favor of the previously measured optical-cap4
+baseline. Geometry coverage alone is not a sufficient fix.
+
+Opened all six measured .75-pixel LOD0-only pickup far controls. Their maxima
+are mean .01515, p95 .07548 and local .07863: all stay inside the existing color
+limits. Thus the far proxy's color failure is not explained by pixel phase,
+and no far color limit is changed. A source control's silhouette loss reaches
+.05136, but the proxy's coverage already passes, so that does not justify or
+require changing a silhouette limit either.
+
+The public double-sided middle control measures 20608 and passes independent
+geometry/re-import and source UV/frame correspondence: max normal 2.381 degrees,
+p95 zero, max UV error .99489 of its own half-mip-texel bound. Its native review
+is pending. The tight proxy's audit passes its new cage and normal-map validity;
+that audit does not approve baked appearance or require its new geometric
+normals to match LOD0. A nearest-compatible point-field control is queued to
+isolate source association from the earlier ray-first point-field control,
+using identical geometry, UV allocation, shipping size and controlled baker.
+No production source or frozen recipe changed for that diagnostic.
