@@ -26,6 +26,12 @@
       "proxy_remesh": {
         "voxel_pixels": 0.5,
         "inflation_pixels": 0.3
+      },
+      "bake_supersample": 4,
+      "atlas_sampling": {
+        "surface_texels_per_pixel": 1,
+        "graphic_texels_per_pixel": 4,
+        "include_transmission": true
       }
     }
   ],

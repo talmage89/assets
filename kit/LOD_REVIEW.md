@@ -2189,3 +2189,11 @@ remain consistent with LOD0. LOD2's faceting is visible in the deliberately
 closer construction view but does not pop at its unchanged 9% switch. Counts
 remain the accepted 626/436; all native image gates pass. Its independent final
 check is queued, not inferred from its renderer result.
+
+The source-point/512 control is now reviewed at all three native views. Means
+.03205/.01920/.02071 and local .20989/.18634/.11385 do not fix the front;
+the lamps are brighter. Reject this control. Canonical far settings now use
+the previously reviewed better all-view optical-cap4 SS4 allocation (1/4 caps,
+including mapped transmission). Its known color failure remains explicit; the
+tighter-geometry comparison is pending. No far metric is relaxed. This is a
+configuration change under the frozen tool, not a new adoption tool revision.
