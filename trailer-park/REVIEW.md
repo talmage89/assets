@@ -640,6 +640,7 @@ The other three accepted camera solutions and both park plans are retained.
 
 Delivery gate: REJECTED
 
+
 Per the brief, stop before final gallery generation and docs. The prepared
 delivery targets remain disabled by default. Docs generation additionally
 requires explicit visual acceptance; three logged rejected critiques cannot
@@ -795,5 +796,50 @@ hinge poses; all 1,212 pre-existing delivery/image files remain unchanged.
 The shared new set remains 2048/three maps/16 MiB. Each completed frame now has
 its own image/source/camera receipt. Fresh serial Blender processes completed
 the set under one GPU lease, and the lease was released before this critique.
+
+Delivery gate: REJECTED
+
+## Completion pass 3 — visible weather exposes a finish-color regression
+
+**Color and value first.** Opened every native frame in `renders/finish-pass3/`,
+the seven full-resolution comparisons in `renders/finish-fixes-pass3/`, and
+the replacement street/photo pair. Rechecked the concrete-balanced 2009 and
+2015 photographs. The July turf is lighter and yellower, with bare approaches
+and both foreground halves covered, but bright clumps still read as individual
+crossed cards against a broad textured plane. The garden's blade gains and
+neutral, rough leaf response now survive the 2048 atlas. That is an improvement,
+not sufficient evidence to accept the lawn on its own.
+
+The 1972 row lost its accepted two-tone paint. Raw accessor comparison finds
+`ManufacturedPBR_Metal` COLOR_0 uniformly white in the new combined home mesh;
+the previous GLB retains its teal/gray/white values. Blender's material-based
+color gathering mishandles different RGB/alpha usage on the joined mesh.
+The geometry/UV/memory checks did not catch this look regression. Reject it.
+The new audit requires actual finish tint, and explicit active-color export
+preserves the measured source colors in the standalone probe.
+
+Rust is sparse and tapered now, but the upper damp patches resemble stamped
+leaves; splash peaks repeat across skirt panels. The white window hood visibly
+cuts across the blue cloth, so the tarp reads as a rigid sign. The old hero
+does not pass the age gate. The next revision reduces and randomizes upper
+damp, adds sheltered lower-wall growth, mirrors/weighs splash histories, and
+shortens the tarp drop above the hood. It must be judged after color is restored.
+
+The broad overbands and branches are stronger than the old drawn hairlines,
+and the disconnected shoulder wedges are gone. Fine fatigue cells still have
+a geometric network quality. Keep this limitation visible in the next crop.
+Adaptive sampling removed needless subdivisions in sub-centimeter fractures;
+the older park is 2,561,148 placed triangles before the next small age revision.
+
+Zero roll alone did not remove the street view's leaning verticals. The pair
+has conspicuous keystone from aiming upward at its low horizon. The replacement
+fit now constrains both pitch and roll to zero and uses lens rise instead:
+11.529 native px RMS, 20 mm, shift_y 0.165696. Actual Blender camera projection
+will be verified before rendering. Its inferred road stations and modern
+type-comparison photograph remain explicit; this is not a surveyed replica.
+
+All four frames and before geometry/images have archived-source verification.
+`make check` passed 21 packages, 1,000 plans and 936 home hinge poses before
+the color regression was added to its scope. No docs or gallery are released.
 
 Delivery gate: REJECTED
