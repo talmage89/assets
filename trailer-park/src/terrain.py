@@ -21,7 +21,7 @@ def mesh(parent,name,vs,fs,mat,coverage=3.048):
 
 
 def turf(parent,plan,mat):
-    W,D=plan['size'];nx=math.ceil(W/1.25);ny=math.ceil(D/1.25);vs=[];fs=[]
+    W,D=plan['size'];nx=math.ceil(W/.8);ny=math.ceil(D/.8);vs=[];fs=[]
     for j in range(ny+1):
         for i in range(nx+1):
             x,y=-W/2+i*W/nx,-D/2+j*D/ny
@@ -47,8 +47,10 @@ def turf(parent,plan,mat):
             if abs(u)<h['length']/2:shade=max(shade,math.exp(-(edge/.70)**2)*(.4+.3*math.sin(u*.7)**2))
             if lot['home']['occupant_seed']%3==0 and abs(u-h['length']/2)<5:
                 dry=max(dry,.68+.18*math.sin(v*1.9+u*.6))
-        c=(.98,.97-.31*dry,.79-.41*dry)
-        soil=(.65,.49,.26);c=tuple(c[k]*(1-wear)+soil[k]*wear for k in range(3))
+        # Garden July albedo recipe; retain the native 3.048m blade repeat.
+        clump=.86+.09*math.sin(x*2.3+y*.77)+.05*math.sin(y*3.1-x*.9)
+        c=(.78*clump,.84*clump*(1-dry*.43),.64*clump*(1-dry*.47))
+        soil=(.47,.29,.105);c=tuple(c[k]*(1-wear)+soil[k]*wear for k in range(3))
         c=tuple(c[k]*(1-shade*.22) for k in range(3));col.data[index].color=(*c,1)
     return ob
 

@@ -257,11 +257,12 @@ def common(p,lib,parent):
 
 def build(p):
     a=Assembly('Park_'+str(p['seed']));a.root['park_plan']=json.dumps(p,sort_keys=True);lib=Library()
-    turf=library_material(lib,'Lawn').copy();turf.name='ManufacturedSummerTurf';W,D=p['size']
+    from kit import tiling
+    turf=tiling.material('GardenLawn','textures/ship',tint=True);turf.name='ManufacturedSummerTurf';W,D=p['size']
     # Reuse the native blades and their physical UV scale. Stronger grazing
     # relief survives the wide exported view without an extra texture or mesh.
     for node in turf.node_tree.nodes:
-        if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=2.2
+        if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=1.3
     from terrain import turf as summer_turf
     summer_turf(a.root,p,turf)
     road(a.root,p,lib);instances=Instances()
