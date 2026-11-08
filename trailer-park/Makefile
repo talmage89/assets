@@ -43,11 +43,12 @@ build/native.stamp: src/native_build.py src/dependencies.py $(wildcard ../shed/s
 build/preserved.json: src/preservation.py
 	$(PYTHON) src/preservation.py check
 
-textures/source/.stamp: src/textures.py
+textures/source/.stamp: src/textures.py src/weather_fields.py
 	$(PYTHON) src/textures.py
 	@touch $@
-textures/4k/.stamp: textures/source/.stamp
+textures/4k/.stamp: textures/source/.stamp src/pack_alpha.py
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/flat_bake.py -- --source textures/source --out textures/4k --name Manufactured --coverage 4.8768 --height-distance .012 --size 4096 --samples 8
+	$(PYTHON) src/pack_alpha.py --source textures/source --out textures/4k
 	@touch $@
 textures/ship/.stamp: textures/4k/.stamp
 	$(PYTHON) $(KIT)/downsample.py --source textures/4k --out textures/ship --asset Manufactured --size 2048

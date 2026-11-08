@@ -17,8 +17,15 @@ def main():
         source.append(dict(path=str(p),sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
     run(['../kit/with_gpu.sh',blender,'-b','-t','2','--factory-startup','--python-exit-code','1','--python','../kit/flat_bake.py','--',
          '--source',str(root/'source'),'--out',str(root/'4k'),'--name','Manufactured','--coverage','4.8768','--height-distance','.012','--size','4096','--samples','8'])
+    run([python,'src/pack_alpha.py','--source',str(root/'source'),'--out',str(root/'4k')])
     run([python,'../kit/downsample.py','--source',str(root/'4k'),'--out',str(root/'ship'),'--asset','Manufactured','--size','2048'])
+    run([python,'src/lawn_maps.py','--out',str(root/'ship')])
+    run([python,'../kit/compare_textures.py','--reference','textures/4k','--candidate',str(root/'4k'),'--out','build/texture-repeat-4k.json'])
     run([python,'../kit/compare_textures.py','--reference','textures/ship','--candidate',str(root/'ship'),'--out','build/texture-repeat-check.json'])
+    from PIL import Image
+    for stage in ('4k','ship'):
+        name='T_Manufactured_BaseColor.png'
+        assert Image.open(Path('textures')/stage/name).getchannel('A').tobytes()==Image.open(root/stage/name).getchannel('A').tobytes(),('Analytic alpha changed',stage)
     Path('build/texture-source-repeat.json').write_text(json.dumps(dict(passed=True,files=source),indent=2))
 
 

@@ -60,8 +60,6 @@ def add(parent,plan,lib):
     # Garden's copied tufts use neutral normals and a very rough leaf field;
     # the Ground trim normal must not turn fine mown blades into hard lumps.
     for link in list(bs.inputs['Normal'].links):ls.remove(link)
-    for link in list(bs.inputs['Roughness'].links):ls.remove(link)
-    bs.inputs['Roughness'].default_value=.94
     tint_node=ns.new('ShaderNodeVertexColor');tint_node.layer_name='Tint'
     multiply=ns.new('ShaderNodeMixRGB');multiply.blend_type='MULTIPLY';multiply.inputs[0].default_value=1
     ls.new(original,multiply.inputs[1]);ls.new(tint_node.outputs['Color'],multiply.inputs[2]);ls.new(multiply.outputs[0],bs.inputs['Base Color'])

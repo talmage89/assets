@@ -13,7 +13,8 @@ from kit.image_io import write_png,linear_to_srgb
 NAME='Manufactured'
 COVERAGE=4.8768
 RECTS=dict(Ribbed=(0,.5,.5,1),Skirt=(.5,.5,1,.75),Roof=(.5,.75,1,1),
-           Zinc=(0,0,.25,.5),Steel=(.25,0,.5,.5),Pier=(.5,0,.75,.5),Plain=(.75,0,1,.5))
+           Zinc=(0,0,.25,.5),Steel=(.25,0,.5,.5),Pier=(.5,0,.75,.5),Plain=(.75,.25,1,.5),
+           Rust=(.75,0,.875,.25),Damp=(.875,0,1,.125),Splash=(.875,.125,1,.25))
 
 
 def field(w,h,cells,seed):
@@ -23,7 +24,7 @@ def field(w,h,cells,seed):
 
 def source(out,n=4096):
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
-    bc=np.ones((n,n,3),np.float32);orm=bc.copy();height=np.full((n,n),.5,np.float32)
+    bc=np.ones((n,n,3),np.float32);orm=bc.copy();height=np.full((n,n),.5,np.float32);alpha=np.ones((n,n),np.float32)
     for index,(kind,(u0,v0,u1,v1)) in enumerate(RECTS.items()):
         x0,x1=round(u0*n),round(u1*n);y0,y1=round((1-v1)*n),round((1-v0)*n)
         w,h=x1-x0,y1-y0;yy,xx=np.mgrid[:h,:w].astype(np.float32)
@@ -60,11 +61,15 @@ def source(out,n=4096):
             pores=np.clip((fine-.91)*9,0,.7)*np.clip((mid-.3)*3,0,1)
             c*=.81+.16*(mid-.5)[:,:,None]-.18*pores[:,:,None];r=.88+.08*mid
             relief=.5+.022*(mid-.5)-.06*pores;ao-=.13*pores
+        elif kind in ('Rust','Damp','Splash'):
+            from weather_fields import field as weather
+            c,packed,relief,opacity=weather(kind,w,h,8401+index)
+            ao,r,m=packed[:,:,0],packed[:,:,1],packed[:,:,2];alpha[y0:y1,x0:x1]=opacity
         else:
             c*=.97+.025*(mid-.5)[:,:,None];r=.68+.04*mid
         bc[y0:y1,x0:x1]=np.clip(c,0,1);height[y0:y1,x0:x1]=np.clip(relief,0,1)
         orm[y0:y1,x0:x1]=np.stack([ao,r,m],axis=-1)
-    write_png(out/f'T_{NAME}_BaseColor.png',linear_to_srgb(bc))
+    write_png(out/f'T_{NAME}_BaseColor.png',np.dstack((linear_to_srgb(bc),alpha)))
     write_png(out/f'T_{NAME}_ORM.png',orm)
     write_png(out/f'T_{NAME}_Height.png',height[:,:,None],bits=16)
     (out/'layout.json').write_text(json.dumps(dict(coverage_m=COVERAGE,rects=RECTS,height_distance_m=.012,source_size=n),indent=2))
