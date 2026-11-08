@@ -106,8 +106,9 @@ def lot(p,record,lib,parent,instances):
         room_variant=(seed+2)%3
         part(('room',room_variant),'AddedRoom',lambda n:A.room(n,seed=room_variant),(-L*.32,-W/2-1.20,0))
     if spec['propane']:part('propane','Propane',A.propane,(L*.13,W/2+.55,0))
+    ac_front=spec['ac']=='window' and spec['seed']%2==0
     part(('ac',spec['ac']),'AC',lambda n:A.conditioner(n,spec['ac']),
-         (L*.12,W/2+.17,1.80) if spec['ac']=='window' else (-L*.24,W/2+.73,0),180 if spec['ac']=='window' else 0)
+         (L*.35,-W/2-.17,1.87) if ac_front else (L*.12,W/2+.17,1.80) if spec['ac']=='window' else (-L*.24,W/2+.73,0),0 if ac_front else 180 if spec['ac']=='window' else 0)
     utility_y=3.25 if p['kind']=='old' else W/2+.55
     part('utility','Utility',A.utility,(-L/2-1.0,utility_y,0))
     connections=a.mesh('ServiceConnections',component='service_connections')
@@ -129,7 +130,11 @@ def lot(p,record,lib,parent,instances):
                 vs.append((x,y,z))
         for j in range(6):
             for i in range(8):k=j*9+i;fs.append((k,k+1,k+10,k+9))
-        m.geom(vs,fs,'Trim',(.015,.085,.24));m.finish()
+        m.geom(vs,fs,'Trim',(.015,.085,.24))
+        for dx,dy in ((-1.30,-.34*W),(1.30,-.34*W),(-1.30,.34*W),(1.30,.34*W)):
+            xx=-L*.32+dx;zz=spec['eave']+.10+.13*(1-(dy/(W/2+.12))**2)
+            m.box((xx,dy,zz+.055),(.29,.19,.085),'Trim',(.20,.17,.105),r=.025)
+        m.finish()
     # Existing household assets retain their own geometry, pivots and atlases.
     for path,name,pos,yaw,select in [
         ('trailer-park/build/native/shed.gltf','Shed',(-L/2-(2.5 if p['kind']=='old' else 1.9),1.6 if p['kind']=='old' else 2.3,0),90 if p['kind']=='old' else 0,None),
@@ -191,6 +196,9 @@ def lot(p,record,lib,parent,instances):
         model,color=selection(p['seed'],record['number'],int('Carport' in marker.name),round(p['span']/p['lot_frontage']))
         if spec['corner_apron']:model=2
         marker['vehicle_index']=model;marker['factory_color']=color;marker['occupant_seed']=seed
+        parking=random.Random(seed+int('Carport' in marker.name)*113+9157)
+        marker.rotation_euler.z+=math.radians(parking.uniform(-2.8,2.8))
+        marker.location.x+=parking.uniform(-.08,.08);marker.location.y+=parking.uniform(-.14,.14)
     # Sparse pad dressing is geometry now; oil and causal weather remain look-dev.
     place(a.root,record['origin'],record['yaw'],parent);a.root['lot_record']=json.dumps(record,sort_keys=True)
     return a

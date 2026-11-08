@@ -8,6 +8,8 @@ def add(a,p,seed):
     x=L*.30;y=-W/2-.42
     # Stored replacement panels and an actual leaning tool behind the stairs.
     if p['era']!='1996' or seed%4==0:
+        if p['missing_skirt']:
+            m.beam((x+.4,y-.43,.008),(x+.28,-W/2-.025,.84),.4064,.014,'Trim',(.51,.50,.43),r=0)
         for j in range(2+seed%3):
             xx=x+j*.19
             m.beam((xx,y-.24,.004),(xx-.22,-W/2-.01,1.03),.16,.018,'Trim',(.55,.54,.47),r=0)

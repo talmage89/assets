@@ -7,6 +7,7 @@ def add(parent,plan,lib):
     from terrain import sward_height
     from kit.botany import Cards
     from mathutils import Vector
+    import bpy
     base,additions=modules();cards=Cards();old=plan['kind']=='old';paths=[]
     # The accepted garden copies this same original Ground alpha field.
     u0,v0,u1,v1=additions.RECTS['grass'];cw=(u1-u0)/4;ch=(v1-v0)/2;pad=2/2048
@@ -45,7 +46,13 @@ def add(parent,plan,lib):
             u=L/2+r.uniform(.1,5.3);v=r.choice((.48,plan['lot_frontage']/2-1.6));point=world(u,v)
             paths.append([point,point+Vector((.12,.05,0))])
     fringe=edges(parent,paths,plan['seed']+9713,lib);fringe['component']='summer_weeds'
-    ob=cards.mesh('Clumped clipped summer lawn blades',fringe.data.materials[0]);ob.parent=parent;ob['component']='summer_weeds'
+    material=fringe.data.materials[0].copy();material.name='ManufacturedGrassBlades';material['tiling_vertex_tint']=True
+    ns,ls=material.node_tree.nodes,material.node_tree.links
+    bs=next(n for n in ns if n.type=='BSDF_PRINCIPLED');original=bs.inputs['Base Color'].links[0].from_socket
+    tint_node=ns.new('ShaderNodeVertexColor');tint_node.layer_name='Tint'
+    multiply=ns.new('ShaderNodeMixRGB');multiply.blend_type='MULTIPLY';multiply.inputs[0].default_value=1
+    ls.new(original,multiply.inputs[1]);ls.new(tint_node.outputs['Color'],multiply.inputs[2]);ls.new(multiply.outputs[0],bs.inputs['Base Color'])
+    ob=cards.mesh('Clumped clipped summer lawn blades',material);ob.parent=parent;ob['component']='summer_weeds'
     ob.data.uv_layers.active.name='UVMap'
     wind=ob.data.color_attributes.get('Wind')
     if wind:ob.data.color_attributes.remove(wind)
