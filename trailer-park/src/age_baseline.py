@@ -3,7 +3,7 @@
 Only the old family's code is extracted. Native deliveries and maps are
 read-only inputs; no other worktree or sibling build is touched.
 """
-import argparse,importlib.util,io,json,os,shutil,subprocess,sys,tarfile
+import argparse,hashlib,importlib.util,io,json,os,shutil,subprocess,sys,tarfile
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;ASSET=HERE.parent;ROOT=HERE.parents[1]
 
@@ -20,6 +20,17 @@ def prepare():
     for dest,source in ((family/'textures',ASSET/'textures'),(family/'build/native',ASSET/'build/native'),(family/'build/library',ASSET/'build/library')):
         dest.parent.mkdir(parents=True,exist_ok=True)
         if not dest.exists():dest.symlink_to(source,target_is_directory=True)
+    cached=ASSET/'build/accepted-age'
+    if (cached/'export/Park-202.gltf').exists() and not (family/'export/Park-202.gltf').exists():
+        assert (cached/'src/build.py').read_bytes()==subprocess.check_output(['git','show','b0dbccc:trailer-park/src/build.py'],cwd=ROOT)
+        dest=family/'export';dest.mkdir(parents=True,exist_ok=True)
+        for stem in ('Park-101','Park-202'):
+            path=cached/'export'/(stem+'.gltf');doc=json.loads(path.read_text());meta=json.loads(path.with_suffix('.json').read_text())
+            for im,record in zip(doc['images'],meta['images']):
+                original=ASSET/'export'/im['uri'];assert hashlib.sha256(original.read_bytes()).hexdigest()==record['sha256']
+                im['uri']=os.path.relpath(original.resolve(),dest);record['uri']=im['uri']
+            shutil.copy2(path.parent/doc['buffers'][0]['uri'],dest/doc['buffers'][0]['uri'])
+            (dest/path.name).write_text(json.dumps(doc,separators=(',',':'))+'\n');(dest/path.with_suffix('.json').name).write_text(json.dumps(meta,indent=2))
     if not (family/'export/Park-202.gltf').exists():
         with (ASSET/'build/age-baseline/model.log').open('w') as log:
             subprocess.run([os.environ.get('BLENDER','blender'),'-b','-t','2','--factory-startup','--python-exit-code','1','--python','src/build.py','--','--out','build/family.blend'],cwd=family,stdout=log,stderr=subprocess.STDOUT,check=True)
