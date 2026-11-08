@@ -2006,3 +2006,26 @@ earlier scratch interpretation misread the decimal, and is withdrawn.
 Geometry, normals and material settings are also unchanged. Additional
 light-free shader-input comparisons are queued to distinguish field transfer
 from lighting response. No pickup proxy color exception is granted.
+
+## Pass 52 — powered-neighbor scope control and refreshed original checks
+
+The triangle-local powered-neighbor control completes at 23502 triangles
+(39.28% of pickup LOD0), versus the 25648 whole-component control. Peak child
+RSS is 648720 KiB. It retains the original alpha/glass/emissive masks and all
+UV/frame/topology and visibility checks. A formerly fixed 1992-triangle
+construction first reduces to 624, but the visibility guard rejects those
+densities through 918 and accepts a finer 1210. The result is not simply an
+unprotected lamp assembly. Receipts and exact control code are under
+`build/lod-v4/car-local-power-control*`; native review is queued before any
+production policy change. A corresponding near control and separate pin
+inventory are also queued. No target exception is justified by this count.
+
+The original cone, grill, pickup, colonial and maple `make check` runs pass
+with accepted generated inputs explicitly frozen. The station check is still
+running. Full exact commands and exits are persisted in
+`build/lod-v4/original-checks.json`. All 496 protected delivery/docs files still
+match, and the repository check reports 2095 source files, zero errors.
+The shared GPU is queued again; no pending native comparison is reported as
+passing. An additional optical-density control follows the measured partial
+improvement at cap4: cap8 for optical/graphic receivers and .5 for ordinary
+surfaces, retaining the same 512 atlas. Its result is still pending.
