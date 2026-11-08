@@ -57,7 +57,7 @@ about original 1972 installation practice or engineering adequacy.
 
 | Inspection home | Era | Authored body, ft | Body width × length, m | Triangles | Materials | glTF + BIN, MiB |
 | --- | --- | --- | --- | ---: | ---: | ---: |
-| SingleWide-120 | 1972 | 12 × 60 | 3.6576 × 18.2880 | 31,387 | 4 | 2.332 |
+| SingleWide-120 | 1972 | 12 × 60 | 3.6576 × 18.2880 | 31,071 | 4 | 2.311 |
 | SingleWide-147 | 1984 | 14 × 70 | 4.2672 × 21.3360 | 28,675 | 5 | 1.968 |
 | SingleWide-168 | 1984 | 16 × 80 | 4.8768 × 24.3840 | 34,219 | 5 | 2.375 |
 | DoubleWide-245 | 1996 | 24 × 52 | 7.3152 × 15.8496 | 28,130 | 5 | 2.103 |
@@ -113,7 +113,7 @@ Construction sections:
 | EntranceSign | 2.9 m fictional sign on timber posts; open-license lettering | 685 | 2 |
 | SupportFrame | Unskirted single-wide chassis/pier inspection assembly | 4,036 | 2 |
 | Modules sheet | Add-ons with labels; inspection assembly, not one prop budget | 11,491 | 4 |
-| HomeForms sheet | All six bodies and labels; inspection assembly | 187,770 | 6 |
+| HomeForms sheet | All six bodies and labels; inspection assembly | 187,454 | 6 |
 
 The deck top is authored at 0.885 m; a fresh-import ray measures
 0.884807 m on a cupped board and 0.147550 m at the low tread. Six equal
@@ -145,8 +145,8 @@ posts. Their original family materials and pivot structures are retained.
 
 | Park | Homes | Ground envelope, m | Lot, ft / sq ft | Street | Placed / unique triangles | Materials | glTF + BIN, MiB |
 | --- | ---: | --- | --- | --- | ---: | ---: | ---: |
-| 101 / Alder Court, 1968 plan | 36 | 149.304 × 107.7824 | 32 × 110 / 3,520 | 20 ft / 6.096 m through lanes | 2,561,040 / 992,616 | 32 | 70.250 |
-| 202 / Meadow Bend, 1994 plan | 33 | 133.4544 × 173.6192 | 56 × 95 / 5,320 | 24 ft / 7.3152 m rounded loop | 2,263,954 / 941,240 | 36 | 66.311 |
+| 101 / Alder Court, 1968 plan | 36 | 149.304 × 107.7824 | 32 × 110 / 3,520 | 20 ft / 6.096 m through lanes | 2,542,976 / 978,596 | 32 | 68.537 |
+| 202 / Meadow Bend, 1994 plan | 33 | 133.4544 × 173.6192 | 56 × 95 / 5,320 | 24 ft / 7.3152 m rounded loop | 2,270,838 / 948,124 | 36 | 66.582 |
 
 Counts include home bodies, decks, carports, native props, facilities,
 private ground/roads, small edge plants and service infrastructure. Cars,
@@ -185,8 +185,8 @@ props, small edge plants and local flatwork. Current lot ranges:
 
 | Park | Lot placed triangles | Referenced geometry buffer bytes | Shared PNG bytes | Shared GPU MiB |
 | --- | ---: | ---: | ---: | ---: |
-| Alder Court | 48,385–80,143 | 3,166,874–5,320,994 | 33,544,097–52,832,240 | 88–112 |
-| Meadow Bend | 46,107–76,470 | 3,157,100–5,077,048 | 45,561,332–64,849,475 | 104–128 |
+| Alder Court | 48,293–79,527 | 3,163,842–5,288,098 | 33,753,208–53,041,351 | 88–112 |
+| Meadow Bend | 46,107–76,470 | 3,157,100–5,077,048 | 45,770,443–65,058,586 | 104–128 |
 
 Each lot references shared meshes and maps inside its park. These are subtree
 resources, not standalone lot file sizes or allocations to sum across lots.
@@ -259,7 +259,7 @@ render dependencies are recorded separately. PNG disk size, uncompressed
 runtime allocation and this block-compression estimate differ.
 
 The **one new shared set** contains 2048 BaseColor (sRGB), OpenGL +Y Normal
-and ORM (occlusion/roughness/metallic), **6,429,664 PNG bytes** in total.
+and ORM (occlusion/roughness/metallic), **6,638,775 PNG bytes** in total.
 Our scripts create every field, bake it at 4096 using Cycles GPU, then
 downsample to shipping resolution. Atlas cells encode ribbed metal siding,
 rolled roofing, skirt, chassis steel, pier concrete, aluminum carport and
