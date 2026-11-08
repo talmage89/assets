@@ -1121,3 +1121,36 @@ a cached recheck that retains rejection history, and a stop after exactly
 three rejected candidates. This is input rejection/retry, not a car-generator
 fix or a substituted baseline. The complete empty-cache build starts again
 with these final guards; earlier incomplete runs are not called delivery proof.
+
+## Pass 19 — the delivered light and wheel paths, at native size
+
+Color/value first: inspected the final 1600px commercial hero and both floor
+views beside their original `4c63d8c` frames. Harmon's approximate neutral
+is its bare sunlit concrete spandrel (RGB gains 1.154/1.008/0.876); the
+interior basis is the bare column strip beside the sign, gains
+0.783/0.967/1.452. These correct approximate white balance, not exposure or
+albedo. The retained sunny municipal hero still has warm mineral faces and
+deep cool openings. The commercial facade now receives warm side light,
+with visible shaft shadows under the spandrels and lit fixtures in shade.
+Its camera, target, lens, sensor and image size all equal the original.
+
+`renders/ruling-fixes/202-hero.jpg`, `101-aisle.jpg` and `202-top_deck.jpg`
+retain a full 1600px per panel; their receipts assert the unchanged cameras
+and record both image hashes. The aisle now has two darker/glossier wheel
+paths per lane, matte gray between them, steering variation and wider
+turning paths. Roof sealer loss reads at eye height as well as from above;
+the rejected faint roof has not slipped back into the delivery. Stall oil
+is still under engine positions, separate from the drive paths.
+
+The facade ROI sheet was opened with the photograph. Display-linear Y for
+101 spandrel/front shaft/opening is 0.392/0.377/0.0082; its shaded shaft side
+is 0.0125. For 202 it is 0.312/0.319/0.0325; the visible side is sunlit,
+0.429, and must not be labeled a shaded column. The reference's corresponding
+spandrel/shaft/opening is 0.539/0.230/0.0432 under different illumination.
+Both heroes preserve unclipped concrete (whole-frame clipping 0% / 0.00083%).
+
+Remaining CG tells: the track kernels and turning arcs are more regular
+than accumulated real traffic; the photographed interior has much stronger
+irregular trowel relief. Close tower hardware and concrete edges remain
+too uniformly manufactured. These fixes solve the requested lighting and
+whole-lane smear; they do not establish photographic equivalence everywhere.

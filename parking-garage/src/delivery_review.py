@@ -68,6 +68,8 @@ def main():
         rows.extend([[q] for q in sorted(pair.glob('*-pair.jpg'))])
     review_sheet(rows,folder/'contact.jpg',width=2400,title='Parking garages / current exported game surfaces')
     fixes(folder)
+    from ruling_views import compose
+    compose(folder)
     print('CURRENT EXPORT REVIEW RECEIPTS PASS',len(receipts),folder,flush=True)
 
 
