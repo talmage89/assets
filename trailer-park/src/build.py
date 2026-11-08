@@ -56,7 +56,7 @@ def canonical_images():
 
 
 def publish(stem,root,plan=None):
-    report=counts(list(bpy.context.scene.objects));report['stage']='look-dev checkpoint / baked shared manufacture and causal mesh colors / no final docs'
+    report=counts(list(bpy.context.scene.objects));report['stage']='exterior delivery / baked shared manufacture and causal mesh colors'
     report['plan']=plan;report['root']=root.name
     report['assemblies']={o.name:counts([o,*o.children_recursive]) for o in bpy.context.scene.objects if o.type=='EMPTY' and ('home_spec' in o or o.get('lot_record'))}
     report['components']={o.name:counts([o,*o.children_recursive]) for o in root.children if o.type=='EMPTY' and o.get('asset_set')=='Manufactured'}

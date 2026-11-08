@@ -17,20 +17,6 @@ RECTS=dict(Ribbed=(0,.5,.5,1),Skirt=(.5,.5,1,.75),Roof=(.5,.75,1,1),
            Rust=(.75,0,.875,.25),Damp=(.875,0,1,.125),Splash=(.875,.125,1,.25),Fatigue=(.75,.25,.875,.5))
 
 
-def garden_grass(w,h):
-    """Garden's four original Ground tufts, same linear gain and rough leaf."""
-    import importlib.util
-    from PIL import ImageFilter
-    path=Path(__file__).resolve().parents[2]/'ground/src/organic.py'
-    spec=importlib.util.spec_from_file_location('_manufactured_native_turf',path)
-    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
-    original=module.edging(1024,1024)[:,:512]
-    pixels=np.array(Image.fromarray(np.uint8(original*255)).resize((w,h),Image.Resampling.LANCZOS))
-    alpha=np.asarray(Image.fromarray(pixels[:,:,3]).filter(ImageFilter.MaxFilter(3)),float)/255
-    color=srgb_to_linear(pixels[:,:,:3].astype(float)/255)*np.array([1.45,1.75,2.0])
-    return np.clip(color,0,1),alpha
-
-
 def field(w,h,cells,seed):
     rng=np.random.default_rng(seed);a=rng.random((cells,cells),dtype=np.float32)
     return np.asarray(Image.fromarray(a).resize((w,h),Image.Resampling.BICUBIC),np.float32)
