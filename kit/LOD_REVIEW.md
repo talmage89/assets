@@ -2238,8 +2238,9 @@ No production source or frozen recipe changed for that diagnostic.
 
 ## Pass 58 — first frozen-tool adopter reviewed
 
-The fresh street-light build retains 1656/3180 triangles (52.08%), one material
-and one draw per level, with no new image content. Its three native 25% strips,
+The fresh street-light build retains 1656/3180 triangles (52.08%), three materials
+and three draws per level, with no new image content. Whole-chain resident
+memory is 4.348 MiB under the documented block/mip estimate. Its three native 25% strips,
 two construction views and contact sheet are opened at full size. Values remain
 consistent: the shaft does not fade, its bend and lamp head keep their outline,
 and the small ground flange stays legible. Worst mean .00375, p95 .01545,
