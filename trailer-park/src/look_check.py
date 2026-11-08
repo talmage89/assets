@@ -29,11 +29,15 @@ def audit():
                 a=np.linalg.norm(np.cross(v[:,1]-v[:,0],v[:,2]-v[:,0]),axis=1)/2
                 delta0=uv[:,1]-uv[:,0];delta1=uv[:,2]-uv[:,0];ua=abs(delta0[:,0]*delta1[:,1]-delta0[:,1]*delta1[:,0])/2
                 assert np.all(ua>1e-13),(path.name,name,'collapsed UV')
-                if name.startswith('ManufacturedPBR'):
+                if name.startswith(('ManufacturedPBR','ManufacturedPatina')):
                     pbr=ma['pbrMetallicRoughness'];assert all(k in pbr for k in ('baseColorTexture','metallicRoughnessTexture')) and 'normalTexture' in ma
+                    if name=='ManufacturedPatina':
+                        assert ma.get('alphaMode')=='BLEND' and not ma.get('doubleSided',False)
+                        rgba=g.accessor(pr['attributes']['COLOR_0'])
+                        assert rgba.shape[1]==4 and np.all((rgba[:,3]>0)&(rgba[:,3]<=1)),(path,'Lost seeded weather coverage')
                     tex=d['textures'][pbr['baseColorTexture']['index']];im=d['images'][tex['source']];w,h=Image.open(path.parent/im['uri']).size
                     density=np.sqrt(ua*w*h/np.maximum(a,1e-20));densities.setdefault(name,[]).extend(density.tolist());areas.setdefault(name,[]).extend(a.tolist())
-                    if name=='ManufacturedPBR_Metal':
+                    if name in ('ManufacturedPBR_Metal','ManufacturedPatina'):
                         uv=uv.copy();uv[:,:,1]=1-uv[:,:,1]
                         inside=np.zeros(len(uv),bool)
                         for u0,v0,u1,v1 in RECTS.values():inside|=((uv[:,:,0]>=u0-1e-5)&(uv[:,:,0]<=u1+1e-5)&(uv[:,:,1]>=v0-1e-5)&(uv[:,:,1]<=v1+1e-5)).all(axis=1)
