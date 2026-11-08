@@ -47,8 +47,8 @@ def project(low,high,size,samples):
     fraction=area_fallback/max(area_total,1e-12)
     print('FRONT_PROJECTION_PREFLIGHT',dict(high_triangles=len(high.data.loop_triangles),
         fallback_area_fraction=fraction,misses=misses,back_hits=back_hits),flush=True)
-    if fraction>.08:
-        raise ValueError('Dense mold projection misses more than 8% of the hood surface')
+    if fraction>.01:
+        raise ValueError('Dense mold projection misses more than 1% of the hood surface')
     sc=bpy.context.scene;sc.cycles.samples=samples
     sc.render.bake.use_selected_to_active=True;sc.render.bake.use_clear=True
     sc.render.bake.cage_extrusion=.035;sc.render.bake.max_ray_distance=.080
@@ -66,7 +66,7 @@ def project(low,high,size,samples):
                 checked_interior_texels=int(interior.sum()),
                 missed_or_backward_interior=int(np.count_nonzero(interior&~valid)),
                 accepted_texels=int(np.count_nonzero((np.asarray(mask)>0)&valid)),
-                cage_m=.035,ray_distance_m=.080)
+                cage_m=.035,ray_distance_m=.080,maximum_fallback_area_fraction=.01)
     chosen=(np.asarray(approved)>0)&valid
     report['independent_triangle_center_rays']=dict(samples=len(low.data.loop_triangles),misses=misses,
         back_hits=back_hits,exact_surface_fallback_area_fraction=area_fallback/max(area_total,1e-12),
