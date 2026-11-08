@@ -14,3 +14,6 @@ check-construction: build/finalized.blend
 	$(BP) --python src/check_construction.py -- --source $< --out build/construction-check.json
 check: check-construction
 docs: check-construction
+
+# Additional LODs never enter the existing default/check delivery graph.
+include ../kit/lod_rules.mk

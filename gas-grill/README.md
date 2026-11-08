@@ -243,3 +243,44 @@ outside Git. Noto Sans uses SIL OFL; DejaVu Sans its open font license. The
 owner's separate canonical tank is credited only in the optional fit image;
 no redistribution right is inferred. The rifle project supplies the workflow
 quality reference. No additional tools or installations were required.
+
+<!-- LOD checkpoint: begin -->
+## Additional LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 19,912 / — | 1 / 12 | 1,592,875 | 8,784,185 | 10,377,060 | 16.000 + 1.4974 | near |
+| LOD1 | 10,620 / 10,951 | 1 / 9 | 923,193 | 8,784,185 | 9,707,378 | 16.000 + 0.8621 | 30.0% / 3.26 m |
+| LOD2 | 6,144 / 4,978 | 1 / 9 | 563,119 | 8,784,185 | 9,347,304 | 16.000 + 0.5187 | 12.0% / 8.16 m |
+| LOD3 | 1,796 / 1,000 | 1 / 1 | 125,486 | 317,268 | 442,754 | 1.000 + 0.1088 | 3.0% / 32.63 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **19.987 MiB**, versus LOD0 alone **17.497 MiB**. Unique textures 17.000 MiB = 16.000 MiB original + 1.000 MiB proxy/impostor; all meshes 2.9871 MiB. Increase over LOD0 2.490 MiB = 1.000 MiB far maps + 1.4897 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. The final proxy merges all moving geometry in its rest pose: its retained transform names are placement/socket metadata, and cannot animate that shell. Keep an animatable level while an interaction pose differs from rest. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/check.json` and `export/lod/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/GasGrill/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048; LOD2: 3 × 2048×2048; LOD3: 3 × 512×512.
+
+LOD1 separate moving meshes: `Knob_1Mesh`, `Knob_2Mesh`, `Knob_3Mesh`, `GreaseTrayMesh`, `HoseAssembly`, `LidMesh`, `Wheel_BackMesh`, `Wheel_FrontMesh`.
+
+LOD2 separate moving meshes: `Knob_1Mesh`, `Knob_2Mesh`, `Knob_3Mesh`, `GreaseTrayMesh`, `HoseAssembly`, `LidMesh`, `Wheel_BackMesh`, `Wheel_FrontMesh`.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 38,472 | 2 | 31 | 21,090,311 | 19.9872 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 12 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint: end -->

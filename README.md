@@ -133,3 +133,5 @@ Held weapons
 Toolkit
 - [Shared toolkit](kit/README.md): procedural modeling and materials, UV, bake and export, verification and studio
   renders of the exported GLB.
+- [Levels of detail](kit/LOD.md): opt-in `make lod` chains that reuse each asset's own maps, piloted on the pickup,
+  colonial, gas station, grill, cone and maple and adopted by the street light and fences.

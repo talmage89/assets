@@ -56,3 +56,7 @@ family-clean:
 	$(MAKE) -C picket clean
 	$(MAKE) -C chain-link clean
 clean: family-clean
+
+# One shared atlas, separate placement roots; the 20-triangle posts stay LOD0.
+LOD_CONFIGS := src/lod-section-a.json src/lod-section-b.json src/lod-gate-bay.json
+include ../kit/lod_rules.mk

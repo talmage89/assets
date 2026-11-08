@@ -12,7 +12,7 @@ nodes and graphics. The read-only rifle project informed the workflow.
 | `rig.py` | Connected chains, normalized vertex binding, arc sampling, reset and parallel-transport free-hanging demonstration |
 | `finalize.py`, `uv.py` | Static modifier application, triangulation, priority-weighted atlas unwrap/pack; actual polygon-clipped overlaps, coverage and density percentiles |
 | `bake.py` | GPU Cycles selected-to-active BaseColor, roughness, metallic, AO and tangent +Y normal; joins only equal coordinate frames to preserve object-space materials |
-| `image_io.py`, `downsample.py` | Original 8/16-bit PNG codec; linear-light color filtering, vector-normal filtering/renormalization and roughness RMS filtering |
+| `image_io.py`, `downsample.py` | Original 8/16-bit PNG codec; reusable PBR filtering plus the existing three-map CLI: linear-light colors, vector normals, roughness RMS and independent/coverage alpha |
 | `export.py` | One embedded PBR atlas; static assembly consolidation; separate pivots, sockets and skin; expected geometry/weight/rest-transform report |
 | `detachable_textures.py`, `detachable_verify.py` | Opt-in lossless atlas subsets, mip-grid guards/fill, raw-GLB surface and tangent checks |
 | `gltf.py`, `verify.py` | Independent raw GLB accessors, normals, textures, weights and inverse-bind checks; fresh Blender import, geometry, pivots, UVs, rig and posed cross-sections |
@@ -923,3 +923,96 @@ Checkpoint families may now declare `CHECKPOINT_OUTPUTS` and
 `CHECKPOINT_RENDER_OUTPUTS` as grouped target sets, plus `CHECKPOINT_RENDER_ARGS`.
 Deleting any declared blend/GLB/image regenerates its whole group. The default
 single blend/render-stamp behavior remains compatible with existing families.
+
+## Additional LOD chains (opt-in)
+
+The existing delivery is immutable LOD0. New levels use separate core glTF/BIN
+files and a manifest; `lod_rules.mk` adds opt-in `make lod` / `make check-lod`
+without changing any default build/check dependency graph. See [LOD.md](LOD.md)
+for switch conventions, engine integration, acceptance policy and sources.
+
+`lod_shared.py` reduces intermediate meshes with original materials/maps:
+weighted split-wedge QEM, synchronized UV/material seams, weighted vertex
+updates, per-material/per-layer mip bounds and a progressive area-error budget.
+Sampled face interiors retain the shading frame as well as its vertex values.
+Edges slide at one shared geometric position while each UV/material side carries
+its own field. `lod_constraints.py` separates true pins from seam membership and
+records their overlapping causes. Exact component caches avoid repeating sibling
+construction trials when a separate part changes.
+It protects graphics, glass and powered surfaces. Intermediate images must match
+LOD0 by full hash; canonical material/image bindings make engine resource reuse
+explicit. The manifest/report count unique maps and every mesh for the entire
+resident chain beside LOD0 alone. Only proxies/impostors add image content.
+Reports also measure whole-chain stored triangles, canonical material resources,
+primitive placements and distinct payload bytes from the actual files. They
+separate these stored counts from active draw calls and count a shared original
+container once across modular kinds.
+`lod_shells.py` guards source layer ordering with measured visibility rays and
+keeps construction beside powered surfaces, including small occluding shutters.
+The default protects a whole connected neighbor; opt-in
+`"powered_protection": "local"` protects only source triangles overlapping the
+same half-pixel-expanded emitter bounds. Original glass/alpha/emissive masks and all reduction guards
+remain. Native lamp/trim comparisons are required before enabling that scope.
+Local scope also keeps sampled opposed source faces in contact with glass;
+tiny depth changes there can reverse the source material order.
+Failed skins try finer source-map reductions before restoring a whole component;
+every trial keeps the original field/distance bounds and tests assembled visibility.
+Optional `reflective_surface_pixels` gives low-roughness metallic constructions a
+tighter geometric allowance, sampled from the original material and ORM map.
+An assembled-edge guard restores implicated components when their combined
+reduction introduces new boundary or nonmanifold edge incidences.
+`lod_shading.py` restores supplied glTF normals and tangents in temporary
+Blender comparison shaders (the importer ignores supplied tangents), including
+independent base and coat normal maps. It also enforces one-sided glTF visibility
+through a temporary transparent-back shader branch, because Cycles ignores the
+imported viewport culling flag. Its GPU fixture measures actual front/back alpha.
+The original delivery remains untouched.
+Selected modular roots keep their merged geometry as descendants, so replacing
+a root placement moves geometry and sockets together.
+`lod_mesh.py` measures screen/mip-relative error, prunes tiny islands and
+transports normalized skin weights. `lod_scene.py` consolidates static material
+groups while preserving interactive frames. Explicit `source_geometry_nodes`
+exceptions restore measured grazing-layer failures without changing maps,
+materials or other instances; assembly receipts expose their triangle cost.
+A projected-coverage check guards
+planar frame openings. Its far proxy uses closed
+construction envelopes, preserves concave footprints and optionally unions them with a pixel-sized voxel grid. Closed shells have independently checked positive volume. `lod_layout.py` keeps relative source texel density, cuts normal-frame seams and derives mip gutters. `lod_atlas.py` bakes original delivered PBR
+appearance onto new charts under the shared GPU lock, isolating moving pairs and retained near materials
+and evaluating vertex tint once. `lod_transfer.py` repairs bounded cage misses
+by evaluating the original shader, with explicit UV indices, alpha backing and separate base/coat shading directions. Transmissive receivers retain projected emission from their original internal emitters. Proxies merge all parts in their rest pose.
+`lod_foliage.py` builds enlarged-card levels with balanced or density-proportional crown quotas. `lod_impostor.py` keeps the
+camera-facing billboard and adds a fixed four-plane/eight-triangle alternative.
+
+`lod_io.py` serializes additional levels and measures raw-accessor costs.
+`lod_render.py` retains the RGB/alpha/local switch gates and adds soft silhouette
+IoU. `lod_normals.py` audits source normal fields or new tangent cages and baked
+map normalization, according to the reduction path. Winding, topology, fresh
+re-import, skin binds/clips and all source/package/recipe/evidence hashes remain
+checked. Rest renders do not establish swept animation clearance or engine
+performance.
+
+Run `test_lod.py` and `test_lod_shared.py` in fresh Blender and `test_lod_proxy.py` through `with_gpu.sh`.
+The latter exercises pixel/mip budgets, pruning, merge/pivots, closed budgeted
+shells and a real immutable-source PBR/normal bake with UV1 emission and alpha
+backing. A retained sign/backing fixture checks temporary material isolation and compacted module material indices. A varying-normal cage checks the actual re-imported base/coat shader
+directions, including shared UV diagonals and interpolated tangent lengths.
+`test_lod_transfer.py` independently tests the bounded shader transfer;
+`test_lod_gpu.py` and `test_lod_impostor_fit.py` are ordinary Python unittests.
+Builds/bakes run in one Blender process, with four threads and shared GPU locking. Use fresh fixture folders
+`build/lod-test` and `build/lod-proxy-test`. [The pilot review](LOD_REVIEW.md)
+records the checkpoint. `lod_report.py` writes checked tables and the overview;
+README updates require its explicit `--write-readmes` option. Families can list
+`LOD_CONFIGS` for serial module builds and use distinct README keys; the report
+deduplicates original containers and image hashes across the family.
+`test_lod_report.py` tests those rules with ordinary Python;
+`test_lod_shading.py` evaluates supplied frames through Cycles under `with_gpu.sh`.
+
+Shared-map fixtures use `build/lod-shared-test`; content-checked CPU reduction
+caches live in `build/lod-shared-cache`. Clear both for a clean regression run.
+Proxy transfers can independently verify shader patch coverage, preserving real
+zero-alpha lettering pixels during backing composition. Near transfer defaults
+remain compatible; closed opaque proxies take coverage from their shell.
+Emitted-color projection retains direct antialiased coverage without nearest
+extrapolation or bake margins, avoiding additional expansion by padding or repair.
+This does not reproduce all the optics of nested glass lenses; switch renders
+still determine whether a powered proxy is acceptable.

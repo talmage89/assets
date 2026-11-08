@@ -1,0 +1,46 @@
+{
+  "kind": "colonial seed 27",
+  "source": "export/Hearthfield-27.gltf",
+  "levels": [
+    {
+      "ratio": 0.4,
+      "screen_height": 0.3,
+      "target_triangles": 32027,
+      "surface_pixels": 0.125
+    },
+    {
+      "ratio": 0.15,
+      "screen_height": 0.12,
+      "target_triangles": 14558,
+      "surface_pixels": 0.125
+    },
+    {
+      "ratio": 0.05,
+      "screen_height": 0.045,
+      "rebake": true,
+      "texture_size": 512,
+      "proxy": true,
+      "target_triangles": 1800,
+      "atlas_sampling": {
+        "surface_texels_per_pixel": 1,
+        "graphic_texels_per_pixel": 4
+      },
+      "bake_supersample": 4,
+      "image_limits": {
+        "mean": 0.03,
+        "p95": 0.13,
+        "patch_mean_max": 0.1
+      },
+      "proxy_remesh": {
+        "voxel_pixels": 0.5,
+        "inflation_pixels": 0.3
+      }
+    }
+  ],
+  "drop_subpixel": true,
+  "readme_before": "\n## Second type:",
+  "readme_level": 3,
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 512
+}

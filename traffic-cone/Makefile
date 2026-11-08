@@ -24,3 +24,6 @@ check-assembly: build/game-audit.blend
 check: check-stack
 check-stack: export/$(ASSET).glb
 	$(BP) --python src/check_stack.py -- --source $< --out build/stack-check.json
+
+# Additional LODs never enter the existing default/check delivery graph.
+include ../kit/lod_rules.mk

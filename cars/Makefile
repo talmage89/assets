@@ -112,3 +112,8 @@ endif
 .PHONY: sedan
 sedan:
 	$(MAKE) BODY=sedan
+
+# Optional C150 LOD pilot; other bodies keep their own delivery graphs.
+ifeq ($(BODY),pickup)
+include ../kit/lod_rules.mk
+endif

@@ -140,3 +140,8 @@ include src/ranch_rules.mk
 
 include src/cape_rules.mk
 include src/split_rules.mk
+
+# Optional colonial seed-27 LOD pilot.
+ifeq ($(TYPE),builder_colonial)
+include ../kit/lod_rules.mk
+endif
