@@ -18,6 +18,11 @@ clumps expose their cards. Current 1440 px evidence is in
 `renders/finish-pass4/`; same-camera crops are in `renders/finish-fixes/`.
 The final view set, gallery and docs remain withheld.
 
+Latest verification passes `make model check`, `make repeat` (74 files),
+`make check-texture-repeat` and the repository check. Own generated models
+and textures were rebuilt after removal, using cached native inputs.
+Full-delivery `make` is not claimed while this visual gate remains rejected.
+
 `make` regenerates the ignored checkpoint evidence. `build/metrics.md`
 contains the complete six-home, 69-lot, module and park budget tables;
 render receipts keep presentation cars, vegetation and town separate.
@@ -290,6 +295,14 @@ geometry and image payloads are SHA-checked; only image URIs relocate.
 This optional historical input is separate from rebuilding the current
 family from scripts. No previous asset package is substituted for a current
 delivery, and the comparisons remain ignored review images.
+
+The current correction crops use the separately frozen `aa071cd` packages in
+`build/round4-before/export/`, with private copies of their Manufactured maps.
+`src/render_batch.py` reuses original frames only after GLB hash, camera,
+resolution and light equality checks; it renders the replacement street
+camera against that frozen export. `src/finish_crops.py --after
+renders/finish-pass4` builds the current comparisons. Historical input is
+optional and separate from rebuilding the current family.
 
 `kit/checkpoint_rules.mk` supplies the gate graph; `kit/with_gpu.sh` holds
 the shared GPU lock once for the complete render batch. Modeling and

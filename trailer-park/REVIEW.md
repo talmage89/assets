@@ -888,4 +888,12 @@ coverage are exact. The current same-camera crop panels are at least 800 px
 wide and their archived source/image identities verify. Full delivery `make`,
 the final view set, README gallery and docs remain withheld. No docs JPGs exist.
 
+`make repeat` subsequently passes 74 deterministic files byte-for-byte,
+including regenerated source fields, camera solutions and garden lawn maps.
+The repository check also passes. Own exports, textures and model files were
+removed for the clean model/bake rebuild; cached native inputs were retained.
+This does not claim a successful full-delivery `make` from nothing or a cold
+rebuild of every native family. All render/bake batches finished and released
+their GPU leases before the final handoff.
+
 Delivery gate: REJECTED
