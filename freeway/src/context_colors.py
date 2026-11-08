@@ -10,8 +10,16 @@ import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from kit.image_io import srgb_to_linear,linear_to_srgb,write_png
-BODIES=('AlderH120','AlderX220','AlderC150');COLORS=('Porcelain','Carbon','Aluminum','Graphite')
+BODIES=('AlderH120','AlderX220','AlderC150')
+# Local fleet options use the native coverage transfer and the same three maps.
+# These three authored tints are not claimed as delivered car-family presets.
+LOCAL_COLORS={'Garnet':(.29,.012,.016),'Spruce':(.032,.08,.052),'Sand':(.30,.23,.145)}
+COLORS=('Porcelain','Carbon','Aluminum','Graphite',*LOCAL_COLORS)
+FLEET=('Aluminum','Graphite','Carbon','Porcelain','Atlantic','Garnet','Spruce','Sand')
+WEIGHTS=(22,16,22,12,12,10,4,2)
 _sources={}
+
+def palette(extras):return dict(json.loads(extras['paint_colors']),**LOCAL_COLORS)
 
 def source(body):
     if body in _sources:return _sources[body]
@@ -29,14 +37,14 @@ def source(body):
     result=(rgba,mat['extras'],hashlib.sha256(png).hexdigest());_sources[body]=result;return result
 
 def expected(body,color):
-    rgba,extras,h=source(body);palette=json.loads(extras['paint_colors']);ref=np.asarray(extras['paint_reference_color'])
-    linear=np.clip(srgb_to_linear(rgba[:,:,:3])+rgba[:,:,3,None]*(np.asarray(palette[color])-ref),0,1)
+    rgba,extras,h=source(body);colors=palette(extras);ref=np.asarray(extras['paint_reference_color'])
+    linear=np.clip(srgb_to_linear(rgba[:,:,:3])+rgba[:,:,3,None]*(np.asarray(colors[color])-ref),0,1)
     reduced=np.stack([np.asarray(Image.fromarray(linear[:,:,i]).resize((1024,1024),Image.Resampling.LANCZOS)) for i in range(3)],axis=2)
-    return linear_to_srgb(np.clip(reduced,0,1)),dict(source_png_sha256=h,color=palette[color],reference=ref.tolist(),size=1024)
+    return linear_to_srgb(np.clip(reduced,0,1)),dict(source_png_sha256=h,color=colors[color],reference=ref.tolist(),size=1024)
 
 def ensure(material_name,color):
     body=next(b for b in BODIES if b in material_name);path=Path('textures/context')/(body+'Paint_'+color+'.png');receipt=path.with_suffix('.json')
-    rgba,extras,h=source(body);sig=dict(source_png_sha256=h,color=json.loads(extras['paint_colors'])[color],reference=list(extras['paint_reference_color']),size=1024,recipe=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
+    rgba,extras,h=source(body);sig=dict(source_png_sha256=h,color=palette(extras)[color],reference=list(extras['paint_reference_color']),size=1024,recipe=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
     old=json.loads(receipt.read_text()) if receipt.exists() else {}
     if path.exists() and old.get('inputs')==sig and old.get('output_sha256')==hashlib.sha256(path.read_bytes()).hexdigest():return path
     pixels,_=expected(body,color);scratch=Path('build/context-colors')/path.name;scratch.parent.mkdir(parents=True,exist_ok=True)
@@ -58,12 +66,14 @@ def audit_exports():
         export=Path(f'export/Traffic-{seed}.gltf');doc=json.loads(export.read_text())
         for mat in doc['materials']:
             color=mat.get('extras',{}).get('factory_color')
+            if 'factory_metallic' in mat.get('extras',{}):
+                assert abs(mat.get('pbrMetallicRoughness',{}).get('metallicFactor',1)-mat['extras']['factory_metallic'])<1e-5,(seed,mat['name'],'Factory metallic factor lost')
             if color not in COLORS:continue
             body=next(b for b in BODIES if b in mat['name']);index=mat['pbrMetallicRoughness']['baseColorTexture']['index']
             path=export.parent/doc['images'][doc['textures'][index]['source']]['uri'];key=(body,color,str(path.resolve()))
             if key in checked:continue
             checked[key]=True;rgba,extras,h=source(body);native=srgb_to_linear(rgba[:,:,:3]);alpha=rgba[:,:,3]
-            delta=np.asarray(json.loads(extras['paint_colors'])[color])-np.asarray(extras['paint_reference_color'])
+            delta=np.asarray(palette(extras)[color])-np.asarray(extras['paint_reference_color'])
             predicted=native+alpha[:,:,None]*delta
             valid=((predicted>.0005)&(predicted<.995)).all(axis=2)&(alpha>.2)
             radius=math.ceil(3*rgba.shape[1]/1024)+1

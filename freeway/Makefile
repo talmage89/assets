@@ -4,9 +4,9 @@ WIDTH ?= 1400
 SAMPLES ?= 32
 SEEDS := 101 202
 PARTS := MedianF WBeam GuardrailEnd CableBay SoundPanel SignTruss Cantilever DavitLight GoreAttenuator Overpass PrestressedGirder24 PierBent GorePaving36 RoadStraight RoadCurve RoadBankTransition RampBranch
-NATIVE := Hatch SUV Crossover HeroHatch HeroSUV HeroCrossover Ranch Cape TreeOak TreeMaple Ground Gas Strip StreetLight
+NATIVE := Hatch SUV Crossover HeroHatch HeroSUV HeroCrossover Ranch Cape Ranch14 Cape33 Cape36 Apartment TreeOak TreeMaple Ground Gas Strip StreetLight
 CONTEXT := $(foreach p,$(NATIVE),build/context/$(p).glb) build/context/Signal.glb build/context/Utility.glb
-CONTEXT_COLOR_MAPS := $(foreach b,AlderH120 AlderX220 AlderC150,$(foreach c,Porcelain Carbon Aluminum Graphite,textures/context/$(b)Paint_$(c).png))
+CONTEXT_COLOR_MAPS := $(foreach b,AlderH120 AlderX220 AlderC150,$(foreach c,Porcelain Carbon Aluminum Graphite Garnet Spruce Sand,textures/context/$(b)Paint_$(c).png))
 SETS := FreewayConcrete FreewayZinc FreewaySigns FreewayMaintenance
 CHANNELS := BaseColor Normal ORM
 FORM_MAPS := textures/checkpoint/T_Freeway_Signs.png $(foreach c,$(CHANNELS),textures/checkpoint/T_FreewayFenceForm_$(c).png)
@@ -16,7 +16,7 @@ SHIP_MAPS := $(foreach n,$(SETS),$(foreach c,$(CHANNELS),textures/ship/T_$(n)_$(
 CHECKPOINT_BLEND := build/Freeway.blend
 CHECKPOINT_OUTPUTS := build/Freeway.blend build/modules.json $(foreach s,$(SEEDS),$(foreach n,Freeway Town Traffic,export/$(n)-$(s).gltf export/$(n)-$(s).bin) build/scene-$(s).json build/Freeway-$(s).blend) export/FreewayModules.gltf export/FreewayModules.bin $(foreach p,$(PARTS),export/modules/$(p).gltf export/modules/$(p).bin)
 CHECKPOINT_ARGS := --seeds $(SEEDS) --stage look
-CHECKPOINT_DEPS := $(addprefix src/,build.py geom.py plan.py pieces.py roads.py site.py roadside.py neighborhood.py weather.py materials.py look_materials.py textures.py external.py context_colors.py) $(CONTEXT) $(CONTEXT_COLOR_MAPS) $(FORM_MAPS) $(SHIP_MAPS)
+CHECKPOINT_DEPS := $(addprefix src/,build.py geom.py plan.py pieces.py roads.py site.py roadside.py neighborhood.py weather.py materials.py look_materials.py textures.py external.py context_colors.py town_context.py landscape.py) $(CONTEXT) $(CONTEXT_COLOR_MAPS) $(FORM_MAPS) $(SHIP_MAPS)
 CHECKPOINT_OUT := renders/lookdev
 SCENE_SHOTS_101 := hero above above_clean alignment barrier guardrail_end sign_structure south_sign pier_girders gore terminal terminal_controls rail_repair
 SCENE_SHOTS_202 := hero above above_clean alignment sound_wall cable_median
@@ -38,9 +38,11 @@ preserve:
 	$(PYTHON) src/preserve.py
 inputs: preserve
 	$(PYTHON) src/dependencies.py
-$(foreach p,$(NATIVE),build/context/$(p).glb) &: src/prepare_context.py src/house_context.py | inputs
+$(foreach p,$(filter-out Apartment,$(NATIVE)),build/context/$(p).glb) &: src/prepare_context.py src/house_context.py | inputs
 	@mkdir -p build/context $(TMPDIR)
 	$(BP) --python src/prepare_context.py -- --kind native
+build/context/Apartment.glb: src/apartment_context.py | inputs
+	$(BP) --python src/apartment_context.py
 build/context/Signal.glb: src/prepare_context.py | preserve
 	@mkdir -p build/context $(TMPDIR)
 	$(BP) --python src/prepare_context.py -- --kind signal

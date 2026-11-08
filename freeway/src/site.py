@@ -10,7 +10,19 @@ ROOT=Path(__file__).resolve().parents[2]
 def load(path):
     before=set(bpy.context.scene.objects);bpy.ops.import_scene.gltf(filepath=str(Path(path).resolve()))
     added=set(bpy.context.scene.objects)-before
-    roots=[o for o in added if o.parent not in added]
+    # glTF imports COLOR_0 as an active layer called Color. Assembly exports
+    # deliberately select Tint; retain native house/commercial color through
+    # this second import/export instead of silently dropping it. Wind data is
+    # independent and must never become an albedo multiplier.
+    for ob in added:
+        if ob.type!='MESH':continue
+        readers=[node for ma in ob.data.materials if ma and ma.use_nodes for node in ma.node_tree.nodes if node.type=='VERTEX_COLOR']
+        if not readers:continue
+        color=ob.data.color_attributes.active_color
+        if color is None:continue
+        color.name='Tint';ob.data.color_attributes.active_color=color
+        for node in readers:node.layer_name='Tint'
+    roots=sorted((o for o in added if o.parent not in added),key=lambda o:o.name)
     rt=Q.root('Template_'+Path(path).stem)
     for ob in roots:
         # Some imports add a global axis transform. Keep the world matrix.
@@ -115,20 +127,27 @@ def row_fence(p):
     rt=Q.root('RightOfWayFence',module_kind='fence');b=Q.Batch('ROW posts and fabric',rt)
     for side in (-1,1):
         u=side*(106 if p.kind=='diamond' else 40.)
-        for s in seq(-p.length/2,p.length/2,3.048):
+        runs=[(-p.length/2,-11.),(11.,p.length/2)] if p.kind=='diamond' else [(-p.length/2,p.length/2)]
+        posts=seq(-p.length/2,p.length/2,3.048)
+        if p.kind=='diamond':posts=[s for s in posts if abs(s)>=11]+[-11.,11.]
+        for s in sorted(posts):
             x,y,z=p.xyz(s,u);z=7.0 if p.kind=='diamond' else 0
             b.tube([(x,y,z),(x,y,z+1.83)],.024,'Steel',4,caps=False)
         chain=seq(-p.length/2,p.length/2,6.096)
         for a,c in zip(chain,chain[1:]):
-            x0,y0,_=p.xyz(a,u);x1,y1,_=p.xyz(c,u);z=7.0 if p.kind=='diamond' else 0
+            spans=[(max(a,l),min(c,r)) for l,r in runs if min(c,r)>max(a,l)]
+            for a,c in spans:
+                x0,y0,_=p.xyz(a,u);x1,y1,_=p.xyz(c,u);z=7.0 if p.kind=='diamond' else 0
             # Original chain-link's physical 0.3048 m repeat, shared across
             # all placements. It represents manufacture, not repeated wear.
-            b.face([(x0,y0,z+.06),(x1,y1,z+.06),(x1,y1,z+1.80),(x0,y0,z+1.80)],'Fence',uv=[(a/.3048,0),(c/.3048,0),(c/.3048,1.74/.3048),(a/.3048,1.74/.3048)])
+                b.face([(x0,y0,z+.06),(x1,y1,z+.06),(x1,y1,z+1.80),(x0,y0,z+1.80)],'Fence',uv=[(a/.3048,0),(c/.3048,0),(c/.3048,1.74/.3048),(a/.3048,1.74/.3048)])
         for h in (.06,1.80):
-            pts=[]
-            for s in seq(-p.length/2,p.length/2,12.192):
-                x,y,z=p.xyz(s,u);pts.append((x,y,(7.0 if p.kind=='diamond' else 0)+h))
-            b.tube(pts,.0025,'DarkSteel',3)
+            stations=seq(-p.length/2,p.length/2,12.192)
+            for l,r in runs:
+                pts=[]
+                for s in sorted({l,r,*[s for s in stations if l<s<r]}):
+                    x,y,z=p.xyz(s,u);pts.append((x,y,(7.0 if p.kind=='diamond' else 0)+h))
+                b.tube(pts,.0025,'DarkSteel',3)
     b.finish();return rt
 
 def seq(a,b,step):

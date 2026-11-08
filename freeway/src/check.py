@@ -218,25 +218,34 @@ def scene(seed):
     assert pose_error<.0002,(seed,pose_error)
     stats['traffic_root_serialization']=dict(actors=len(actors),maximum_position_error_m=pose_error,scope='Fresh imported actor roots versus the authored snapshot; physical tire contacts are checked separately.')
     stats['traffic_imported_triangles']=sum(len(o.data.loop_triangles) if o.data.loop_triangles else sum(len(f.vertices)-2 for f in o.data.polygons) for o in bpy.context.scene.objects if o.type=='MESH')-stats['triangles']
+    # Neighborhood actors use real town streets, outside the civil export.
+    # Include those paving skins in the contact measurement too.
+    bpy.ops.import_scene.gltf(filepath=str(Path(f'export/Town-{seed}.gltf').resolve()))
+    bpy.context.view_layer.update()
     # Traffic is checked against physical driving skins, including ramps/deck.
     paving=[o for o in bpy.context.scene.objects if o.type=='MESH' and not any(k in o.name for k in ('Wheel','Tire')) and any(m and m.name.split('.')[0] in {'Asphalt','Concrete','Freeway Wheel polish / Ground Concrete'} for m in o.data.materials)]
     roadtree=bvh(paving,{'Asphalt','Concrete','Freeway Wheel polish / Ground Concrete'})
     contacts=[]
     for ob in bpy.context.scene.objects:
-        if ob.type!='MESH' or not ('Tire_' in ob.name or 'Hatch__Wheel_' in ob.name):continue
+        if ob.type!='MESH' or not ('Tire_' in ob.name or '__Wheel_' in ob.name):continue
         pts=[ob.matrix_world@v.co for v in ob.data.vertices]
         # Inspect the lower part of each actual delivered tire, not its hub
         # transform or a claimed nominal radius.
         low=min(p.z for p in pts);candidates=[p for p in pts if p.z<low+.09]
         gaps=[]
         for point in candidates:
-            h=roadtree.ray_cast(Vector((point.x,point.y,30)),Vector((0,0,-1)),60)[0]
+            # Start beside the tire, below any overpass above this car. A
+            # sky-height ray falsely measures the deck against traffic under it.
+            h=roadtree.ray_cast(Vector((point.x,point.y,low+.35)),Vector((0,0,-1)),1.5)[0]
             if h is not None:gaps.append(float(point.z-h.z))
-        if gaps:contacts.append(dict(wheel=ob.name,minimum_gap_m=min(gaps)))
+        assert gaps,('Tire has no paving support',seed,ob.name)
+        contacts.append(dict(wheel=ob.name,minimum_gap_m=min(gaps)))
     stats['traffic_wheel_surface_contacts']=contacts
+    stats['traffic_contact_scope']='Actual lower tire vertices against paving within 1.5 m of a start 0.35 m above the tire minimum; overhead bridge decks are outside that support query.'
     assert len(contacts)>=80,len(contacts)
-    assert min(r['minimum_gap_m'] for r in contacts)>-.03,contacts
-    assert max(r['minimum_gap_m'] for r in contacts)<.08,contacts
+    lowest=min(contacts,key=lambda r:r['minimum_gap_m']);highest=max(contacts,key=lambda r:r['minimum_gap_m'])
+    assert lowest['minimum_gap_m']>-.03,('Tire penetration',lowest)
+    assert highest['minimum_gap_m']<.08,('Tire clearance',highest)
     stats['gltf_bytes']=path.stat().st_size;stats['bin_bytes']=path.with_suffix('.bin').stat().st_size
     # Ordinary glTF material allocation deduplicated by actual image URI/hash.
     d=json.loads(path.read_text());image_rows=[]

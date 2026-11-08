@@ -8,7 +8,7 @@ def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 def share(path):
     path=Path(path);d=json.loads(path.read_text())
     folders=[ROOT/'ground/textures/ship',ROOT/'cars/textures/ship',ROOT/'cars/textures/hatch/ship',ROOT/'cars/textures/suv/ship',ROOT/'houses/export/textures',ROOT/'trees/textures/ship',ROOT/'trees/textures/oak/ship',ROOT/'commercial/textures/ship',ROOT/'commercial/export/textures',Path('textures/checkpoint').resolve(),Path('textures/ship').resolve(),Path('textures/context').resolve()]
-    known={sha(p):p for folder in folders for p in folder.glob('*.png')}
+    known={sha(p):p for folder in folders for p in sorted(folder.glob('*.png'))}
     shared=Path('export/shared');shared.mkdir(parents=True,exist_ok=True);rows=[]
     for im in d.get('images',[]):
         p=path.parent/im['uri'];h=sha(p);dest=known.get(h)

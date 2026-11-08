@@ -94,7 +94,12 @@ def scene(p,lib):
         median=Q.root('WideMedian',module_kind='terrain');b=Q.Batch('WideMedian__Mesh',median)
         for a,c in zip(roads.seq(-p.length/2,p.length/2,12.),roads.seq(-p.length/2,p.length/2,12.)[1:]):
             for side in (-1,1):
+                start=len(b.colors)
                 b.surface([p.xyz(a,side*p.median/2,-.02),p.xyz(a,0,-.50),p.xyz(c,0,-.50),p.xyz(c,side*p.median/2,-.02)],'Lawn')
+                if getattr(Q,'LOOKDEV',False):
+                    from landscape import lawn_tint
+                    for index in range(start,len(b.colors)):
+                        x,y,z=b.v[index];b.colors[index]=lawn_tint(x,y,'verge',p.seed,z)
         b.finish();roots.append(median)
         for i,s in enumerate(roads.seq(-p.length/2+3.048,p.length/2-3.048,6.096)):roots.append(site.along(lib['CableBay'],'MedianCable_%03d'%i,p,s,0,-.50))
         for side in (-1,1):

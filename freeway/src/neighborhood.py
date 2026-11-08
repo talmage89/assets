@@ -13,125 +13,8 @@ from plan import ramp_points
 
 
 def town(p):
-    from freeway_site import load,clone,delete
-    rt=Q.root('TownContext',module_kind='context');rng=random.Random(p.seed+713)
-    z=7.0 if p.kind=='diamond' else 0.;b=Q.Batch('Neighborhood grid and parcels',rt);rows=[]
-    def xy(u,s):
-        c=p.center(s);n,_=p.frame(s);return (c[0]+n[0]*u,c[1]+n[1]*u)
-    def point(u,s,h=0):return (*xy(u,s),z+h)
-    def strip(u0,u1,s0,s1,role,h=0,tint=(1,1,1,1)):
-        b.surface([point(u0,s0,h),point(u1,s0,h),point(u1,s1,h),point(u0,s1,h)],role,tint=tint)
-    def street(u,s0,s1):
-        # Segmented curves preserve this town's grid offset from the right of way.
-        n=max(1,math.ceil((s1-s0)/12));stations=[s0+(s1-s0)*i/n for i in range(n+1)]
-        # Reserve the strip center's complete parcel. The public street wraps
-        # behind it instead of passing through the native shop row.
-        if p.kind=='diamond' and abs(u+204)<.01:
-            stations=sorted(set(stations+[10.668,84.0]))
-        for a,c in zip(stations,stations[1:]):
-            if p.kind=='diamond' and abs(u+204)<.01 and 10.668<(a+c)/2<84:continue
-            strip(u-3.66,u+3.66,a,c,'Asphalt',.025)
-            for side in (-1,1):
-                strip(u+side*3.66,u+side*3.8124,a,c,'Concrete',.16)
-                strip(u+side*5.0,u+side*6.524,a,c,'Concrete',.16)
-    if p.kind=='diamond':
-        # Continue the town's arterial beyond the civil excerpt and its camera.
-        for a,c in [(-2200,-420),(420,2200)]:
-            b.surface([(a,-8.382,7.18236),(c,-8.382,7.18236),(c,8.382,7.18236),(a,8.382,7.18236)],'Asphalt')
-            for y in (-9.50,9.50):b.surface([(a,y-.76,7.18),(c,y-.76,7.18),(c,y+.76,7.18),(a,y+.76,7.18)],'Concrete')
-    cross=range(-640,641,128) if p.kind=='diamond' else range(-448,449,112)
-    streets=[122,204,286,368,450,532,614] if p.kind=='diamond' else [70,146,222]
-    extent=700 if p.kind=='diamond' else 530
-    for side in (-1,1):
-        for u in streets:street(side*u,-extent,extent)
-        for s in cross:
-            if abs(s)<1 and p.kind=='diamond':continue
-            # Local cross streets stop at the ROW fence, with a paved hammerhead.
-            end=111 if p.kind=='diamond' else 42
-            strip(side*end,side*1200,s-3.66,s+3.66,'Asphalt',.026)
-            strip(side*end,side*(end+7.32),s-7.0,s+7.0,'Asphalt',.027)
-            for h in (-1,1):strip(side*end,side*1200,s+h*4.8,s+h*6.324,'Concrete',.16)
-    if p.kind=='diamond':
-        strip(-286,-122,84-3.66,84+3.66,'Asphalt',.025)
-        for yy in (78.8,89.2):strip(-286,-122,yy-.762,yy+.762,'Concrete',.16)
-    houses=[load('build/context/Ranch.glb'),load('build/context/Cape.glb')]
-    house_stations=range(-608,609,32) if p.kind=='diamond' else range(-480,481,32)
-    offsets=[146,180,228,262,310,344,392,426,474,508,556,590,638] if p.kind=='diamond' else [52,94,122,170,198,246]
-    idx=0
-    for side in (-1,1):
-        for row,u in enumerate(offsets):
-            # More rows around the diamond; staggered roofs/backyards at Cedar Hollow.
-            for s in house_stations:
-                if min(abs(s-c) for c in cross)<22:continue
-                if p.kind=='diamond' and abs(s)<90:continue
-                if p.kind=='diamond' and side<0 and abs(s-84)<18:continue
-                s+=rng.uniform(-2,2);uu=side*(u+rng.uniform(-1.2,1.2))
-                # First Cedar Hollow row faces away from the sound wall.
-                street_u=min(streets,key=lambda a:abs(a-u));facing=side*(1 if street_u>u else -1)
-                pos=point(uu,s);yaw=90 if facing>0 else -90
-                h=clone(houses[(idx+p.seed)%2],f'House_{idx:03d}',pos,yaw,rt)
-                h.rotation_euler.z-=s/p.radius if p.radius else 0
-                rows.append(dict(kind='house',point=pos,yaw=yaw))
-                a,c=sorted((uu+facing*7,side*street_u-facing*3.66))
-                strip(a,c,s-1.524,s+1.524,'Concrete',.032)
-                # Back-yard property divisions stop short of the public sidewalk.
-                backyard=uu-facing*10.5
-                for ss in (s-14.8,s+14.8):
-                    pa=point(backyard,ss);pb=point(uu+facing*4,ss)
-                    for lift in (.45,.95,1.45):b.beam((pa[0],pa[1],z+lift),(pb[0],pb[1],z+lift),.07,'Wood',.14)
-                    for pt in (pa,pb):b.beam(pt,(pt[0],pt[1],z+1.5),.09,'Wood')
-                idx+=1
-    for lib in houses:delete(lib)
-    if p.kind=='diamond':
-        for file,name,pos,yaw in [('Gas','TerminalGas',(153,35,7),0),('Strip','TerminalStrip',(-186,44,7),0),('Gas','WestGas',(-153,-36,7),180)]:
-            src=load('build/context/'+file+'.glb');clone(src,name,pos,yaw,rt);delete(src);rows.append(dict(kind=file,point=pos,yaw=yaw))
-            native=Path(__file__).resolve().parents[2]/'commercial/export'/('CommercialGas-101.json' if file=='Gas' else 'CommercialStrip-201.json')
-            metadata=json.loads(native.read_text());angle=math.radians(yaw)
-            for drive in metadata['driveways']:
-                if drive['edge']!='south':continue
-                dx,dy=drive['center'];cx=pos[0]+dx*math.cos(angle)-dy*math.sin(angle);cy=pos[1]+dx*math.sin(angle)+dy*math.cos(angle)
-                half=drive['width']/2;sign=1 if cy>0 else -1;near=sign*10.668;far=cy+sign*4
-                # The original native driveway aperture is the measured input;
-                # a short graded apron meets the elevated arterial's edge.
-                b.surface([(cx-half,near,7.18236),(cx+half,near,7.18236),(cx+half,far,7.028),(cx-half,far,7.028)],'Asphalt')
-                for xx in (cx-half,cx+half):
-                    b.surface([(xx,near,7.18236),(xx,far,7.028),(xx+sign*.3,far,7.0),(xx+sign*.3,near,7.0)],'Earth')
-    trees=[load('build/context/TreeOak.glb'),load('build/context/TreeMaple.glb')]
-    for side in (-1,1):
-        for j,s in enumerate(range(-600 if p.kind=='diamond' else -480,601 if p.kind=='diamond' else 481,34 if p.kind=='diamond' else 32)):
-            if p.kind=='diamond' and abs(s)<90:continue
-            u=side*((113 if p.kind=='diamond' else 37)+rng.uniform(0,8 if p.kind=='diamond' else 2));pt=point(u,s+(0 if p.kind=='diamond' else 16)+rng.uniform(-2,2))
-            ob=clone(trees[j%2],f'ROW_tree_{side}_{j}',pt,rng.uniform(0,360),rt)
-            # Native species at different actual ages; uniform size preserves form.
-            scale=rng.uniform(.60,1.05);ob.scale=(scale,)*3
-            rows.append(dict(kind='tree',point=pt,scale=scale))
-        for j,s in enumerate(range(-510,511,76)):
-            u=side*rng.choice([171,252,326] if p.kind=='diamond' else [110,182,262]);pt=point(u,s)
-            ob=clone(trees[(j+1)%2],f'Garden_tree_{side}_{j}',pt,rng.uniform(0,360),rt);scale=rng.uniform(.65,1.05);ob.scale=(scale,)*3
-        if p.kind=='diamond':
-            for row,u in enumerate((383,465,547,629)):
-                for j,s in enumerate(range(-510,511,152)):
-                    ob=clone(trees[(row+j)%2],f'Outer_garden_tree_{side}_{row}_{j}',point(side*u,s+rng.uniform(-8,8)),rng.uniform(0,360),rt)
-                    scale=rng.uniform(.65,.95);ob.scale=(scale,)*3
-    for lib in trees:delete(lib)
-    utility=load('build/context/Utility.glb');bpy.context.view_layer.update()
-    pins={o.name.split('__Socket_')[-1].split('.')[0]:utility.matrix_world.inverted()@o.matrix_world.translation for o in utility.children_recursive if '__Socket_' in o.name}
-    for side in (-1,1):
-        poles=[]
-        for j,s in enumerate(range(-640,641,42)):
-            pt=point(side*(130 if p.kind=='diamond' else 78),s);clone(utility,f'JointUse_{side}_{j}',pt,0,rt);poles.append(pt)
-        for a,c in zip(poles,poles[1:]):
-            for key,r in [('Primary_A',.00505),('Primary_B',.00505),('Primary_C',.00505),('Neutral',.004),('CommPhone',.0185)]:
-                pin=pins.get(key)
-                if pin is None:continue
-                pts=[(a[0]+pin.x+(c[0]-a[0])*t,a[1]+pin.y+(c[1]-a[1])*t,z+pin.z-.65*4*t*(1-t)) for t in [k/12 for k in range(13)]]
-                b.tube(pts,r,'DarkSteel',4)
-    delete(utility)
-    light=load('build/context/StreetLight.glb')
-    for side in (-1,1):
-        for j,s in enumerate(range(-560,561,96)):
-            clone(light,f'Street_light_{side}_{j}',point(side*(118 if p.kind=='diamond' else 66),s),90 if side>0 else -90,rt)
-    delete(light);b.finish();rt['placements_json']=json.dumps(rows);return rt
+    from town_context import town as build_town
+    return build_town(p)
 
 
 def factory_variants(template):
@@ -141,9 +24,10 @@ def factory_variants(template):
     deliveries stay immutable. Distant variants are 1024; original blue is shared.
     """
     from context_colors import ensure
-    paints={m for ob in template.children_recursive if ob.type=='MESH' for m in ob.data.materials if m and m.get('paint_decode')}
+    paints=sorted({m for ob in template.children_recursive if ob.type=='MESH' for m in ob.data.materials if m and m.get('paint_decode')},key=lambda m:m.name)
     result={};folder=Path('textures/context');folder.mkdir(parents=True,exist_ok=True)
-    for name in ('Porcelain','Carbon','Aluminum','Graphite','Atlantic'):
+    from context_colors import FLEET
+    for name in FLEET:
         replacements={}
         for mat in paints:
             m=mat.copy()
@@ -151,10 +35,25 @@ def factory_variants(template):
             if name!='Atlantic':
                 path=ensure(mat.name,name)
                 texture.image=bpy.data.images.load(str(path.resolve()),check_existing=True)
-            # Preserve the native static glTF fallback's ORM and coat response.
+            # Preserve the ORM/coat maps and apply the factory metallic factor,
+            # as the car family's delivery decoder does for silver and gray.
+            metals=json.loads(mat['paint_metallic'])
+            target=metals.get(name,{'Garnet':0.,'Spruce':.12,'Sand':.42}.get(name,.12))
+            bs=next(n for n in m.node_tree.nodes if n.type=='BSDF_PRINCIPLED');socket=bs.inputs['Metallic']
+            # Import stores the old factor upstream in a color mix. Nesting
+            # another ratio after it renders correctly in the source, but the
+            # glTF exporter recognizes only the outer factor. Use its supported
+            # direct ORM B * absolute factory factor graph for serialization.
+            orm=next(n for n in m.node_tree.nodes if n.type=='TEX_IMAGE' and n.image and 'ORM' in n.image.name)
+            split=m.node_tree.nodes.new('ShaderNodeSeparateColor')
+            m.node_tree.links.new(orm.outputs['Color'],split.inputs['Color'])
+            factor=m.node_tree.nodes.new('ShaderNodeMath');factor.operation='MULTIPLY';factor.inputs[1].default_value=target
+            m.node_tree.links.new(split.outputs['Blue'],factor.inputs[0]);m.node_tree.links.new(factor.outputs[0],socket)
             m['factory_color']=name;m['native_paint_source']=mat.name
+            m['factory_metallic']=target
             for prop in ('paint_decode','paint_reference_color','paint_colors','paint_metallic'):
-                if prop in m:del m[prop];replacements[mat]=m
+                if prop in m:del m[prop]
+            replacements[mat]=m
         result[name]=replacements
     return result
 
@@ -204,18 +103,21 @@ def traffic(p):
         near_origin=where in ('mainline','bridge','arterial_queue') and abs(pos[1])<120 and abs(pos[0])<110
         near_inspection=any(math.hypot(pos[0]-x,pos[1]-y)<36 for x,y in inspection_zones)
         if not nearest and (near_origin or near_inspection):kind+=3
-        color=rng.choices(['Porcelain','Carbon','Graphite','Aluminum','Atlantic'],[34,22,24,10,10])[0]
+        from context_colors import FLEET,WEIGHTS
+        color=rng.choices(FLEET,WEIGHTS)[0]
+        if nearest:color=FLEET[(p.seed//101+4)%len(FLEET)]
         ob=clone(full[kind-3] if kind>=3 else bodies[kind],f'Car_{i:03d}',pos,yaw,rt);ob.rotation_euler.y=roll;ob.rotation_euler.x=pitch;colorize(ob,kind,color,lights=speed<.5 and 'queue' in where)
         ob['speed_mps']=speed;ob['traffic_role']=where
         placements.append(dict(name=ob.name,body=('Hatch','SUV','Crossover','HeroHatch','HeroSUV','HeroCrossover')[kind],color=color,location=list(pos),yaw=yaw,speed_mps=speed,role=where))
         return ob
-    # Afternoon flow: 1.7–3.1 seconds at 25–29m/s, with independent lane phases.
+    # Busy afternoon: 1.15–1.9 seconds at 20–25m/s. The two-lane corridor
+    # cannot reproduce the reference's larger lane count; density is per lane.
     for side in (-1,1):
         for lane in range(2):
             s=-p.length/2+rng.uniform(10,65)
             while s<p.length/2-10:
-                speed=rng.uniform(25,29);pos=p.xyz(s,p.lane(side,lane));yaw=-math.degrees(s/p.radius if p.radius else 0)+(180 if side>0 else 0)
-                actor(pos,yaw,'mainline',speed,math.atan(side*p.bank if p.bank else -.02));s+=speed*rng.uniform(1.7,3.1)
+                speed=rng.uniform(20,25);pos=p.xyz(s,p.lane(side,lane));yaw=-math.degrees(s/p.radius if p.radius else 0)+(180 if side>0 else 0)
+                actor(pos,yaw,'mainline',speed,math.atan(side*p.bank if p.bank else -.02));s+=speed*rng.uniform(1.15,1.9)
     # Retain the exact accepted near-car anchor for before/after scale.
     side,lane,s=(1,0,-26) if p.kind=='diamond' else (1,1,-22)
     pos=p.xyz(s,p.lane(side,lane))
@@ -249,6 +151,10 @@ def traffic(p):
     else:
         for side in (-1,1):
             for j,s in enumerate(range(-430,431,76)):
-                c=p.center(s);u=side*70;actor((c[0]+u,c[1],.04),180 if side>0 else 0,'neighborhood',8)
+                # Follow the actual first neighborhood street and its lane,
+                # including offset-curve position and tangent, at flat grade.
+                pos=list(p.xyz(s,side*(86+1.6)));pos[2]=.04
+                yaw=-math.degrees(s/p.radius if p.radius else 0)+(180 if side>0 else 0)
+                actor(pos,yaw,'neighborhood',8)
     for lib in [*bodies,*full]:delete(lib)
     rt['placements_json']=json.dumps(placements);return rt

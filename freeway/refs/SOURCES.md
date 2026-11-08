@@ -33,3 +33,10 @@ Additional read-only primary sources (HTML, not downloaded):
 Font: installed **DejaVu Sans, Condensed Bold**, Bitstream Vera/DejaVu open
 license, discovered with `kit/fonts.py`. It approximates highway lettering;
 the FHWA sign alphabets are not installed. No Interstate shield is used.
+
+
+## Final town and seasonal correction
+
+- [Historic Resource Assessment, December 2024, p.17](https://www.burbankca.gov/documents/173607/3197995/Appendix%2BD%2B-%2BHistoric%2BResource%2BAssessment.pdf/5697d2a6-ef49-85d5-ebd7-8cc32373e5c2?download=true&imagePreview=1&t=1736300304917&version=1.0), ESA for the City of Burbank, agency-hosted copyrighted report, reference only: historical subdivision frontage/depth vocabulary (approximately 50 × 120 ft). Search-index excerpt consulted; the direct PDF fetch returned HTTP 403, so no claim to inspecting its plates. The owner's brief specifies 50–60 × 100–130 ft. The original context uses 50/55/60 × 106.9 ft parcels, rather than reproducing the named tract or any property.
+- The existing 2002 USGS aerial is the canopy, frontage, paving and density reference. The existing March 2007 traffic image supplies per-lane density, dry grass value and the neutral asphalt patch; the 2008 bridge image supplies top-connected runoff/mineral deposit vocabulary. The concrete/asphalt neutral rectangles remain in `build/reference-balance.json`.
+- House, garage, foliage, apartment and paint construction is the repository's own `houses/`, `trees/`, `apartments/` and `cars/` source library. Original deliveries remain read-only. Five car tints are native presets. Garnet, Spruce and Sand are additional original local fleet tints using the native reference-plus-coverage paint transfer; they are not represented as existing car-family presets.

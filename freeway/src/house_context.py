@@ -20,12 +20,22 @@ def extract(parts):
         colors=ob.data.color_attributes.active_color
         for face in ob.data.polygons:
             mat=ob.data.materials[face.material_index];name=mat.name.split('.')[0];palette[name]=mat
-            if colors and colors.domain=='POINT':samples.setdefault(name,[]).extend(tuple(colors.data[i].color) for i in face.vertices)
+            if colors:
+                indices=face.vertices if colors.domain=='POINT' else face.loop_indices
+                samples.setdefault(name,[]).extend(tuple(colors.data[i].color) for i in indices)
         bm=bmesh.new();bm.from_mesh(ob.data)
         drop=[f for f in bm.faces if ob.data.materials[f.material_index].name.startswith(('HouseSiding','RanchRoof','RanchBrick','CapeBrick'))]
         if drop:bmesh.ops.delete(bm,geom=drop,context='FACES');bm.to_mesh(ob.data)
         bm.free()
     tints={key:tuple(np.median(value,axis=0)) for key,value in samples.items()}
+    if 'HouseSiding' not in palette:
+        siding=next(k for k in palette if k.startswith(('CapeCement','CapeCedar')))
+        palette['HouseSiding']=palette[siding];tints['HouseSiding']=tints[siding]
+    # Imported glTF colors are CORNER data. The rebuilt skins use Tint, so
+    # explicitly bind that name instead of relying on an importer's active layer.
+    for mat in palette.values():
+        for node in mat.node_tree.nodes:
+            if node.type=='VERTEX_COLOR':node.layer_name='Tint'
     return palette,tints
 
 def skins(root,metadata,palette,tints):

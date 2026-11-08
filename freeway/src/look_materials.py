@@ -12,9 +12,11 @@ def install():
         if role=='Maintenance':m.use_backface_culling=False
         Q.M[role]=m
     Q.M['Barrier']=Q.M['Bridge']
+    from landscape import install as install_turf
+    install_turf()
     Q.M['WheelPolish']=Q.M['Concrete'].copy();Q.M['WheelPolish'].name='Freeway Wheel polish / Ground Concrete'
     bs=Q.M['WheelPolish'].node_tree.nodes.get('Principled BSDF')
     # Same Ground manufacture/normal, attenuated roughness in the wheel paths.
     tree=Q.M['WheelPolish'].node_tree;src=bs.inputs['Roughness'].links[0].from_socket
-    multiply=tree.nodes.new('ShaderNodeMath');multiply.operation='MULTIPLY';multiply.inputs[1].default_value=.73
+    multiply=tree.nodes.new('ShaderNodeMath');multiply.operation='MULTIPLY';multiply.inputs[1].default_value=.60
     tree.links.new(src,multiply.inputs[0]);tree.links.new(multiply.outputs[0],bs.inputs['Roughness'])

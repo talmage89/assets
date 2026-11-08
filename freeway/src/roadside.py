@@ -96,7 +96,13 @@ def landscape(p):
             limit=(101 if p.kind=='diamond' else 39)+.8*math.sin(a/41)
             for lo,hi,tint in [(p.edge+3.2,p.edge+8,(.73,.77,.61,1)),(limit-3.0,limit,(.61,.65,.47,1)),(limit,limit+5,(.43,.49,.30,1))]:
                 pts=[hit(a,side*lo),hit(a,side*hi),hit(c,side*hi),hit(c,side*lo)]
-                if all(v is not None for v in pts):b.surface(pts,'Lawn',tint=tint)
+                if all(v is not None for v in pts):
+                    start=len(b.colors);b.surface(pts,'Lawn',tint=tint)
+                    if getattr(Q,'LOOKDEV',False):
+                        from landscape import lawn_tint
+                        for k in range(start,len(b.colors)):
+                            x,y,z=b.v[k]
+                            b.colors[k]=lawn_tint(x,y,'unmown' if lo>=limit else 'ditch' if lo<p.edge+4 else 'verge',p.seed,z)
         for s in seq(-p.length/2+54,p.length/2-54,114):
             # Cast 600mm flumes run down the cut into the actual low ditch.
             begin=p.edge+3 if p.kind=='diamond' else p.edge+2.8;end=begin+max(7,4*(7-p.xyz(s,begin)[2])) if p.kind=='diamond' else 29

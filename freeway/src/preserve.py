@@ -5,6 +5,10 @@ ROOT=Path(__file__).resolve().parents[2]
 def main():
     target=Path('build/existing-deliveries.json')
     session=Path('build/session-preservation.json')
+    final=Path('build/final-preservation.json')
+    if not final.exists():
+        final.parent.mkdir(parents=True,exist_ok=True)
+        final.write_text(json.dumps({str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for family in ROOT.iterdir() if family.is_dir() and family.name not in ('freeway','.git','build') for p in family.rglob('*') if p.is_file() and any(x in ('export','textures','docs') for x in p.relative_to(family).parts)},indent=2))
     if not session.exists():
         all_files={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for family in ROOT.iterdir() if family.is_dir() and family.name not in ('freeway','.git','build') for p in family.rglob('*') if p.is_file() and any(x in ('export','textures','docs') for x in p.relative_to(family).parts)}
         session.parent.mkdir(parents=True,exist_ok=True);session.write_text(json.dumps(all_files,indent=2))

@@ -11,6 +11,10 @@ def raw(path):
         a=doc['accessors'][i];v=doc['bufferViews'][a['bufferView']];dt=np.dtype({5126:'<f4',5125:'<u4',5123:'<u2',5121:'u1'}[a['componentType']]);n={'SCALAR':1,'VEC2':2,'VEC3':3,'VEC4':4}[a['type']]
         return np.ndarray((a['count'],n),dtype=dt,buffer=buffers[v['buffer']],offset=v.get('byteOffset',0)+a.get('byteOffset',0),strides=(v.get('byteStride',n*dt.itemsize),dt.itemsize))
     geometry={};densities=[];degenerate=0;textured_degenerate=0
+    for material in doc.get('materials',[]):
+        pbr=material.get('pbrMetallicRoughness',{})
+        for key in ('metallicFactor','roughnessFactor'):
+            assert 0<=pbr.get(key,1)<=1,(path,material['name'],key,pbr.get(key))
     for i,mesh in enumerate(doc.get('meshes',[])):
         count=0
         for p in mesh['primitives']:
@@ -18,7 +22,9 @@ def raw(path):
             assert np.isfinite(v).all() and np.isfinite(uv).all();assert abs(np.linalg.norm(n,axis=1)-1).max()<.003;assert idx.max()<len(v)
             tri=v[idx];area=np.linalg.norm(np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0]),axis=1)/2;assert area.min()>1e-12,(path,mesh['name'])
             tuv=uv[idx];duv=tuv[:,1]-tuv[:,0];euv=tuv[:,2]-tuv[:,0];ua=abs(duv[:,0]*euv[:,1]-duv[:,1]*euv[:,0])/2;degenerate+=int((ua<1e-14).sum())
-            mat=doc['materials'][p['material']];base=mat.get('pbrMetallicRoughness',{}).get('baseColorTexture')
+            mat=doc['materials'][p['material']]
+            if mat.get('extras',{}).get('tiling_vertex_tint') is True:assert 'COLOR_0' in a,(path,mesh['name'],'Native tint dropped')
+            base=mat.get('pbrMetallicRoughness',{}).get('baseColorTexture')
             if base:
                 textured_degenerate+=int((ua<1e-14).sum())
                 im=doc['images'][doc['textures'][base['index']]['source']];size=Image.open(path.parent/im['uri']).size
@@ -34,7 +40,7 @@ def raw(path):
         with Image.open(p) as image:w,h=image.size
         rows.append(dict(uri=im['uri'],sha256=hashlib.sha256(p.read_bytes()).hexdigest(),size=[w,h],bytes=p.stat().st_size,bc_full_mips_mib=w*h*4/3/2**20))
     unique={r['sha256']:r for r in rows}
-    return dict(triangles=count,unique_mesh_triangles=sum(geometry.values()),materials=len(doc.get('materials',[])),primitives=sum(len(m['primitives']) for m in doc.get('meshes',[])),gltf_bytes=path.stat().st_size,bin_bytes=sum(len(b) for b in buffers),images=list(unique.values()),image_bytes=sum(r['bytes'] for r in unique.values()),bc_full_mips_mib=sum(r['bc_full_mips_mib'] for r in unique.values()),degenerate_uv_triangles=degenerate,textured_degenerate_uv_triangles=textured_degenerate,uv_density_px_m_percentiles=np.quantile(densities,[.05,.5,.95]).tolist() if densities else None,uv_scope='Meter-scaled tiling and guarded chart reuse deliberately overlap. Collapsed UVs only on untextured native scalar materials are counted but unused. Density percentiles are unweighted per triangle, not a unique lightmap atlas certificate.')
+    return dict(triangles=count,unique_mesh_triangles=sum(geometry.values()),mesh_instances=sum('mesh' in n for n in doc.get('nodes',[])),unique_meshes=len(geometry),materials=len(doc.get('materials',[])),primitives=sum(len(m['primitives']) for m in doc.get('meshes',[])),gltf_bytes=path.stat().st_size,bin_bytes=sum(len(b) for b in buffers),images=list(unique.values()),image_bytes=sum(r['bytes'] for r in unique.values()),bc_full_mips_mib=sum(r['bc_full_mips_mib'] for r in unique.values()),degenerate_uv_triangles=degenerate,textured_degenerate_uv_triangles=textured_degenerate,uv_density_px_m_percentiles=np.quantile(densities,[.05,.5,.95]).tolist() if densities else None,uv_scope='Meter-scaled tiling and guarded chart reuse deliberately overlap. Collapsed UVs only on untextured native scalar materials are counted but unused. Density percentiles are unweighted per triangle, not a unique lightmap atlas certificate.')
 
 
 def main():
@@ -65,6 +71,11 @@ def main():
         preserved=json.loads(p.read_text())
         for name,h in preserved.items():assert hashlib.sha256((root/name).read_bytes()).hexdigest()==h,('Existing delivery changed',name)
         result['preservation']=dict(files=len(preserved),passed=True)
+    final=Path('build/final-preservation.json')
+    if final.exists():
+        preserved=json.loads(final.read_text())
+        for name,h in preserved.items():assert hashlib.sha256((root/name).read_bytes()).hexdigest()==h,('Existing delivery changed',name)
+        result['preservation']['final_session_files']=len(preserved)
     result['shared_image_union']=dict(unique_images=len(union),bc_full_mips_mib=sum(r['bc_full_mips_mib'] for r in union.values()),png_bytes=sum(r['bytes'] for r in union.values()))
     Path('build/look-audit.json').write_text(json.dumps(result,indent=2));print('LOOK AUDIT PASSED',[(k,{n:r['triangles'] for n,r in v.items()}) for k,v in result['scenes'].items()])
 if __name__=='__main__':main()

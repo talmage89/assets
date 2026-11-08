@@ -170,7 +170,13 @@ def terrain(p):
                         z=max(z,7.03-max(0,abs(s)-verge)/4)
                     v[2]=z;return v
                 ma='Drain' if j==1 else 'Lawn'
+                start=len(b.colors)
                 b.surface([pos(a,u0,z0),pos(a,u1,z1),pos(c,v1,h1),pos(c,v0,h0)],ma,tint=(.83,.87,.76,1))
+                if getattr(Q,'LOOKDEV',False) and ma=='Lawn':
+                    from landscape import lawn_tint
+                    for index in range(start,len(b.colors)):
+                        x,y,z=b.v[index]
+                        b.colors[index]=lawn_tint(x,y,'ditch' if j<2 else 'verge',p.seed,z)
     # End extensions use the same grade and width. They create real horizon
     # continuity in the two eye-height heroes, rather than a backdrop at fence.
     for begin,end in [(-half-1800,-half),(half,half+1800)]:

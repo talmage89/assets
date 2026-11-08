@@ -31,7 +31,7 @@ def native(name,path,target):
     total=sum(sum(len(p.vertices)-2 for p in ob.data.polygons) for ob in parts)
     assert total>0,('Empty native context selection',name,path)
     envelope=None
-    if name in ('Ranch','Cape'):
+    if name.startswith(('Ranch','Cape')):
         sys.path.insert(0,str(HERE));import house_context
         envelope=house_context.extract(parts)
         metadata=json.loads((ROOT/Path(path).with_suffix('.json')).read_text())
@@ -52,7 +52,11 @@ def native(name,path,target):
         # Preserve alpha cards in trees. House silhouettes and vehicle wheels
         # keep their topology at this modest distance-preview reduction.
         alpha=any(m and (m.surface_render_method=='DITHERED') and any(n.type=='TEX_IMAGE' and n.image and n.image.channels==4 for n in m.node_tree.nodes) for m in ob.data.materials if m.use_nodes)
-        if target and total>target and not (name.startswith('Tree') and alpha):
+        # Generic collapse loses the SUV tire's outer rubber annulus, leaving
+        # only its smaller rim. Keep these native wheels intact: grounding a
+        # shrunken wheel would sink the rest of the car and hide the real fault.
+        native_wheel=name=='SUV' and '__Wheel_' in ob.name
+        if target and total>target and not (name.startswith('Tree') and alpha) and not native_wheel:
             # Delivered weather/atlas boundaries duplicate vertices. Collapse
             # on that triangle soup deletes isolated roof patches. Weld the
             # coincident geometry first; loop UV seams remain independent.
@@ -134,7 +138,7 @@ def utility():
     export(Path('build/context/Utility.glb'),[pole.root,*pole.root.children_recursive])
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--kind',default='native');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+    ap=argparse.ArgumentParser();ap.add_argument('--kind',default='native');ap.add_argument('--only',nargs='+');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
     bpy.ops.wm.read_factory_settings(use_empty=True)
     if a.kind=='signal':signal();return
     if a.kind=='utility':utility();return
@@ -144,10 +148,12 @@ def main():
         ('Crossover','cars/export/AlderC150.glb',5500),
         ('HeroHatch','cars/export/AlderH120.glb',None),('HeroSUV','cars/export/AlderX220.glb',None),('HeroCrossover','cars/export/AlderC150.glb',None),
         ('Ranch','houses/export/HearthfieldRanch-11.gltf',5000),('Cape','houses/export/HearthfieldCape-31.gltf',5000),
+        ('Ranch14','houses/export/HearthfieldRanch-14.gltf',None),
+        ('Cape33','houses/export/HearthfieldCape-33.gltf',None),('Cape36','houses/export/HearthfieldCape-36.gltf',None),
         ('TreeOak','trees/export/PinOak.glb',3200),('TreeMaple','trees/export/RedMaple.glb',3200),
         ('Ground','ground/export/Ground.glb',None),('Gas','commercial/export/CommercialGas-101.gltf',None),
         ('Strip','commercial/export/CommercialStrip-201.gltf',None),
         ('StreetLight','street-light/export/StreetLight.glb',None)]:
-        rows[name]=native(name,path,n)
+        if not a.only or name in a.only:rows[name]=native(name,path,n)
     Path('build/context/report.json').write_text(json.dumps(rows,indent=2))
 if __name__=='__main__':main()
