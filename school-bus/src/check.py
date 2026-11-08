@@ -155,6 +155,37 @@ def model(path):
         bench_count=len(benchbacks),passenger_socket_count=sum('_Place' in n for n in sockets),sockets=sockets,pivots=pivots,
         scope='Measured source construction and allocation. Does not prove export serialization or collision clearance.')
 
+def variant_markings(obs,parts_path,seed):
+    """Prove the selected source quads and their own atlas region survived."""
+    actual={}
+    for ob in obs:
+        uv=ob.data.uv_layers['UVMap']
+        for face in ob.data.polygons:
+            for li in face.loop_indices:
+                p=ob.matrix_world@ob.data.vertices[ob.data.loops[li].vertex_index].co
+                actual.setdefault(tuple(round(c,5) for c in p),[]).append(tuple(uv.data[li].uv))
+    bpy.ops.wm.open_mainfile(filepath=str(Path(parts_path).resolve()))
+    planes=[ob for ob in bpy.context.scene.objects if ob.type=='MESH' and ob.get('variant_id')==seed]
+    base_count=sum(ob.type=='MESH' and ob.get('variant_id')==101 for ob in bpy.context.scene.objects)
+    rows={}
+    for ob in planes:
+        uv=ob.data.uv_layers['BakeUV'];offset=Vector(ob.get('bake_offset',(0,0,0)))
+        gaps=[];missing=0;corners=0
+        for face in ob.data.polygons:
+            for li in face.loop_indices:
+                corners+=1
+                p=ob.matrix_world@(ob.data.vertices[ob.data.loops[li].vertex_index].co-offset)
+                candidates=actual.get(tuple(round(c,5) for c in p),[])
+                if not candidates:missing+=1;continue
+                gaps.append(min((Vector(v)-uv.data[li].uv).length for v in candidates))
+        rows[ob.name]=dict(source_corners=corners,missing_corners=missing,
+                           maximum_uv_distance=max(gaps,default=None))
+    passed=len(rows)==base_count and base_count>0 and all(
+        not r['missing_corners'] and r['maximum_uv_distance'] is not None and r['maximum_uv_distance']<1e-5
+        for r in rows.values())
+    return dict(passed=passed,source_variant_planes=len(rows),base_variant_planes=base_count,
+                planes=rows,scope='Selected source variant after its staging offset, measured against fresh imported positions and UVs; not exporter-report serialization')
+
 def delivery(path,parts_path):
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
     obs=[o for o in bpy.context.scene.objects if o.type=='MESH'];count=0;rows={}
@@ -207,6 +238,8 @@ def delivery(path,parts_path):
     if uvr['coverage']<policy['UV_MIN_COVERAGE'] or density['5']<bands['p5_min'] or not bands['median_min']<=density['50']<=bands['median_max'] or density['95']>bands['p95_max']:errors.append('Measured UV coverage / density bands')
     if len(sockets)<100:errors.append('Missing sockets')
     if max(differences)>2e-5 or max(pivot_errors.values())>2e-5:errors.append('Geometry/pivot serialization')
+    report['variant_markings']=variant_markings(obs,parts_path,int(path.stem.split('-')[-1]))
+    if not report['variant_markings']['passed']:errors.append('Missing or wrong-atlas fleet markings')
     report['errors']=errors;report['passed']=not errors;return report
 
 def main():

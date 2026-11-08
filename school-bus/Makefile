@@ -31,7 +31,8 @@ build/markings/.stamp: src/markings.py src/spec.py
 build/prepared.blend: $(CHECKPOINT_BLEND) ../cars/src/prepare_bake.py
 	$(BP) --python ../cars/src/prepare_bake.py -- --source $< --out $@
 
-build/finalized.blend build/uv.json &: build/prepared.blend src/config.py src/finalize.py ../cars/src/sedan_finalize.py build/motion.json
+# Motion validates the input; a report-only check change does not alter UVs.
+build/finalized.blend build/uv.json &: build/prepared.blend src/config.py src/finalize.py ../cars/src/sedan_finalize.py | build/motion.json
 	$(BP) --python src/finalize.py -- --source $< --out build/finalized.blend --config src/config.py --report build/uv.json --size 2048 --target-density 300 --margin .0012
 
 textures/4k/T_SchoolBus_BaseColor.png textures/4k/T_SchoolBus_Normal.png textures/4k/T_SchoolBus_ORM.png &: build/finalized.blend src/bake.py src/front_normal_bake.py

@@ -559,3 +559,20 @@ The seed-specific .25/.20/.14 coat factors now have one shared parameter
 table. This keeps the four bindings, three images and geometry unchanged.
 Rebuild and bake these final shader refinements, then judge the refreshed
 delivery rather than the earlier atlas under the new light.
+
+### Fleet-marking regression found during final review
+
+The final fleet view exposed missing district, fleet and plate planes on
+seeds 102 and 103. The bake-only cleanup removed these staged variants
+before the kit exporter could select them. Preserve objects with a
+`variant_id` until that selection; continue removing the independent mold.
+The old twelve-triangle difference between seeds was missing construction,
+not an optimization. Each corrected delivery measures 86,554 triangles.
+
+An independent check now compares the selected source marking planes,
+after their staging offset, against fresh imported positions and UV corners.
+It rejected the old seed 102 with all 36 corners missing. All three repaired
+deliveries contain six planes and all 36 corners; maximum UV distance is
+2.98×10⁻⁸. This proves the intended markings survive, separately from the
+existing source/export serialization check. The shared baked images did
+not change. Regenerate the complete gallery with the corrected fleet.

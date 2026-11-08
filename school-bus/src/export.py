@@ -10,11 +10,12 @@ def main():
     parser=argparse.ArgumentParser(add_help=False);parser.add_argument('--out',required=True);parser.add_argument('--report',required=True);parser.add_argument('--variant',type=int,default=101)
     a,_=parser.parse_known_args(sys.argv[sys.argv.index('--')+1:])
     # The general exporter keeps orphan roots, including untagged bake molds.
-    # Strip this asset's explicit bake-only sources in an ignored staging copy.
+    # Keep staged variant quads until the kit selects/un-stages the chosen seed.
     index=sys.argv.index('--source')+1;source=Path(sys.argv[index]).resolve()
     bpy.ops.wm.open_mainfile(filepath=str(source))
     for ob in list(bpy.context.scene.objects):
-        if ob.get('bake_only'):bpy.data.objects.remove(ob,do_unlink=True)
+        if ob.get('bake_only') and 'variant_id' not in ob:
+            bpy.data.objects.remove(ob,do_unlink=True)
     staged=source.parent/'export-source.blend'
     bpy.ops.wm.save_as_mainfile(filepath=str(staged))
     old_source=sys.argv[index];sys.argv[index]=str(staged)
