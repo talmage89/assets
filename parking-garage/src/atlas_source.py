@@ -62,14 +62,20 @@ def generate(folder=Path('build/lookdev/atlas-source'),layout_path=Path('build/l
         grain=field(w,h,709+j,7);macro=field(w,h,7091+j,32)
         rim=np.clip((1-np.abs(u))*7,0,1)*np.clip(v*12,0,1)*np.clip((1-v)*12,0,1)
         if key in ('runoff','rust','mineral'):
-            tracks=np.zeros((h,w))
-            for k in range(7):
-                center=-.7+k*.23+.035*np.sin(v*(7+k)+k)
-                tracks+=np.exp(-((u-center)/(.018+.025*(1-v)))**2)*np.clip(1-v*(.65+.05*k),0,1)
-            alpha=(tracks*.65+macro*.12)*rim*(.5+.5*grain)
-            alpha=np.clip(alpha*1.8,0,1)
-            alpha*=np.clip((1-v)*1.8,0,1)*np.clip((1-v*.55-np.abs(u))*8,0,1)
-            rgb={'runoff':(78,72,52),'rust':(119,61,30),'mineral':(210,202,175)}[key]
+            # One leaking joint feeds a broad irregular root and narrowing
+            # tributaries. In image space v=0 is the water source (mesh top).
+            center=.10*np.sin(v*5.8)+.035*np.sin(v*23)
+            fall=np.clip(1-v,0,1)
+            width=.44*fall**1.25+.025+(macro-.5)*.12
+            plume=np.exp(-((u-center)/np.maximum(width,.018))**2)
+            branch=np.exp(-((u+.24-.30*v+.035*np.sin(v*11))/.055)**2)*np.clip((.72-v)*5,0,1)
+            alpha=(plume*.88+branch*.40)*fall**.48*rim*(.62+.38*grain)
+            if key=='mineral':
+                # Salts crystallize beside the wetted core and at its toe.
+                edge=np.exp(-((np.abs(u-center)-width*.72)/.065)**2)
+                alpha=(edge*.8+plume*.22)*rim*(.48+.52*grain)*fall**.35
+            alpha=np.clip(alpha*1.35,0,1)
+            rgb={'runoff':(53,49,39),'rust':(126,57,24),'mineral':(224,218,195)}[key]
         elif key in ('oil','spall','droppings'):
             warp=(macro-.5)*.42;rad=(u*1.1+warp)**2+((v-.5)*2.25+warp)**2
             alpha=np.clip((.8-rad)*3,0,1)*(.35+.65*grain)*rim
@@ -80,8 +86,8 @@ def generate(folder=Path('build/lookdev/atlas-source'),layout_path=Path('build/l
             if key=='droppings':alpha*=np.clip((grain-.35)*4,0,1)
             rgb={'oil':(39,36,28),'spall':(126,122,109),'droppings':(209,202,177)}[key]
         else:
-            alpha=np.exp(-((u+.04*np.sin(v*19))/.55)**4)*rim*(.1+.25*grain)
-            alpha*=.45+.55*np.sin(u*34+v*3)**2
+            alpha=np.exp(-((u+.08*np.sin(v*11))/.64)**4)*rim*(.38+.52*grain)
+            alpha*=.55+.45*np.sin(u*34+v*3)**2
             rgb=(42,39,31) if key=='rubber' else (186,179,155)
         bc[y0:y1,x0:x1,:3]=rgb;bc[y0:y1,x0:x1,3]=np.rint(np.clip(alpha,0,1)*255)
         orm[y0:y1,x0:x1]=[255,130 if key=='oil' else 230,0]
