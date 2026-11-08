@@ -54,12 +54,13 @@ def add(p,parent):
         x=-p.length/2+j*p.span
         for side in (-1,1):
             yy=side*(p.deck_width/2-.3+.002)
-            for k in range(3):
-                vertical(x+rng.uniform(-.55,.55),yy,seat-.045,rng.uniform(.34,.70),rng.uniform(.55,.98),k%2)
-            vertical(x+.3,yy,seat-.42,.8,.45,2)
-            # Irregular mismatched gray paint over old tags.
-            if j%2:
-                vertical(x-.2,yy,seat-.12,1.35,.58,3,(.86,.87,.84,1))
+            # Joint leakage and seat drainage make separate narrow gravity
+            # fingers. Most of the cap remains its weathered concrete field.
+            for k in range(9):
+                dx=rng.uniform(-.48,.48);h=rng.uniform(.28,.91);w=rng.uniform(.045,.115)
+                vertical(x+dx,yy,seat-.045,w,h,0,(.65,.63,.54,1))
+                if k%3!=0:
+                    vertical(x+dx+w*.40,yy-side*.001,seat-.075,w*.44,h*.90,1,(1,1,.94,1))
         for side in (-1,1):
             for dx in (-.4,.4):
                 # Oxide originates at the steel/elastomer bearing interface.

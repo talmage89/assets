@@ -11,7 +11,12 @@ BED_TREE=None
 
 def water_surface(p,x,y):
     u=(x-p.center(y))/p.halfwidth(y)
-    return p.water_z(y)+.040*math.sin(x*1.8+y*2.0)*math.exp(-((y-p.riffle_y)/5.5)**2)*max(0,1-u*u)
+    # Stationary transverse crests over the downstream lip of the shoal;
+    # narrow, uneven channels carry longer foam tails in +Y.
+    band=math.exp(-((y-p.riffle_y-1.4)/4.2)**2)*max(0,1-u*u)
+    phase=(y-p.riffle_y)*math.tau/1.65+.60*math.sin(x*.72)+.23*math.sin(x*1.9)
+    crest=math.sin(phase)+.32*math.sin(2*phase+.5)
+    return p.water_z(y)+.075*crest*band
 
 
 def water_normal(p,x,y):
@@ -28,23 +33,30 @@ def surface_z(p,x,y):
 
 
 def stone(b,x,y,z,r,rng,role='riprap',water_z=0):
-    # Low-silhouette angular riprap, individual seating determined by terrain.
-    n=5 if r<.22 else 6;phase=rng.random()*6.28;sx=rng.uniform(.8,1.3);sy=rng.uniform(.7,1.2)
-    base=[(x+sx*r*math.cos(i*math.tau/n+phase),y+sy*r*math.sin(i*math.tau/n+phase),z-r*.22) for i in range(n)]
-    top=[(x+sx*r*.7*math.cos(i*math.tau/n+phase),y+sy*r*.7*math.sin(i*math.tau/n+phase),z+r*rng.uniform(.32,.72)) for i in range(n)]
-    # The base follows and penetrates the actual terrain. Its hidden bottom
-    # cap costs nothing; fractured exposed faces keep the rock's silhouette.
+    # Independent fracture planes and tilted bedding, rather than matching
+    # parallel hexagonal rings. Buried hull faces are omitted from the export.
+    phase=rng.random()*math.tau;sx=rng.uniform(.65,1.35);sy=rng.uniform(.65,1.25)
+    vertices=[]
+    for j,(count,height,radius) in enumerate(((5,-.25,1),(5,.26,.94),(3,.66,.48))):
+        for i in range(count):
+            angle=phase+i*math.tau/count+j*.69+rng.uniform(-.19,.19)
+            dx=sx*r*radius*math.cos(angle);dy=sy*r*radius*math.sin(angle)
+            vertices.append((x+dx,y+dy,z+r*(height+rng.uniform(-.15,.15))+.24*dx-.19*dy))
     if BED_TREE is not None:
-        seated=[]
-        for vx,vy,vz in base:
+        for vx,vy,vz in vertices[:5]:
             hit=BED_TREE.ray_cast(Vector((vx,vy,100)),Vector((0,0,-1)),120)[0]
             if hit is None or abs(hit.z-(z-.04))>r*1.05:return
-            seated.append((vx,vy,min(vz,hit.z-.025) if hit is not None else vz))
-        base=seated
-    v=rng.uniform(.48,.82)
-    v*=.50+.50*min(1,max(0,z-water_z)/.55)
-    color=(v*.96,v*.92,v*.82,1)
-    b.loft([base,top],role,color,caps=False);b.geom(top,[tuple(range(n))],role,color,up=True)
+    bm=bmesh.new()
+    for point in vertices:bm.verts.new(point)
+    bmesh.ops.convex_hull(bm,input=list(bm.verts));bm.normal_update()
+    v=rng.uniform(.22,.51);brown=rng.random();wet=.40+.60*min(1,max(0,z-water_z)/.65)
+    for face in bm.faces:
+        if face.normal.z<-.18:continue
+        variation=rng.uniform(.90,1.06)
+        tint=(v*(1+.07*brown)*wet*variation,v*wet*variation,v*(1-.12*brown)*wet*variation,1)
+        if z<water_z+.18:tint=(tint[0]*.74,tint[1]*.88,tint[2]*.61,1)
+        b.geom([v.co[:] for v in face.verts],[tuple(range(len(face.verts)))],role,tint)
+    bm.free()
 
 
 def terrain(p,parent):
@@ -154,10 +166,14 @@ def terrain(p,parent):
 
 
 def water(p,parent):
-    b=G.Batch('WaterSurface',parent,'water');ny=240;nx=20
+    b=G.Batch('WaterSurface',parent,'water');nx=20
+    # Resolve the 1.65m standing waves locally without spending triangles
+    # along the entire calm 300m reach.
+    ys=sorted(set([-p.reach/2+i*p.reach/120 for i in range(121)]+
+                  [-80.,0.,40.,75.]+[p.riffle_y-9+i*.25 for i in range(73)]));ny=len(ys)-1
     rows=[]
-    for i in range(ny+1):
-        y=-p.reach/2+i*p.reach/ny;l,r=p.water_edges(y)
+    for y in ys:
+        l,r=p.water_edges(y)
         rows.append([(l+(r-l)*j/nx,y,water_surface(p,l+(r-l)*j/nx,y)) for j in range(nx+1)])
     vs=[v for row in rows for v in row]
     fs=[(i*(nx+1)+j,i*(nx+1)+j+1,(i+1)*(nx+1)+j+1,(i+1)*(nx+1)+j) for i in range(ny) for j in range(nx)]
@@ -195,12 +211,22 @@ def water(p,parent):
         vx,vy=p.flow(v.co.x,v.co.y)
         a.vector=(vx,vy,max(0,p.water_z(v.co.y)-surface_z(p,v.co.x,v.co.y)))
     foam=G.Batch('RiffleBrokenFoam',parent,'water');rng=random.Random(p.seed+31)
-    for j in range(950):
-        y=rng.gauss(p.riffle_y,2.7);l,r=p.water_edges(y);x=rng.uniform(l+.7,r-.7)
-        length=rng.uniform(.30,1.20);w=rng.uniform(.08,.25)
-        coords=[(x-length/2,y),(x+length/2,y+.06),(x+length*.30,y+.06+w),(x-length*.4,y+w)]
-        uv=foam_chart(j%4)
-        foam.geom([(xx,yy,water_surface(p,xx,yy)+.003) for xx,yy in coords],[(0,1,2,3)],'foam',uv=uv)
+    for j in range(110):
+        # Ribbons follow local flow, seeded behind wave crests on the shoal.
+        y=p.riffle_y+rng.choice((-.9,.75,2.4,4.05))+rng.uniform(-.20,.20)
+        l,r=p.water_edges(y);x=rng.uniform(l+1.0,r-1.0)
+        length=rng.uniform(.8,3.1);width=rng.uniform(.025,.10);segments=7
+        tx,ty=p.tangent(y)
+        for k in range(segments):
+            t0=k/segments;t1=(k+1)/segments
+            if rng.random()<.12:continue
+            coords=[]
+            for t,sign in ((t0,-1),(t0,1),(t1,1),(t1,-1)):
+                wobble=.055*math.sin(t*8+j);w=width*(.25+.75*math.sin(math.pi*t))
+                xx=x+tx*length*t+ty*(wobble+sign*w)
+                yy=y+ty*length*t-tx*(wobble+sign*w)
+                coords.append((xx,yy,water_surface(p,xx,yy)+.007))
+            foam.geom(coords,[(0,1,2,3)],'foam',uv=foam_chart(j%4))
     # Intermittent curling foam/eddy lines in the sheltered pier wakes.
     for i in range(1,p.spans):
         xx=-p.length/2+i*p.span

@@ -78,10 +78,10 @@ def palette(repo):
     tex.image=bpy.data.images.load(str(Path('textures/checkpoint/T_RiverWater_Normal.png').resolve()),check_existing=True);tex.image.colorspace_settings.name='Non-Color'
     nm=water.node_tree.nodes.new('ShaderNodeNormalMap');nm.inputs['Strength'].default_value=1.2
     water.node_tree.links.new(tex.outputs['Color'],nm.inputs['Color']);water.node_tree.links.new(nm.outputs['Normal'],b.inputs['Normal'])
-    water['river_volume_color']=[.48,.45,.19];water['river_volume_density']=1.55
-    water['river_scatter_color']=[.70,.80,.35];water['river_scatter_density']=2.;water['river_scatter_anisotropy']=.20
+    water['river_volume_color']=[.55,.64,.24];water['river_volume_density']=.85
+    water['river_scatter_color']=[.60,.67,.27];water['river_scatter_density']=.55;water['river_scatter_anisotropy']=.20
     water['river_flow_attribute']='_FLOW';G.M['water']=water
     water['river_flow_speed_range']=[.15,1.15]
-    water['river_flow_normal_range']=[.35,3.2]
-    water['river_flow_roughness_range']=[.085,.30]
+    water['river_flow_normal_range']=[.28,1.65]
+    water['river_flow_roughness_range']=[.065,.19]
     volume_from_extras(water)
