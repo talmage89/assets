@@ -2255,3 +2255,9 @@ that lock; it waited on itself. The deadlocked attempt is terminated and saved
 separately. The replacement batch uses one outer `kit/with_gpu.sh`, and its
 children skip a second wrapper when the held marker is present. No kit source
 changed and no test pass is inferred from the interrupted attempt.
+
+The replacement GPU batch completes with all six files passing. Together with
+the fresh CPU phase this is 34/34 files, with every test-file digest and both
+full kit-source snapshots matching. Fresh completion follows the corrected
+GPU start; peak child RSS for that GPU phase is 989036 KiB. The interrupted
+double-lock attempt is excluded from this pass claim.
