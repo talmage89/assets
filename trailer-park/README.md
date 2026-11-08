@@ -90,7 +90,7 @@ Construction sections:
 | WindowAC | 0.58 × 0.55 × 0.38 m housing with support brackets | 212 | 1 |
 | SatelliteDish | Spun concave pan, mounting post and feed arm | 276 | 1 |
 | AddedRoom | 3.2 × 2.4 m, independent piers, 2.95–3.20 m roof, real sash opening and removable skirt | 672 | 4 |
-| Household | Two pots, procedural leaves and small ride-on toy | 432 | 3 |
+| Household | Two pots, procedural leaves and small ride-on toy | 432 | 1 |
 | EntranceSign | 2.9 m fictional sign on timber posts; open-license lettering | 685 | 2 |
 | SupportFrame | Unskirted single-wide chassis/pier inspection assembly | 4,036 | 2 |
 | Modules sheet | Add-ons with labels; inspection assembly, not one prop budget | 11,491 | 4 |
@@ -126,8 +126,8 @@ posts. Their original family materials and pivot structures are retained.
 
 | Park | Homes | Ground envelope, m | Lot, ft / sq ft | Street | Placed / unique triangles | Materials | glTF + BIN, MiB |
 | --- | ---: | --- | --- | --- | ---: | ---: | ---: |
-| 101 / Alder Court, 1968 plan | 36 | 149.304 × 107.7824 | 32 × 110 / 3,520 | 20 ft / 6.096 m through lanes | 2,135,310 / 663,362 | 29 | 52.026 |
-| 202 / Meadow Bend, 1994 plan | 33 | 133.4544 × 173.6192 | 56 × 95 / 5,320 | 24 ft / 7.3152 m rounded loop | 1,963,684 / 672,772 | 33 | 51.328 |
+| 101 / Alder Court, 1968 plan | 36 | 149.304 × 107.7824 | 32 × 110 / 3,520 | 20 ft / 6.096 m through lanes | 2,135,310 / 663,362 | 29 | 52.027 |
+| 202 / Meadow Bend, 1994 plan | 33 | 133.4544 × 173.6192 | 56 × 95 / 5,320 | 24 ft / 7.3152 m rounded loop | 1,963,684 / 672,772 | 33 | 51.327 |
 
 Counts include home bodies, decks, carports, native props, facilities,
 private ground/roads, small edge plants and service infrastructure. Cars,
