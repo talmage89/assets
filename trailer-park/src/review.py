@@ -25,6 +25,11 @@ def main():
         delivery=Path(row.get('delivery',row['source']))
         for im in row['images']:
             assert hashlib.sha256((delivery.parent/im['uri']).read_bytes()).hexdigest()==im['sha256'],('Changed image input',im['uri'])
+        if row.get('source_manufacture'):
+            used={im['sha256'] for im in row['context']['image_resources']}
+            for channel in ('BaseColor','ORM','Height'):
+                source_field=Path('textures/source')/f'T_Manufactured_{channel}.png'
+                assert hashlib.sha256(source_field.read_bytes()).hexdigest() in used,('Changed source manufacture field',source_field)
         relative=Path(row['stem'])/(row['shot']+'.png')
         assert (root/relative).is_file() or (root/'matches'/relative).is_file(),('Missing rendered frame',relative)
     pairs=sorted((root/'matches').glob('*-pair.jpg'))
@@ -40,7 +45,7 @@ def main():
         rgb=np.array(Image.open(p).convert('RGB'));v=rgb.max(2)/255
         stats[str(p.relative_to(root))]=dict(size=Image.open(p).size,dark_fraction=float((v<.10).mean()),near_clip_fraction=float((v>.985).mean()),p5=float(np.percentile(v,5)),p95=float(np.percentile(v,95)))
     (root/'tonal-report.json').write_text(json.dumps(stats,indent=2))
-    (root/'source-verification.json').write_text(json.dumps(dict(passed=True,render_receipts=len(receipts),scope='Archived embedded GLB and referenced external image SHA-256 identities'),indent=2))
+    (root/'source-verification.json').write_text(json.dumps(dict(passed=True,render_receipts=len(receipts),scope='Archived embedded GLB, referenced delivery images and actual 4096 source manufacture field SHA-256 identities where used'),indent=2))
     print('CONTACT',root/'contact.jpg',len(paths),'frames',len(pairs),'photo pairs; source identities verified')
 
 if __name__=='__main__':main()

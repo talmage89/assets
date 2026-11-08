@@ -644,3 +644,60 @@ Per the brief, stop before final gallery generation and docs. The prepared
 delivery targets remain disabled by default. Docs generation additionally
 requires explicit visual acceptance; three logged rejected critiques cannot
 unlock it. No final-readme, cold-build or final-repeat claim is made here.
+
+### Native comparison evidence for the rejected gate
+
+Opened all nine baseline frames, all four source-manufacture frames and
+their four balanced pairs, then all ten before/after crop pairs at native
+size. Source and shipped finishes share the same game geometry and caused
+corner colors. The source uses original 4096 manufacture fields and height
+bump before the GPU bake; it is not a sculpted high-poly source comparison.
+The weak age is visible there too, so it cannot be excused as bake loss.
+
+| Fix | Before/after JPGs under `renders/age-fixes/` | Native width per panel | Judgment |
+| --- | --- | --- | --- |
+| Traffic | `01-traffic-old.jpg`, `01-traffic-new.jpg` | 1440 | Paint/body combinations improved; three body models still recur |
+| Older homes and lots | `02-home-age.jpg`, `02-apron-age.jpg` | 1224 / 1440 | Reject: regular runoff bars, clean skirt/awning and broad clean apron |
+| Both lanes | `03-lanes-old.jpg`, `03-lanes-new.jpg` | 1152 | History visible; drawn seals, round oil marks and straight edge remain |
+| Turf and trees | `04-lawn-old.jpg`, `04-turf-trees.jpg` | 1440 | Crown transforms improved; broad turf remains planar-looking |
+| Street context | `05-street-context.jpg`, `05-street-framing.jpg` | 1440 | Lane/occupied fronts shown; framing comparison explicitly changes camera |
+
+The nine package comparisons use the same camera/lens/resolution and all
+eight rendered light controls. Their largest matrix-element difference is
+3.59e-7 from Blender serialization. `05-street-framing.jpg` separately shows
+the original void-facing camera against the new lane view, labeled as a
+camera correction. `cameras.json` records every crop and its source paths;
+individual native before/after JPGs accompany the pairs. Stale comparisons
+from the superseded street-camera helper are removed when regenerating.
+
+Checkpoint contact: `renders/age-pass3/contact.jpg`; photo contact:
+`renders/age-pass3/matched-contact.jpg`; source pairs/contact:
+`renders/source/`; old-export contact: `renders/age-before/contact.jpg`.
+Source/image identity checks pass for 10 shipped, four source and nine
+baseline receipts. Full home, 69-lot, park and context costs are measured in
+`build/metrics.md` and `build/metrics.json`. No final docs images exist.
+
+The complete resident fleets have 23/59 white-or-silver paints in Park-101
+and 24/58 in Park-202 (38.98% / 41.38%). These are exported-socket population
+counts, not visibility-weighted percentages of hero pixels. The authored
+period mixes are design weights, not a claimed historical market survey.
+
+Checkpoint verification after rejection:
+
+- `make model` and `make check`: pass; 21 exports, 1000 plan seeds, 1365
+  between-assembly comparisons; 18 home hinges sampled in 936 poses without
+  violations. Raw geometry/UV/normals, metric texture-cell use, fresh import,
+  scale, caps and feathered-soil alpha checks pass. Log:
+  `build/age-pass3-check.log`.
+- `make repeat`: 70 deterministic package, metadata, camera and source-field
+  files byte-identical, using cached native inputs. No GPU bake in this check.
+  Receipts: `build/repeat.json`, `build/age-repeat-console.log`.
+- `python3 ../kit/repo_check.py`: 2136 source files, zero errors. Preservation:
+  all 1202 pre-existing delivery files unchanged, including the original 492.
+- `python3 src/docs.py --renders renders/age-pass3`: expected rejection,
+  `Visual fixes are not accepted; docs remain withheld`; no docs created.
+
+The cold default `make` / final gallery / GPU `make check-texture-repeat`
+delivery sequence remains unrun because the visual gate failed. The batch
+of 23 export/source/baseline frames completed serially in one GPU lock; the
+lock was released before the CPU-only package repeat. No detached job remains.
