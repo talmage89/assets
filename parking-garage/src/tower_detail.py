@@ -40,7 +40,7 @@ def add(r,levels,H):
         # Landing call panel and a conventional recessed door surround.
         b.box((2.22,2.725,z+1.10),(.12,.025,.25),'Steel')
         for zz in (1.06,1.15):b.box((2.22,2.742,z+zz),(.035,.008,.035),'White')
-        for xx in (.51,2.09):b.box((xx,2.73,z+1.1),(.065,.16,2.2),'Steel')
+        for xx in (.51,2.09):b.box((xx,2.825,z+1.1),(.065,.035,2.2),'Steel')
     # Elevator overrun and separate machine-room hood, vent and folded coping.
     b.box((1.48,0,H+.51),(2.42,5.37,.84))
     b.box((1.48,0,H+.98),(2.60,5.55,.10),'Steel')

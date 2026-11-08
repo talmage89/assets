@@ -397,3 +397,18 @@ comparison version fits the native crop at 5.67px RMS. This private comparison
 option does not expand the public generator's accepted 3–5 level program.
 Both comparisons are explicitly construction specimens; the accepted town
 garages are still four and three levels.
+
+The pre-bake motion audit then found the new lift architraves occupying the
+sliding pockets and the revised side pier overlapping the closed street
+leaf. Move the fixed architraves in front of the leaf's sliding plane and
+shorten the pier to the original aperture; retain every pivot and range.
+The regenerated modules and placed assemblies pass all 60 sampled sweeps.
+Pigment overlays are explicitly open boundary surfaces, excluded from solid
+ray-parity containment; the underlying structural surfaces remain tested.
+
+The prebound UV audit also exposed numerical slivers at band intersections.
+Remove subpixel UV/geometry fragments rather than relaxing the imported UV
+check. Small manufactured faces translate their texture phase without being
+split; large core panels trade transverse density for zero extra geometry.
+Tower3 / Tower / Tower5 remain 4,324 / 5,928 / 7,532 triangles. Actual bake
+and material acceptance are still pending the next photographic review.

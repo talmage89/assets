@@ -65,9 +65,12 @@ def generate(folder=Path('build/lookdev/atlas-source'),layout_path=Path('build/l
         elif key in ('oil','spall','droppings'):
             warp=(macro-.5)*.42;rad=(u*1.1+warp)**2+((v-.5)*2.25+warp)**2
             alpha=np.clip((.8-rad)*3,0,1)*(.35+.65*grain)*rim
+            if key=='spall':
+                fracture=np.abs(u*.95+warp)+np.abs((v-.5)*1.8-warp)+.09*np.sin(u*17+v*13)
+                alpha=np.clip((.82-fracture)*9,0,1)*(.5+.5*grain)*rim
             if key=='oil':alpha*=.7+.3*np.sin(v*29+u*4)**2
             if key=='droppings':alpha*=np.clip((grain-.35)*4,0,1)
-            rgb={'oil':(39,36,28),'spall':(142,137,119),'droppings':(209,202,177)}[key]
+            rgb={'oil':(39,36,28),'spall':(126,122,109),'droppings':(209,202,177)}[key]
         else:
             alpha=np.exp(-((u+.04*np.sin(v*19))/.55)**4)*rim*(.1+.25*grain)
             alpha*=.45+.55*np.sin(u*34+v*3)**2

@@ -169,7 +169,7 @@ def tower(r,levels=4,elevator=True,refined=False):
     else:
         # A glazed return exposes the two flights to the public street. The
         # existing exit jamb, landing, stair widths and pivots stay in place.
-        for yy in (-2.56,1.17):b.box((-2.7,yy,H/2),(.20,.28,H))
+        for yy in (-2.56,1.11):b.box((-2.7,yy,H/2),(.20,.28,H))
         b.box((-2.7,1.83,(H+2.2)/2),(.20,1.04,H-2.2))
     b.box((-2.7,2.545,1.1),(.20,.31,2.2))
     b.box((.25,0,H/2),(.20,5.4,H))
