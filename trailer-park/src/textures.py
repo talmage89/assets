@@ -69,7 +69,8 @@ def source(out,n=4096):
             c*=.97+.025*(mid-.5)[:,:,None];r=.68+.04*mid
         bc[y0:y1,x0:x1]=np.clip(c,0,1);height[y0:y1,x0:x1]=np.clip(relief,0,1)
         orm[y0:y1,x0:x1]=np.stack([ao,r,m],axis=-1)
-    write_png(out/f'T_{NAME}_BaseColor.png',np.dstack((linear_to_srgb(bc),alpha)))
+    write_png(out/f'T_{NAME}_BaseColor.png',linear_to_srgb(bc))
+    write_png(out/f'T_{NAME}_Coverage.png',alpha[:,:,None])
     write_png(out/f'T_{NAME}_ORM.png',orm)
     write_png(out/f'T_{NAME}_Height.png',height[:,:,None],bits=16)
     (out/'layout.json').write_text(json.dumps(dict(coverage_m=COVERAGE,rects=RECTS,height_distance_m=.012,source_size=n),indent=2))

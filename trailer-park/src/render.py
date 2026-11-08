@@ -77,6 +77,10 @@ def source_finish():
         height=ns.new('ShaderNodeTexImage');height.image=bpy.data.images.load(str(Path('textures/source/T_Manufactured_Height.png').resolve()),check_existing=True);height.image.colorspace_settings.name='Non-Color'
         bump=ns.new('ShaderNodeBump');bump.inputs['Distance'].default_value=.012;ls.new(height.outputs['Color'],bump.inputs['Height'])
         bs=next(n for n in ns if n.type=='BSDF_PRINCIPLED');ls.new(bump.outputs['Normal'],bs.inputs['Normal'])
+        if mat.name.startswith('ManufacturedPatina'):
+            coverage=ns.new('ShaderNodeTexImage');coverage.image=bpy.data.images.load(str(Path('textures/source/T_Manufactured_Coverage.png').resolve()),check_existing=True);coverage.image.colorspace_settings.name='Non-Color'
+            alpha=bs.inputs['Alpha'].links[0].from_node
+            ls.new(coverage.outputs['Color'],alpha.inputs[0])
 
 
 def clear_raking_direction(plan):

@@ -6,7 +6,7 @@ from PIL import Image
 
 def pack(source,out):
     source=Path(source);out=Path(out);name='T_Manufactured_BaseColor.png'
-    rgb=Image.open(out/name).convert('RGB');coverage=Image.open(source/name).getchannel('A')
+    rgb=Image.open(out/name).convert('RGB');coverage=Image.open(source/'T_Manufactured_Coverage.png').convert('L')
     assert rgb.size==coverage.size
     Image.merge('RGBA',(*rgb.split(),coverage)).save(out/name)
 
