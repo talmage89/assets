@@ -1,6 +1,6 @@
 """Fresh-scene deterministic rebuild at identical output paths; archive in build/."""
 from pathlib import Path
-import subprocess,sys,json,hashlib,shutil
+import subprocess,sys,json,hashlib,shutil,os
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];ASSET=HERE.parent
 
 
@@ -10,12 +10,16 @@ def main():
     # be compared as bytes, including URI strings and JSON serialization.
     baseline=target/'baseline'
     if baseline.exists():shutil.rmtree(baseline)
+    blend=ASSET/'build/gardens.blend';blend_stat=blend.stat()
     files=[*sorted((ASSET/'export/final').glob('*.gltf')),*sorted((ASSET/'export/final').glob('*.bin')),
            *sorted((ASSET/'textures/ship').glob('*.png')),*sorted((ASSET/'textures/4k-plants').glob('*.png')),*sorted((ASSET/'textures/source-surfaces').glob('*.png')),
            ASSET/'build/pieces.json',*[ASSET/f'build/garden-{s}.json' for s in (117,229,341)],
-           ASSET/'build/context/shed.glb',ASSET/'build/context/shed.json',ASSET/'build/context/chain/tile-report.json',ASSET/'build/surface-layout.json',*[ASSET/f'build/context/costs-{s}.json' for s in (117,229,341)],*sorted((ASSET/'build/context/chain').glob('*.png'))]
+           ASSET/'build/context/shed.glb',ASSET/'build/context/shed.json',ASSET/'build/context/chain/tile-report.json',ASSET/'build/surface-layout.json',
+           *[ASSET/f'build/context/{name}' for s in (117,229,341) for name in (f'costs-{s}.json',f'site-{s}.json')],
+           *sorted((ASSET/'build/context/chain').glob('*.png'))]
     if (ASSET/'build/detail-cameras.json').exists():files.append(ASSET/'build/detail-cameras.json')
-    for path in files:
+    diagnostics=[ASSET/f'build/context/Site_{s}-native-tangent.json' for s in (117,229,341)]
+    for path in files+diagnostics:
         dst=baseline/path.relative_to(ASSET);dst.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(path,dst)
     commands=[['blender','-b','--factory-startup','-t','4','--python-exit-code','1','--python',str(HERE/'context_build.py')],
               [sys.executable,str(ROOT/'fences/chain-link/src/mesh_tile.py'),'--out','build/context/chain'],
@@ -60,7 +64,19 @@ def main():
         original=baseline/path.relative_to(ASSET)
         assert path.read_bytes()==original.read_bytes(),('Deterministic file differs',str(path))
         exact.append(dict(path=str(path.relative_to(ASSET)),bytes=path.stat().st_size,sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
-    result=dict(exact_files=exact,source_fields=fields,passed=True,geometry=rows,analytic_images=images,scope='fresh-scene private shed, garden and full-site glTF/BIN; analytic plant/lawn/chain/source fields and manifests compare byte for byte at identical relative paths; GPU bakes tested separately')
+    rounding=[]
+    for path in diagnostics:
+        before=json.loads((baseline/path.relative_to(ASSET)).read_text());after=json.loads(path.read_text())
+        a=before.pop('max_rounding_delta');b=after.pop('max_rounding_delta')
+        assert before==after and 0<=a<=.00011 and 0<=b<=.00011
+        rounding.append(dict(path=str(path.relative_to(ASSET)),reference_pre_guard_delta=a,repeat_pre_guard_delta=b,
+            scope='variable pre-guard Mikk rounding diagnostic; post-guard complete BIN equality is checked above'))
+    # A verified equal rebuild must not invalidate Make's baked-map graph.
+    # Otherwise rewriting source fields here schedules a production GPU rebake
+    # during the following check, needlessly staling reviewed render receipts.
+    for path in files:shutil.copystat(baseline/path.relative_to(ASSET),path)
+    os.utime(blend,ns=(blend_stat.st_atime_ns,blend_stat.st_mtime_ns))
+    result=dict(exact_files=exact,source_fields=fields,passed=True,geometry=rows,analytic_images=images,native_rounding_diagnostics=rounding,scope='fresh-scene private shed, garden and full-site glTF/BIN; analytic plant/lawn/chain/source fields and manifests compare byte for byte at identical relative paths; variable pre-guard tangent diagnostics and GPU bakes tested separately')
     (ASSET/'build/repeat.json').write_text(json.dumps(result,indent=2));print('REPEAT PASSED',len(rows),'glTF/BIN files and',len(images),'analytic maps')
 
 

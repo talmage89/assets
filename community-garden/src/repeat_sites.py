@@ -1,15 +1,14 @@
 """CPU-only repeat of the exported native-neighborhood scene assembly."""
-import sys,json
+import sys
 from pathlib import Path
-import bpy
 HERE=Path(__file__).resolve().parent;REPO=HERE.parents[1];sys.path[:0]=[str(REPO),str(HERE)]
 import neighborhood
-from render import context
+from render import context,CONTEXT_SHA256
 from plan import SEEDS
 
 for seed in SEEDS:
-    bpy.ops.wm.read_factory_settings(use_empty=True)
-    bpy.ops.import_scene.gltf(filepath=str(Path(f'export/final/Garden_{seed}.gltf').resolve()))
-    p=json.loads(Path(f'build/garden-{seed}.json').read_text())['plan'];rt=context(p);neighborhood.close_rear_block(p,rt)
-    neighborhood.export(f'export/final/Site_{seed}.gltf',REPO)
+    # Invalidate only the package receipt, so the actual packaging path rebuilds
+    # all scene data and metadata instead of comparing an untouched receipt.
+    Path(f'build/context/site-{seed}.json').unlink(missing_ok=True)
+    neighborhood.prepare(seed,REPO,CONTEXT_SHA256,context)
 
