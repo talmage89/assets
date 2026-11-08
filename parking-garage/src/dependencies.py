@@ -21,31 +21,50 @@ def snapshot():
         for p in family.rglob('*') if p.is_file() and any(s in ('export','textures','docs') for s in p.relative_to(family).parts)}
 
 
+def build_context(kind,folder,reuse=True):
+    """Reject native outliers, never relax a threshold or substitute geometry.
+
+    Each attempt runs the unchanged native recipe. Both rejected and accepted
+    hashes/measurements survive; three failures stop the build.
+    """
+    folder=Path(folder);folder.mkdir(parents=True,exist_ok=True)
+    threads,expected=CONTEXT[kind];out=folder/(kind+'.glb');car=kind in ('hatchback','crossover');attempts=[]
+    history_path=folder/(kind+'-history.json')
+    history=json.loads(history_path.read_text()) if history_path.exists() else []
+    for attempt in range(3 if car else 1):
+        audit=len(history)
+        valid=reuse and out.exists() and (car or hashlib.sha256(out.read_bytes()).hexdigest()==expected)
+        if not valid:
+            with (folder/f'{kind}-{audit}.log').open('w') as log:
+                subprocess.run(['blender','-t',str(threads),'-b','--factory-startup','--python-exit-code','1',
+                    '--python',str(LOCAL/'src/context_build.py'),'--','--kind',kind,'--out',str(out)],check=True,stdout=log,stderr=subprocess.STDOUT,cwd=LOCAL)
+        actual=hashlib.sha256(out.read_bytes()).hexdigest()
+        if not car:
+            assert actual==expected,('Native town recipe differs',kind,actual,expected)
+            return dict(kind=kind,threads=threads,bytes=out.stat().st_size,actual_sha256=actual,identical=True,passed=True)
+        result=folder/f'{kind}-tolerance-{audit}.json'
+        with (folder/f'{kind}-tolerance-{audit}.log').open('w') as log:
+            worker=subprocess.run(['blender','-t','2','-b','--factory-startup','--python-exit-code','1',
+                '--python','src/context_guard.py','--','--source',str(out),'--baseline',
+                f'src/{kind}-surface.json','--out',str(result)],cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT)
+        assert result.exists(),('Surface audit failed without a receipt',kind,worker.returncode)
+        measured=json.loads(result.read_text());entry=dict(attempt=attempt,audit=audit,reused_cached=valid,**measured)
+        attempts.append(entry);history.append(entry)
+        history_path.write_text(json.dumps(history,indent=2)+'\n')
+        (folder/(kind+'-attempts.json')).write_text(json.dumps(attempts,indent=2)+'\n')
+        print('NATIVE INPUT',kind,'ACCEPT' if measured['passed'] else 'REJECT',measured,flush=True)
+        if worker.returncode==0 and measured['passed']:
+            return dict(kind=kind,threads=threads,bytes=out.stat().st_size,history_receipt=str(history_path),attempts=attempts,**measured)
+        rejected=folder/'rejected';rejected.mkdir(exist_ok=True)
+        out.rename(rejected/f'{kind}-{audit}-{actual}.glb');reuse=False
+    raise AssertionError(('Native context failed three fixed-tolerance attempts',kind,attempts))
+
+
 def main():
     folder=LOCAL/'build/context';folder.mkdir(parents=True,exist_ok=True)
     receipt=LOCAL/'build/preservation.json'
     if not receipt.exists():receipt.write_text(json.dumps(snapshot(),indent=2)+'\n')
-    rows=[]
-    for kind,(threads,expected) in CONTEXT.items():
-        out=folder/(kind+'.glb')
-        car=kind in ('hatchback','crossover')
-        valid=out.exists() and (car or hashlib.sha256(out.read_bytes()).hexdigest()==expected)
-        # Keep the existing evaluation profile. Native car gauge topology can
-        # vary slightly: the owner's ruling requires measured surface bounds.
-        if not valid:
-            with (folder/(kind+'.log')).open('w') as log:
-                subprocess.run(['blender','-t',str(threads),'-b','--factory-startup','--python-exit-code','1',
-                    '--python',str(LOCAL/'src/context_build.py'),'--','--kind',kind,'--out',str(out)],check=True,stdout=log,stderr=subprocess.STDOUT,cwd=LOCAL)
-        actual=hashlib.sha256(out.read_bytes()).hexdigest()
-        if car:
-            result=folder/(kind+'-tolerance.json')
-            subprocess.run(['blender','-t','2','-b','--factory-startup','--python-exit-code','1',
-                '--python','src/context_guard.py','--','--source',str(out),'--baseline',
-                f'src/{kind}-surface.json','--out',str(result)],check=True,cwd=LOCAL)
-            rows.append(dict(kind=kind,**json.loads(result.read_text())))
-        else:
-            assert actual==expected,('Native town recipe differs',kind,actual,expected)
-            rows.append(dict(kind=kind,actual_sha256=actual,identical=True))
+    rows=[build_context(kind,folder) for kind in CONTEXT]
     before=json.loads(receipt.read_text());after=snapshot();changed=[p for p,h in before.items() if after.get(p)!=h]
     assert not changed,changed
     (LOCAL/'build/dependencies.json').write_text(json.dumps(dict(preserved_files=len(before),passed=True,inputs=rows),indent=2)+'\n')

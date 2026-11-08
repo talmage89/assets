@@ -2,7 +2,7 @@
 import argparse,json,sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE.parents[1]),str(HERE)]
-from context_geometry import capture,compare
+from context_geometry import capture,compare,digest
 
 
 def main():
@@ -13,9 +13,13 @@ def main():
         assert not a.baseline.exists(),'Never replace an accepted surface baseline'
         a.baseline.write_text(json.dumps(capture(a.source),separators=(',',':'))+'\n')
         print('RECORDED ACCEPTED CAR',a.source,a.baseline.stat().st_size,flush=True);return
-    report=compare(json.loads(a.baseline.read_text()),a.source)
+    reference=json.loads(a.baseline.read_text())
+    try:report=compare(reference,a.source,enforce=False)
+    except (AssertionError,ValueError) as error:
+        report=dict(passed=False,reference_sha256=reference['sha256'],actual_sha256=digest(a.source),error=str(error))
     if a.out:a.out.write_text(json.dumps(report,indent=2)+'\n')
-    print('NATIVE SURFACE TOLERANCE PASS',report,flush=True)
+    print('NATIVE SURFACE TOLERANCE', 'PASS' if report['passed'] else 'REJECT',report,flush=True)
+    assert report['passed'],report
 
 
 if __name__=='__main__':main()

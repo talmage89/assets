@@ -65,7 +65,7 @@ def capture(path):
                 materials=sorted(m['name'] for m in doc.json.get('materials',[])))
 
 
-def compare(reference,path):
+def compare(reference,path,enforce=True):
     doc=Document(path);names={n['name']:i for i,n in enumerate(doc.json['nodes'])}
     assert set(names)==set(reference['objects']),('Car object names differ',path)
     assert sorted(m['name'] for m in doc.json['materials'])==reference['materials'],('Car materials differ',path)
@@ -83,8 +83,8 @@ def compare(reference,path):
             hit=tree.find_nearest(Vector(point));assert hit[0] is not None
             maximum=max(maximum,float(hit[3]));count+=1
     relative=abs(triangles-reference['triangles'])/reference['triangles']
-    assert relative<=.001,(path,'Triangle delta',relative)
-    assert maximum<=.001,(path,'Sampled surface distance',maximum)
-    return dict(passed=True,reference_sha256=reference['sha256'],actual_sha256=digest(path),
+    report=dict(passed=relative<=.001 and maximum<=.001,reference_sha256=reference['sha256'],actual_sha256=digest(path),
                 reference_triangles=reference['triangles'],actual_triangles=triangles,
                 relative_triangle_delta=relative,surface_samples=count,max_surface_distance_m=maximum)
+    if enforce:assert report['passed'],report
+    return report
