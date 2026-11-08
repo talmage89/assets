@@ -3,6 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 from PIL import Image
+import numpy as np
 
 
 def textures(value):
@@ -40,10 +41,43 @@ def measure(path):
                 gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size)
 
 
+def bearing_units(path):
+    """Count actual bearing triangles below the joint, then separate in Y.
+
+    glTF Y is height and -Z is Blender transverse Y. The clear spaces between
+    pad assemblies separate their measured triangle-centroid clusters.
+    """
+    path=Path(path);d=json.loads(path.read_text());binary=path.with_suffix('.bin').read_bytes()
+    def array(index):
+        a=d['accessors'][index];v=d['bufferViews'][a['bufferView']]
+        typ={5126:'<f4',5125:'<u4',5123:'<u2'}[a['componentType']];n={'SCALAR':1,'VEC3':3}[a['type']]
+        return np.ndarray((a['count'],n),dtype=typ,buffer=binary,offset=v.get('byteOffset',0)+a.get('byteOffset',0),
+                          strides=(v.get('byteStride',np.dtype(typ).itemsize*n),np.dtype(typ).itemsize))
+    node=next(n for n in d['nodes'] if n.get('name')=='BearingStation_0');centers=[];materials=set()
+    plan=next(n['extras']['plan'] for n in d['nodes'] if n.get('name','').startswith('Crossing_'))
+    for pr in d['meshes'][node['mesh']]['primitives']:
+        pos=array(pr['attributes']['POSITION']);tri=pos[array(pr['indices']).ravel().reshape(-1,3)]
+        selected=tri[(tri[:,:,1]<plan['deck_z']-1).all(axis=1)]
+        if not len(selected):continue
+        centers.extend((-selected[:,:,2].mean(axis=1)).tolist());materials.add(pr['material'])
+    centers.sort();groups=[]
+    for i,value in enumerate(centers):
+        if i==0 or value-centers[i-1]>.75:groups.append(0)
+        groups[-1]+=1
+    assert len(set(groups))==1 and groups[0]<=2000,('Inconsistent bearing assemblies',groups)
+    image_ids={d['textures'][t]['source'] for m in materials for t in textures(d['materials'][m])}
+    images={}
+    for i in image_ids:
+        file=path.parent/d['images'][i]['uri'];w,h=Image.open(file).size
+        images[hashlib.sha256(file.read_bytes()).hexdigest()]=w*h*4/3/1048576
+    return dict(measured_units=len(groups),triangles_per_unit=groups[0],shared_image_mib=sum(images.values()))
+
+
 def main():
     files=sorted(Path('export/pieces').glob('*.gltf'))+[Path(f'export/RiverCrossing-{s}.gltf') for s in (101,202)]
     result={p.stem:measure(p) for p in files}
     for seed in (101,202):
+        result[f'RiverCrossing-{seed}']['bearing_unit']=bearing_units(Path(f'export/RiverCrossing-{seed}.gltf'))
         veg=result[f'RiverCrossing-{seed}']['categories']['vegetation']
         assert veg['unique_triangles']<veg['placed_triangles']/5,('Vegetation does not share meshes',seed,veg)
     Path('build/resources.json').write_text(json.dumps(result,indent=2)+'\n')

@@ -30,16 +30,22 @@ def main():
     for name in ('TypeIII_Girder18','DeckPanel6','Parapet6','PierColumns','PierWall','Abutment','GuardrailTerminal'):
         r=resources[name];n=sum(v['placed_triangles'] for v in r['categories'].values())
         lines.append(f'| {name} | {n:,} | {r["shared_image_mib"]:.2f} |')
+    bearing=resources['RiverCrossing-101']['bearing_unit']
+    lines.append(f'| Bearing stack (placed assembly) | {bearing["triangles_per_unit"]:,} | {bearing["shared_image_mib"]:.2f} |')
     lines += ['', 'Image allocations are shared, deduplicated full-mip estimates at 8bpp. Rows are not additive.',
               'New river images remain 4⅔ MiB: one 1024 bank/bed triple and two 512 images (plants/weather/foam and water normal).',
-              '', '| Crossing / category | Placed triangles | Unique triangles | Mesh instances | Shared image MiB |',
-              '| --- | ---: | ---: | ---: | ---: |']
+              '']
     for seed in (101,202):
         r=resources[f'RiverCrossing-{seed}']
+        lines += ['| Crossing / category | Placed triangles | Unique triangles | Mesh instances | Shared image MiB |',
+                  '| --- | ---: | ---: | ---: | ---: |']
         for name in ('bridge','reach','water','site','vegetation','cars','context'):
             v=r['categories'][name]
             lines.append(f'| {seed} / {name} | {v["placed_triangles"]:,} | {v["unique_triangles"]:,} | {v["mesh_instances"]:,} | {v["shared_image_mib"]:.2f} |')
-        lines += ['',f'{seed}: glTF + BIN **{r["gltf_bytes"]+r["bin_bytes"]:,} bytes**; shared images **{r["shared_image_mib"]:.2f} MiB**.','']
+        civil=sum(r['categories'][k]['placed_triangles'] for k in ('reach','water','site'))
+        assert civil<150000
+        lines += ['',f'{seed}: bed/banks + complete water + riverwalk/site **{civil:,} triangles**, below 150,000.',
+                  f'glTF + BIN **{r["gltf_bytes"]+r["bin_bytes"]:,} bytes**; shared images **{r["shared_image_mib"]:.2f} MiB**.','']
     lines += [f'Both crossings’ image union: **{costs["texture_mib_bc8_mips"]:.2f} MiB**. Native cars/buildings/botany remain separate costs.',
               'The instanced context needs engine batching/culling/LOD; no frame-rate claim is made.',
               '', 'Proof: `make`, `make check`, `make repeat`, independent photo projection verification and exact five-image regeneration.',
@@ -47,8 +53,8 @@ def main():
               'Receipts: `build/check.json`, `resources.json`, `repeat.json`, `texture-repeat.json`, `render-check.json` and `fix-evidence.json`.',
               '', 'Full frame contact: `renders/checkpoint/contact.jpg`; photo contact: `renders/checkpoint-matches/contact.jpg`.',
               'The module sheet and 1.8m human/car scale shots are in the same checkpoint folder.',
-              'Visual criticism and remaining CG cues are recorded in the last pass of [REVIEW.md](REVIEW.md).','']
-    Path('CHECKPOINT.md').write_text('\n'.join(lines))
+              'Visual criticism and remaining CG cues are recorded in the last pass of [REVIEW.md](../REVIEW.md).','']
+    Path('build/checkpoint-report.md').write_text('\n'.join(lines))
 
 
 if __name__=='__main__':main()
