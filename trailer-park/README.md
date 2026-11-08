@@ -313,8 +313,9 @@ correction remain separately available in `renders/finish-fixes/` and
 `build/round4-before/`. Historical inputs are optional and separate from
 rebuilding the current delivery.
 
-`kit/checkpoint_rules.mk` supplies the build graph; `kit/with_gpu.sh` holds
-the shared GPU lock once for the complete render batch. Modeling and
+`kit/checkpoint_rules.mk` supplies the build graph; `kit/with_gpu.sh` supplies
+the shared GPU lease. Serial render sets yield at scene boundaries after
+about five minutes, then queue for the next set. Modeling and
 checks use serial Blender processes. References are fetched only as
 images/PDFs into ignored `refs/`. Existing accepted native packages are
 read-only inputs. Missing native deliveries have a source-only fallback
