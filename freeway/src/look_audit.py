@@ -77,5 +77,10 @@ def main():
         for name,h in preserved.items():assert hashlib.sha256((root/name).read_bytes()).hexdigest()==h,('Existing delivery changed',name)
         result['preservation']['final_session_files']=len(preserved)
     result['shared_image_union']=dict(unique_images=len(union),bc_full_mips_mib=sum(r['bc_full_mips_mib'] for r in union.values()),png_bytes=sum(r['bytes'] for r in union.values()))
+    latest=Path('build/round4-preservation.json')
+    if latest.exists():
+        preserved=json.loads(latest.read_text())
+        for name,h in preserved.items():assert hashlib.sha256((root/name).read_bytes()).hexdigest()==h,('Existing delivery changed',name)
+        result['preservation']['round4_session_files']=len(preserved)
     Path('build/look-audit.json').write_text(json.dumps(result,indent=2));print('LOOK AUDIT PASSED',[(k,{n:r['triangles'] for n,r in v.items()}) for k,v in result['scenes'].items()])
 if __name__=='__main__':main()

@@ -77,16 +77,17 @@ def surface(b,p,points):
 def smooth(ob):
  """Average matching earth corners; retain the physical ditch/crest shape."""
  from mathutils import Vector
- me=ob.data;groups={}
+ me=ob.data;groups={};grass_loops=set()
  for face in me.polygons:
   if 'turf' not in me.materials[face.material_index].name.lower():continue
+  grass_loops.update(face.loop_indices)
   for index in face.vertices:
    v=me.vertices[index];key=tuple(round(c,4) for c in v.co)
    groups.setdefault(key,[]).append(face.normal.copy())
  normals=[]
  for loop in me.loops:
   key=tuple(round(c,4) for c in me.vertices[loop.vertex_index].co)
-  normals.append(sum(groups[key],Vector()).normalized() if key in groups else me.corner_normals[loop.index].vector)
+  normals.append(sum(groups[key],Vector()).normalized() if loop.index in grass_loops else me.corner_normals[loop.index].vector)
  me.normals_split_custom_set(normals)
 
 if __name__=='__main__':print(field())
