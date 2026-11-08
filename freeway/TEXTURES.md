@@ -18,9 +18,10 @@ belong to the optional context budget. Eight linked tile meshes carry the
 near-field parallax; density falls toward the textured base at distance. Tiles
 follow actual earth normals and reject paved footprints. Mown cards are short;
 unmown drifts past the maintenance line are taller. The card material is stock
-double-sided glTF MASK and allocates no extra image. Each linked tile has 32
-clumps, two crossed quads per clump and 128 triangles. The atlas fan has 360
-thin blades and six seed heads. Alternating shoulder strips select subtly
+double-sided glTF MASK and allocates no extra image. Each linked tile has 64
+clumps, two crossed quads per clump and 256 triangles. Stratified roots and
+upward blade normals keep the sward continuous. The atlas fan has 90
+thin blades and two seed heads. Alternating shoulder strips select subtly
 lighter/darker card patterns; unmown tiles vary height in drifts. Grass-card
 normal strength is .10 so the atlas's shared repair relief does not make
 individual blades look corrugated. Source-height comparisons apply that same
@@ -74,8 +75,10 @@ opacity and run length. Broad damp film remains below the bearing shelf.
 Girder drips
 follow the actual flange/web profile and camber. Column repairs follow the
 cylinder; no flat patch floats in front of it. Additional column height
-stations carry narrow head-connected runoff channels and low spray deposits
-without extending a ground tint over the whole shaft. Barrier toes retain
+stations carry broad head-connected dampness and low spray deposits.
+The existing runoff chart supplies fine channels on skins following each
+32-sided shaft, .6mm above its actual surface, from below the cap to the foot.
+Barrier toes retain
 road film, and open assembly ends concentrate joint staining. A few ramp-rail bays are bent,
 with neighboring replacements brighter than the older zinc. Litter and rooted
 volunteers accumulate at barrier drainage and fence traps.

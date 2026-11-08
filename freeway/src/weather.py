@@ -149,6 +149,10 @@ def construction(root):
                 if is_pier and v.z<4.46 and abs(v.x)<.61:
                     from column_age import tint
                     ca.data[i].color=tint(v,station)
+    if root.get('module_kind')=='bridge_pier':
+        from column_deposits import add
+        b=Q.Batch('Column runoff channels',root);add(b);b.finish()
+        return
     if root.get('module_kind')!='bridge':return
     b=Q.Batch('Joint bearing and scupper deposits',root)
     # Outer girder faces face the freeway shoulder. Runoff is top-connected,
