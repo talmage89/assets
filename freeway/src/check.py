@@ -251,8 +251,8 @@ def scene(seed):
     stats['traffic_contact_scope']='Actual lower tire vertices against paving within 1.5 m of a start 0.35 m above the tire minimum; overhead bridge decks are outside that support query.'
     assert len(contacts)>=80,len(contacts)
     lowest=min(contacts,key=lambda r:r['minimum_gap_m']);highest=max(contacts,key=lambda r:r['minimum_gap_m'])
-    assert lowest['minimum_gap_m']>-.03,('Tire penetration',lowest)
-    assert highest['minimum_gap_m']<.08,('Tire clearance',highest)
+    assert lowest['minimum_gap_m']>-.02,('Tire penetration',lowest)
+    assert highest['minimum_gap_m']<.02,('Tire clearance',highest)
     stats['gltf_bytes']=path.stat().st_size;stats['bin_bytes']=path.with_suffix('.bin').stat().st_size
     # Ordinary glTF material allocation deduplicated by actual image URI/hash.
     d=json.loads(path.read_text());image_rows=[]
