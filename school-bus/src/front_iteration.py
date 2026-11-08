@@ -12,7 +12,7 @@ class Front:
     def __init__(self):
         self.root=bpy.data.objects['SchoolBus'];self.seed=101;self.high=False;self.detail=True
         self.m={k:bpy.data.materials['Bus '+v] for k,v in {
-            'yellow':'yellow','black':'black','frame':'frame','aluminum':'aluminum',
+            'yellow':'yellow','black':'black','frame':'frame','aluminum':'aluminum','ceiling':'ceiling',
             'headlight':'headlight','windshield':'windshield','amber':'amber'}.items()}
         from kit import vehicle_materials as V
         self.m['lens']=bpy.data.materials.get('Bus optical cover') or V.glazing('Bus optical cover',(.96,.98,.97))
@@ -22,7 +22,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True)
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     bpy.ops.wm.open_mainfile(filepath=str(Path(a.source).resolve()))
-    prefixes=('Compound hood','Dense front mold','Seated grille','Grille radiator','Recessed grille',
+    prefixes=('Compound hood','Dense front mold','Front wheelhouse liner','Seated grille','Grille radiator','Recessed grille',
               'Grille vertical','Headlamp closed','Headlamp silver','Headlamp formed','Lamp front lowbeam',
               'Glass sealed headlamp','Bonded headlamp','Front amber','Hood cowl','Hood rubber')
     for ob in list(bpy.context.scene.objects):

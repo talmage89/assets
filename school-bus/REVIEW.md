@@ -291,3 +291,76 @@ comparisons, Eevee view and evidence validation. Every image is from scripts;
 the gallery is the actual external glTF with its baked maps. This is the
 requested form/construction checkpoint stop. No final docs image or final
 look-dev approval is claimed.
+
+## Round 2 — source form pass 1, rejected open-shell cuts
+
+Color/value first: the archived exported checkpoint is too pale beside the
+neutral-balanced service photographs. Passenger panes read gray-white, the
+ochre enamel loses orange saturation, and the door reveals expose yellow
+instead of a pale interior lining. Workbench is used below only for geometry;
+its opaque glass and unlit print sheets cannot establish a material match.
+
+Read the old hero, front detail, side, entrance interior, aisle and all three
+photo pairs at full size. The old exports/cameras are retained under
+`renders/round2-before/` and the worktree's ignored `build/bus-round2/`.
+The two different maker photographs show a continuous hood/fender molding,
+recessed optics, dark radiator depth and a smooth cowl transition. Their front
+designs are references for construction only; neither contour is copied.
+
+The first supported subdivision mold has a lower nose and integrated fenders,
+but its wheelhouse Boolean was applied to an open sheet. The native 1000 px
+Workbench views in `renders/round2-front-step1/` expose yellow cutter surfaces
+across the wheels. Reject this result. Apply the 6 mm laminate before the cuts,
+then check actual closed geometry again. The 84,230-triangle trial also exceeds
+the 70k exterior allocation; reduce concealed wheel sections and internal disc
+detail while retaining 96 tire and 128 exposed rim-lip stations.
+
+The side camera's six-point fit mixed a different bus body's overhang/eave
+geometry with chassis registration. Refit visible hubs and ground contacts,
+as in the sedan review: 8.37 native-pixel RMS at 48.73 mm, versus 82.8 px and
+21.7 mm before. The discarded eave picks remain body holdouts; this is a
+camera improvement, not a claim of matching the reference bus's proportions.
+
+## Round 2 — form pass 2, compound mold and cabin construction
+
+Color/value first: the source Eevee preview is warmer than the old ochre,
+and gray lining replaces the yellow dash surround and stepwell. Its 32-sample
+software glass remains bright and dithered; reject it as evidence of the final
+window read. Physical Cycles transmission and the exported atlas still need
+their own review. The source preview also exposes a gray exterior wall at the
+entrance; retain yellow outside and paint only the actual inner wall gray.
+The two balanced exterior paint patches measure 249/195/89 and 178/130/59
+sRGB (snow / near white parking stripe). Their different illumination is
+visible: these are appearance samples, not estimates of calibrated albedo.
+
+Opened both makers' photographs again, all five Workbench front/side iterations,
+the five actual mesh section plots and the three completed software Eevee
+views. The rear shoulder initially crossed the falling crown, producing a
+trough. A monotonic rear transition now reaches the windshield sill. The mold
+is one supported subdivision cage, with a 6 mm laminate before wheel/pocket
+cuts and a separate level-3 source for normal transfer. Wheelhouse liners sit
+inside the laminate lip. Source section curves are in
+`renders/round2-front-step3/sections.png`; updated final sections follow export.
+
+The first optical construction had 128 cover/reflector triangle crossings on
+each side. Apply the same bowed die to the buckets, reflector bowls and bulbs,
+then test again: zero crossings, with the unchanged car face/corner/area gates
+passing. The amber lenses occupy real openings. The new grille has a recessed
+return, open cross webs and a closed dark radiator bed. No maker's front is
+copied. Tiny optical facets and the economical grille remain review points.
+
+The seats have crowned cushions, broad rounded back tops, sewn welt geometry
+on the entrance rows and material seams/scuffs on the rest. Gray lining,
+rubber coving, barrier legs and modesty-panel supports meet the actual floor.
+The first tread stays 354 mm high, with a shallow folded pan, yellow nosings
+and a recessed courtesy light. The source now measures 86,488 triangles:
+69,224 exterior / 17,264 interior, including 25,632 in six wheels. The car
+full-face audit and all 153 actual static-support contacts pass. Existing
+16-mechanism sweeps still pass at all 508 poses. These are construction checks,
+not exported serialization or appearance approval.
+
+Software Workbench identifies its renderer as llvmpipe; no shared GPU is used
+for those quick geometry views. The software Eevee batch received SIGTERM
+after three completed views, before the aisle image. Its retained images are
+`renders/round2-source-pass2/`; Cycles look probes and final exported views
+remain required. No documentation image has been written.

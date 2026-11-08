@@ -2,7 +2,7 @@
 .DELETE_ON_ERROR:
 CHECKPOINT_BLEND := build/bus-101.blend
 CHECKPOINT_ARGS := --seed 101
-CHECKPOINT_DEPS := src/build.py src/front.py src/spec.py src/finishes.py src/markings.py build/markings/.stamp
+CHECKPOINT_DEPS := src/build.py src/front.py src/interior_shapes.py src/weathering.py src/spec.py src/finishes.py src/markings.py build/markings/.stamp
 CHECKPOINT_OUT := renders/checkpoint
 WIDTH ?= 1400
 SAMPLES ?= 48

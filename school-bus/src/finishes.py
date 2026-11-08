@@ -6,15 +6,15 @@ import spec as S
 
 def build(wear):
     axles=(S.FRONT_AXLE,S.REAR_AXLE)
-    m={'yellow':V.paint('Bus yellow',(.79,.405,.009),wear,axles,front=-5.94,rear=6.006,metallic=0,flakes=0)}
+    m={'yellow':V.paint('Bus yellow',(.95,.425,.004),wear,axles,front=-5.94,rear=6.006,metallic=0,flakes=0)}
     for key,c,kind in [('black',(.008,.009,.009),'rubber'),('frame',(.013,.014,.013),'steel'),
         ('aluminum',(.35,.37,.36),'alloy'),('wheel',(.29,.31,.30),'steel'),
-        ('vinyl',(.043,.064,.050),'plastic'),('floor',(.015,.016,.015),'rubber'),
-        ('ceiling',(.42,.43,.385),'plastic'),('dash',(.025,.029,.026),'plastic'),
+        ('vinyl',(.027,.042,.034),'plastic'),('floor',(.010,.011,.010),'rubber'),
+        ('ceiling',(.58,.60,.565),'plastic'),('dash',(.025,.029,.026),'plastic'),
         ('white',(.70,.72,.65),'plastic'),('red',(.40,.007,.005),'plastic')]:
         m[key]=V.manufactured('Bus '+key,c,kind,wear,axles,refined=True)
-    m['glass']=V.glazing('Bus glass',(.81,.86,.80),axes=(1,2))
-    m['windshield']=V.glazing('Bus windshield',(.86,.89,.84))
+    m['glass']=V.glazing('Bus glass',(.30,.37,.33),axes=(1,2))
+    m['windshield']=V.glazing('Bus windshield',(.32,.39,.35))
     m['lens']=V.glazing('Bus optical cover',(.96,.98,.97))
     m['reflector']=V.manufactured('Bus optical reflector',(.55,.57,.56),'chrome',0,refined=True)
     n=Nodes('Bus tape');a=n.node('ShaderNodeAttribute',attribute_name='VehicleRest');p=a.outputs['Vector'];_,y,z=n.split(p)
@@ -59,11 +59,20 @@ def build(wear):
     gate=rail.mul(rail.ramp(rail.math('ABSOLUTE',xx),1.219,1.226),rail.ramp(rail.math('ABSOLUTE',xx),1.253,1.250))
     h=rail.nt.nodes['OUT_height'];old=h.inputs[0].links[0].from_socket
     rail.feed(h.inputs[0],rail.add(old,rail.mul(gate,rail.maximum(*rows),.0010)))
-    # Sparse skirt corrosion belongs to the wet lower sheet edge; preliminary only.
+    # Sparse skirt corrosion belongs to the wet lower sheet edge.
     rust=n.mul(side,n.ramp(z,.870,.770),n.ramp(n.noise(n.vec('MULTIPLY',p,(1,2,5)),47,2),.61,.77),wear)
     base=n.nt.nodes['OUT_base'];old=base.inputs[0].links[0].from_socket;n.feed(base.inputs[0],n.mix(rust,old,(.13,.048,.012),True))
+    # The school-bus enamel has a modest coat, rather than a car's wet gloss.
+    bs=n.nt.nodes['SURFACE'];old=bs.inputs['Coat Weight'].links[0].from_socket
+    n.feed(bs.inputs['Coat Weight'],n.mul(old,.28))
+    from weathering import apply
+    apply(m,wear)
     return m
 
-def printed(name,image):
+def printed(name,image,wear=.46):
     n=Nodes('Bus print '+name);tex=n.node('ShaderNodeTexImage');tex.image=image
-    return n.finish(tex.outputs['Color'],.48,0)
+    uv=n.node('ShaderNodeTexCoord').outputs['UV'];u,v,_=n.split(uv)
+    edge=n.maximum(n.ramp(u,.025,.004),n.ramp(u,.975,.996),n.ramp(v,.03,.006),n.ramp(v,.97,.994))
+    erosion=n.mul(edge,n.ramp(n.noise(n.vec('MULTIPLY',uv,(7,1,1)),110,2),.58,.78),wear,.30)
+    body=name in ['school','emergency'] or name.startswith(('district-','fleet-'))
+    return n.finish(n.mix(erosion,tex.outputs['Color'],(.31,.21,.036),True),.255 if body else .54,0,coat=.28 if body else 0)

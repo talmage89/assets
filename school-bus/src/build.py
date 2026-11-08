@@ -24,7 +24,7 @@ class Bus:
         self.m=finishes.build(self.info['wear']);self.images={}
         for key in ['school','emergency','maker','stop']+[f'{kind}-{sid}' for sid in S.SEEDS for kind in ['district','fleet','plate']]:
             self.images[key]=bpy.data.images.load(str(ROOT/'school-bus/build/markings'/f'{key}.png'))
-            self.m[key]=finishes.printed(key,self.images[key])
+            self.m[key]=finishes.printed(key,self.images[key],self.info['wear'])
     def add(self,ob,parent=None,category='shell'):
         G.attach(ob,parent or self.root,asset_set='SchoolBus');ob['part_category']=category
         return ob
@@ -241,13 +241,20 @@ def doors(b):
     # Real stacked steps occupy the gap left by the raised floor.
     for i in range(4):
         x=-1.118+i*.205;z=.340+i*.210
-        b.box('Entrance step riser '+str(i),(x,-3.345,z-.098),(.207,.780,.196),'yellow',category='interior',r=.002)
+        depth=.050 if i==0 else .196
+        b.box('Entrance step riser '+str(i),(x,-3.345,z-depth/2),(.207,.780,depth),'floor' if i==0 else 'ceiling',category='interior',r=.002)
         b.box('Worn entrance tread '+str(i),(x,-3.345,z+.006),(.207,.780,.016),'floor',category='interior',r=.002)
-        b.box('Step safety nosing '+str(i),(x-.102,-3.345,z+.009),(.025,.778,.013),'white',category='interior',r=.002)
+        b.box('Step safety nosing '+str(i),(x-.102,-3.345,z+.009),(.025,.778,.013),'yellow',category='interior',r=.002)
+    # Folded pan ends follow the skirt down to a shallow first-step return.
+    section=[(-1.228,.358),(-1.228,.305),(-1.185,.285),(-.995,.285),(-.995,.755),(-1.014,.755),(-1.014,.340)]
+    for side,yy in [('front',-3.751),('rear',-2.939)]:
+        b.add(G.profile('Folded step pan '+side,section,yy-.003,yy+.003,b.m['yellow'],axis='Y'),category='interior')
+    b.box('Recessed step light bucket',(-.982,-3.729,.564),(.140,.018,.066),'black',category='interior',r=.014)
+    b.box('Step courtesy lens',(-.982,-3.716,.564),(.115,.004,.040),'dome',category='lamps',r=.009)
     b.box('Entrance top landing',(-.345,-3.345,1.157),(.114,.780,.046),'floor',category='interior',r=0)
-    b.box('Entrance landing riser',(-.400,-3.345,1.059),(.004,.780,.150),'yellow',category='interior',r=0)
-    b.tube('Entrance grab rail',[(-1.10,-2.975,.354),(-1.10,-2.975,.65),(-.96,-2.975,1.42),(-.50,-2.975,1.72),(-.35,-2.975,1.72),(-.35,S.BARRIER_Y-.058,1.72)],.016,'aluminum',category='interior',sides=10)
-    b.box('Grab rail barrier flange',(-.35,S.BARRIER_Y-.054,1.72),(.065,.008,.065),'aluminum',category='interior',r=.002)
+    b.box('Entrance landing riser',(-.400,-3.345,1.059),(.004,.780,.150),'ceiling',category='interior',r=0)
+    b.tube('Entrance grab rail',[(-1.10,-2.975,.354),(-1.10,-2.975,.65),(-.96,-2.975,1.42),(-.50,-2.975,1.72),(-.35,-2.975,1.72),(-.35,S.BARRIER_Y-.048,1.72)],.016,'aluminum',category='interior',sides=10)
+    b.box('Grab rail barrier flange',(-.35,S.BARRIER_Y-.044,1.72),(.065,.008,.065),'aluminum',category='interior',r=.002)
     # Rear emergency door occupies the physical 37 x 52-inch opening.
     p=pivot(b,'Emergency_rear',(-.485,6.060,1.198),axis='Z',limits=(0,105))
     b.box('Rear emergency lower leaf',(0,6.026,1.474),(.9398,.037,.535),'yellow',p,r=.005)
@@ -307,8 +314,8 @@ def wheel(b,code,x,y,sign,steer=False):
     parent=b.root
     if steer:parent=pivot(b,'Steer_'+code,(x,y,S.HUB),axis='Z',limits=(-40,40))
     spin=pivot(b,'Wheel_'+code,(x,y,S.HUB),parent,axis='X',limits=(-360,360))
-    tire=loaded_tire('Tire_'+code,(x,y,S.HUB),S.TIRE_WIDTH,S.TIRE_ASPECT,S.RIM,b.m['tire'],96,
-                     profile_indices=[0,1,3,4,5,7,9,10,11,13,14],rolling_radius=S.HUB)
+    tire=loaded_tire('Tire_'+code,(x,y,S.HUB),S.TIRE_WIDTH,S.TIRE_ASPECT,S.RIM,b.m['tire'],64 if code.endswith('inner') else 96,
+                     profile_indices=[0,1,3,5,7,9,11,13,14],rolling_radius=S.HUB)
     b.add(tire,spin,'wheels')
     r=S.RIM*.0254/2
     # Car-family lathe method, sized as a deep 22.5-inch truck steel disc.
@@ -327,12 +334,12 @@ def wheel(b,code,x,y,sign,steer=False):
     ob=G.mesh('Truck rim '+code,vs,fs,b.m['wheel']);G.smooth(ob,35);b.add(ob,spin,'wheels')
     # Dished pressed disc and ten recessed ventilation holes, rather than passenger alloy spokes.
     pr=[(.080,.080),(.080,.124),(.035,.198),(.059,.247),(.080,.256),(.090,.247),(.059,.199),(.112,.125),(.112,.080)]
-    disc=G.lathe('Pressed wheel disc '+code,[(x+sign*a,rr) for a,rr in pr],b.m['wheel'],64,axis='X',center=(y,S.HUB),closed=True)
+    disc=G.lathe('Pressed wheel disc '+code,[(x+sign*a,rr) for a,rr in pr],b.m['wheel'],48,axis='X',center=(y,S.HUB),closed=True)
     # Through holes use modest round cutters in the actual steel dish.
     for k in range(8):
-        t=math.tau*k/8;cy=y+.187*math.cos(t);cz=S.HUB+.187*math.sin(t)
-        cut=G.cylinder('Temporary vent',(x-.18,cy,cz),(x+.18,cy,cz),.027,None,12);G.boolean(disc,cut)
-    G.smooth(disc,40);b.add(disc,spin,'wheels')
+        t=math.tau*k/8+.017;cy=y+.187*math.cos(t);cz=S.HUB+.187*math.sin(t)
+        cut=G.cylinder('Temporary vent',(x-.18,cy,cz),(x+.18,cy,cz),.027,None,10);G.boolean(disc,cut)
+    G.smooth(disc,30);b.add(disc,spin,'wheels')
     profile=[(.074,.078),(.074,.089),(.135,.089),(.153,.065),(.153,0),(.144,0),(.144,.078)]
     if code.endswith('inner'):profile=[(.074,.078),(.074,.089),(.135,.089),(.144,.078)]
     hub=G.lathe('Truck hub '+code,[(x+sign*a,rr) for a,rr in profile],b.m['frame'],32,axis='X',center=(y,S.HUB),closed=True);b.add(hub,spin,'wheels')
@@ -392,19 +399,17 @@ def chassis(b):
         b.tube('Exhaust hanger '+str(y),hook,.0035,'black',category='chassis')
 
 def interior(b):
+    from interior_shapes import padded_back,cushion,front_welts,lining
+    lining(b)
     # Rows have molded curved backs with radiused corners and finite cushions.
     for i in range(S.ROWS):
         y=S.SEAT_START+i*S.ROW_PITCH
         for sign in [-1,1]:
             if sign>0 and i==S.SIDE_EXIT_ROW:continue
             x=sign*.657;name=f'Bench_{i:02d}_'+('L' if sign>0 else 'R')
-            b.box(name+' cushion',(x,y-.07,1.590),(.9906,.452,.128),'vinyl',category='interior',r=.060)
-            # Compound cross sections taper gently across and through the padded crown.
-            rings=[]
-            for z,w,dy,depth in [(1.57,.455,.08,.020),(1.72,.475,.085,.026),(1.96,.475,.105,.028),(2.285,.465,.122,.026),(2.335,.425,.128,.012)]:
-                contour=G.rounded_rectangle(w*2,depth*2,min(depth*.75,.035),3)
-                rings.append([(x+xx,y+dy+yy,z) for xx,yy in contour])
-            ob=G.loft(name+' padded back',rings,b.m['vinyl']);G.smooth(ob,50);b.add(ob,category='interior')
+            cushion(b,name+' cushion',x,y)
+            padded_back(b,name+' padded back',x,y)
+            if i<2:front_welts(b,x,y)
             for dx in [-.345,.345]:
                 b.box(name+' foot plate '+str(dx),(x+dx,y-.17,1.183),(.055,.065,.006),'frame',category='interior',r=0)
                 b.tube(name+' support '+str(dx),[(x+dx,y-.17,1.185),(x+dx,y-.17,1.52),(x+dx,y+.11,1.58),(x+dx,y+.13,1.92)],.015,'frame',category='interior',sides=6)
@@ -412,7 +417,7 @@ def interior(b):
             b.socket(name,(x,y-.08,1.70))
             for j in range(3):b.socket(name+f'_Place{j}',(x+(j-1)*.310,y-.08,1.70))
     # Forward barrier and driver enclosure avoid a window over an empty hull.
-    b.box('Front passenger barrier',(-.685,S.BARRIER_Y,1.815),(.960,.100,1.04),'vinyl',category='interior',r=.045)
+    padded_back(b,'Front passenger barrier',-.685,S.BARRIER_Y,.960,1.295,2.335,barrier=True)
     b.box('Driver seat cushion',(.695,-3.43,1.67),(.51,.48,.13),'black',category='interior',r=.055)
     back=b.box('Driver high back',(.695,-3.14,1.99),(.51,.14,.70),'black',category='interior',r=.055);back.rotation_euler.x=-.08
     b.box('Driver suspension pedestal',(.695,-3.39,1.41),(.30,.30,.46),'frame',category='interior',r=.025)
@@ -456,10 +461,16 @@ def fittings(b):
         b.box('Side mirror plane '+str(sign),(sign*1.55,-4.110,2.397),(.218,.007,.377),'mirror',r=.026)
         b.box('Side convex mirror '+str(sign),(sign*1.55,-4.109,2.074),(.218,.008,.213),'mirror',r=.030)
         # Crossover mirror has a true curved ellipsoidal face and two supports.
-        b.tube('Crossview mirror bracket '+str(sign),[(sign*.780,-5.59,1.37),(sign*1.38,-5.90,1.69),(sign*1.36,-6.02,1.94)],.013,'black')
-        b.tube('Crossview mirror brace '+str(sign),[(sign*.757,-5.80,1.43),(sign*1.38,-5.90,1.69)],.011,'black')
-        b.box('Crossview primary foot '+str(sign),(sign*.783,-5.59,1.37),(.014,.075,.080),'black',r=.004)
-        b.box('Crossview brace foot '+str(sign),(sign*.766,-5.80,1.43),(.014,.070,.070),'black',r=.004)
+        hood=bpy.data.objects['Compound hood shell']
+        for label,xx,yy,radius in [('primary',.720,-5.59,.013),('brace',.640,-5.80,.011)]:
+            hit,point,normal,_=hood.ray_cast(Vector((sign*xx,yy,3)),Vector((0,0,-1)))
+            if not hit:raise ValueError('Crossview foot misses actual hood')
+            foot=G.box('Crossview '+label+' foot '+str(sign),point+normal*.004,(.075,.080,.008),b.m['black'],.003,1)
+            foot.rotation_euler=normal.to_track_quat('Z','Y').to_euler()
+            b.add(foot)
+            pts=[point+normal*.007,Vector((sign*1.38,-5.90,1.69))]
+            if label=='primary':pts.append(Vector((sign*1.36,-6.02,1.94)))
+            b.tube('Crossview mirror '+label+' support '+str(sign),pts,radius,'black')
         bpy.ops.mesh.primitive_uv_sphere_add(segments=24,ring_count=12,location=(sign*1.36,-6.04,1.985));ob=bpy.context.object;ob.name='Convex crossview '+str(sign);ob.scale=(.157,1,.125)
         ob.data.materials.append(b.m['black']);ob.data.materials.append(b.m['mirror'])
         for face in ob.data.polygons:face.material_index=int(sum(ob.data.vertices[i].co.y for i in face.vertices)/len(face.vertices)>.28)
@@ -495,11 +506,12 @@ def fittings(b):
             b.box(name+' latch '+str(sign),(sign*1.230,y+w*.35,z),(.012,.040,.030),'aluminum',r=.003)
 
 def finish_scene(b,out):
+    from interior_shapes import paint_reverse_faces
     bpy.context.view_layer.update();counts={};parts={}
     # Bake stable rest coordinates on every original part, before UV packing/joining.
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or 'asset_set' not in ob:continue
-        G.apply(ob)
+        if ob.modifiers:G.apply(ob)
         # Reject zero-area construction crumbs before they become an optical shard.
         bm=bmesh.new();bm.from_mesh(ob.data)
         bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-7)
@@ -508,15 +520,16 @@ def finish_scene(b,out):
         bad=[f for f in bm.faces if f.calc_area()<1e-12]
         if bad:bmesh.ops.delete(bm,geom=bad,context='FACES')
         bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
+        paint_reverse_faces(b,ob)
         attr=ob.data.attributes.new('VehicleRest','FLOAT_VECTOR','POINT')
         for row,v in zip(attr.data,ob.data.vertices):row.vector=ob.matrix_world@v.co
         ob.data.calc_loop_triangles();n=len(ob.data.loop_triangles);parts[ob.name]=n
         cat=ob['part_category'];counts[cat]=counts.get(cat,0)+n
     data=dict(seed=b.seed,triangles=sum(counts.values()),categories=counts,parts=parts,
-              stage='form/construction checkpoint; quick source materials, no final look development')
+              stage='round 2 form and look development')
     Path(out).parent.mkdir(parents=True,exist_ok=True)
     Path(out).with_suffix('.counts.json').write_text(json.dumps(data,indent=2))
-    bpy.context.scene['stage']='form checkpoint';bpy.ops.wm.save_as_mainfile(filepath=str(Path(out).resolve()))
+    bpy.context.scene['stage']='round 2 look development';bpy.ops.wm.save_as_mainfile(filepath=str(Path(out).resolve()))
     print('BUS_BUILD',json.dumps({k:v for k,v in data.items() if k!='parts'}),flush=True)
 
 def fleet_templates(b):
@@ -534,5 +547,8 @@ def fleet_templates(b):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--seed',type=int,default=101);p.add_argument('--out',required=True)
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);bpy.ops.wm.read_factory_settings(use_empty=True)
-    b=Bus(a.seed);body(b);doors(b);hood(b);chassis(b);interior(b);fittings(b);fleet_templates(b);finish_scene(b,a.out)
+    b=Bus(a.seed)
+    for stage in [body,doors,hood,chassis,interior,fittings,fleet_templates]:
+        print('BUS_STAGE',stage.__name__,flush=True);stage(b)
+    finish_scene(b,a.out)
 if __name__=='__main__':main()

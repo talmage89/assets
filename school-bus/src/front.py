@@ -80,6 +80,16 @@ def sculpt(b):
             G.boolean(mold,cut)
         G.smooth(mold,50)
     high.hide_render=True
+    # Thin black wheelhouse liners sit inside the laminate lip, with a real
+    # radial/axial return. They preserve the steering tire's swept envelope.
+    for sign in [-1,1]:
+        loops=[];start=math.asin((.720-S.HUB)/.705)
+        for i in range(37):
+            t=start+(math.pi-2*start)*i/36
+            loops.append([(sign*xx,S.FRONT_AXLE+rr*math.cos(t),S.HUB+rr*math.sin(t))
+                          for xx,rr in [(.790,.705),(1.170,.705),(1.170,.709),(.790,.709)]])
+        liner=G.loft('Front wheelhouse liner '+str(sign),loops,b.m['black'])
+        G.smooth(liner,35);b.add(liner)
     # Narrow recessed mouth, actual return walls and a radiator behind the web.
     contour=G.rounded_rectangle(1.20,.505,.080,6)
     rings=[[(x,-5.895+d+.055*(x/1.1)**2,1.125+z) for x,z in contour] for d in [0,.012,.076]]
@@ -119,5 +129,9 @@ def sculpt(b):
         optical_bow(b.box('Front amber signal '+str(sign),(x,face_y+.004,.915),(.245,.010,.054),'amber',category='lamps',r=.017),x)
         # Backed parting line follows the full curved cowl, rather than a plate.
         b.box('Hood rubber latch '+str(sign),(sign*1.175,-4.11,1.31),(.032,.058,.138),'black',r=.008)
-    b.tube('Hood cowl parting line',[(x,-3.979,z) for x,_,z in section(STATIONS[-1])],.004,'black',sides=6)
+    gasket=G.loft('Hood cowl parting line',
+        [[(x,yy,z) for x,_,z in section(STATIONS[-1])] for yy in [-3.985,-3.964]],
+        b.m['black'],caps=False,closed=False)
+    gauge=gasket.modifiers.new('Cowl gasket gauge','SOLIDIFY');gauge.thickness=.002
+    b.add(gasket)
     return ob

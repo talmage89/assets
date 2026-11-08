@@ -108,8 +108,12 @@ def model(path):
             side=ob.name.split()[1];base=ob.name.split(' fixed foot ')[0]
             pairs += [(ob.name,base+' fixed pin',.0005),(ob.name,'Entrance '+side+' fixed jamb',.0005)]
     pairs += [('Driver suspension pedestal','Driver floor',.0005),('Grab rail barrier flange','Front passenger barrier',.0005),('Entrance grab rail','Grab rail barrier flange',.0005),('Entrance grab rail','Worn entrance tread 0',.0005)]
+    for x in [-1.04,-.34]:
+        post='Barrier support '+str(x)
+        pairs.extend([(post,'Barrier foot plate '+str(x),.001),(post,'Front passenger barrier',.001),
+                      (post,'Entrance modesty lower panel',.001)])
     pairs += [('Passenger floor','Lower folded side -1 1',.001),('Passenger floor','Lower folded side 1 0 -3.92',.001),('Driver floor','Driver lower side',.001),
-        ('Side emergency aft backed reveal','Body post 1 5',.001),('Front cap under-header','Front roof cap',.001),('Front cap under-header','Windshield header closure',.001),('Unified molded nose','Compound hood shell',.001)]
+        ('Side emergency aft backed reveal','Body post 1 5',.001),('Front cap under-header','Front roof cap',.001),('Front cap under-header','Windshield header closure',.001)]
     pairs += [('Side emergency forward backed reveal','Lower folded side 1 0 -3.92',.001),('Side exit fixed underfloor skirt','Passenger floor',.001)]
     for side in ['front','rear']:
         pairs += [('Entrance '+side+' fixed jamb','Stepwell '+side+' wall',.001),('Stepwell '+side+' wall','Worn entrance tread 0',.001)]

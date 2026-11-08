@@ -13,8 +13,8 @@ UV_PRIORITY={'District lettering':3,'Fleet number':2,'Front school':3,'Rear scho
              'Lower folded':1.4,'Formed roof':1.1,'Compound hood':1.8,'Front nose':1.5,'Bench':.55}
 UV_DENSITY_BANDS=dict(reference_size=2048,p5_min=5,median_min=50,median_max=500,p95_max=1800)
 DELIVERY_SURFACES={
- 'Paint':dict(principled={'Coat Weight':.25,'Coat Roughness':.22},factors={'Metallic':0},normal_strength=.45),
- 'Opaque':dict(normal_strength=1),
+ 'Paint':dict(principled={'Coat Weight':.25,'Coat Roughness':.22},factors={'Metallic':0},normal_strength=1),
+ 'Opaque':dict(principled={'Specular IOR Level':.33},normal_strength=1),
  'Glass':dict(principled={'Transmission Weight':1,'IOR':1.52},normal_strength=0),
  'Lamps':dict(normal_strength=0,extras={'lamp_lit_strength':12}),
 }
@@ -24,5 +24,6 @@ SOURCE_MATERIAL_SURFACES={
     'Bus tape':'Opaque',
     **{f'Bus {s}':'Lamps' for s in ['amber','warning_red','headlight','dome','strobe']},
     **{f'Bus print {s}':'Opaque' for s in ['school','emergency','maker','stop']+[f'{kind}-{seed}' for seed in [101,102,103] for kind in ['district','fleet','plate']]},
+    **{f'Bus print {s}':'Paint' for s in ['school','emergency']+[f'{kind}-{seed}' for seed in [101,102,103] for kind in ['district','fleet']]},
 }
 EXPORT_VARIANT=101
