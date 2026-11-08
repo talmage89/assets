@@ -364,3 +364,33 @@ for those quick geometry views. The software Eevee batch received SIGTERM
 after three completed views, before the aisle image. Its retained images are
 `renders/round2-source-pass2/`; Cycles look probes and final exported views
 remain required. No documentation image has been written.
+
+## Round 2 — look pass 3, rejected light probes and dense-source repair
+
+Color/value first: the four native 1000 px source Cycles probes under
+`renders/round2-source-cycles/` still show white sky through the far side
+panes and a dark aisle. Gray lining and saturated yellow alone do not fix
+that lighting/context problem. Reject these as the final look. The next
+probe retains camera refraction but uses colored parallel-pane shadow
+transmission, the documented Cycles glass/transparent-shadow optimization.
+A charcoal studio wall supplies real context behind the orthographic side
+view. A second aisle camera at adult eye height supplements, rather than
+replaces, the original low camera required for before/after evidence.
+
+The first dense normal bake is rejected. Its independent ray audit showed
+99.996% fallback area: a later optical Boolean collapsed the dense source
+to a cutter-sized solid. The production mesh was unaffected. Retain the
+level-3 smooth fiberglass mold before the routed lamp openings; their
+narrow perpendicular cut returns retain exact mesh normals. Add a hard
+density/coverage gate to the normal transfer. The actual five section cuts
+are regenerated under `renders/round2-front-final/`. No acceptance is
+inferred from having run the bake.
+
+The preliminary four-point side result in pass 1 fails its body holdouts
+(132.7 / 370.4 native px). It is superseded, not accepted. The old reference
+has a shorter rear overhang. Replace it with a photographed used 77-place
+long body, balanced on the white trailer panel behind the nose. Eight
+landmarks cover hubs, ground contacts and both upper/lower body ends:
+23.62 native px RMS at 26.84 mm (18.13 px at 1400 px width), versus the
+original 82.8 native px. Different makers' body/hood details remain visible;
+the accepted 40 ft body is unchanged.
