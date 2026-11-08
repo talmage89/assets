@@ -5,6 +5,7 @@ import bpy,numpy as np
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 ROOT=Path(__file__).resolve().parents[2];BASE=ROOT/'school-bus'
+sys.path.insert(0,str(BASE/'src'))
 
 def main():
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -61,4 +62,21 @@ def main():
         scope='Actual imported school asphalt intersections, published bus-route corridor and actual source bumper bounds; no school file modified')
     (BASE/'build/school-fit.json').write_text(json.dumps(report,indent=2));print('BUS_SCHOOL_FIT',json.dumps(report),flush=True)
     if errors:raise SystemExit(1)
+    # The school hero moves the campus and queues two additional seeds. Its
+    # real placement needs a separate check from the original socket proof.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    from render import imported,digest
+    from school_stage import place,audit
+    lead=imported(BASE/'export/C75-101.gltf')
+    staged,receipt=place(ROOT/'school/export/Campus-102.gltf',BASE/'export/C75-101.gltf',imported,digest,ROOT)
+    campus=[o for o in staged if o.name.startswith('Campus_')]
+    buses={101:lead}
+    for seed in [102,103]:
+        roots=[o for o in staged if o.parent is None and o.name.startswith('SchoolBus') and o.get('seed')==seed]
+        buses[seed]=[o for root in roots for o in [root,*root.children_recursive]]
+    stage_plan=json.loads((ROOT/'school/export/Campus-102.json').read_text())['plan']
+    bpy.context.view_layer.update();stage=audit(campus,buses,stage_plan,measured_bounds);stage['placement']=receipt
+    (BASE/'build/school-stage.json').write_text(json.dumps(stage,indent=2))
+    print('BUS_SCHOOL_STAGE',stage['passed'],stage['errors'],flush=True)
+    if not stage['passed']:raise SystemExit(1)
 if __name__=='__main__':main()
