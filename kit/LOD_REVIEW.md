@@ -2029,3 +2029,43 @@ The shared GPU is queued again; no pending native comparison is reported as
 passing. An additional optical-density control follows the measured partial
 improvement at cap4: cap8 for optical/graphic receivers and .5 for ordinary
 surfaces, retaining the same 512 atlas. Its result is still pending.
+
+## Pass 53 — measured pin savings and independent candidate audits
+
+The local powered-neighbor near control finishes at 33260 (55.58% of LOD0),
+350 triangles above the requested cap. Changing only its reflective allowance
+from .125 to .15 switch pixel gives 33100 (55.32%), 190 above. A .20 control
+is running to test a cheaper candidate against the actual reflection fault.
+None is adopted before native review. Geometry/re-import and independent
+source UV/normal audits pass for the .125 near and 23502 middle controls:
+maximum normal errors 2.716/2.381 degrees, p95 zero; maximum UV errors
+.99179/.99488 of the unchanged half-mip-texel bound. These prove source-field
+and serialization bounds, not visible acceptance.
+
+The candidate pin inventory now separates the powered-scope savings from the
+paired-seam changes. Counts below are overlapping fixed geometric vertices;
+they are not exclusive cause totals. Original hood geometry restored after
+reduction is a separate measured cost.
+
+| Pickup cause | Handoff | Candidate near | Candidate middle |
+| --- | ---: | ---: | ---: |
+| UV seam | 3425 | 1950 | 2044 |
+| Hard normal | 3226 | 1688 | 1776 |
+| Material border | 48 | 4 | 4 |
+| Part border | 64 | 0 | 0 |
+| Moving part | 380 | 360 | 360 |
+| Protected source surface | 4022 | 2196 | 2302 |
+| Unique fixed vertices | 4086 | 2196 | 2302 |
+
+Colonial fixed counts remain UV 1335→551, normal 1380→552, material 0→0,
+part 1122→0, moving 32→8, unique 1674→552, at both near switches. Receipts:
+`build/lod-v4/pin-comparison-local.json` and its measured Markdown table.
+
+All six pilot and four adopter-family original checks complete successfully.
+The fresh clean CPU kit suite also completes with all 28 files passing and
+peak child RSS 2858132 KiB. Its completion receipt is newer than the recorded
+run start, and every captured kit source hash matches. An earlier progress
+message mistakenly read an older completion receipt while the new suite was
+running; that claim was corrected before this verified completion. Helpers
+now record run starts and the monitor gives live wrappers precedence. The
+six GPU test files and final frozen adoption proof are still pending.
