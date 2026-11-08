@@ -18,10 +18,10 @@ def externalize(source,dest):
     global KNOWN
     known=KNOWN if KNOWN is not None else {}
     # Search only existing original maps, never download or synthesize substitutes.
-    for folder in ([] if KNOWN is not None else REPO.iterdir()):
+    for folder in ([] if KNOWN is not None else sorted(REPO.iterdir())):
         if not folder.is_dir() or folder.name in ('.git','build','river'): continue
         for sub in ('textures','export/textures','build/context'):
-            for p in (folder/sub).rglob('*.png'):
+            for p in sorted((folder/sub).rglob('*.png')):
                 known.setdefault(sha(p),p)
     KNOWN=known
     local=Path('export/textures');local.mkdir(parents=True,exist_ok=True)

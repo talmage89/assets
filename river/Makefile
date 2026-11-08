@@ -1,9 +1,11 @@
 CHECKPOINT_BLEND := build/river.blend
 CHECKPOINT_OUTPUTS := build/river.blend build/manifest.json export/RiverCrossing-101.gltf export/RiverCrossing-202.gltf export/RiverModules.gltf
+PIECES := TypeIII_Girder18 DeckPanel6 Parapet6 PierColumns PierWall Abutment GuardrailTerminal
+CHECKPOINT_OUTPUTS += export/RiverCrossing-101.bin export/RiverCrossing-202.bin export/RiverModules.bin $(foreach p,$(PIECES),export/pieces/$(p).gltf export/pieces/$(p).bin)
 CHECKPOINT_DEPS := $(wildcard src/*.py) textures/checkpoint/.stamp build/preservation.json build/dependencies.json
 CHECKPOINT_CHECK = $(BP) --python src/check.py
-CHECKPOINT_REVIEW = $(PYTHON) src/review.py
-CHECKPOINT_RENDER_ARGS := --seeds 101 202
+CHECKPOINT_REVIEW = $(PYTHON) src/matches.py --compose && $(PYTHON) src/review.py && $(PYTHON) src/report.py
+CHECKPOINT_RENDER_ARGS := --seeds 101 202 --modules --matches
 WIDTH ?= 1280
 SAMPLES ?= 32
 include ../kit/checkpoint_rules.mk
@@ -23,9 +25,17 @@ build/preservation.json: src/preserve.py
 build/dependencies.json: src/dependencies.py
 	@mkdir -p build $(TMPDIR)
 	$(PYTHON) src/dependencies.py
+build/photo-calibration.json: build/manifest.json src/matches.py
+	$(PYTHON) src/matches.py --prepare
+$(CHECKPOINT_RENDER_OUTPUTS): build/photo-calibration.json
 
 .PHONY: match repeat
 match: render
 	$(PYTHON) src/matches.py --compose
 repeat: model
 	$(PYTHON) src/repeat.py
+
+clean: river-clean
+.PHONY: river-clean
+river-clean:
+	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('export','textures')]"

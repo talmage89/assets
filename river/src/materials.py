@@ -40,14 +40,14 @@ def palette(repo):
     plants.node_tree.links.new(tex.outputs['Color'],b.inputs['Base Color'])
     plants.node_tree.links.new(tex.outputs['Alpha'],b.inputs['Alpha']);plants.surface_render_method='DITHERED'
     G.M['plants']=plants
-    water=plain('River_water',(.31,.34,.21),.16)
+    water=plain('River_water',(.22,.255,.115),.23)
     b=water.node_tree.nodes.get('Principled BSDF');b.inputs['Transmission Weight'].default_value=1
     b.inputs['IOR'].default_value=1.333
     tex=water.node_tree.nodes.new('ShaderNodeTexImage')
     tex.image=bpy.data.images.load(str(Path('textures/checkpoint/T_RiverWater_Normal.png').resolve()),check_existing=True);tex.image.colorspace_settings.name='Non-Color'
-    nm=water.node_tree.nodes.new('ShaderNodeNormalMap');nm.inputs['Strength'].default_value=.55
+    nm=water.node_tree.nodes.new('ShaderNodeNormalMap');nm.inputs['Strength'].default_value=.23
     water.node_tree.links.new(tex.outputs['Color'],nm.inputs['Color']);water.node_tree.links.new(nm.outputs['Normal'],b.inputs['Normal'])
-    absorb=water.node_tree.nodes.new('ShaderNodeVolumeAbsorption');absorb.inputs['Color'].default_value=(.37,.43,.20,1);absorb.inputs['Density'].default_value=.27
+    absorb=water.node_tree.nodes.new('ShaderNodeVolumeAbsorption');absorb.inputs['Color'].default_value=(.29,.36,.095,1);absorb.inputs['Density'].default_value=.65
     water.node_tree.links.new(absorb.outputs[0],water.node_tree.nodes.get('Material Output').inputs['Volume'])
-    water['river_volume_color']=[.37,.43,.20];water['river_volume_density']=.27
+    water['river_volume_color']=[.29,.36,.095];water['river_volume_density']=.65
     water['river_flow_attribute']='_FLOW';G.M['water']=water

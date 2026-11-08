@@ -4,11 +4,12 @@ from plan import generate
 
 def views(seed):
     p=generate(seed);rural=p.kind=='edge';x=-26 if rural else -24;y=-59 if rural else -64
-    hero_z=p.bed(x,y)+1.65 if rural else 4.30
+    hero_z=p.bed(x,y)+1.65 if rural else 2.30
+    ux=p.water_edges(-7)[0]-.8;uz=p.bed(ux,-7)+1.65
     return dict(
         hero=dict(location=(x,y,hero_z),target=(2,0,2.25),lens=40),
         above=dict(location=(-110,-140,142),target=(0,10,0),lens=35),
-        under=dict(location=(-p.length/2+3,-7,1.8),target=(0,1,3.4),lens=26),
+        under=dict(location=(ux,-7,uz),target=(0,1,3.4),lens=26),
         pier=dict(location=(-7,-13,1.65),target=(0 if rural else -p.span/2,-2.7,1.1),lens=48),
         abutment=dict(location=(-p.length/2+9,-14,2.45),target=(-p.length/2,-1,2.4),lens=42),
         driver=dict(location=(-p.length/2-17,-1.6764,p.deck_z+1.15),target=(16,-1.6764,p.deck_z+1.14),lens=40),

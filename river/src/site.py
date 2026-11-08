@@ -2,6 +2,7 @@
 import math
 import random
 import geometry as G
+from channel import surface_z
 
 
 def road(p,parent):
@@ -29,12 +30,15 @@ def fixtures(p,parent):
         x=edge(y);xx=edge(yy)
         if p.kind=='downtown':
             # Riverwalk below Main Street with 6m poured bays and a real cap.
-            b.geom([(x-1,y,-.3),(xx-1,yy,-.3),(xx-1,yy,2.65),(x-1,y,2.65)],[(0,1,2,3)],'concrete',(.63,.64,.60,1))
-            b.geom([(x-1.12,y,2.65),(xx-1.12,yy,2.65),(xx-4.2,yy,2.65),(x-4.2,y,2.65)],[(0,1,2,3)],'concrete',(.80,.80,.75,1))
-            trail.append((x-2.6,y,2.65))
+            b.geom([(x-1,y,-.3),(xx-1,yy,-.3),(xx-1,yy,.65),(x-1,y,.65)],[(0,1,2,3)],'concrete',(.63,.64,.60,1))
+            b.geom([(x-1.12,y,.65),(xx-1.12,yy,.65),(xx-4.2,yy,.65),(x-4.2,y,.65)],[(0,1,2,3)],'concrete',(.80,.80,.75,1))
+            wall_top=2.10 if abs(y)<8 else 3.70
+            b.geom([(x-4.2,y,.50),(xx-4.2,yy,.50),(xx-4.2,yy,wall_top),(x-4.2,y,wall_top)],[(0,1,2,3)],'concrete',(.65,.65,.60,1))
+            b.geom([(x-4.03,y,wall_top+.025),(xx-4.03,yy,wall_top+.025),(xx-4.55,yy,wall_top+.025),(x-4.55,y,wall_top+.025)],[(0,1,2,3)],'concrete',(.72,.72,.67,1))
+            trail.append((x-2.6,y,.65))
             if abs(y)>9:
-                b.cylinder((x-1.2,y,3.15),.024,1,'steel',8)
-                for z in (2.80,3.65):b.tube([(x-1.2,y,z),(xx-1.2,yy,z)],.022,'steel',6)
+                b.cylinder((x-1.2,y,1.15),.024,1,'steel',8)
+                for z in (.80,1.65):b.tube([(x-1.2,y,z),(xx-1.2,yy,z)],.022,'steel',6)
         else:
             x-=7;xx-=7;z=p.bed(x,y)+.035;zz=p.bed(xx,yy)+.035
             if abs(y)>12:
@@ -66,7 +70,7 @@ def plants(p,parent):
         if abs(y)<8:continue
         u=side*rng.uniform(1.0,1.47)
         if p.kind=='downtown' and side<0:continue
-        x=p.center(y)+u*p.halfwidth(y);z=p.bed(x,y)
+        x=p.center(y)+u*p.halfwidth(y);z=surface_z(p,x,y)
         if z<.06 or z>2.8:continue
         if math.sin(y*.13+u*19)+math.sin(y*.33-u*8)<-.9:continue
         reed=z<.65 and i%3==0;h=rng.uniform(.55,1.15) if reed else rng.uniform(.15,.45)

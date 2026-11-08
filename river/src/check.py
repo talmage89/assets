@@ -34,7 +34,8 @@ def raw(path):
                 u=accessor(d,binary,pr['attributes']['TEXCOORD_0']);assert np.isfinite(u).all()
                 tv=v[inds.reshape(-1,3)];tu=u[inds.reshape(-1,3)]
                 area=np.linalg.norm(np.cross(tv[:,1]-tv[:,0],tv[:,2]-tv[:,0]),axis=1)/2
-                ua=abs(np.cross(tu[:,1]-tu[:,0],tu[:,2]-tu[:,0]))/2
+                du=tu[:,1]-tu[:,0];dv=tu[:,2]-tu[:,0]
+                ua=abs(du[:,0]*dv[:,1]-du[:,1]*dv[:,0])/2
                 valid=(area>1e-9)&(ua>1e-12)
                 if valid.any():uv.extend(np.sqrt(ua[valid]/area[valid])*1024)
             if '_FLOW' in pr['attributes']:flows.extend(accessor(d,binary,pr['attributes']['_FLOW']))

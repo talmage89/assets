@@ -22,7 +22,8 @@ def setup(width,samples):
     nodes=sc.world.node_tree.nodes;links=sc.world.node_tree.links
     sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(23);sky.sun_rotation=math.radians(224);sky.sun_disc=False
     sky.altitude=100;sky.air_density=1
-    links.new(sky.outputs[0],nodes.get('Background').inputs[0]);nodes.get('Background').inputs[1].default_value=.06
+    sat=nodes.new('ShaderNodeHueSaturation');sat.inputs['Saturation'].default_value=1.65
+    links.new(sky.outputs[0],sat.inputs['Color']);links.new(sat.outputs[0],nodes.get('Background').inputs[0]);nodes.get('Background').inputs[1].default_value=.06
     light=bpy.data.lights.new('Low raking sun','SUN');light.energy=4.5;light.angle=math.radians(.65)
     sun=bpy.data.objects.new(light.name,light);sc.collection.objects.link(sun)
     direction=Vector((-.67,-.64,.39));sun.rotation_euler=(-direction).to_track_quat('-Z','Y').to_euler()

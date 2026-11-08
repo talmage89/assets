@@ -57,10 +57,20 @@ class Plan:
             z=min(2.15,(a-1)/steep*2.15)
             z+=.08*math.sin(x*.62+y*.30)*min(1,(a-1)*4)
         if self.kind=='downtown' and x<0 and a>1.05: z=max(z,2.5)
+        if self.kind=='downtown' and a>1.1:
+            # Main Street is a raised terrace. The floodable low riverwalk
+            # passes under the girders with >2.3m headroom.
+            edge_distance=abs(x-self.center(y))-self.halfwidth(y)
+            z=max(z,2.15+1.55*max(0,min(1,(edge_distance-5)/6)))
+            if x<self.center(y) and edge_distance>=4.45:z=max(z,3.7)
+            if x<self.center(y) and .75<edge_distance<4.45:z=.50
         # Embankments under each road approach meet the abutment backwall.
         road_fill=max(0,1-max(0,abs(y)-7)/15)
-        end_fill=max(0,min(1,(abs(x)-self.length/2+.7)/.7))
-        z=max(z,2.1+(self.deck_z-2.1)*road_fill*end_fill) if a>1.12 else z
+        end_fill=max(0,min(1,(abs(x)-self.length/2-.90)/.12))
+        fill_top=self.deck_z-.075-.02*min(abs(y),3.3528)
+        if abs(y)>3.3528:fill_top=self.deck_z-.06
+        if abs(y)<7.8 and abs(x)<self.length/2+.90:z=min(z,2.1)
+        if a>1.12 and end_fill>0:z=max(z,2.1+(fill_top-2.1)*road_fill*end_fill)
         return z+self.water_z(y)
 
     def water_edges(self, y):

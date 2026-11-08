@@ -5,10 +5,12 @@ They are temporary low-detail presentation resources, explicitly costed apart.
 """
 import math
 import random
+import json
 from pathlib import Path
 import bpy
 from mathutils import Matrix
 import geometry as G
+from channel import surface_z
 
 REPO=Path(__file__).resolve().parents[2]
 CACHE={}
@@ -18,12 +20,13 @@ def template(path,select=None):
     key=(str(path),select)
     if key in CACHE:return CACHE[key]
     before=set(bpy.context.scene.objects);bpy.ops.import_scene.gltf(filepath=str(Path(path).resolve()))
-    obs=set(bpy.context.scene.objects)-before
+    obs=sorted(set(bpy.context.scene.objects)-before,key=lambda ob:ob.name)
     if select:
         pick=next(o for o in obs if o.name==select or o.name.endswith('__'+select))
         keep=set(G.descendants(pick));world=pick.matrix_world.copy();pick.parent=None;pick.matrix_world=world
-        for ob in obs-keep:bpy.data.objects.remove(ob,do_unlink=True)
-        obs=keep
+        for ob in obs:
+            if ob not in keep:bpy.data.objects.remove(ob,do_unlink=True)
+        obs=sorted(keep,key=lambda ob:ob.name)
     rt=G.root('Template_'+Path(path).stem)
     for o in obs:
         if o.parent not in obs:o.parent=rt
@@ -76,22 +79,39 @@ def add(p,parent):
     # approach street passes through the gap, rather than through a building.
     if p.kind=='downtown':
         for side in (-1,1):
-            for i in range(-5,6):
-                y=i*14
-                if abs(y)<15:continue
-                key=f'Midwest_411_{1+(i%6):02d}.gltf';path=REPO/'downtown/export'/key
-                instance(path,'MainStreetBack_'+str(side)+'_'+str(i),(side*47,y,3.7),rt,90 if side<0 else -90)
+            for direction in (-1,1):
+                cursor=15.2
+                for i in range(10):
+                    key=f'Midwest_411_{1+(i%6):02d}.gltf';path=REPO/'downtown/export'/key
+                    doc=json.loads(path.read_text());native_plan=json.loads(next(n['extras']['plan'] for n in doc['nodes'] if n.get('extras',{}).get('building')))
+                    width=native_plan['width'];depth=native_plan['depth']
+                    y=direction*(cursor+width/2);cursor+=width
+                    x=side*(57-depth/2)
+                    instance(path,f'MainStreetBack_{side}_{direction}_{i}',(x,y,3.675),rt,-90 if side<0 else 90)
+        streets=G.Batch('MainStreetAndServiceAlleys',rt,'context')
+        for side in (-1,1):
+            for j in range(150):
+                a=-150+j*2;c=a+2
+                grade=lambda y:max(3.7,2.1+(p.deck_z-.06-2.1)*max(0,1-max(0,abs(y)-7)/15))+.075
+                for x0,x1,role in ((57,59,'concrete'),(59,66.3152,'asphalt'),(66.3152,68.4,'concrete')):
+                    if abs(a)<6:continue
+                    streets.geom([(side*x0,a,grade(a)),(side*x1,a,grade(a)),(side*x1,c,grade(c)),(side*x0,c,grade(c))],[(0,1,2,3)],role)
+                # The rear service lane lies on the raised river terrace.
+                if abs(a)>15:
+                    x0=p.center(a)+side*(p.halfwidth(a)+4.6);x1=x0+side*2.4
+                    streets.geom([(x0,a,3.70),(x1,a,3.70),(x1,c,3.70),(x0,c,3.70)],[(0,1,2,3)],'asphalt')
+        streets.finish()
         for side in (-1,1):
             for x in (-17,17):
                 instance(native/'light.glb','Parapet light',(x,side*(p.deck_width/2-.23),p.deck_z+.90),rt)
         for i,y in enumerate((-44,-22,22,46)):
             x=p.center(y)-p.halfwidth(y)-5.2
-            instance(native/'furniture.glb','Riverwalk bench '+str(i),(x,y,2.65),rt,90,select='Bench')
+            instance(native/'furniture.glb','Riverwalk bench '+str(i),(x,y,.65),rt,90,select='Bench')
     else:
         for i in range(12):
             x=(-1 if i%2 else 1)*(57+(i%3)*22);y=-67+(i//2)*28
             style='houses-ranch.glb' if i%2 else 'houses-cape.glb'
-            instance(native/style,'Floodplain neighbor '+str(i),(x,y,2.20),rt,90 if x>0 else -90)
+            instance(native/style,'Floodplain neighbor '+str(i),(x,y,surface_z(p,x,y)-.025),rt,90 if x>0 else -90)
         instance(native/'furniture.glb','Fishing bench',(-25,34,2.15),rt,90,select='Bench')
     signs=REPO/'street-signs/export/set/RoadSigns.gltf'
     if signs.exists():
@@ -106,7 +126,7 @@ def add(p,parent):
         y=rng.uniform(-160,165);side=-1 if i%2 else 1
         near=i<32;x=p.center(y)+side*(p.halfwidth(y)+(rng.uniform(3,11) if near else rng.uniform(30,95)))
         if abs(y)<12:continue
-        z=p.bed(x,y);species='RedMaple' if near or i%3 else 'PinOak'
+        z=surface_z(p,x,y);species='RedMaple' if near or i%3 else 'PinOak'
         ob=instance(REPO/f'trees/export/{species}.glb','Native_'+species+'_'+str(i),(x,y,z-.04),veg,rng.uniform(0,360),rng.uniform(.63,1.1),category='vegetation')
         if near and p.kind=='edge':ob.rotation_euler.y=side*math.radians(rng.uniform(-6,-2))
     return rt

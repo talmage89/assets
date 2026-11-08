@@ -2,8 +2,18 @@
 import math
 import random
 import bpy
+import bmesh
 from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 import geometry as G
+BED_TREE=None
+
+
+def surface_z(p,x,y):
+    if BED_TREE is not None:
+        hit=BED_TREE.ray_cast(Vector((x,y,100)),Vector((0,0,-1)),120)[0]
+        if hit is not None:return hit.z
+    return p.bed(x,y)
 
 
 def stone(b,x,y,z,r,rng,role='bank'):
@@ -15,16 +25,24 @@ def stone(b,x,y,z,r,rng,role='bank'):
 
 
 def terrain(p,parent):
+    global BED_TREE
+    BED_TREE=None
     rt=G.root('RiverReach',parent=parent)
     b=G.Batch('BedBanksFloodplain',rt,'reach')
     us=[-8,-6,-4,-3,-2.3,-1.8,-1.5,-1.3,-1.15,-1.08,-1,-.94,-.87,-.78,-.66,-.5,-.3,0,.3,.5,.66,.78,.87,.94,1,1.05,1.10,1.16,1.25,1.4,1.7,2.3,3,4,6,8]
     ys=[-p.reach/2+i*2 for i in range(round(p.reach/2)+1)]
-    for y0,y1 in zip(ys,ys[1:]):
-        for u0,u1 in zip(us,us[1:]):
-            vs=[]
-            for u,y in ((u0,y0),(u1,y0),(u1,y1),(u0,y1)):
-                x=p.center(y)+u*p.halfwidth(y);vs.append((x,y,p.bed(x,y)))
-            z=sum(v[2] for v in vs)/4;u=(u0+u1)/2;y=(y0+y1)/2
+    rows=[]
+    for y in ys:
+        left=p.center(y)-p.halfwidth(y)
+        xs=[p.center(y)+u*p.halfwidth(y) for u in us]+p.water_edges(y)
+        xs += [s*(p.length/2+off) for s in (-1,1) for off in (-.01,.01,.89,.90,1.02,1.03)]
+        if p.kind=='downtown':xs += [left-off for off in (.74,.76,1,1.12,4.2,4.44,4.46)]
+        rows.append([(x,y,p.bed(x,y)) for x in sorted(xs)])
+    for row0,row1 in zip(rows,rows[1:]):
+        for j in range(len(row0)-1):
+            vs=[row0[j],row0[j+1],row1[j+1],row1[j]]
+            z=sum(v[2] for v in vs)/4;y=sum(v[1] for v in vs)/4
+            u=(sum(v[0] for v in vs)/4-p.center(y))/p.halfwidth(y)
             role='grass' if abs(u)>1.16 and z>1.1 else 'bank'
             # Broad caused wetness: submerged bed, low wet bank, upper dry soil.
             wet=.48 if z<.12 else .67 if z<.60 else .85
@@ -33,23 +51,27 @@ def terrain(p,parent):
                 color=(v*.91,v,v*.72,1)
             else:color=(wet,wet*.98,wet*.90,1)
             b.geom(vs,[(0,1,2,3)],role,color,smooth=True)
-    b.finish()
+    bed=b.finish()
+    bm=bmesh.new();bm.from_mesh(bed.data)
+    bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-6)
+    bm.to_mesh(bed.data);bm.free();bed.data.update()
+    BED_TREE=BVHTree.FromPolygons([v.co for v in bed.data.vertices],[list(f.vertices) for f in bed.data.polygons],all_triangles=True)
     rng=random.Random(p.seed);rocks=G.Batch('BarCobbleAndScourRiprap',rt,'reach')
     for i in range(1150):
         y=rng.uniform(p.bar_y-26,p.bar_y+27);x=p.center(y)+p.halfwidth(y)*rng.uniform(-1.04,-.49)
-        z=p.bed(x,y)
+        z=surface_z(p,x,y)
         if z>p.water_z(y)-.32:stone(rocks,x,y,z,rng.uniform(.035,.14),rng)
     # Armored, keyed slope and toe at both abutments and each pier.
     for side in (-1,1):
         for i in range(460):
             x=side*rng.uniform(p.width*.40,p.length/2+3.0);y=rng.uniform(-9,9)
             if abs(x)>p.length/2-.8 and abs(y)<7:continue
-            z=p.bed(x,y);stone(rocks,x,y,z+.04,rng.uniform(.16,.39),rng)
+            z=surface_z(p,x,y);stone(rocks,x,y,z+.04,rng.uniform(.16,.39),rng)
     for j in range(1,p.spans):
         xx=-p.length/2+j*p.span
         for i in range(170):
             x=xx+rng.uniform(-2.0,2.0);y=rng.uniform(-p.deck_width*.48,p.deck_width*.48)
-            z=p.bed(x,y);stone(rocks,x,y,z+.06,rng.uniform(.15,.33),rng)
+            z=surface_z(p,x,y);stone(rocks,x,y,z+.06,rng.uniform(.15,.33),rng)
     rocks.finish()
     # Cutbank roots and flood debris are dead wood, not new tree species.
     debris=G.Batch('CutbankExposedRootsAndDrift',rt,'reach')
@@ -86,7 +108,18 @@ def water(p,parent):
         for a,c in zip(rows,rows[1:]):
             a,c=a[side],c[side];volume.geom([a,c,(c[0],c[1],p.bed(c[0],c[1])-.02),(a[0],a[1],p.bed(a[0],a[1])-.02)],[(0,1,2,3)],'water')
     floor=[(x,y,p.bed(x,y)-.02) for x,y,z in vs];volume.geom(floor,[tuple(reversed(f)) for f in fs],'water',smooth=True)
-    volume.finish()
+    closure=volume.finish()
+    # One closed shell is required for the medium stack to follow real depth.
+    # Separate top/bottom objects lose that relationship in Cycles transmission.
+    bpy.ops.object.select_all(action='DESELECT');ob.select_set(True);closure.select_set(True)
+    bpy.context.view_layer.objects.active=ob;bpy.ops.object.join()
+    bm=bmesh.new();bm.from_mesh(ob.data)
+    bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-6)
+    bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free();ob.data.update()
+    flow=ob.data.attributes.get('_FLOW')
+    for v,a in zip(ob.data.vertices,flow.data):
+        tx,ty=p.tangent(v.co.y);speed=p.speed(v.co.x,v.co.y)
+        a.vector=(tx*speed,ty*speed,max(0,p.water_z(v.co.y)-p.bed(v.co.x,v.co.y)))
     foam=G.Batch('RiffleBrokenFoam',parent,'water');rng=random.Random(p.seed+31)
     for j in range(160):
         y=rng.gauss(p.riffle_y,3.5);l,r=p.water_edges(y);x=rng.uniform(l+.7,r-.7)

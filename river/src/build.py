@@ -18,13 +18,14 @@ import importlib.util
 # Python already owns `site`; keep this asset module out of that namespace.
 spec=importlib.util.spec_from_file_location('river_site',HERE/'site.py');site=importlib.util.module_from_spec(spec);spec.loader.exec_module(site)
 import context
+import background
 from plan import generate
 from package import externalize
 
 
 def counts(objects=None):
     result={};pieces=[]
-    for ob in objects or bpy.context.scene.objects:
+    for ob in sorted(objects or bpy.context.scene.objects,key=lambda ob:ob.name):
         if ob.type!='MESH':continue
         ob.data.calc_loop_triangles();n=len(ob.data.loop_triangles);key=ob.get('river_category','context')
         result[key]=result.get(key,0)+n
@@ -62,7 +63,7 @@ def crossing(seed):
     reach=channel.terrain(p,rt);channel.water(p,reach)
     br=bridge.assemble(p,rt);plaques.add(p,br)
     site.road(p,rt);site.fixtures(p,rt);site.plants(p,rt);age.add(p,rt)
-    context.add(p,rt);context.clear_templates()
+    context.add(p,rt);background.add(p,rt);context.clear_templates()
     # Curves also remain natively editable in the construction scene. Export
     # sockets carry the same sampled paths in extras for stock glTF consumers.
     for ob in list(rt.children_recursive):
@@ -81,6 +82,10 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--seeds',nargs='+',type=int,default=[101,202]);ap.add_argument('--out',default='build/river.blend');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
     Path('build/pieces').mkdir(parents=True,exist_ok=True)
     pieces=library();rows=[crossing(seed) for seed in a.seeds]
+    # The generic checkpoint graph names an embedded mirror beside its blend.
+    # Presentation still imports the external-image delivery paths explicitly.
+    last=Path('build/embedded')/('RiverCrossing-'+str(a.seeds[-1])+'.glb')
+    Path(a.out).with_suffix('.glb').write_bytes(last.read_bytes())
     Path('build/manifest.json').write_text(json.dumps(dict(modules=pieces,crossings=rows),indent=2)+'\n')
     bpy.ops.wm.save_as_mainfile(filepath=str(Path(a.out).resolve()))
     print('RIVER_BUILD',[(r['plan']['seed'],r['triangles']) for r in rows])
