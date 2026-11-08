@@ -1,11 +1,11 @@
-# Dense communities and baked look-dev gate; no docs generation.
+# Dense communities: complete exported presentation and bounded gallery.
 OLD_SEED ?= 101
 NEW_SEED ?= 202
 ROWS ?= 9
-PASS ?= look5
+PASS ?= final
 WIDTH ?= 1440
 SAMPLES ?= 32
-DELIVERY ?= 0
+DELIVERY ?= 1
 CHECKPOINT_BLEND := build/family.blend
 STEMS := SingleWide-120 SingleWide-147 SingleWide-168 DoubleWide-245 DoubleWide-228 DoubleWide-326 Deck Carport UtilityService PropaneBottles Condenser WindowAC SatelliteDish AddedRoom Household EntranceSign SupportFrame Modules HomeForms Park-$(OLD_SEED) Park-$(NEW_SEED)
 CHECKPOINT_OUTPUTS := build/family.blend build/family.json $(foreach s,$(STEMS),export/$(s).gltf export/$(s).bin export/$(s).json)

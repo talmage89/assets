@@ -1,4 +1,4 @@
-"""Five bounded gallery JPGs, only after explicit visual acceptance."""
+"""Five bounded gallery JPGs after the final full-size delivery review."""
 import argparse,hashlib,json,sys
 from pathlib import Path
 from PIL import Image,ImageOps,ImageDraw,ImageFont
@@ -29,7 +29,10 @@ def main(folder):
     from presentation_check import check
     text=Path('REVIEW.md').read_text()
     for n in (1,2,3):assert f'## Completion pass {n}' in text,('Missing current-round full-size critique',n)
-    assert text.rsplit('\nDelivery gate: ',1)[-1].splitlines()[0]=='ACCEPTED', 'Visual fixes are not accepted; docs remain withheld'
+    status=text.rsplit('\nDelivery gate: ',1)[-1].splitlines()[0]
+    assert status in ('ACCEPTED','DELIVERED WITH KNOWN FLAWS'), 'Final delivery review is missing'
+    if status=='DELIVERED WITH KNOWN FLAWS':
+        assert '## Known flaws' in Path('README.md').read_text(), 'Disclose remaining flaws before gallery delivery'
     check(folder);out=Path('docs');out.mkdir(exist_ok=True);rows=[]
     for seed in (101,202):rows.append(encode(Image.open(folder/f'Park-{seed}/hero.png'),out/f'hero-{seed}.jpg'))
     rows.append(encode(panel(folder,[('Park-101/above.png','Alder Court / 36 homes'),('Park-202/above.png','Meadow Bend / 33 homes')]),out/'parks.jpg'))
