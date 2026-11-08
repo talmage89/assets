@@ -888,3 +888,45 @@ Record actual sun/sky parameters in every render receipt. Printed markings,
 texture allocations, accepted interior illumination and matched-light
 presets remain unchanged. The full 1600px gallery still needs inspection;
 no docs or visual acceptance recipe are approved by this probe pass.
+
+## Delivery pass 15 — inspect the complete street and detail set
+
+Color/value first: opened the 1600px municipal and commercial heroes,
+above views, aisles, ramp turns, tower exteriors, closed/open lift landings,
+entries, roof decks and scale frames at native size. Also opened all six
+source/baked photographic pairs. The heroes now separate warm sunlit
+spandrels, dark shaft returns and deep openings. The entry/detail preset
+keeps the pay stations and level colors readable. The Harmon photograph is
+balanced on its bare sunlit concrete, ROI (2110,1730)–(2175,1760), with no
+claim of exposure or albedo recovery.
+
+Inspected the annotated hero sample boxes. Display-linear Y readings for
+spandrel / west shaft return / opening are 0.392 / 0.0123 / 0.00768 (101)
+and 0.341 / 0.0141 / 0.0108 (202), against 0.539 / 0.230 / 0.0432 in the
+balanced photo. These are different illumination conditions and different
+column sections: the new sunny heroes have considerably deeper return
+shadows. The front shaft face is lit (0.377 / 0.331), so it must not be
+reported as the shaded sample. The narrow return samples cover few pixels.
+
+The joint-root stains, salt edges and repaired spalls show at full frame;
+most panel fields stay dry. Drips and glossy ponding show in empty stalls,
+the drive lane is darker, turn rubber reaches the drain, repaint ghosts
+remain, and accessible bays have no full blue floor panels. Both roofs show
+the four vehicle shapes, factory-color differences, empties and worn sealer.
+The municipal street has metered cars, traffic and a closed left frontage;
+the commercial entry approach is clear, with its green queue car at the gate.
+
+Remaining CG tells: simplified dark vehicle cabins and uniform factory
+finishes; broad floor polish is smoother than the photographed troweled
+deck; some small wear kernels and pristine manufactured edges repeat. The
+accepted tower panels are plain at arm's length. Retain the accepted
+structure and interior light rather than extending their scope here.
+
+The first technical elevations look exactly along floor films and create
+horizontal reflection bands. Reject those presentation views and tilt the
+inspection cameras down 2.3 degrees, fitting projected bounds. The first
+25 module frames were also opened individually: the sky below the horizon
+is nearly black, hiding dark metal, and the tee/bay cameras hide the stems.
+Replace that presentation with a neutral procedural studio and an underside
+view for the tee/bays. The replacement frames still require review. No docs
+or final acceptance recipe yet; the cold-build preservation block remains.
