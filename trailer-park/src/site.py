@@ -273,8 +273,12 @@ def build(p):
             tx=rng.uniform(-.7,.7)
             if old and row['yaw']==180:
                 h=row['home'];u=-h['length']*.32+2.05 if h['room'] else -h['length']*.22
+                # At the end row the rear-yard tree clears the room and
+                # porch, rather than growing immediately through their roof.
+                if j==len(p['lots'])-1:u=-h['length']*.74
                 tx=row['origin'][0]-u+rng.uniform(-.05,.05)
             else:tx=row['origin'][0]+tx*(1 if row['yaw']==0 else -1)
+            if old and j==5:tx=row['origin'][0]-4.0
             a.socket('Tree_'+str(j),(tx,yy+p['lot_frontage']/2-.4,0),'tree',species='oak' if j%3==0 else 'maple',plant_scale=rng.uniform(.92,1.12) if old else rng.uniform(.44,.64))
         if j%2==0:a.socket('Shrub_'+str(j),(row['origin'][0]+row['side']*4,yy-3,0),'shrub')
     for i,x in enumerate((-p['loop_x'],p['loop_x']) if p['kind']=='old' else (0,)):

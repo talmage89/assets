@@ -368,8 +368,10 @@ The neutral references remain the 2009 door frame, 2007 white fascia,
 2015 aluminum pan and 2024 white PVC post, balanced in linear RGB.
 
 The paired 1980s infill now has its end bank, rake/fascia, proud frames,
-steps, occupied apron and neighboring carport in frame. All five anchors
-are clear. The old-lane comparison now binds an actual addition, not the
+steps, occupied apron and neighboring carport in frame. A later receipt
+audit corrects the initial visual impression: four of five anchors are
+clear; the far wall corner is behind its own roof trim. The old-lane
+comparison now binds an actual addition, not the
 rejected imaginary lot-18 box. The aerial compares two existing carports
 in the populated park. Their residuals remain 9.59, 17.00 and 16.56px;
 these measure selected construction landmarks, not the complete scene.
@@ -393,3 +395,10 @@ show the actual change in density, construction and surroundings rather
 than moving the camera to flatter either state. Leaf-card silhouettes,
 the tidy repeated plant pots and broad planar ground still reveal the
 procedural scene. These remain explicit limitations for the next pass.
+
+The post-pass visibility audit also rejects the addition fit's usefulness:
+only two of six anchors have clear rays through the deck/canopy. Inspecting
+the photo again found its right-front roof/floor pixels had been placed on
+the window edge. The corrected calibration uses the actual room corners;
+the home fit uses outer fascia corners instead of hidden wall corners.
+Check these revisions on imported geometry before the next GPU batch.

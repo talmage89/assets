@@ -300,7 +300,7 @@ sky and 18° raking sun. The complete set also includes turnarounds,
 skirting, opened entry, exposed frame/piers, module details, scale references
 and both park obliques. Three complete-park matched pairs use distinct
 2009, 2007 and 2015 Commons photographs. Selected construction-anchor RMS
-is **9.59 / 17.00 / 16.56 native pixels**. The single-lot camera is inferred
+is **18.43 / 16.95 / 16.65 native pixels**. The single-lot camera is inferred
 low without a height prior; the aerial reaches its 100 mm crop-lens bound.
 Neither fit proves that this fictional park reproduces a photographed site.
 Neutral patches are identified and balanced in linear RGB before comparing

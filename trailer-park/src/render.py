@@ -193,6 +193,8 @@ def render(stem,path,meta,views,out,width,samples,dress=True):
             ob=bpy.data.objects.get(subject)
             assert ob and any(c.type=='MESH' for c in ob.children_recursive),(name,'Missing imported comparison subject',subject)
         visibility=landmark_visibility(v['review_landmarks'],cam.location) if v.get('review_landmarks') else None
+        if v.get('require_visible_landmarks'):
+            assert visibility and visibility['clear_count']==visibility['anchor_count'],(name,'Occluded photo-fit anchors',visibility)
         bpy.ops.render.render(write_still=True)
         provenance.append(dict(stem=stem,shot=name,camera=v,source=str(path),delivery=str(delivery),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),images=meta['images'],context=ctx,
                                light={**light,'sun_elevation_degrees':math.degrees(math.asin(-dv.z)),'sun_visibility':sun_choice if automatic else None},
