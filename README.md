@@ -105,6 +105,8 @@ Recreation
   and three seeded parks of 1999, 2004 and 2011.
 - [Playgrounds](playground/README.md): modular municipal play structures with slides, swings, climbers and spring
   riders, and three seeded playgrounds of 1996, 2005 and 2013 on wood fiber and poured rubber.
+- [Miniature golf](minigolf/README.md): two seeded 18-hole roadside courses, an older repainted classic with its
+  lighthouse and a terraced 1990s adventure course with rockwork, a waterfall and ponds, each with its clubhouse.
 
 Trees and shrubs
 - [Trees](trees/README.md): summer street trees with leaf cards and wind weights.
