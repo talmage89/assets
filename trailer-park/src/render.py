@@ -167,7 +167,13 @@ def render(stem,path,meta,views,out,width,samples,dress=True,source=False):
     for o in list(bpy.context.scene.objects):
         if o.type=='MESH' and not o.data.materials and 'Icosphere' in o.name:bpy.data.objects.remove(o,do_unlink=True)
     ctx=context(meta['plan']) if stem.startswith('Park') and dress else {}
-    if source:source_finish()
+    source_fields=[]
+    if source:
+        source_finish();fields=archive.parent/'fields';fields.mkdir(parents=True,exist_ok=True)
+        for channel in ('BaseColor','ORM','Height','Coverage'):
+            field=Path('textures/source')/f'T_Manufactured_{channel}.png';sha=hashlib.sha256(field.read_bytes()).hexdigest();target=fields/(sha+'.png')
+            if not target.exists():target.write_bytes(field.read_bytes())
+            source_fields.append(dict(channel=channel,path=str(target),sha256=sha))
     if ctx:
         ctx['image_resources']=image_resources()
         ctx['image_gpu_mib']=sum(im['mipped_8bpp_mib'] for im in ctx['image_resources'])
@@ -228,7 +234,7 @@ def render(stem,path,meta,views,out,width,samples,dress=True,source=False):
         sc.render.engine=v.get('engine','CYCLES')
         bpy.ops.render.render(write_still=True)
         provenance.append(dict(stem=stem,shot=name,camera=v,source=str(path),delivery=str(delivery),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),images=meta['images'],context=ctx,
-                               source_manufacture=source,light={**light,'sun_elevation_degrees':math.degrees(math.asin(-dv.z)),'sun_visibility':sun_choice if automatic else None},
+                               source_manufacture=source,source_fields=source_fields,light={**light,'sun_elevation_degrees':math.degrees(math.asin(-dv.z)),'sun_visibility':sun_choice if automatic else None},
                                landmark_visibility=visibility,camera_matrix_world=[list(r) for r in cam.matrix_world],
                                camera_parameters=dict(type=cam.data.type,lens=cam.data.lens,ortho_scale=cam.data.ortho_scale,sensor_width=cam.data.sensor_width,
                                                       resolution=[sc.render.resolution_x,sc.render.resolution_y]),engine=sc.render.engine,width=width,samples=samples))

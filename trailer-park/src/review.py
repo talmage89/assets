@@ -19,17 +19,21 @@ def sheet(paths,out,width=600):
 def main():
     a=argparse.ArgumentParser();a.add_argument('--renders',type=Path,required=True);a=a.parse_args();root=a.renders
     receipts=json.loads((root/'provenance.json').read_text())
+    from inspection import image_hashes
+    embedded={}
     for row in receipts:
         source=Path(row['source'])
         assert hashlib.sha256(source.read_bytes()).hexdigest()==row['sha256'],('Stale export render',row['stem'],row['shot'])
         delivery=Path(row.get('delivery',row['source']))
+        if str(source) not in embedded:embedded[str(source)]=image_hashes(source)
         for im in row['images']:
-            assert hashlib.sha256((delivery.parent/im['uri']).read_bytes()).hexdigest()==im['sha256'],('Changed image input',im['uri'])
+            assert im['sha256'] in embedded[str(source)],('Archived image input absent',im['uri'])
         if row.get('source_manufacture'):
             used={im['sha256'] for im in row['context']['image_resources']}
-            for channel in ('BaseColor','ORM','Height'):
-                source_field=Path('textures/source')/f'T_Manufactured_{channel}.png'
-                assert hashlib.sha256(source_field.read_bytes()).hexdigest() in used,('Changed source manufacture field',source_field)
+            fields=row.get('source_fields') or [dict(path=str(Path('textures/source')/f'T_Manufactured_{c}.png')) for c in ('BaseColor','ORM','Height')]
+            for field in fields:
+                sha=hashlib.sha256(Path(field['path']).read_bytes()).hexdigest()
+                assert sha in used and sha==field.get('sha256',sha),('Changed source manufacture field',field)
         relative=Path(row['stem'])/(row['shot']+'.png')
         assert (root/relative).is_file() or (root/'matches'/relative).is_file(),('Missing rendered frame',relative)
     pairs=sorted((root/'matches').glob('*-pair.jpg'))

@@ -3,6 +3,15 @@ import hashlib,json,struct
 from pathlib import Path
 
 
+def image_hashes(path):
+    blob=Path(path).read_bytes();length=struct.unpack_from('<I',blob,12)[0]
+    doc=json.loads(blob[20:20+length]);start=20+length+8;result=set()
+    for image in doc.get('images',[]):
+        view=doc['bufferViews'][image['bufferView']];offset=start+view.get('byteOffset',0)
+        result.add(hashlib.sha256(blob[offset:offset+view['byteLength']]).hexdigest())
+    return result
+
+
 def mirror(path):
     path=Path(path);doc=json.loads(path.read_text());assert len(doc['buffers'])==1
     data=bytearray((path.parent/doc['buffers'][0]['uri']).read_bytes())
