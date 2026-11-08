@@ -12,8 +12,8 @@ def road_tint(p,s,u):
     # Bounded station modulation breaks the marks at maintenance/traffic history.
     traveled=.68+.18*math.sin(s/21+lane*3+side*1.7)+.09*math.sin(s/7.7+p.seed*.37+side*.8)
     wheel=max(math.exp(-((d-.82)/.31)**4),math.exp(-((d+.82)/.31)**4))
-    oil=math.exp(-(d/.16)**2)*(.60+.35*math.sin(s/8.1+side*.9+lane*1.2)**2)
-    use=.39*wheel*traveled+.23*oil
+    oil=math.exp(-(d/.24)**2)*(.60+.35*math.sin(s/8.1+side*.9+lane*1.2)**2)
+    use=.48*wheel*traveled+.34*oil
     if abs(d)>LANE_HALF:return (1,1,1,1)
     return (1-use,1-use*1.04,1-use*1.12,1)
 LANE_HALF=1.80
@@ -35,13 +35,19 @@ def paving(p):
             u=p.lane(side,lane)
             for j in range(-round(p.length/2/JOINT),round(p.length/2/JOINT)):
                 s=j*JOINT
+                if p.pavement=='Concrete':
+                    # Dark sealant spread around the existing physical joint.
+                    # The narrow core alone vanished at the hero distance.
+                    b.surface([p.xyz(s-.016,u-1.80,.002),p.xyz(s-.016,u+1.80,.002),p.xyz(s+.016,u+1.80,.002),p.xyz(s+.016,u-1.80,.002)],'Joint')
                 if p.pavement=='Concrete' and rng.random()<.32:
                     lo=u+rng.uniform(-1.55,.8);width=rng.uniform(.35,1.4);patch(s-.16,s+.16,lo,lo+width,'spall');events.append(('joint_spall',s,u))
                 if rng.random()<.025:
                     # Full-depth repair respects the slab boundaries, with a
                     # perimeter seal; scene-owned phase prevents repeated age.
                     if p.pavement=='Concrete':
-                        patch(s+.02,s+JOINT-.02,u-1.79,u+1.79,'repair',(.93,.93,.91,1))
+                        # A replacement slab samples the native manufacture;
+                        # its boundaries follow the construction joints.
+                        b.surface([p.xyz(s+.025,u-1.79,.003),p.xyz(s+.025,u+1.79,.003),p.xyz(s+JOINT-.025,u+1.79,.003),p.xyz(s+JOINT-.025,u-1.79,.003)],'Concrete',tint=(.70,.69,.66,1))
                     else:
                         # A maintained asphalt lane gets darker asphalt, not
                         # the pale concrete-repair chart used by the JPCP.
@@ -112,8 +118,13 @@ def construction(root):
             for i in face.vertices:
                 v=ob.data.vertices[i].co
                 station=v.y+root.location.y
-                low=math.exp(-max(0,v.z)/.34)*(.52+.10*math.sin(station*.067)+.08*math.sin(station*.71)) if root.get('module_kind') in ('barrier','soundwall') else 0
+                low=math.exp(-(max(0,v.z)/.43)**1.1)*(.64+.10*math.sin(station*.067)+.08*math.sin(station*.71)) if root.get('module_kind') in ('barrier','soundwall') else 0
                 value=1-low
+                if root.get('module_kind')=='barrier':
+                    # Water enters the actual open end joints and collects
+                    # road film toward the toe. Ends retain different phases.
+                    joint=math.exp(-((3.048-abs(v.y))/.22)**2)
+                    value-=joint*(.12+.17*math.exp(-max(0,v.z)/.6))
                 if ma==Q.M['Steel'] and root.get('module_kind')=='guardrail':
                     value=1.0 if ob.get('maintenance') else .86
                 if root.get('module_kind')=='bridge' and ob.parent and ob.parent.get('module_kind')=='bridge_girder':
@@ -130,7 +141,12 @@ def construction(root):
                     value-=.28*math.exp(-max(0,v.z-7.18236)/.27)
                 # Damp deposits retain their brown/olive soil spectrum.
                 concrete=ma in (Q.M['Bridge'],Q.M['Barrier'])
+                value=max(.18,min(1,value))
                 ca.data[i].color=(value,value*(1-(1-value)*.08)*(.985 if concrete else 1),value*(1-(1-value)*.22)*(.94 if concrete else 1),1)
+                is_pier=root.get('module_kind')=='bridge_pier' or (root.get('module_kind')=='bridge' and ob.parent and ob.parent.get('module_kind')=='bridge_pier')
+                if is_pier and v.z<4.46 and abs(v.x)<.61:
+                    from column_age import tint
+                    ca.data[i].color=tint(v,station)
     if root.get('module_kind')!='bridge':return
     b=Q.Batch('Joint bearing and scupper deposits',root)
     # Outer girder faces face the freeway shoulder. Runoff is top-connected,

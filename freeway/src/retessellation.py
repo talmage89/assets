@@ -1,0 +1,62 @@
+"""Measure edited material-sampling meshes against accepted exported surfaces.
+
+Run in Blender, independently of the generator. Weather needs extra vertices
+on columns/barriers/lanes; this audits shape instead of triangle-list identity.
+The explicitly revised turf is outside this construction comparison.
+"""
+import json,sys
+from pathlib import Path
+import numpy as np
+from mathutils import Vector
+from mathutils.bvhtree import BVHTree
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+
+def fields(path):
+ d=json.loads(path.read_text());buffers=[(path.parent/b['uri']).read_bytes() for b in d['buffers']]
+ def read(i):
+  a=d['accessors'][i];v=d['bufferViews'][a['bufferView']];dt=np.dtype({5126:'<f4',5125:'<u4',5123:'<u2',5121:'u1'}[a['componentType']]);n={'SCALAR':1,'VEC2':2,'VEC3':3,'VEC4':4}[a['type']]
+  return np.ndarray((a['count'],n),dtype=dt,buffer=buffers[v['buffer']],offset=v.get('byteOffset',0)+a.get('byteOffset',0),strides=(v.get('byteStride',n*dt.itemsize),dt.itemsize))
+ out={}
+ for mesh in d['meshes']:
+  arrays=[]
+  for prim in mesh['primitives']:
+   name=d['materials'][prim['material']]['name']
+   if name.startswith('FreewayMaintenance') or 'summer turf' in name.lower():continue
+   attr=prim['attributes'];idx=read(prim['indices']).ravel()
+   arrays.append(np.concatenate([read(attr[k]) for k in ('POSITION','NORMAL','TEXCOORD_0')],axis=1)[idx].reshape(-1,3,8))
+  if arrays:out[mesh['name']]=np.concatenate(arrays)
+ return out
+
+def compare(old,new):
+ tree=BVHTree.FromPolygons([Vector(v) for v in old[:,:,:3].reshape(-1,3)],[(i,i+1,i+2) for i in range(0,len(old)*3,3)],all_triangles=True)
+ samples=np.concatenate([new,new.mean(axis=1,keepdims=True)],axis=1)
+ worst=0;uv_error=0;normal_error=0
+ for sample_index,row in enumerate(samples.reshape(-1,8)):
+  point,n,index,distance=tree.find_nearest(Vector(row[:3]));assert point is not None
+  worst=max(worst,distance)
+  if sample_index%4!=3:continue # Corner UV/normal charts have intentional seams.
+  # Native texture phase and normals must agree too, using barycentric
+  # interpolation at the closest point on the actual old surface.
+  tri=old[index];a,b,c=tri[:,:3];v=np.asarray(point)-a;e0=b-a;e1=c-a
+  gram=np.array([[e0@e0,e0@e1],[e0@e1,e1@e1]])
+  weights=np.linalg.solve(gram,[v@e0,v@e1]);value=tri[0]+weights[0]*(tri[1]-tri[0])+weights[1]*(tri[2]-tri[0])
+  uv_error=max(uv_error,float(abs(value[6:]-row[6:]).max()))
+  normal_error=max(normal_error,float(np.linalg.norm(value[3:6]-row[3:6])))
+ return dict(samples=len(samples)*4,max_surface_distance_m=worst,max_uv_delta=uv_error,max_normal_delta=normal_error)
+
+def main():
+ jobs=json.loads(Path(sys.argv[-1]).read_text());report={}
+ for job in jobs:
+  old=fields(Path(job['old']));new=fields(Path(job['new']));rows={}
+  for name in job['names']:
+   assert name in old and name in new,(name,'Missing civil sampling mesh')
+   a=compare(old[name],new[name]);b=compare(new[name],old[name])
+   # Curve-strip interpolation has submillimeter floating point differences.
+   for r in (a,b):
+    assert r['max_surface_distance_m']<.001,(name,r)
+    assert r['max_uv_delta']<.001,(name,r)
+    assert r['max_normal_delta']<.005,(name,r)
+   rows[name]=dict(old_to_new=b,new_to_old=a)
+  report[job['new']]=rows
+ Path('build/retessellation-audit.json').write_text(json.dumps(report,indent=2));print('RETESSELLATION PASSED',sum(len(v) for v in report.values()),'mesh surfaces, bidirectional samples')
+if __name__=='__main__':main()

@@ -138,7 +138,7 @@ def scene(seed):
     path=Path('export/Freeway-'+str(seed)+'.gltf');import_file(path);stats=base_checks();p=plan(seed)
     assert stats['triangles']<400000,stats['triangles']
     roads=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.parent and o.parent.get('module_kind')=='roadway']
-    roadtree=bvh(roads,{'Asphalt','Concrete','Freeway Wheel polish / Ground Concrete'})
+    roadtree=bvh(roads,{'Asphalt','Concrete','Freeway Wheel polish / Ground Concrete','Freeway Wheel polish / Ground Asphalt'})
     # Surface-derived section: actual ray hits, no metadata used as a result.
     x0,y0,_=p.xyz(0,6);x1,y1,_=p.xyz(0,9)
     z0=ray(roadtree,x0,y0)[2];z1=ray(roadtree,x1,y1)[2]
@@ -223,8 +223,8 @@ def scene(seed):
     bpy.ops.import_scene.gltf(filepath=str(Path(f'export/Town-{seed}.gltf').resolve()))
     bpy.context.view_layer.update()
     # Traffic is checked against physical driving skins, including ramps/deck.
-    paving=[o for o in bpy.context.scene.objects if o.type=='MESH' and not any(k in o.name for k in ('Wheel','Tire')) and any(m and m.name.split('.')[0] in {'Asphalt','Concrete','Freeway Wheel polish / Ground Concrete'} for m in o.data.materials)]
-    roadtree=bvh(paving,{'Asphalt','Concrete','Freeway Wheel polish / Ground Concrete'})
+    paving=[o for o in bpy.context.scene.objects if o.type=='MESH' and not any(k in o.name for k in ('Wheel','Tire')) and any(m and m.name.split('.')[0] in {'Asphalt','Concrete','Freeway Wheel polish / Ground Concrete','Freeway Wheel polish / Ground Asphalt'} for m in o.data.materials)]
+    roadtree=bvh(paving,{'Asphalt','Concrete','Freeway Wheel polish / Ground Concrete','Freeway Wheel polish / Ground Asphalt'})
     contacts=[];tire_meshes=[]
     for actor in actors:
         parts=meshes(actor)

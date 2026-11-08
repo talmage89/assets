@@ -4,7 +4,7 @@ Compare oriented exported civil triangles (position, normal, UV), omitting the
 maintenance material and obsolete large mowing skins. The local handoff
 snapshot is never an input to generation. Actual support audits are independent.
 """
-import hashlib,json
+import hashlib,json,subprocess,os,shlex
 from pathlib import Path
 import numpy as np
 from look_audit import raw
@@ -20,6 +20,7 @@ def geometry(path):
   for prim in mesh['primitives']:
    mat=doc['materials'][prim['material']]['name']
    if mat.startswith('FreewayMaintenance'):continue
+   if mesh['name'].startswith(('Cut slopes and drainage','WideMedian')) and 'summer turf' in mat.lower():continue
    attr=prim['attributes'];idx=read(prim['indices']).ravel()
    values=np.concatenate([read(attr[k]).astype('<f4') for k in ('POSITION','NORMAL','TEXCOORD_0')],axis=1)[idx].reshape(-1,3,8)
    if mesh['name'].startswith('Mowing drainage') and ('lawn' in mat.lower() or 'summer turf' in mat.lower()):
@@ -41,12 +42,19 @@ def geometry(path):
  return out
 
 def main():
- baseline=Path('build/freeway-final-baseline/export');rows={}
+ baseline=Path('build/freeway-final-baseline/export');rows={};jobs=[]
  for name in ('Freeway-101','Freeway-202','modules/Overpass','modules/PrestressedGirder24','modules/PierBent'):
   path=Path('export')/(name+'.gltf');current=geometry(path)
   if (baseline/(name+'.gltf')).exists():
-   old=geometry(baseline/(name+'.gltf'));assert current==old,(name,[n for n in current if current.get(n)!=old.get(n)])
-   rows[name]=dict(meshes=len(current),accepted_civil_geometry_identical=True,omitted='Maintenance decals and obsolete large mowing skins; small volunteer leaves and all drains/flumes retained',exception='ROW fence opened at arterial; comparison excludes only fence triangles within 24.5 m of station zero' if name=='Freeway-101' else None)
+   old=geometry(baseline/(name+'.gltf'));changed=[n for n in current if current.get(n)!=old.get(n)]
+   allowed=('Road_','MedianF__Mesh','PierBent__Mesh','Overpass__PierBent__Mesh')
+   assert current.keys()==old.keys(),(name,'Civil mesh list changed')
+   assert all(n.startswith(allowed) for n in changed),(name,changed)
+   if changed:jobs.append(dict(old=str(baseline/(name+'.gltf')),new=str(path),names=changed))
+   rows[name]=dict(meshes=len(current),unchanged_meshes=len(current)-len(changed),retessellated_meshes=changed,omitted='Maintenance decals, revised turf shading/color stations, obsolete large mowing skins; all drains/flumes retained',exception='ROW fence opened at arterial; comparison excludes only fence triangles within 24.5 m of station zero' if name=='Freeway-101' else None)
   else:rows[name]=dict(meshes=len(current),scope='Handoff snapshot absent; independent construction audits apply')
- Path('build/accepted-construction.json').write_text(json.dumps(rows,indent=2));print('ACCEPTED CONSTRUCTION',rows)
+ if jobs:
+  source=Path('build/retessellation-jobs.json');source.write_text(json.dumps(jobs,indent=2))
+  subprocess.run(shlex.split(os.environ.get('BLENDER_BINARY','blender'))+['-t','2','-b','--factory-startup','--python-exit-code','1','--python','src/retessellation.py','--',str(source)],check=True)
+ Path('build/accepted-construction.json').write_text(json.dumps(rows,indent=2));print('ACCEPTED CONSTRUCTION',[(n,r.get('unchanged_meshes'),len(r.get('retessellated_meshes',[]))) for n,r in rows.items()])
 if __name__=='__main__':main()

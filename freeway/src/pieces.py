@@ -18,7 +18,8 @@ def barrier(name='MedianF',length=6.096,scupper=True):
     if scupper:
         # Actual opening through the lower toe; not a painted black rectangle.
         a=.1524;c=.0762
-        b.extrude(F_SHAPE,[-length/2,-a],'Barrier');b.extrude(F_SHAPE,[a,length/2],'Barrier')
+        ends=[-length/2,-length/2+.18,-length/2+.55,-a] if getattr(Q,'LOOKDEV',False) else [-length/2,-a]
+        b.extrude(F_SHAPE,ends,'Barrier');b.extrude(F_SHAPE,[-v for v in reversed(ends)],'Barrier')
         upper=[(-.3048,c),(.3048,c),(.127,.254),(.0762,.8128),(-.0762,.8128),(-.127,.254)]
         b.extrude(upper,[-a,a],'Barrier')
     else:b.extrude(F_SHAPE,[-length/2,length/2],'Barrier')
@@ -179,7 +180,8 @@ def pier(name='PierBent'):
     rt=Q.root(name,module_kind='bridge_pier');b=Q.Batch(name+'__Mesh',rt)
     seat=7.10-1.3716-.15
     for y in (-7.,0,7.):
-        b.tube([(0,y,-.05),(0,y,seat-1.12)],.60,'Bridge',32)
+        levels=[-.05,.10,.28,.55,1.10,2.60,seat-1.12] if getattr(Q,'LOOKDEV',False) else [-.05,seat-1.12]
+        b.tube([(0,y,z) for z in levels],.60,'Bridge',32)
         b.tube([(0,y,seat-1.12),(0,y,seat-.98)],.67,'Bridge',24)
     # 50mm chamfered cap, with the accepted seat/bearing levels unchanged.
     lo=seat-1.24;hi=seat-.14;c=.05
