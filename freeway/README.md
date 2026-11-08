@@ -30,18 +30,18 @@ is static; canonical cars and trees provide the working animation/wind data.
 
 | Scene / package | Expanded tris | Unique tris | Mesh instances | Materials | glTF + BIN bytes | Referenced PNG bytes | Full-mip GPU MiB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 101 Freeway | 263,504 | 245,884 | 837 | 29 | 20,860,317 | 71,408,972 | 106.25 |
-| 101 Town | 108,889,701 | 1,280,312 | 10,715 | 83 | 115,606,496 | 95,124,781 | 171.58 |
+| 101 Freeway | 287,600 | 269,980 | 837 | 29 | 22,814,072 | 66,999,802 | 106.25 |
+| 101 Town + ROW turf | 111,170,268 | 1,142,319 | 29,617 | 84 | 106,480,276 | 91,445,348 | 175.58 |
 | 101 Traffic | 5,305,194 | 1,330,615 | 6,014 | 64 | 71,472,895 | 26,553,791 | 73.33 |
-| 202 Freeway | 160,534 | 160,534 | 590 | 16 | 14,362,950 | 63,909,043 | 88.25 |
-| 202 Town | 36,607,910 | 343,018 | 3,670 | 48 | 33,132,702 | 69,035,195 | 98.92 |
+| 202 Freeway | 162,518 | 162,518 | 590 | 17 | 14,540,805 | 59,499,873 | 88.25 |
+| 202 Town + ROW turf | 37,169,654 | 232,378 | 8,930 | 49 | 22,869,564 | 65,355,762 | 102.92 |
 | 202 Traffic | 2,221,793 | 936,056 | 2,945 | 57 | 50,385,538 | 27,970,229 | 76.00 |
 
 Whole-scene image unions (shared hashes counted once):
 
-- 101: 105 unique images, 144,083,120 PNG bytes and 298.92 MiB compressed GPU memory.
-- 202: 78 unique images, 119,311,178 PNG bytes and 226.92 MiB compressed GPU memory.
-- Both scenes together: 107 unique images, 145,499,558 PNG bytes and 301.58 MiB.
+- 101: 105 unique images, 139,673,950 PNG bytes and 298.92 MiB compressed GPU memory.
+- 202: 78 unique images, 114,902,008 PNG bytes and 226.92 MiB compressed GPU memory.
+- Both scenes together: 107 unique images, 141,090,388 PNG bytes and 301.58 MiB.
 
 The civil files are `export/Freeway-{101,202}.gltf`. Separate
 `Town-<seed>.gltf` and `Traffic-<seed>.gltf` packages make the context optional;
@@ -64,9 +64,18 @@ Cedar Hollow uses offset-curve frontage compensation to retain the same lot
 scale; its inner yards put trees behind the roofs from the freeway's view.
 Measured lot and house-clearance ranges are in `build/context-audit.json`.
 
-Seed 101: 1,710 houses, 4,362 trees and 4 apartment blocks; 10,715 town mesh instances share 202 unique meshes.
+Seed 101: 1,710 houses, 4,362 trees and 4 apartment blocks; town and ROW turf have 29,617 mesh instances sharing 209 unique meshes.
 
-Seed 202: 656 houses, 1,463 trees and 0 apartment blocks; 3,670 town mesh instances share 12 unique meshes.
+Seed 202: 656 houses, 1,463 trees and 0 apartment blocks; town and ROW turf have 8,930 mesh instances sharing 19 unique meshes.
+
+The house, tree and traffic placements are retained from the accepted delivery.
+Near ROW grass adds linked crossed-card tiles to the optional Town package;
+eight 128-triangle patterns share the maintenance atlas, with density fading
+into the textured base. Their extra expanded triangles are 2.28M / .56M net,
+including removal of old cosmetic grass skins. Civil color sampling adds
+24,096 / 1,984 triangles for lane-center oil, column runoff and barrier joints.
+Town geometry files shrink by 9.13M / 10.26M bytes; whole-scene compressed image
+memory is unchanged because the turf reuses maps already present in the scene.
 
 The 50–60 × 100–130 ft range comes from this brief; the 2002 USGS aerial is
 the density/canopy comparison, not a cadastral survey. House roofs, openings,
@@ -140,14 +149,14 @@ Fresh raw-accessor counts. Material states differ from placed draw calls.
 | GoreAttenuator | 302 | 4 |
 | GorePaving36 | 20 | 2 |
 | GuardrailEnd | 404 | 4 |
-| MedianF | 76 | 1 |
-| Overpass | 22,788 | 9 |
-| PierBent | 676 | 1 |
+| MedianF | 140 | 1 |
+| Overpass | 23,748 | 9 |
+| PierBent | 1,636 | 1 |
 | PrestressedGirder24 | 796 | 1 |
 | RampBranch | 548 | 3 |
-| RoadBankTransition | 1,504 | 5 |
-| RoadCurve | 1,504 | 5 |
-| RoadStraight | 1,600 | 7 |
+| RoadBankTransition | 1,568 | 6 |
+| RoadCurve | 1,568 | 6 |
+| RoadStraight | 1,664 | 7 |
 | SignTruss | 3,190 | 4 |
 | SoundPanel | 144 | 2 |
 | WBeam | 188 | 3 |

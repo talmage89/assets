@@ -18,7 +18,13 @@ belong to the optional context budget. Eight linked tile meshes carry the
 near-field parallax; density falls toward the textured base at distance. Tiles
 follow actual earth normals and reject paved footprints. Mown cards are short;
 unmown drifts past the maintenance line are taller. The card material is stock
-double-sided glTF MASK and allocates no extra image.
+double-sided glTF MASK and allocates no extra image. Each linked tile has 32
+clumps, two crossed quads per clump and 128 triangles. The atlas fan has 360
+thin blades and six seed heads. Alternating shoulder strips select subtly
+lighter/darker card patterns; unmown tiles vary height in drifts. Grass-card
+normal strength is .10 so the atlas's shared repair relief does not make
+individual blades look corrugated. Source-height comparisons apply that same
+strength. The base retains the native baked blade normal at its own scale.
 World/meter tile UVs intentionally repeat. Existing manufacture remains in
 those maps; broad traffic causes belong to lane-space vertex colors and
 placement-owned maintenance charts. Wheel-polish materials share Ground
