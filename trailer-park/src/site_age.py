@@ -20,8 +20,8 @@ def road(a,p,lib,material):
             # 2–4in overband, applicator wander, irregular squeeze-out and
             # cooler tar at the margins. Each edge has independent width.
             wander=min(.016,width*.35);wobble=seal_rng.uniform(-wander,wander);x+=-dy/d*wobble;y+=dx/d*wobble
-            half=width*seal_rng.uniform(.72,1.28);nx,ny=-dy/d*half,dx/d*half
-            asym=seal_rng.uniform(.70,1.30)
+            half=min(.0508,max(.0254,width*seal_rng.uniform(.72,1.28)));nx,ny=-dy/d*half,dx/d*half
+            asym=min(.0508,max(.0254,half*seal_rng.uniform(.70,1.30)))/half
             vs.extend([(x+nx,y+ny,.017),(x,y,.019),(x-nx*asym,y-ny*asym,.017)])
             colors.extend([(.052,.052,.049,1),(.038,.039,.037,1),(.052,.052,.049,1)])
             if j:
@@ -35,9 +35,12 @@ def road(a,p,lib,material):
               patina_material(),RECTS['Fatigue'],seal_rng.uniform(-7,7),p['seed'],z=.0208)
     for lane in (-p['loop_x'],p['loop_x']):
         # Longitudinal fatigue seal; offset from the centerline oil drips.
-        points=[(lane-.85+r.uniform(-.32,.32),-span/2+1+j*1.5) for j in range(math.floor((span-2)/1.5)+1)]
+        points=[(lane-w*.24+r.uniform(-.32,.32),-span/2+1+j*1.5) for j in range(math.floor((span-2)/1.5)+1)]
         for start in range(0,len(points)-3,7):
-            if r.random()<(.92 if old else .68):seal(points[start:min(start+r.randint(5,8),len(points))],.034 if old else .030)
+            if r.random()<(.92 if old else .68):
+                run=points[start:min(start+r.randint(5,8),len(points))]
+                if start//7%2:run=[(2*lane-x,y) for x,y in run]
+                seal(run,.034 if old else .030)
         for j in range(math.ceil(span/7)):
             y=-span/2+3+j*7+r.uniform(-2.4,2.4)
             branch=[(lane-.85,y),(lane+.25,y+.4),(lane+w/2-.10,y+1.0)]
