@@ -28,8 +28,8 @@ def panel(folder,items,cols=2):
 def main(folder):
     from presentation_check import check
     text=Path('REVIEW.md').read_text()
-    for n in (1,2,3):assert f'## Delivery pass {n}' in text,('Missing full-size delivery critique',n)
-    assert '\nDelivery gate: ACCEPTED\n' in text, 'Visual fixes are not accepted; docs remain withheld'
+    for n in (1,2,3):assert f'## Completion pass {n}' in text,('Missing current-round full-size critique',n)
+    assert text.rsplit('\nDelivery gate: ',1)[-1].splitlines()[0]=='ACCEPTED', 'Visual fixes are not accepted; docs remain withheld'
     check(folder);out=Path('docs');out.mkdir(exist_ok=True);rows=[]
     for seed in (101,202):rows.append(encode(Image.open(folder/f'Park-{seed}/hero.png'),out/f'hero-{seed}.jpg'))
     rows.append(encode(panel(folder,[('Park-101/above.png','Alder Court / 36 homes'),('Park-202/above.png','Meadow Bend / 33 homes')]),out/'parks.jpg'))
