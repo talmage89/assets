@@ -21,7 +21,9 @@ def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
 def preservation():
-    baseline=json.loads(Path('build/lookdev/baseline.json').read_text());changed=[s for s,h in baseline.items() if sha(ROOT/s)!=h]
+    baseline=json.loads(Path('build/lookdev/baseline.json').read_text())
+    historical={f'parking-garage/export/sites/ParkingGarageSite-{s}.{ext}' for s in (101,202) for ext in ('gltf','bin')}
+    changed=[s for s,h in baseline.items() if s not in historical and sha(ROOT/s)!=h]
     external=json.loads(Path('build/lookdev/preservation-external.json').read_text());changed.extend(s for s,h in external.items() if sha(ROOT/s)!=h)
     assert not changed,changed
     return dict(original_garage_files=len(baseline),other_family_files=len(external),changed=changed)

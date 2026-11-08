@@ -15,7 +15,7 @@ include ../kit/checkpoint_rules.mk
 all: matches
 
 .PHONY: context site matches repeat clean-family
-build/context/.stamp: src/context_build.py src/dependencies.py
+build/context/.stamp: src/context_build.py src/dependencies.py src/context_guard.py src/context_geometry.py src/hatchback-surface.json src/crossover-surface.json
 	$(PYTHON) src/dependencies.py
 	@touch $@
 context: build/context/.stamp

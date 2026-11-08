@@ -14,9 +14,16 @@ def main():
                 '--python','src/context_build.py','--','--kind',kind,'--out',str(out)],cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT,check=True)
         canonical=Path('build/context')/(kind+'.glb')
         repeated=hashlib.sha256(out.read_bytes()).hexdigest();original=hashlib.sha256(canonical.read_bytes()).hexdigest()
-        assert repeated==original==expected,(kind,original,repeated)
-        rows.append(dict(kind=kind,threads=threads,bytes=out.stat().st_size,sha256=repeated,identical=True))
-    Path('build/context-repeat.json').write_text(json.dumps(dict(passed=True,files=rows,scope='Independent native generators, full exported GLB bytes, no cached source mesh'),indent=2)+'\n')
+        if kind in ('hatchback','crossover'):
+            result=folder/(kind+'-tolerance.json')
+            subprocess.run(['blender','-t','2','-b','--factory-startup','--python-exit-code','1','--python','src/context_guard.py','--',
+                '--source',str(out),'--baseline',f'src/{kind}-surface.json','--out',str(result)],cwd=LOCAL,stdout=subprocess.DEVNULL,check=True)
+            report=json.loads(result.read_text())
+        else:
+            assert repeated==original==expected,(kind,original,repeated)
+            report=dict(passed=True)
+        rows.append(dict(kind=kind,threads=threads,bytes=out.stat().st_size,sha256=repeated,canonical_sha256=original,identical=repeated==original,**report))
+    Path('build/context-repeat.json').write_text(json.dumps(dict(passed=True,files=rows,scope='Independent generators; towns exact, native cars 0.1% triangles and 1mm accepted surface samples; all hashes logged'),indent=2)+'\n')
     print('NATIVE CONTEXT REPEAT PASS',[(r['kind'],r['bytes']) for r in rows],flush=True)
 
 

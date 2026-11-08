@@ -36,6 +36,7 @@ repeat: context-repeat
 context-repeat:
 	$(PYTHON) src/context_repeat.py
 lookdev-repeat: $(FINAL_EXPORTS)
+lookdev-repeat: context-repeat
 check-texture-repeat: lookdev-bake-repeat
 docs: delivery-review
 	$(PYTHON) src/delivery_docs.py

@@ -25,20 +25,30 @@ def main():
     folder=LOCAL/'build/context';folder.mkdir(parents=True,exist_ok=True)
     receipt=LOCAL/'build/preservation.json'
     if not receipt.exists():receipt.write_text(json.dumps(snapshot(),indent=2)+'\n')
+    rows=[]
     for kind,(threads,expected) in CONTEXT.items():
         out=folder/(kind+'.glb')
-        if out.exists() and hashlib.sha256(out.read_bytes()).hexdigest()==expected:continue
-        # Use an explicit evaluation profile: near-degenerate native gauge
-        # topology is sensitive to worker count. Accepted hashes also prevent
-        # silently replacing a historical input when its recipe diverges.
-        with (folder/(kind+'.log')).open('w') as log:
-            subprocess.run(['blender','-t',str(threads),'-b','--factory-startup','--python-exit-code','1',
-                '--python',str(LOCAL/'src/context_build.py'),'--','--kind',kind,'--out',str(out)],check=True,stdout=log,stderr=subprocess.STDOUT,cwd=LOCAL)
+        car=kind in ('hatchback','crossover')
+        valid=out.exists() and (car or hashlib.sha256(out.read_bytes()).hexdigest()==expected)
+        # Keep the existing evaluation profile. Native car gauge topology can
+        # vary slightly: the owner's ruling requires measured surface bounds.
+        if not valid:
+            with (folder/(kind+'.log')).open('w') as log:
+                subprocess.run(['blender','-t',str(threads),'-b','--factory-startup','--python-exit-code','1',
+                    '--python',str(LOCAL/'src/context_build.py'),'--','--kind',kind,'--out',str(out)],check=True,stdout=log,stderr=subprocess.STDOUT,cwd=LOCAL)
         actual=hashlib.sha256(out.read_bytes()).hexdigest()
-        assert actual==expected,('Native recipe does not reproduce accepted input',kind,actual,expected)
+        if car:
+            result=folder/(kind+'-tolerance.json')
+            subprocess.run(['blender','-t','2','-b','--factory-startup','--python-exit-code','1',
+                '--python','src/context_guard.py','--','--source',str(out),'--baseline',
+                f'src/{kind}-surface.json','--out',str(result)],check=True,cwd=LOCAL)
+            rows.append(dict(kind=kind,**json.loads(result.read_text())))
+        else:
+            assert actual==expected,('Native town recipe differs',kind,actual,expected)
+            rows.append(dict(kind=kind,actual_sha256=actual,identical=True))
     before=json.loads(receipt.read_text());after=snapshot();changed=[p for p,h in before.items() if after.get(p)!=h]
     assert not changed,changed
-    (LOCAL/'build/dependencies.json').write_text(json.dumps(dict(preserved_files=len(before),passed=True),indent=2)+'\n')
+    (LOCAL/'build/dependencies.json').write_text(json.dumps(dict(preserved_files=len(before),passed=True,inputs=rows),indent=2)+'\n')
 
 
 if __name__=='__main__':main()
