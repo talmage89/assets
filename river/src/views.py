@@ -13,7 +13,7 @@ def views(seed,plan=None):
         hero=dict(location=(x,y,hero_z),target=(2,0,2.25),lens=40),
         above=dict(location=(-110,-140,142),target=(0,10,0),lens=35),
         under=dict(location=(ux,-7,uz),target=(0,1,3.4),lens=26,exposure=.3),
-        bearings=dict(location=(-p.length/2+3.2,-6.8,p.bed(-p.length/2+3.2,-6.8)+1.65),target=(-p.length/2+.40,-p.deck_width/2+.95,2.84),lens=55,exposure=.8),
+        bearings=dict(location=(-p.length/2+3.2,-6.8,p.bed(-p.length/2+3.2,-6.8)+1.65),target=(-p.length/2+.40,-p.deck_width/2+.95,2.84),lens=55,exposure=2.0),
         pier=dict(location=(-7,-13,1.65),target=(0 if rural else -p.span/2,-2.7,1.1),lens=48),
         abutment=dict(location=(-p.length/2+9,-14,2.45) if rural else (p.water_edges(-18)[0]+3,-18,5.8),target=(-p.length/2,-5.5,2.5),lens=42,exposure=.3),
         driver=dict(location=(-p.length/2-24,-1.6764,p.deck_z+1.15),target=(16,-1.6764,p.deck_z+1.14),lens=40),

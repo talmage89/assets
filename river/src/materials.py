@@ -69,10 +69,3 @@ def palette(repo):
     water['river_scatter_color']=[.30,.31,.11];water['river_scatter_density']=.35;water['river_scatter_anisotropy']=.20
     water['river_flow_attribute']='_FLOW';G.M['water']=water
     volume_from_extras(water)
-    # Finite-distance background approximation: an open distant surface must
-    # not introduce an unbounded volume into the scene's medium stack.
-    back=water.copy();back.name='DistantRiverSurface';bs=back.node_tree.nodes.get('Principled BSDF')
-    bs.inputs['Transmission Weight'].default_value=0;bs.inputs['Base Color'].default_value=(.008,.014,.004,1)
-    output=back.node_tree.nodes.get('Material Output')
-    for link in list(output.inputs['Volume'].links):back.node_tree.links.remove(link)
-    G.M['distant_water']=back

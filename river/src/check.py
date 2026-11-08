@@ -24,21 +24,23 @@ def accessor(d,bin,index):
 
 
 def raw(path):
-    d=json.loads(path.read_text());binary=(path.parent/d['buffers'][0]['uri']).read_bytes();tris=0;norm=[];uv=[];flows=[];heightfield_faces=0;water_volume=None
+    d=json.loads(path.read_text());binary=(path.parent/d['buffers'][0]['uri']).read_bytes();tris=0;norm=[];uv=[];flows=[];heightfield_faces=0;water_volume=None;context_volumes={}
     for me in d['meshes']:
         for pr in me['primitives']:
             inds=accessor(d,binary,pr['indices']).ravel();tris+=len(inds)//3
             v=accessor(d,binary,pr['attributes']['POSITION']);assert np.isfinite(v).all()
-            if me['name']=='WaterSurface':
+            if me['name']=='WaterSurface' or me['name'].startswith('DistantWaterVolume_'):
                 # UV/normal splits in glTF do not make physical shell seams.
                 points,remap=np.unique(np.round(v,6),axis=0,return_inverse=True)
                 faces=remap[inds.reshape(-1,3)]
                 edges=np.sort(np.concatenate((faces[:,[0,1]],faces[:,[1,2]],faces[:,[2,0]])),axis=1)
                 _,uses=np.unique(edges,axis=0,return_counts=True)
                 assert (uses==2).all(),('Open water volume',np.unique(uses,return_counts=True))
-                tri=points[faces];water_volume=float(np.einsum('ij,ij->i',tri[:,0],np.cross(tri[:,1],tri[:,2])).sum()/6)
-                assert water_volume>100,('Reversed water shell',water_volume)
-            if me['name'] in ('BedBanksFloodplain','DistantValleySkins','DistantWaterContinuation'):
+                tri=points[faces];volume=float(np.einsum('ij,ij->i',tri[:,0],np.cross(tri[:,1],tri[:,2])).sum()/6)
+                assert volume>100,('Reversed water shell',me['name'],volume)
+                if me['name']=='WaterSurface':water_volume=volume
+                else:context_volumes[me['name']]=volume
+            if me['name'] in ('BedBanksFloodplain','DistantValleySkins'):
                 tv=v[inds.reshape(-1,3)];cross=np.cross(tv[:,1]-tv[:,0],tv[:,2]-tv[:,0])
                 assert (cross[:,1]>=-1e-8).all(),('Downward terrain winding',me['name'],int((cross[:,1]<-1e-8).sum()))
                 heightfield_faces+=len(cross)
@@ -61,7 +63,8 @@ def raw(path):
     return dict(stored_triangles=tris,placed_triangles=expanded,materials=len(d['materials']),images=len(d.get('images',[])),
         normal_length_error=float(abs(norm-1).max()),density_at_1024_px_m=np.percentile(uv,[5,50,95]).tolist(),
         flow_vertices=len(flow),flow_speed_m_s=np.percentile(np.linalg.norm(flow[:,:2],axis=1),[0,50,100]).tolist(),
-        max_flow_depth_m=float(flow[:,2].max()),closed_water_shell_volume_m3=water_volume,upward_heightfield_faces=heightfield_faces,bytes_gltf=path.stat().st_size,bytes_bin=len(binary),bundle_sha256=bundle(path))
+        max_flow_depth_m=float(flow[:,2].max()),closed_water_shell_volume_m3=water_volume,closed_context_water_volumes_m3=context_volumes,
+        upward_heightfield_faces=heightfield_faces,bytes_gltf=path.stat().st_size,bytes_bin=len(binary),bundle_sha256=bundle(path))
 
 
 def bvh(ob):

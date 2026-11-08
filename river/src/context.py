@@ -84,6 +84,7 @@ def add(p,parent):
             doc=json.loads((REPO/'downtown/export'/key).read_text())
             plans[key]=json.loads(next(n['extras']['plan'] for n in doc['nodes'] if n.get('extras',{}).get('building')))
         front=math.ceil(abs(p.bend)+p.width*.5325+max(v['depth'] for v in plans.values())+10)
+        rt['main_street_front_m']=front
         for side in (-1,1):
             for direction in (-1,1):
                 cursor=15.2
@@ -99,7 +100,7 @@ def add(p,parent):
         for side in (-1,1):
             for j in range(150):
                 a=-150+j*2;c=a+2
-                grade=lambda y:max(3.7,2.1+(p.deck_z-.06-2.1)*max(0,1-max(0,abs(y)-7)/15))+.075
+                grade=lambda y:max(3.7,2.1+(p.deck_z-.06-2.1)*max(0,1-max(0,abs(y)-7)/15))+.075+p.water_z(y)
                 for x0,x1,role in ((front,front+2,'concrete'),(front+2,front+9.3152,'asphalt'),(front+9.3152,front+11.4,'concrete')):
                     if abs(a)<6:continue
                     streets.geom([(side*x0,a,grade(a)),(side*x1,a,grade(a)),(side*x1,c,grade(c)),(side*x0,c,grade(c))],[(0,1,2,3)],role,up=True)
