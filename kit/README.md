@@ -953,6 +953,8 @@ The default protects a whole connected neighbor; opt-in
 `"powered_protection": "local"` protects only source triangles overlapping the
 same half-pixel-expanded emitter bounds. Original glass/alpha/emissive masks and all reduction guards
 remain. Native lamp/trim comparisons are required before enabling that scope.
+Local scope also keeps sampled opposed source faces in contact with glass;
+tiny depth changes there can reverse the source material order.
 Failed skins try finer source-map reductions before restoring a whole component;
 every trial keeps the original field/distance bounds and tests assembled visibility.
 Optional `reflective_surface_pixels` gives low-roughness metallic constructions a

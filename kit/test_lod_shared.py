@@ -109,7 +109,7 @@ def refinement_fixtures():
 
 def powered_fixtures():
     """Free remote construction while keeping the actual near-lens panel."""
-    from kit.lod_shells import protect_powered,powered_policy
+    from kit.lod_shells import protect_powered,powered_policy,protect_transmission_contacts
     points=np.array([[0,0,0],[1,0,0],[1,1,0],[0,1,0],[2,0,0],[2,1,0],
                      [3,0,0],[3,1,0],[.2,.2,.01],[.6,.2,.01],[.2,.6,.01]],np.float32)
     faces=np.array([[0,1,2],[0,2,3],[1,4,5],[1,5,2],[4,6,7],[4,7,5],[8,9,10]],np.uint32)
@@ -139,6 +139,22 @@ def powered_fixtures():
         outputs.append(len(triangles))
         assert all(np.any(np.all(reduced['POSITION']==p,axis=1))for p in points[:4])
     assert outputs[0]==6 and outputs[1]<outputs[0],outputs
+    # An opaque insert inside a lens can meet its back face without sharing
+    # an edge or vertex. Preserve that interface; a nearby separate panel and
+    # a same-facing sheet are not the same source contact.
+    contact_points=np.array([[0,0,0],[1,0,0],[1,1,0],[0,1,0],
+        [.2,.2,0],[.2,.8,0],[.8,.8,0],
+        [.2,.2,5e-6],[.2,.8,5e-6],[.8,.8,5e-6],
+        [.2,.2,0],[.8,.8,0],[.2,.8,0]],np.float32)
+    contact_faces=np.array([[0,1,2],[0,2,3],[4,5,6],[7,8,9],[10,11,12]],np.uint32)
+    optical=dict(POSITION=contact_points,_LOD_MATERIAL=np.array([[1]]*4+[[0]]*9,np.float32),
+        _LOD_KEEP=np.array([[1]]*4+[[0]]*9,np.float32))
+    receipt=protect_transmission_contacts(optical,contact_faces,
+        [{},dict(extensions={'KHR_materials_transmission':dict(transmissionFactor=1)})])
+    assert optical['_LOD_KEEP'][4:7].all()
+    assert not optical['_LOD_KEEP'][7:].any()
+    assert receipt[0]['new_protected_corner_records']==3
+    assert receipt[0]['max_contact_distance_m']<=receipt[0]['contact_tolerance_m']
     try:
         with powered_policy('local'):raise RuntimeError('fixture exit')
     except RuntimeError:pass

@@ -289,10 +289,48 @@ def preserve(source,faces,reduced,triangles,report,meters_per_pixel=0.):
                 reason='independent reductions create new assembled edge contacts',edge_counts=violations,edge_samples_m=samples)
 
 
+def protect_transmission_contacts(attrs,faces,materials,tolerance=1e-6):
+    """Keep opposed opaque source triangles in sampled contact with glass.
+
+    A source insert may coincide with the back of a lens. Moving it even a
+    fraction of a pixel can change which side of that interface is shaded.
+    Vertex/center probes detect those existing contacts; this is not an
+    exhaustive surface-intersection test or a new displacement allowance.
+    """
+    glass={i for i,m in enumerate(materials) if m.get('extensions',{}).get(
+        'KHR_materials_transmission',{}).get('transmissionFactor',0)>0}
+    slots=attrs['_LOD_MATERIAL'][faces[:,0],0].astype(int)
+    optical=faces[np.isin(slots,list(glass))]
+    if not len(optical):return []
+    from mathutils import Vector
+    from mathutils.bvhtree import BVHTree
+    points=attrs['POSITION'].astype(float)
+    tree=BVHTree.FromPolygons([Vector(p)for p in points],optical.tolist(),all_triangles=True)
+    protected=set();contacts=0;maximum=0.
+    for face in faces[~np.isin(slots,list(glass))]:
+        if attrs['_LOD_KEEP'][face].all():continue
+        p=points[face];normal=np.cross(p[1]-p[0],p[2]-p[0]);length=np.linalg.norm(normal)
+        if length<1e-20:continue
+        normal/=length
+        for probe in [p.mean(0),*p]:
+            hits=[h for h in tree.find_nearest_range(Vector(probe),tolerance) if np.dot(h[1],normal)<-.5]
+            if hits:
+                distance=min(float(h[3])for h in hits);maximum=max(maximum,distance)
+                protected.update(map(int,face));contacts+=1;break
+    vertices=np.array(sorted(protected),int)
+    if not len(vertices):return []
+    new=vertices[attrs['_LOD_KEEP'][vertices,0]==0];attrs['_LOD_KEEP'][vertices]=1
+    return [dict(triangles=contacts,new_protected_corner_records=len(new),
+        new_protected_geometric_points=len(np.unique(np.round(points[new],6),axis=0)),
+        contact_tolerance_m=tolerance,max_contact_distance_m=maximum,
+        reason='opposed source opaque triangles coincide with a transmission surface')]
+
+
 def protect_powered(attrs,faces,materials,meters_per_pixel):
     """Protect source neighbors of a powered lens, without changing its mask."""
     from kit.lod_mesh import components
-    groups=components(attrs,faces);bounds=[];retained=[]
+    groups=components(attrs,faces);bounds=[]
+    retained=protect_transmission_contacts(attrs,faces,materials) if _POWERED_SCOPE.get()=='local' else []
     powered={i for i,m in enumerate(materials) if any(v>0 for v in m.get('emissiveFactor',[0,0,0]))}
     emitting=faces[np.isin(attrs['_LOD_MATERIAL'][faces[:,0],0].astype(int),list(powered))]
     for ids in (components(attrs,emitting) if len(emitting) else []):

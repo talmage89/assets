@@ -300,6 +300,12 @@ keeps the established whole-component behavior. Review the lamps and their
 occluding trim at every native switch before choosing local protection.
 Receipts report affected triangles and newly protected corner records; the
 constraint inventory separately counts unique fixed geometric vertices.
+Local protection also retains sampled opposed opaque triangles in contact
+with an original transmission surface. A colored insert coincident with a
+lens back can change color after an approximately 80-micrometer depth shift, despite passing pixel
+and UV bounds. Source vertex/center probes use the existing one-micrometer
+coincidence convention, recording actual contact distances and added pins.
+This preserves source layer order; it is not an exhaustive intersection test.
 Policies reset after each level, including exceptional exits. The source-skin guard
 casts rays to candidate face centers from six axes and eight corner directions.
 If a formerly hidden back face wider than three switch pixels becomes
