@@ -12,7 +12,9 @@ from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
 
-def reference(sources, original):
+def reference(sources, original, *, include_transmission=False):
+    if type(include_transmission) is not bool:
+        raise ValueError('Atlas include_transmission must be a boolean')
     specs = {}
     sizes = {}
     for material in original.data.get('materials', []):
@@ -25,6 +27,9 @@ def reference(sources, original):
             width, height = sizes[index]
             specs[material.get('name')] = ('LOD_SourceUV' + str(info.get('texCoord', 0)), width * height)
     graphic_names={m.get('name') for m in original.data.get('materials',[]) if m.get('alphaMode') in ('MASK','BLEND') or any(m.get('emissiveFactor',[0,0,0]))}
+    if include_transmission:
+        graphic_names.update(m.get('name') for m in original.data.get('materials',[]) if m.get(
+            'extensions',{}).get('KHR_materials_transmission',{}).get('transmissionFactor',0)>0)
     points = []; faces = []; densities = []; graphics = []; offset = 0
     for ob in sources:
         mesh = ob.data; mesh.calc_loop_triangles()
@@ -91,7 +96,8 @@ def unwrap(targets, sources, original, size, meters_per_pixel, *, normal_angle=1
     """
     print('LOD LAYOUT START',len(targets),'targets',size,'px',flush=True)
     bpy.context.view_layer.update()
-    tree, density, graphics = reference(sources, original)
+    tree, density, graphics = reference(sources, original,
+        include_transmission=sampling.get('include_transmission',False) if sampling else False)
     from kit.lod_transfer import source_hit
     bpy.ops.object.select_all(action='DESELECT')
     for ob in targets:ob.select_set(True)

@@ -328,6 +328,23 @@ def main():
     prioritized=unwrap(dst,src,graphics_doc,256,.05,sampling=dict(surface_texels_per_pixel=1,graphic_texels_per_pixel=4))
     area=[chart_area(ob) for ob in dst]
     assert 14<area[1]/area[0]<18,(area,prioritized)
+    # Mapped optical receivers can need the same sampling priority. The
+    # option must not change established allocations when omitted.
+    optical_doc=Document(source);optical_spec=copy.deepcopy(graphic_spec)
+    optical_spec.pop('alphaMode',None);graphic.name='OpticalReceiver';optical_spec['name']=graphic.name
+    optical_spec.setdefault('extensions',{})['KHR_materials_transmission']=dict(transmissionFactor=1)
+    optical_doc.data['materials'].append(optical_spec)
+    ordinary=unwrap(dst,src,optical_doc,256,.05,
+        sampling=dict(surface_texels_per_pixel=1,graphic_texels_per_pixel=4))
+    area=[chart_area(ob) for ob in dst]
+    assert .9<area[1]/area[0]<1.1,(area,ordinary)
+    optical=unwrap(dst,src,optical_doc,256,.05,
+        sampling=dict(surface_texels_per_pixel=1,graphic_texels_per_pixel=4,include_transmission=True))
+    area=[chart_area(ob) for ob in dst]
+    assert 14<area[1]/area[0]<18,(area,optical)
+    try:unwrap(dst,src,optical_doc,256,.05,sampling=dict(include_transmission=1))
+    except ValueError:pass
+    else:raise AssertionError('Non-boolean optical sampling accepted')
     for ob in src+dst:
         data=ob.data;bpy.data.objects.remove(ob,do_unlink=True);bpy.data.meshes.remove(data)
     # Many small charts must retain positive texel area. An unconstrained

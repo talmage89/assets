@@ -148,6 +148,11 @@ a heavily tiled roof from taking resolution away from readable lettering. It
 changes allocation, not colors or lighting. Omit it to retain the established
 source-density policy.
 
+An optional `"include_transmission": true` in `atlas_sampling` gives mapped
+transmission receivers the graphic cap as well. The default is false, keeping
+established allocations intact. This addresses optical fields undersampled at
+the ordinary cap; native color and coverage checks still decide acceptance.
+
 `min_projected_coverage` optionally tightens the proxy envelope merge from .8
 to as much as 1. A .97 policy can preserve a window that occupies less than
 20% of its wall; the independent two-square-switch-pixel gap allowance remains.
