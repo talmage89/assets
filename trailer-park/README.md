@@ -354,6 +354,15 @@ Neither fit proves that this fictional park reproduces a photographed site.
 Neutral patches are identified and balanced in linear RGB before comparing
 values. The final critique records what still reads as CG.
 
+## Credits
+
+Every delivered vertex and texel comes from this repository's scripts.
+Native library reuse is listed above; those deliveries are read-only inputs.
+DejaVu Sans, found through `kit/fonts.py`, supplies the fictional lettering.
+Photographers, image licenses and dimensional literature are credited in
+[refs/SOURCES.md](refs/SOURCES.md). Reference pixels appear only in ignored
+comparison evidence, never in shipped maps or committed gallery images.
+
 ## Known flaws
 
 - **Older-home age is only partly landed.** Upkeep values, drip-edge grime,
