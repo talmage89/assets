@@ -1,0 +1,59 @@
+"""Car-family face/corner and exact optical-intersection audit for the bus."""
+import argparse,json,sys
+from pathlib import Path
+import bpy
+from mathutils.bvhtree import BVHTree
+HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1]
+sys.path[:0]=[str(HERE),str(ROOT),str(ROOT/'cars/src')]
+from sedan_front_check import measure
+from sedan_surface_check import intersects
+
+def triangles(ob):
+    ob.data.calc_loop_triangles()
+    return [ob.matrix_world@v.co for v in ob.data.vertices],[tuple(t.vertices) for t in ob.data.loop_triangles]
+
+def imported_parts(source,delivery):
+    # The unchanged car helper supplies exact imported triangles and normals.
+    # Its sedan-specific name filter is adapted in an ignored source copy;
+    # neither the real bus source nor any accepted car file is changed.
+    bpy.ops.wm.open_mainfile(filepath=str(source.resolve()))
+    for ob in bpy.context.scene.objects:
+        if ob.type!='MESH' or ob.get('asset_set')!='SchoolBus':continue
+        ob['asset_set']='Sedan'
+        ob['part_category']={'shell':'fascia','chassis':'underbody'}.get(ob['part_category'],ob['part_category'])
+    temporary=source.parent/'front-attribution.blend'
+    bpy.ops.wm.save_as_mainfile(filepath=str(temporary.resolve()))
+    from sedan_surface_proof import delivery_parts
+    return delivery_parts(temporary.resolve(),delivery.resolve())
+
+def main():
+    p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--delivery')
+    p.add_argument('--out',required=True);p.add_argument('--diagnose',action='store_true')
+    a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);source=Path(a.source)
+    if a.delivery:obs,correspondence=imported_parts(source,Path(a.delivery))
+    else:
+        bpy.ops.wm.open_mainfile(filepath=str(source.resolve()))
+        obs=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('asset_set')=='SchoolBus']
+        correspondence=None
+    selected=[o for o in obs if o.name=='Compound hood shell' or o.name.startswith(('Headlamp','Glass sealed headlamp','Bonded headlamp','Lamp front lowbeam','Grille','Recessed grille','Seated grille'))]
+    rows={o.name:measure(o) for o in selected};errors=[n for n,r in rows.items() if not r['passed']]
+    crossing={}
+    for cover in [o for o in selected if o.name.startswith('Glass sealed headlamp')]:
+        points,faces=triangles(cover);roles=cover.data.attributes.get('sheet_role')
+        outer=[tuple(t.vertices) for t in cover.data.loop_triangles if roles is None or roles.data[t.polygon_index].value==0]
+        tree=BVHTree.FromPolygons(points,outer,all_triangles=True);hits={}
+        for ob in selected:
+            if ob==cover or ob.name.startswith(('Glass','Bonded')):continue
+            if ob.name!='Compound hood shell' and not ob.name.startswith(('Headlamp','Lamp front')):continue
+            qs,fs=triangles(ob);other=BVHTree.FromPolygons(qs,fs,all_triangles=True)
+            count=sum(intersects([points[i] for i in outer[x]],[qs[i] for i in fs[y]]) for x,y in tree.overlap(other))
+            if count:hits[ob.name]=count
+        crossing[cover.name]=hits
+        if hits:errors.append(cover.name+' optical/body crossings')
+    result=dict(passed=not errors,errors=errors,parts=rows,lens_crossings=crossing,
+                stage='fresh imported glTF triangles' if a.delivery else 'source construction',
+                correspondence=correspondence,source=str(source),delivery=a.delivery,
+                scope='Unchanged car all-face/corner/area audit and exact triangle intersections; gasket mounting contact excluded')
+    Path(a.out).write_text(json.dumps(result,indent=2));print('BUS_FRONT_CHECK',result['stage'],errors,crossing,flush=True)
+    if errors and not a.diagnose:raise SystemExit(1)
+if __name__=='__main__':main()

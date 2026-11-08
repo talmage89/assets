@@ -15,6 +15,8 @@ def build(wear):
         m[key]=V.manufactured('Bus '+key,c,kind,wear,axles,refined=True)
     m['glass']=V.glazing('Bus glass',(.81,.86,.80),axes=(1,2))
     m['windshield']=V.glazing('Bus windshield',(.86,.89,.84))
+    m['lens']=V.glazing('Bus optical cover',(.96,.98,.97))
+    m['reflector']=V.manufactured('Bus optical reflector',(.55,.57,.56),'chrome',0,refined=True)
     n=Nodes('Bus tape');a=n.node('ShaderNodeAttribute',attribute_name='VehicleRest');p=a.outputs['Vector'];_,y,z=n.split(p)
     phase=n.math('FRACT',n.math('DIVIDE',n.add(y,2.835),.470));black=n.math('GREATER_THAN',phase,.75)
     base=n.mix(black,(.64,.65,.59),(.009,.010,.009),True)

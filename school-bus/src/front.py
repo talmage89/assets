@@ -32,6 +32,15 @@ def section(row):
     half=[(x,z*(1-t)+(top+offsets[i])*t) if i<9 else (x,z) for i,(x,z) in enumerate(half)]
     return [(-x,y,z) for x,z in reversed(half[1:])]+[(x,y,z) for x,z in half]
 
+def optical_bow(ob,center_x):
+    """Seat every cassette layer behind the same bowed cover mold."""
+    world=ob.matrix_world.copy();inverse=world.inverted()
+    for vertex in ob.data.vertices:
+        p=world@vertex.co;p.y+=.055*((p.x/1.1)**2-(center_x/1.1)**2)
+        vertex.co=inverse@p
+    ob.data.update()
+    return ob
+
 def sculpt(b):
     rings=[section(r) for r in STATIONS];n=len(rings[0]);vs=[p for r in rings for p in r]
     fs=[(j*n+i,j*n+i+1,(j+1)*n+i+1,(j+1)*n+i) for j in range(len(rings)-1) for i in range(n-1)]
@@ -85,21 +94,29 @@ def sculpt(b):
         b.box('Grille vertical web '+str(x),(x,-5.831,1.117),(.008,.025,.427),'black',r=.002)
     # Each lamp is a bonded cassette inside a real cut in the common molding.
     for sign in [-1,1]:
-        x=sign*.882;z=1.070
+        x=sign*.882;z=1.070;face_y=-5.940+.055*(x/1.1)**2
         for mold in [ob,high]:
-            cut=G.box('Optical pocket tool',(x,-5.88,z),(.395,.38,.225),None,.052,5)
+            cut=G.box('Optical pocket tool',(x,-5.88,1.035),(.395,.38,.305),None,.040,5)
             G.boolean(mold,cut)
-        b.box('Headlamp closed bucket '+str(sign),(x,-5.790,z),(.400,.084,.230),'black',r=.045)
-        b.box('Headlamp silver reflector '+str(sign),(x,-5.840,z),(.344,.008,.176),'aluminum',r=.035)
+        bucket=b.box('Headlamp closed bucket '+str(sign),(x,face_y+.050,1.035),(.400,.104,.314),'black',r=.035)
+        G.boolean(bucket,G.box('Optical bucket interior',(x,face_y+.020,1.035),(.378,.160,.292),None,.028,4))
+        optical_bow(bucket,x)
         for dx in [-.092,.092]:
-            b.box('Lamp front lowbeam '+str(sign)+str(dx),(x+dx,-5.848,z),(.139,.005,.119),'headlight',category='lamps',r=.026)
+            contour=G.rounded_rectangle(.146,.125,.023,4)
+            rings=[[(x+dx+xx*scale,face_y+depth,z+zz*scale) for xx,zz in contour]
+                   for scale,depth in [(1,.008),(.72,.035),(.21,.065)]]
+            reflector=G.loft('Headlamp formed reflector '+str(sign)+str(dx),rings,b.m.get('reflector',b.m['aluminum']),caps=False)
+            wall=reflector.modifiers.new('Reflector gauge','SOLIDIFY');wall.thickness=.001
+            G.smooth(reflector,65);b.add(reflector,category='lamps');optical_bow(reflector,x)
+            optical_bow(b.box('Lamp front lowbeam '+str(sign)+str(dx),(x+dx,face_y+.063,z),(.044,.005,.038),'headlight',category='lamps',r=.010),x)
         def cover(u,v,x=x,z=z):
             xx=x+(u-.5)*.360;zz=z+(v-.5)*.192
-            return xx,-5.867+.055*(xx/1.1)**2-.003*math.sin(math.pi*u)*math.sin(math.pi*v),zz
-        obc=panel('Glass sealed headlamp cover '+str(sign),cover,[0,.10,.25,.5,.75,.9,1],[0,.2,.5,.8,1],b.m['windshield'],(0,-1,0),gauge=.0024,return_depth=0)
+            return xx,-5.940+.055*(xx/1.1)**2-.003*math.sin(math.pi*u)*math.sin(math.pi*v),zz
+        obc=panel('Glass sealed headlamp cover '+str(sign),cover,[0,.10,.25,.5,.75,.9,1],[0,.2,.5,.8,1],b.m.get('lens',b.m['windshield']),(0,-1,0),gauge=.0024,return_depth=0)
         b.add(obc,category='glass')
-        b.tube('Bonded headlamp bezel '+str(sign),[cover(0,0),cover(1,0),cover(1,1),cover(0,1),cover(0,0)],.011,'black',sides=8)
-        b.box('Front amber signal '+str(sign),(x,-5.850,.915),(.245,.010,.054),'amber',category='lamps',r=.017)
+        bezel=[(x+xx,-5.940+.055*((x+xx)/1.1)**2,z+zz) for xx,zz in G.rounded_rectangle(.376,.211,.025,4)]
+        b.tube('Bonded headlamp bezel '+str(sign),bezel+[bezel[0]],.008,'black',sides=6)
+        optical_bow(b.box('Front amber signal '+str(sign),(x,face_y+.004,.915),(.245,.010,.054),'amber',category='lamps',r=.017),x)
         # Backed parting line follows the full curved cowl, rather than a plate.
         b.box('Hood rubber latch '+str(sign),(sign*1.175,-4.11,1.31),(.032,.058,.138),'black',r=.008)
     b.tube('Hood cowl parting line',[(x,-3.979,z) for x,_,z in section(STATIONS[-1])],.004,'black',sides=6)

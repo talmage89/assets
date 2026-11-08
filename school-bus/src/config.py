@@ -20,7 +20,7 @@ DELIVERY_SURFACES={
 }
 SOURCE_MATERIAL_SURFACES={
     **{f'Bus {s}':'Opaque' for s in ['black','frame','aluminum','wheel','vinyl','floor','ceiling','dash','white','red','mirror','tire']},
-    'Bus yellow':'Paint','Bus glass':'Glass','Bus windshield':'Glass',
+    'Bus yellow':'Paint','Bus glass':'Glass','Bus windshield':'Glass','Bus optical cover':'Glass','Bus optical reflector':'Opaque',
     'Bus tape':'Opaque',
     **{f'Bus {s}':'Lamps' for s in ['amber','warning_red','headlight','dome','strobe']},
     **{f'Bus print {s}':'Opaque' for s in ['school','emergency','maker','stop']+[f'{kind}-{seed}' for seed in [101,102,103] for kind in ['district','fleet','plate']]},
