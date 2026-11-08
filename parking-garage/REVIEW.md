@@ -1234,3 +1234,11 @@ so any comparison exception restores reviewed inputs too; a deliberate failed
 audit fixture verifies both original bytes and timestamps and leaves no pass
 receipt. Successful tolerant repeats also restore the originally rendered
 copies. These guards change no render, geometry, material or tolerance limit.
+
+During the full corrected repeat, a second native outlier was rejected:
+73,310 triangles, SHA
+`032934deb10a5c9b3df81e68aa47405bd804c5e2d83bf3402ac63c8863e43b69`,
+116 below the 73,426 baseline (0.157982%). Surface distance still passed at
+0.322mm; the triangle limit did not. Its archived GLB, measurements and all
+subsequent attempts remain in `build/context-repeat/`, including the
+append-only `crossover-history.json`. The limits and baseline remain fixed.

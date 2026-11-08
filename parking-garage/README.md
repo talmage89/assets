@@ -274,9 +274,10 @@ ignored; `make refs` fetches the recorded images/PDFs. See [SOURCES](refs/SOURCE
 Native hatchback/crossover caches and complete sites containing them repeat
 within the tolerance above, rather than necessarily byte for byte. The cars
 family is unchanged; this family does not repair its cold-build variance.
-One 73,308-triangle crossover candidate exceeded the 0.1% count limit and was
-rejected. Bounded source retries select only candidates that pass both fixed
-limits; their complete histories are retained in `build/context/`.
+Observed 73,308- and 73,310-triangle crossover candidates exceeded the 0.1%
+count limit and were rejected. Bounded source retries select only candidates
+that pass both fixed limits; their complete histories are retained in
+`build/context/` and `build/context-repeat/`.
 
 At close range, the limited coverage kernels and perfectly manufactured small
 edges remain visible procedural tells. Tower cement faces and close cab
