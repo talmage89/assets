@@ -23,49 +23,30 @@ def road(a,p,lib,material):
             half=width*seal_rng.uniform(.72,1.28);nx,ny=-dy/d*half,dx/d*half
             asym=seal_rng.uniform(.70,1.30)
             vs.extend([(x+nx,y+ny,.017),(x,y,.019),(x-nx*asym,y-ny*asym,.017)])
-            colors.extend([(.009,.009,.008,1),(.004,.004,.004,1),(.009,.009,.008,1)])
+            colors.extend([(.052,.052,.049,1),(.038,.039,.037,1),(.052,.052,.049,1)])
             if j:
                 k=(j-1)*3;fs.extend([(k,k+3,k+4,k+1),(k+1,k+4,k+5,k+2)])
         m.geom(vs,fs,'Trim');m.col[-len(colors):]=colors
     def fatigue(cx,cy):
-        # Irregular load-failure cells: clipped nearest-seed regions give
-        # shared junctions without the repeated chevron/ladder construction.
-        rx,ry=seal_rng.uniform(.22,.37),seal_rng.uniform(.55,.92)
-        sites=[(seal_rng.uniform(-rx,rx),seal_rng.uniform(-ry,ry)) for _ in range(22)]
-        seen=set()
-        for x,y in sites:
-            poly=[(-rx,-ry),(rx,-ry),(rx,ry),(-rx,ry)]
-            for bx,by in sites:
-                if (x,y)==(bx,by):continue
-                nx,ny=bx-x,by-y;limit=(bx*bx+by*by-x*x-y*y)/2;clipped=[]
-                for p0,p1 in zip(poly,poly[1:]+poly[:1]):
-                    d0=p0[0]*nx+p0[1]*ny-limit;d1=p1[0]*nx+p1[1]*ny-limit
-                    if d0<=0:clipped.append(p0)
-                    if (d0<0)!=(d1<0):
-                        t=d0/(d0-d1);clipped.append((p0[0]+t*(p1[0]-p0[0]),p0[1]+t*(p1[1]-p0[1])))
-                poly=clipped
-                if not poly:break
-            for p0,p1 in zip(poly,poly[1:]+poly[:1]):
-                # Outer clipping rectangle is not a crack in the pavement.
-                if any(abs(abs(p0[k])-bound)<1e-6 and abs(abs(p1[k])-bound)<1e-6 for k,bound in ((0,rx),(1,ry))):continue
-                key=tuple(sorted(tuple(round(q,5) for q in p) for p in (p0,p1)))
-                if key in seen:continue
-                seen.add(key)
-                if math.dist(p0,p1)<.035:continue
-                mid=((p0[0]+p1[0])/2+seal_rng.uniform(-.018,.018),(p0[1]+p1[1])/2+seal_rng.uniform(-.018,.018))
-                seal([(cx+p[0],cy+p[1]) for p in (p0,mid,p1)],seal_rng.uniform(.002,.005))
+        from patina import material as patina_material
+        from textures import RECTS
+        decal(a.root,'Wheel-loaded asphalt fatigue texture',(cx,cy),
+              (seal_rng.uniform(.72,1.04),seal_rng.uniform(1.8,3.1)),
+              patina_material(),RECTS['Fatigue'],seal_rng.uniform(-7,7),p['seed'],z=.0208)
     for lane in (-p['loop_x'],p['loop_x']):
         # Longitudinal fatigue seal; offset from the centerline oil drips.
         points=[(lane-.85+r.uniform(-.32,.32),-span/2+1+j*1.5) for j in range(math.floor((span-2)/1.5)+1)]
         for start in range(0,len(points)-3,7):
-            if r.random()<(.92 if old else .68):seal(points[start:min(start+r.randint(5,8),len(points))],.039 if old else .030)
+            if r.random()<(.92 if old else .68):seal(points[start:min(start+r.randint(5,8),len(points))],.034 if old else .030)
         for j in range(math.ceil(span/7)):
             y=-span/2+3+j*7+r.uniform(-2.4,2.4)
             branch=[(lane-.85,y),(lane+.25,y+.4),(lane+w/2-.10,y+1.0)]
-            if old or r.random()<.58:seal(branch,r.uniform(.030,.045) if old else r.uniform(.026,.037))
+            if old or r.random()<.58:
+                width=r.uniform(.030,.045) if old else r.uniform(.026,.037)
+                if j%2==0:seal(branch,width)
             # Branches leave the principal fatigue crack, with short unfilled
             # ends; own RNG leaves accepted oil and service patch placements.
-            if seal_rng.random()<.72:
+            if seal_rng.random()<.28:
                 bx,by=branch[1];sign=seal_rng.choice((-1,1))
                 seal([(bx,by),(bx+sign*.35,by+.42),(bx+sign*.72,by+.64)],.030)
             if j%3!=1:
@@ -76,7 +57,7 @@ def road(a,p,lib,material):
             if old:
                 # Connected irregular cells near loaded, unsupported margins.
                 for station in range(math.ceil(span/8)):
-                    cy=-span/2+3+station*8+seal_rng.uniform(-1.7,1.7);cx=lane+side*(w/2-.45)
+                    cy=-span/2+3+station*8+seal_rng.uniform(-1.7,1.7);cx=lane+side*w*.24
                     fatigue(cx,cy)
             for j in range(math.ceil(span/3.3)):
                 y=-span/2+(j+.5)*3.3
@@ -126,7 +107,7 @@ def road_tone(ob,tint,seed):
         if attr.domain!='POINT':continue
         for row,v in zip(attr.data,ob.data.vertices):
             x,y=v.co.x,v.co.y;track=math.exp(-((abs(x)-half*.48)/.43)**2)
-            factor=1+.16*(abs(x)/half)**3-.08*track+.035*math.sin(y*.17+seed)
+            factor=1+.12*(abs(x)/half)**3-.18*track+.035*math.sin(y*.17+seed)
             row.color=(*(c*factor for c in tint),1)
 
 

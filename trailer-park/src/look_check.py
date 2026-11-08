@@ -49,7 +49,7 @@ def audit():
                     if name in ('ManufacturedPBR_Metal','ManufacturedPatina','ManufacturedGrassBlades'):
                         uv=uv.copy();uv[:,:,1]=1-uv[:,:,1]
                         inside=np.zeros(len(uv),bool)
-                        charts=[RECTS['Grass']] if name=='ManufacturedGrassBlades' else RECTS.values()
+                        charts=[RECTS['Plain']] if name=='ManufacturedPBR_Grass' else RECTS.values()
                         for u0,v0,u1,v1 in charts:inside|=((uv[:,:,0]>=u0-1e-5)&(uv[:,:,0]<=u1+1e-5)&(uv[:,:,1]>=v0-1e-5)&(uv[:,:,1]<=v1+1e-5)).all(axis=1)
                         assert inside.all(),(path.name,'chart crosses shared-cell boundary',int((~inside).sum()))
                         cells+=len(uv)

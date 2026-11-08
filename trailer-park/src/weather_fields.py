@@ -9,6 +9,21 @@ def field(kind,w,h,seed):
         grid=rng.random((rows,cols),dtype=np.float32)
         return np.clip(np.asarray(Image.fromarray(grid).resize((w,h),Image.Resampling.BICUBIC)),0,1)
     fine=rng.random((h,w));broad=noise(11,9);medium=noise(43,37)
+    if kind=='Fatigue':
+        # An asphalt microtexture: nearest-seed cell boundaries are narrow
+        # fractures, not separate rendered seal strokes. Physical chart .9x2.6m.
+        first=np.full((h,w),100.);second=first.copy()
+        for x,y in rng.uniform((-.12,-.12),(1.12,1.12),(90,2)):
+            distance=np.sqrt(((u-x)*.9)**2+((v-y)*2.6)**2)
+            second=np.minimum(second,np.maximum(first,distance));first=np.minimum(first,distance)
+        gap=(second-first)*.5
+        fracture=np.exp(-(gap/.0028)**4)
+        exposure=np.clip(np.minimum.reduce((u,1-u,v,1-v))/.15,0,1)
+        alpha=exposure*fracture*(.38+.28*medium)
+        shade=.025+.014*fine
+        color=np.stack((shade,shade*.99,shade*.94),axis=-1)
+        rough=.91+.06*fine;relief=.5-.045*fracture
+        return color,np.stack((np.ones_like(u),rough,np.zeros_like(u)),axis=-1),relief,alpha
     if kind=='Rust':
         # Four different fastener histories. Filaments widen below the head,
         # then narrow under gravity; coarse breaks leave exposed paint.

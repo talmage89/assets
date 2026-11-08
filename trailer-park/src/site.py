@@ -34,7 +34,7 @@ def ground_box(parent,name,p,size,mat,coverage,tint=(1,1,1)):
 def road(parent,p,lib):
     asphalt=library_material(lib,'Asphalt');a=Assembly('PrivateStreet');a.root.parent=parent
     w=p['street_width'];span=p['span'];old=p['kind']=='old';xx=p['loop_x']
-    tint=(.48,.47,.44) if old else (.43,.43,.41)
+    tint=(.65,.65,.63) if old else (.43,.43,.41)
     radius=5.0
     ranges=[(x,0,w,span+20) for x in (-xx,xx)] if old else [(-xx,0,w,span),(xx,0,w,span),(0,-span/2-5,2*xx-2*radius,w),(0,span/2+5,2*xx-2*radius,w),(0,-span/2-9,w,8)]
     from site_age import road_tone
