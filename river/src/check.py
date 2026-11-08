@@ -122,7 +122,7 @@ def construction(seed):
         row=[v.co for v in water.data.vertices if abs(v.co.y-y)<.02]
         if not row:continue
         world=[water.matrix_world@v for v in row];samples.append(dict(y_m=y,width_m=max(v.x for v in world)-min(v.x for v in world)))
-    headroom=[];socket_gaps={};building_walk_checks=0;light_gaps=[];alley_gaps=[];drift=[]
+    headroom=[];socket_gaps={};building_walk_checks=0;light_gaps=[];alley_gaps=[];alley_base=[];drift=[]
     wood=next(o for o in obs if o.name=='CutbankExposedRootsAndDrift')
     wood_points=[wood.matrix_world@v.co for v in wood.data.vertices];wet=bvh(water)
     pier_trees=[bvh(o) for o in obs if o.type=='MESH' and o.name.startswith('Pier_')]
@@ -151,12 +151,19 @@ def construction(seed):
         streets=next(o for o in obs if o.name=='MainStreetAndServiceAlleys')
         front=next(o['main_street_front_m'] for o in obs if o.name=='TownContext')
         for f in streets.data.polygons:
+            if f.normal.z<.8:continue
             point=streets.matrix_world@f.center
             if abs(point.x)>=front-1:continue
             soil=tree.ray_cast(point+Vector((0,0,1)),Vector((0,0,-1)),3)[0]
             assert soil is not None,('Alley has no ground',tuple(point))
             alley_gaps.append(point.z-soil.z)
         assert alley_gaps and min(alley_gaps)>.04 and max(alley_gaps)<.10,('Alley paving/soil',min(alley_gaps),max(alley_gaps))
+        for v in streets.data.vertices:
+            point=streets.matrix_world@v.co
+            if abs(point.x)>=front-1:continue
+            soil=tree.ray_cast(point+Vector((0,0,1)),Vector((0,0,-1)),3)[0]
+            if soil is not None and point.z-soil.z<.01:alley_base.append(point.z-soil.z)
+        assert len(alley_base)>500 and min(alley_base)>-.01 and max(alley_base)<.001,('Paving edge/soil',len(alley_base),min(alley_base),max(alley_base))
         plinth=bvh(next(o for o in obs if o.name=='ParapetLightPedestals'))
         bases=[o for o in obs if o.type=='MESH' and 'Parapet light' in o.name and 'StreetLight_Mesh' in o.name]
         assert len(bases)==4,('Missing native light bases',len(bases))
@@ -195,6 +202,7 @@ def construction(seed):
                 riverwalk_headroom_samples=len(headroom),minimum_sampled_riverwalk_headroom_m=min(headroom) if headroom else None,
                 gameplay_socket_surface_gaps_m=socket_gaps,building_walk_bounds_checks=building_walk_checks,
                 alley_soil_samples=len(alley_gaps),alley_paving_minus_soil_range_m=[min(alley_gaps),max(alley_gaps)] if alley_gaps else None,
+                alley_base_vertex_samples=len(alley_base),alley_base_minus_soil_range_m=[min(alley_base),max(alley_base)] if alley_base else None,
                 drift_surface_samples=drift,
                 lamp_base_surface_samples=len(light_gaps),maximum_lamp_pedestal_gap_m=max(light_gaps) if light_gaps else None,
                 guardrail_foot_samples=len(rail_gaps),guardrail_foot_minus_soil_range_m=[min(rail_gaps),max(rail_gaps)])

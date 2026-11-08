@@ -52,6 +52,17 @@ def clear_templates():
     CACHE.clear()
 
 
+def paving_skirts(batch,points,edges,role):
+    """Visible 75mm paving/base edges, embedded 5mm into the soil.
+
+    Edges follow the top's counterclockwise boundary. No buried underside
+    or repeated internal bay walls are added.
+    """
+    for a,c in edges:
+        va,vc=points[a],points[c]
+        batch.geom([va,(va[0],va[1],va[2]-.08),(vc[0],vc[1],vc[2]-.08),vc],[(0,1,2,3)],role)
+
+
 def add(p,parent):
     rt=G.root('TownContext',parent=parent);rng=random.Random(p.seed+97);lots=[]
     native=REPO/'school/build/context'
@@ -103,12 +114,18 @@ def add(p,parent):
                 grade=lambda y:max(3.7,2.1+(p.deck_z-.06-2.1)*max(0,1-max(0,abs(y)-7)/15))+.075+p.water_z(y)
                 for x0,x1,role in ((front,front+2,'concrete'),(front+2,front+9.3152,'asphalt'),(front+9.3152,front+11.4,'concrete')):
                     if abs(a)<6:continue
-                    streets.geom([(side*x0,a,grade(a)),(side*x1,a,grade(a)),(side*x1,c,grade(c)),(side*x0,c,grade(c))],[(0,1,2,3)],role,up=True)
+                    pts=[(side*x0,a,grade(a)),(side*x1,a,grade(a)),(side*x1,c,grade(c)),(side*x0,c,grade(c))]
+                    streets.geom(pts,[(0,1,2,3)],role,up=True)
+                    edge=(3,0) if x0==front else (1,2)
+                    if role=='concrete':paving_skirts(streets,pts,[edge if side>0 else edge[::-1]],role)
                 # The rear service lane lies on the raised river terrace.
                 if abs(a)>15:
                     offset=4.6 if side<0 else 11.2
                     x0=p.center(a)+side*(p.halfwidth(a)+offset);x1=x0+side*2.4
-                    streets.geom([(x0,a,3.775+p.water_z(a)),(x1,a,3.775+p.water_z(a)),(x1,c,3.775+p.water_z(c)),(x0,c,3.775+p.water_z(c))],[(0,1,2,3)],'asphalt',up=True)
+                    pts=[(x0,a,3.775+p.water_z(a)),(x1,a,3.775+p.water_z(a)),(x1,c,3.775+p.water_z(c)),(x0,c,3.775+p.water_z(c))]
+                    streets.geom(pts,[(0,1,2,3)],'asphalt',up=True)
+                    edges=[(3,0),(1,2)]+([(0,1)] if a in (-150,16) else [])+([(2,3)] if c in (-14,150) else [])
+                    paving_skirts(streets,pts,[e if side>0 else e[::-1] for e in edges],'asphalt')
         streets.finish()
         for side in (-1,1):
             for x in (-17,17):

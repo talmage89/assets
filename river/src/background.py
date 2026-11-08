@@ -105,7 +105,12 @@ def add(p,parent):
                 for j in range(50):
                     a=end*(150+j*10);c=end*(160+j*10)
                     for x0,x1,role in ((front,front+2,'concrete'),(front+2,front+9.3152,'asphalt'),(front+9.3152,front+11.4,'concrete')):
-                        roads.geom([(side*x,y,3.775+p.water_z(y)) for x,y in ((x0,a),(x1,a),(x1,c),(x0,c))],[(0,1,2,3)],role,up=True)
+                        pts=[(side*x,y,3.775+p.water_z(y)) for x,y in ((x0,a),(x1,a),(x1,c),(x0,c))]
+                        roads.geom(pts,[(0,1,2,3)],role,up=True)
+                        edge=(3,0) if x0==front else (1,2)
+                        if role=='concrete':
+                            if side*end<0:edge=edge[::-1]
+                            context.paving_skirts(roads,pts,[edge],role)
                         ground.geom([(side*x,y,3.70+p.water_z(y)) for x,y in ((x0-.1,a),(x1+.1,a),(x1+.1,c),(x0-.1,c))],[(0,1,2,3)],'grass',(.56,.62,.44,1),up=True)
     roads.finish()
     soil=ground.finish()

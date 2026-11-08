@@ -95,8 +95,9 @@ def terrain(p,parent):
              for a,slack,z in ((-.9,.04,.05),(0,0,.04),(.8,.03,.02))]
         debris.tube(pts,.13,'wood',9)
         for k in range(8):
-            a=-.75+k*.19;x=cx+a*cross[0];y=cy+a*cross[1]
-            debris.tube([(x,y,p.water_z(y)+.05),(x-tx*.65-cross[0]*.1,y-ty*.65-cross[1]*.1,p.water_z(y)+.025)],.025,'wood',5)
+            a=rng.uniform(-.78,.78);run=rng.uniform(.25,.85);sweep=rng.uniform(-.38,.38)
+            x=cx+a*cross[0];y=cy+a*cross[1]
+            debris.tube([(x,y,p.water_z(y)+.05),(x-tx*run+cross[0]*sweep,y-ty*run+cross[1]*sweep,p.water_z(y)+rng.uniform(-.01,.065))],rng.uniform(.012,.028),'wood',5)
     debris.finish()
     G.path('FlowCenterline',[(p.center(y),y,p.water_z(y)) for y in ys],rt,'flow',flow_direction='+Y',nominal_speed_m_s=.38)
     return rt
