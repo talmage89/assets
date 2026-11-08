@@ -82,9 +82,9 @@ def setup(seed,with_context=True):
     # presentation only. No unexported room geometry is loaded.
     for x,y in ((p['counter_x'],p['counter_y']),(0,5.5)):
         area('Room ceiling practical',(x,y,p['grade']+2.88),240,1.25)
-    if p['kind']=='downtown':
+    if with_context and p['kind']=='downtown':
         for x in (-8.23,8.84,-15.55,17.37):area('Neighbor tenant practical',(x,2.2,2.8),190,1.6)
-    elif p['kind']=='strip':
+    elif with_context and p['kind']=='strip':
         for x in (9.60,16,22.4,28.8):area('Other tenant practical',(x,2.8,2.8),180,1.4)
     lighting(azimuth={'downtown':-160,'strip':-145,'pad':-35}[p['kind']]);return p,path
 
@@ -109,16 +109,13 @@ def source_finish():
 def shots(p):
     z=p['grade'];t=p['tables'][1];kind=p['kind'];w=p['width']
     worn=p['tables'][-1] if kind=='pad' else p['tables'][0]
-    a=math.radians(t['rotation']);radial=Vector((math.cos(a),math.sin(a),0));tangent=Vector((-math.sin(a),math.cos(a),0));chair=Vector((t['x'],t['y'],z))+.58*radial
+    pose=t['chairs'][0];a=math.radians(pose['angle']);chair=Vector((t['x'],t['y'],z))+pose['radius']*Vector((math.cos(a),math.sin(a),0))
+    a+=math.radians(pose['turn']);radial=Vector((math.cos(a),math.sin(a),0));tangent=Vector((-math.sin(a),math.cos(a),0))
     cc=chair+.8*radial-1.6*tangent+Vector((0,0,.98))
     old_hero= dict(location=(7,-21.0,1.65+z),target=(0,0,3.58),lens=40) if kind=='downtown' else dict(location=(-10,-23.8,1.65+z),target=(0,-.3,2.18),lens=45) if kind=='strip' else dict(location=(16,-18.5,1.65+z),target=(2.0,.0,1.56),lens=42)
     hero=old_hero if kind=='downtown' else dict(location=(-8.3,-19.2,1.65+z),target=(.6,-.15,2.80),lens=45) if kind=='strip' else dict(location=(14.8,-15.6,1.65+z),target=(2.1,1.0,2.80),lens=42)
     ctr=(2.25,-1.8,1.72+z) if kind=='downtown' else (.80,-1.7,1.72+z) if kind=='strip' else (3,-1.7,1.72+z)
     return dict(hero=hero,retained=old_hero,eevee=hero,above=dict(location=(12,-17,30),target=(1,-.4,0),lens=45,ortho=25 if kind!='pad' else 29),
-        front=dict(location=(0,-26,5.0+z),target=(0,1,3.5),ortho=23 if kind=='downtown' else 22),
-        side=dict(location=(28,4,8),target=(0,5,2.7),ortho=32),
-        back=dict(location=(-17,p['depth']+23,12),target=(0,p['depth']/2,3),lens=44),
-        top=dict(location=(0,p['depth']/2,65),target=(0,p['depth']/2,0),ortho=p['depth']+15),
         use=dict(location=(p['tables'][0]['x']+.95,p['tables'][0]['y']-1.30,1.48+z),target=(p['tables'][0]['x'],p['tables'][0]['y'],.72+z),lens=48),
         wear=dict(location=(worn['x']+.45,-6.15,1.28+z),target=(worn['x'],worn['y'],.13+z),lens=46),
         door=dict(location=(p['entry'][0]+1.2,-2.0,1.35+z),target=(p['entry'][0]+.4,-.05,.70+z),lens=46) if kind=='pad' else dict(location=(p['entry'][0]+1.35,-3.3,1.30+z),target=(p['entry'][0]+.4,-.05,.65+z),lens=46),
@@ -126,7 +123,7 @@ def shots(p):
         table=dict(location=(t['x']+1.25,t['y']-1.65,1.48+z),target=(t['x'],t['y'],.73+z),lens=50),
         counter=dict(location=(-.65,-1.0,1.72+z),target=(p['counter_x']-1.65,p['counter_y'],1.37+z),lens=34) if kind=='strip' else dict(location=ctr,target=(p['counter_x'],p['counter_y'],1.37+z),lens=34),
         awning=dict(location=(.5,-8.2,4.85+z),target=(.4,-.45,3.62),lens=46) if kind=='strip' else dict(location=(3.3,-6.3,2.20+z),target=(.7,-.25,3.50 if kind=='downtown' else 3.20),lens=48),
-        chair=dict(location=tuple(cc),target=tuple(chair+Vector((0,0,.43))),lens=45),
+        chair=dict(location=tuple(cc),target=tuple(chair+Vector((0,0,.43))),lens=40),
         scale=dict(location=(-7,-12,1.65+z),target=(-1,-1.8,1.3+z),lens=42),
         walkup=dict(location=(11,1.4,1.65+z),target=(5.49,2.8,1.35+z),lens=45))
 
@@ -134,6 +131,14 @@ def shots(p):
 def projection(points,cam):
     sc=bpy.context.scene;bpy.context.view_layer.update()
     return [(v.x,1-v.y) for p in points for v in [world_to_camera_view(sc,cam,Vector(p))]]
+
+
+def technical_shot(bounds,key,aspect):
+    """Fit the exported shop's measured bounds, without neighboring occluders."""
+    lo,hi=bounds['min'],bounds['max'];cx,cy,cz=[(a+b)/2 for a,b in zip(lo,hi)];w,d,h=bounds['size']
+    if key=='top':return dict(location=(cx,cy,hi[2]+40),target=(cx,cy,cz),ortho=max(w,d*aspect)*1.12)
+    if key=='side':return dict(location=(hi[0]+30,cy,cz),target=(cx,cy,cz),ortho=max(d,h*aspect)*1.12)
+    return dict(location=(cx,lo[1]-30 if key=='front' else hi[1]+30,cz),target=(cx,cy,cz),ortho=max(w,h*aspect)*1.12)
 
 
 def render(path,recipe,source,metadata=None):
@@ -153,13 +158,18 @@ def main():
         for seed in map(int,a.seeds.split(',')):
             p=json.loads(Path(f'build/shops/{seed}.json').read_text())
             for key in a.shots.split(',')+(['walkup'] if p['kind']=='pad' else []):jobs.append((seed,key,None))
-    previous=None
+    previous=None;technical_bounds=None
     for seed,key,match in jobs:
         # Keep the same procedural street around fitted photographic views;
         # the finite exported paving must not float against a black horizon.
-        if seed!=previous:
-            p,source=setup(seed);previous=seed
+        isolated=not match and key in ('front','side','back','top');state=(seed,isolated)
+        if state!=previous:
+            p,source=setup(seed,with_context=not isolated);previous=state
             if a.source_finish:source_finish()
+            if isolated:
+                from kit.audit import bounds
+                technical_bounds=bounds([o for o in bpy.context.scene.objects if o.type=='MESH' and len(o.data.vertices)])
+                model.box('Technical studio ground',(0,0,p['grade']-.17),(2000,2000,.08),studio.studio_mat('Technical neutral ground',(.22,.22,.21),.9),0)
         sc=bpy.context.scene;sc.render.engine='BLENDER_EEVEE' if key=='eevee' else 'CYCLES';sc.render.use_persistent_data=True;sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=10;sc.cycles.transmission_bounces=8;sc.cycles.transparent_max_bounces=12;gpu.enable()
         if key=='eevee':
             sc.eevee.use_raytracing=True;sc.eevee.ray_tracing_options.resolution_scale='1';sc.eevee.taa_render_samples=a.samples
@@ -185,13 +195,20 @@ def main():
                 if o.type=='MESH' and o.name.startswith('Parked ') and not o.hide_render:o.hide_render=True;hidden.append(o)
             human=studio.human()
             for o in human:o.location+=Vector((-1.2,-2.0,p['grade']))
-        rec=match['shot'] if match else shots(p)[key]
+        rec=match['shot'] if match else technical_shot(technical_bounds,key,a.width/sc.render.resolution_y) if isolated else shots(p)[key]
         if match:
             lighting(match.get('sun_elevation',34),match.get('sun_azimuth',-117),match['shot'].get('exposure',-1))
             sc.render.resolution_y=round(a.width/rec['aspect'])
+        elif isolated:lighting(16,{'front':-130,'side':-35,'back':50,'top':-130}[key],.15)
         camera(rec['location'],rec['target'],rec.get('lens',40),rec.get('ortho'))
         if match and rec.get('roll'):sc.camera.rotation_euler.rotate_axis('Z',rec['roll'])
         meta={'isolated_export_node':'Table_02_Chair_1'} if key=='chair' else {}
+        if isolated:
+            meta['isolation']='exported shop only; neutral procedural studio ground'
+            meta['framed_bounds_m']=technical_bounds
+            lo,hi=technical_bounds['min'],technical_bounds['max'];corners=[(x,y,z) for x in (lo[0],hi[0]) for y in (lo[1],hi[1]) for z in (lo[2],hi[2])]
+            frame=projection(corners,sc.camera);assert all(.01<u<.99 and .01<v<.99 for u,v in frame),(seed,key,'Turnaround crop',frame)
+            meta['projected_bound_corners']=frame
         if key=='scale':meta['omitted_for_scale']='parked context vehicles; cafe dimensions unchanged'
         meta['finish_stage']='original charts + meter-valued height' if a.source_finish else 'exported baked PBR'
         if key=='above':

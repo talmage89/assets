@@ -662,3 +662,147 @@ the crank housing in thirteen triangle pairs, despite the apparent gap in
 the table render. The corrected 95° lid keeps the deck fully on the table
 and moves its upper edge away from the housing. This is checked on actual
 triangles, rather than accepted from the picture alone.
+
+## Delivery critique 10 — final-set camera blockers rejected
+
+**Color and value first.** Opened Folio's native 1280px hero, above, table,
+counter, awning, chair, scale, retained, front, side and site in the first
+clean render set (`renders/delivery-pass10/`). The brick and painted iron
+retain their hue in direct sunlight, the sign lamps cast sharp long shadows,
+and the warm counter remains visible through the glass. The corrected
+notebook has small dark keys and a lit display; its measured support samples
+meet the imported table within 0.000000061m, with no umbrella triangle
+crossings. The preceding photo-neutral assumptions still apply.
+
+What still reads as CG: the room's simplified smallware/crusts and repetitive
+context remain; the isolated chair detail crops its nearest glide slightly.
+More seriously, the technical front and side cameras sit inside the opposite
+row/east neighbor, making black obstructed images. Those views fail delivery,
+even though the accepted hero, layout and details work. The render batch is
+stopped and archived before docs. This is a camera failure, not missing shop
+geometry or a reason to undo the accepted connected street.
+
+The four technical turnarounds now import the shop export alone, retain a
+neutral procedural studio ground, fit the actual imported mesh bounds and
+check all eight conservative bound corners inside the image. Each cardinal
+face gets raking direct light. The hero, seating overhead, wide site and all
+other details retain their full context and original camera recipes. A fresh
+complete render set is required; rejected black views are never relabeled as
+finals. The mesh, textures, physical checks and budget receipts are unchanged.
+
+The chair detail also follows its actual seeded position/turn and widens to
+40mm, restoring space around the nearest glide. Reopened the remaining six
+native Folio frames plus its piece sheet in the archive: the irregular wood
+grain, rings, scratches, napkin/lid, local gum/spills and grounded cloth bag
+read in the use views. Eevee keeps the clear sun and warm room, with its usual
+less accurate glass/reflection response. The full-site back/top are rejected
+alongside front/side; the corrected shop-only turnarounds replace all four.
+
+## Delivery critique 11 — native final set and fixed-camera evidence
+
+**Color and value first.** Opened all 54 native PNGs now archived in
+`renders/delivery-pass11/`, plus all four exported-photo and four source-finish
+renders. The three heroes retain colored brick/stucco in the direct sun,
+deep green/burgundy canvas undersides, sharp lamp and furniture shadows,
+and warm visible rooms. The corrected technical turnarounds show the whole
+imported shop on studio ground. The original, neutral-balanced photographs
+still use pale painted trim, unpainted table metal and exposed concrete as
+the assumed neutrals recorded in the calibration. The source/export pairs
+retain the broad color and deposits; neither is an exact photographic match.
+
+The full-size fixed-camera pairs show the requested changes: the new sky
+and long shadows in all three retained heroes; the former left void closed
+by the pad's front street and facing houses; visible coping runoff, patch,
+dirty valance, gum, table grain/rings and worn door plates; varied table
+settings and the correctly sized lit notebook. The separate Morrow rail
+camera shows the actual chair-contact chip groups that the ground-facing
+camera misses. Framing comparisons are explicitly marked as different
+cameras; matching old/new images from the new hero cameras also exist.
+
+What still reads as CG: wall wear is simpler and paving more regular than
+the used café photographs, pastries lack fine crust breakup, the canvas
+satchel has a stiff silhouette, and neighboring houses/trees repeat. The
+chair close-up still trims the nearest glide; the complete furniture sheet
+shows the whole piece. Fair Grinds has a weak camera fit (58.5 px RMS),
+and the umbrella/pad fits reach their 70 mm lens bound. These are reference
+comparisons with explicit estimates, not claims to reconstruct those cafés.
+
+A final physical check rejects the first commuter lock: its mesh intersects
+the seat tube and does not surround the rack leg. The corrected rounded
+14 mm U-bow and 148 mm longitudinal bike adjustment enclose complete sections
+of both actual imported members, with zero triangle crossings and about
+0.55 mm sampled frame support gap. The test fits its section plane to the
+mesh and welds seam endpoints by distance; disconnected section arcs do not
+count as enclosure. The bicycle becomes 2,944 triangles. Furniture/table
+positions and accepted circulation remain unchanged. This invalidates the
+preceding render hashes, so all final renders are refreshed before docs.
+
+## Delivery critique 12 — clean rebuild admitted for docs
+
+**Color and value first.** Opened all 54 refreshed native presentation PNGs
+and eight photographic comparison renders at original size, then all 33
+new correction pairs, the four exported-photo pairs, the source-finish
+comparison sheet, annotated layouts, labeled piece sheet and contacts.
+The assumed photographic neutrals remain the painted trim, metal table edge
+and concrete named in REFERENCE and the calibration. The low sun gives hard,
+long bracket, lamp, mullion, umbrella and furniture shadows. Stucco and brick
+keep their color; under-canvas shade is deep and the visible rooms stay warm.
+The pad faces a pale clear-sky horizon rather than a cloud layer.
+
+The architectural framing rectangles have display-luma 99th percentiles
+**.724 / .729 / .851**, with near-white channel fractions **.0000072 / 0 / 0**.
+These include glass/reflections and are display diagnostics, not measurements
+of albedo or proof of unclipped linear radiance. Native inspection shows
+retained sunlit surface detail and highlight roll-off. Dark cavities are
+allowed to remain dark rather than lifted to gray.
+
+All five corrections are admitted. The three retained-camera pairs show
+the clearer directional daylight. `339-hero` closes the left background;
+all three site/above views terminate in modeled ground, road or construction.
+The walk/door/use/awning/rail crops show local gum and deposits, worn plates,
+grain/rings/scratches, valance age, coping runoff and the pad repaint.
+The tables have different settings and chair poses, including a lit period
+notebook, paper, lids and napkins; the bag, door bowl and locked bike remain
+outside the proven route boxes. Morrow/Switchyard framing comparisons remove
+most bare asphalt and retain cars/stripes as foreground leads. Thirty-one
+pairs keep the same cameras; the two composition changes say otherwise.
+Every panel is 1000 or 1280 native pixels wide.
+
+What still reads as CG: regular slab joints, repeated houses/trees, simple
+pastry crusts and broad wall weathering, and the satchel's stiff low-poly
+folds. Reflections veil some interior text. The isolated chair close-up trims
+its nearest glide; the stock sheet is complete. Eevee has coarser foliage
+shadows, especially on Morrow's leading car, and less accurate glazing than
+Cycles. Photo fits retain the stated limits (70 mm umbrella/pad bounds and
+58.5 px Fair Grinds residual), so these remain qualitative comparisons.
+No photograph pixels enter a texture or docs image.
+
+The independent raw-export bound check passes all twelve technical views.
+Fresh triangle tests retain the notebook's measured support and umbrella
+clearance, the lock's closed frame/rack sections, and sampled door/slider
+clearance. The original furniture counts, room arrangements and table graph
+are retained. No further model changes are admitted after this review;
+the five final JPGs can now be generated from these exports.
+
+Delivery verification after that admission:
+
+- `make clean`, followed by default `make`, rebuilt private hosts, the 4096
+  bake/2048 maps, stock, shops, sites and the complete export-render batch.
+  The waiting orchestration process was terminated after rendering; resumed
+  `make` completed the checks, sheets and five docs JPGs with exit 0.
+- `make check repeat check-texture-repeat review check-repo` completed with
+  exit 0. Geometry, raw charts/materials, routes/knee approach, contact,
+  sampled motion and final camera/provenance checks passed. All **616**
+  preexisting delivery/map/docs files retain their hashes. Repository check:
+  **2,092 source files, zero errors**.
+- Exact repeat passed **188 files / 925,452,416 bytes**, including embedded
+  inspection GLBs, external geometry/maps, private hosts, generated fields,
+  metadata/camera calibration and fixed-render JPG/README compositing.
+  Canonical external resource URIs are normalized to the delivery location;
+  `.blend` container metadata and GPU render accumulation are outside that
+  byte claim. The independent real GPU rebake measured **maximum delta 0,
+  RMSE 0** for BaseColor, Normal and ORM, with exact coverage.
+- All five final docs JPGs were opened at original size. Widths are **1280 /
+  1280 / 1280 / 1600 / 1600 px**; encoded bytes are **194,389 / 168,261 /
+  192,525 / 190,986 / 198,131**. Regenerated files retain the same bytes.
+  No shared kit file or top-level README was edited.
