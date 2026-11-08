@@ -232,6 +232,13 @@ p95 .08, alpha .05 and silhouette .05 remain. Far proxy local limits stay .08.
 Retain the native strips and source controls with every such exception. This
 is not permission to relax a broad color, missing-part or coverage failure.
 
+The colonial far switch also has a scoped phase calibration. At .045 screen
+height (49 pixels), measured +/- .75-pixel film shifts of unchanged LOD0 reach
+mean .02472, p95 .12549 and local .09585. Its retained native control strips
+justify mean .03, p95 .13 and local .10 for that level only. Alpha and silhouette
+limits stay unchanged. Broad proxy color errors, such as the pickup's lamp
+surround, are not explained by these house controls.
+
 ## Configuration and assembly
 
 Include `../kit/lod_rules.mk` at the end of the asset's Makefile, and supply
@@ -489,13 +496,6 @@ pass. The six-pilot checkpoint and its remaining failures are recorded in
 [LOD_REVIEW.md](LOD_REVIEW.md). Each adoption must pass its own checks and review; another family's result
 cannot approve it. The adoption proofs record the frozen tool before use.
 
-The colonial far switch also has a scoped phase calibration. At .045 screen
-height (49 pixels), measured +/- .75-pixel film shifts of unchanged LOD0 reach
-mean .02472, p95 .12549 and local .09585. Its retained native control strips
-justify mean .03, p95 .13 and local .10 for that level only. Alpha and silhouette
-limits stay unchanged. Broad proxy color errors, such as the pickup's lamp
-surround, are not explained by these house controls.
-
 1. Add `src/lod.json` using the applicable complete example below, replacing the
    source filename and kind label. Keep each config directly inside `src/`.
    Paths resolve from the **asset folder**, not from `src/`. A family with several kinds adds one config per delivered kind or
@@ -528,13 +528,25 @@ surround, are not explained by these house controls.
    The hooks never depend on the
    original model/bake/export targets. Set `LOD_THREADS=4` or less; run one chain
    at a time. The kit handles the shared GPU lock for bake and render work.
-3. Record the tool revision before use. Build each config, inspect the exported
+3. Record the tool revision and source hashes before use. From the repository
+   root, save a receipt that can be checked literally after the proof:
+
+   ```sh
+   mkdir -p build
+   git rev-parse HEAD > build/lod-freeze-revision.txt
+   sha256sum kit/*.py kit/*.sh kit/*.mk kit/LOD.md > build/lod-freeze.sha256
+   ```
+
+   Build each config, inspect the exported
    comparisons and close views, adjust configuration as necessary, then run
    `check-lod`. Adoption uses the frozen tool. A tool defect needs a separate
    general fix and a fresh adoption proof from this step. Do not bypass a failed
    image/normal/topology/memory check. An above-target level may pass its visual
    checks, but must keep `target_met: false` and the achieved/goal counts in the
    report. Keep the established switches until failed evidence justifies a move.
+   Finish with `sha256sum -c build/lod-freeze.sha256` from the repository root;
+   every entry must still match. This includes the reporter, independent auditor
+   and literal recipe as well as the builder and renderer.
 4. After the final build, rerun the original family's `make check`, verify the
    immutable-source receipt, and run `python3 kit/repo_check.py`. When original
    build targets are newer than an immutable delivery, freeze the already
