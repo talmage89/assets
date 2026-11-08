@@ -79,7 +79,6 @@ def sculpt(b):
             cut=G.cylinder('Wheelhouse mold tool',(sign*.76,S.FRONT_AXLE,S.HUB),(sign*1.50,S.FRONT_AXLE,S.HUB),.692,None,96)
             G.boolean(mold,cut)
         G.smooth(mold,50)
-    high.hide_render=True
     # Thin black wheelhouse liners sit inside the laminate lip, with a real
     # radial/axial return. They preserve the steering tire's swept envelope.
     for sign in [-1,1]:
@@ -105,9 +104,11 @@ def sculpt(b):
     # Each lamp is a bonded cassette inside a real cut in the common molding.
     for sign in [-1,1]:
         x=sign*.882;z=1.070;face_y=-5.940+.055*(x/1.1)**2
-        for mold in [ob,high]:
-            cut=G.box('Optical pocket tool',(x,-5.88,1.035),(.395,.38,.305),None,.040,5)
-            G.boolean(mold,cut)
+        # The dense source is the smooth mold before these routed cassette
+        # openings. Their narrow laminate returns use exact game normals;
+        # projecting the original mold onto those perpendicular walls is wrong.
+        cut=G.box('Optical pocket tool',(x,-5.88,1.035),(.395,.38,.305),None,.040,5)
+        G.boolean(ob,cut)
         bucket=b.box('Headlamp closed bucket '+str(sign),(x,face_y+.050,1.035),(.400,.104,.314),'black',r=.035)
         G.boolean(bucket,G.box('Optical bucket interior',(x,face_y+.020,1.035),(.378,.160,.292),None,.028,4))
         optical_bow(bucket,x)
@@ -134,4 +135,6 @@ def sculpt(b):
         b.m['black'],caps=False,closed=False)
     gauge=gasket.modifiers.new('Cowl gasket gauge','SOLIDIFY');gauge.thickness=.002
     b.add(gasket)
+    high['normal_scope']='Subdivided fiberglass mold; routed optical returns retain exact game normals'
+    high.hide_render=True
     return ob
