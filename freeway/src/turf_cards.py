@@ -90,7 +90,7 @@ def plant(p,parent):
    for side in (-1,1):
     ob=templates[rng.randrange(len(templates))].copy();bpy.context.collection.objects.link(ob)
     ob.name='Rooted barrier-joint weeds %04d'%count;ob.parent=parent
-    ob.location=p.xyz(s,side*.58,.004);ob.scale=(.32,.65,.65)
+    ob.location=p.xyz(s,side*.58,-.012);ob.scale=(.32,.65,.65)
     ob['turf_card_tile']=True;count+=1
  for ob in templates:bpy.data.objects.remove(ob,do_unlink=True)
  parent['turf_tiles']=count;parent['turf_triangles']=sum(len(ob.data.loop_triangles) for ob in parent.children_recursive if ob.type=='MESH' and ob.get('turf_card_tile'))
