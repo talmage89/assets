@@ -40,7 +40,7 @@ def clip(poly,axis,value,above):
 
 
 def concrete_tint(q,normal,ob,p,salt,role):
-    variation=.77+.11*salt;warm=.98+.035*math.sin(salt*71)
+    variation=.72+.23*salt;warm=.98+.035*math.sin(salt*71)
     factor=1.0
     if role=='Deck' and normal.z>.7:factor*=.78 # maintained, traffic-darkened sealer; pale soffits retain cement tone
     if role=='Concrete' and p['system']=='pt':factor*=.85

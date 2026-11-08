@@ -66,7 +66,13 @@ def sites():
     for seed in (101,202):
         bpy.ops.wm.open_mainfile(filepath=str(Path(f'build/lookdev/form-site-{seed}.blend').resolve()))
         p=json.loads(Path(f'build/lookdev/garage-{seed}.json').read_text());rt=bpy.data.objects['Garage_'+str(seed)];mats=palette()
-        binds=bind(rt,p,mats);age=placed(rt,p,mats);rt['stage']='BAKED LOOK-DEV CHECKPOINT / NO DOCS'
+        from surface_revision import revise
+        pavement=revise(rt,p)
+        binds=bind(rt,p,mats);age=placed(rt,p,mats);age['pavement_revision']=pavement;rt['stage']='BAKED DELIVERY'
+        from traffic import revise as revise_traffic
+        town=next(o for o in bpy.context.scene.objects if o.name=='TownContext')
+        context=revise_traffic(town,p)
+        Path(f'build/lookdev/traffic-{seed}.json').write_text(json.dumps(context,indent=2)+'\n')
         p['garage_triangles']=G.triangles(members(rt));assert p['garage_triangles']<300000
         p['placed_parts']=[dict(name=ob.name,kind=ob.get('module_kind','assembly-owned'),triangles=G.triangles(members(ob)))
             for ob in rt.children if G.triangles(members(ob))>0]
@@ -80,7 +86,6 @@ def sites():
         from tangent_rounding import stabilize
         stabilize(Path(f'export/lookdev/sites/ParkingGarageLookSite-{seed}.gltf'))
         bpy.ops.wm.save_as_mainfile(filepath=str(Path(f'build/lookdev/look-site-{seed}.blend').resolve()))
-        context=json.loads(Path(f'build/lookdev/actors-{seed}.json').read_text())
         categories={}
         for actor in context['actors']:
             row=categories.setdefault(actor['category'],dict(count=0,triangles=0))

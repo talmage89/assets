@@ -42,14 +42,16 @@ def placed(root,p,mats):
     # dots. Each vacant stall retains the former car's accumulated history.
     for s in p['stalls']:
         if rng.random()>.84:continue
-        sign=-1 if s['yaw']==180 else 1
+        sign=1 if s['yaw']==180 else -1 # native car front is -Y
         for j in range(rng.randint(2,5)):
             x=s['x']+rng.uniform(-.22,.22);y=s['y']+sign*rng.uniform(.3,1.35)
             z=deck_z(p,s['level'],x,y,s['ramp'])
-            floor_mark(x,y,z,rng.uniform(.16,.42),rng.uniform(.34,.9),'oil',age*rng.uniform(.5,.9),rng.uniform(-.14,.14))
-        if rng.random()<.42:
-            xx=s['x']-s['width']/2+.08;yy=s['y']
-            floor_mark(xx,yy,s['z'],.12,s['depth']-.3,'scuff',.30*age)
+            floor_mark(x,y,z,rng.uniform(.28,.62),rng.uniform(.55,1.3),'oil',age*rng.uniform(.75,1),rng.uniform(-.3,.3))
+        if rng.random()<.52:
+            # Previous stripe center survives beside its replacement, broken
+            # at tire crossings. The original Ground stripe already flakes.
+            xx=s['x']-s['width']/2+.10;yy=s['y']
+            floor_mark(xx,yy,s['z'],.14,s['depth']-.3,'scuff',.65*age)
     # Wheel transfer follows actual turning path samples and paired tire
     # positions. It tapers along each arc rather than ringing every deck.
     for path in p['paths']:
@@ -84,24 +86,27 @@ def placed(root,p,mats):
     # The exposed drive lane loses sealer where vehicles travel. This is a
     # projected soft ribbon with roughness, rather than vertex gradients
     # stretching a 20cm wear mask across a whole 18m deck triangle.
-    upper=next(row for row in reversed(p['paths']) if row['name'].startswith('Drive_Up_'))
-    pts=[Vector(v) for v in upper['points']];length=sum((b-a).xy.length for a,b in zip(pts,pts[1:]));distance=0
-    for a,b in zip(pts,pts[1:]):
+    paths=[row for row in p['paths'] if row['name'].startswith('Drive_Up_')]
+    for path in paths:
+      pts=[Vector(v) for v in path['points']];length=sum((b-a).xy.length for a,b in zip(pts,pts[1:]));distance=0
+      for a,b in zip(pts,pts[1:]):
         delta=b-a;segment=delta.xy.length;start=distance;distance+=segment
-        if segment<.06 or min(a.z,b.z)<(p['levels']-1)*FLOOR-.05:continue
+        if segment<.06:continue
+        roof=min(a.z,b.z)>=(p['levels']-1)*FLOOR-.05
         tangent=delta.xy.normalized();normal=Vector((-tangent.y,tangent.x,0));corners=[]
         for v in (a-normal*2.6,b-normal*2.6,b+normal*2.6,a+normal*2.6):
             hit=surface.ray_cast(v+Vector((0,0,.2)),Vector((0,0,-1)),.4)
             if hit[0] is None:break
             corners.append(tuple(hit[0]+Vector((0,0,.0018))))
         if len(corners)==4:
-            u0,v0,u1,v1=A.LAYOUT['scuff']['rect'];va=v0+start/max(length,.001)*(v1-v0);vb=v0+distance/max(length,.001)*(v1-v0)
-            stamp(corners,'scuff',.4*age,[(u0,va),(u0,vb),(u1,vb),(u1,va)])
+            key='scuff' if roof else 'rubber'
+            u0,v0,u1,v1=A.LAYOUT[key]['rect'];va=v0+start/max(length,.001)*(v1-v0);vb=v0+distance/max(length,.001)*(v1-v0)
+            stamp(corners,key,(.85 if roof else .42)*age,[(u0,va),(u0,vb),(u1,vb),(u1,va)])
     for lev in range(p['levels']):
         z=lev*FLOOR
         for x in (-L/3,0,L/3):
             for yy in (ymin+.5,p['joint_y']-.5):
-                floor_mark(x+.15,yy+.15,deck_z(p,lev,x,yy),rng.uniform(1,1.7),rng.uniform(.45,.85),'runoff',.48*age)
+                floor_mark(x+.15,yy+.15,deck_z(p,lev,x,yy),rng.uniform(1.3,2.3),rng.uniform(.75,1.3),'oil',.42*age)
         # Runoff descends from panel tops and leaking flange joints. Individual
         # narrow streams, dry gaps and pale salts avoid a uniform dirty band.
         if lev not in p.get('comparison_facade_levels',range(p['levels'])):continue
@@ -111,14 +116,27 @@ def placed(root,p,mats):
                 mid=(a+c)/2
                 if lev==0 and side==-1 and mid>L/2-p['end_length']-3:continue
                 if side==1 and p['ramp_limits'][0]<mid<p['ramp_limits'][1]:continue
-                for j in range(rng.randint(5,9) if old else rng.randint(3,6)):
-                    x=rng.uniform(a+.15,c-.15);width=rng.uniform(.18,.72);length=rng.uniform(.45,1.28)
-                    top=z+((1.02 if side==-1 else .98) if old else .54);bottom=max(z-.30,top-length)
-                    stamp([(x-width/2,y,bottom),(x+width/2,y,bottom),(x+width/2,y,top),(x-width/2,y,top)],'runoff',age*rng.uniform(.45,.85))
-                x=rng.choice((a+.08,c-.08));w=rng.uniform(.20,.48);top=z+(.94 if old else .5)
-                stamp([(x-w/2,y,z-.22),(x+w/2,y,z-.22),(x+w/2,y,top),(x-w/2,y,top)],'mineral',age*.62)
+                # Wet joints dominate. Most of the panel stays dry; one or
+                # two weaker drips may start at a damaged cap or drip end.
+                sources=[(a+.11,rng.uniform(.7,1.35)),(c-.11,rng.uniform(.45,.95))]
+                if rng.random()<.32:
+                    source=rng.choice((a+TEE,c-TEE)) if old else rng.uniform(a+.7,c-.7)
+                    sources.append((source,rng.uniform(.20,.48)))
+                for x,width in sources:
+                    if rng.random()<.18:continue
+                    top=z+((1.04 if side==-1 else 1.0) if old else .55)
+                    length=rng.uniform(.60,1.38) if old else rng.uniform(.32,.83)
+                    bottom=max(z-.30,top-length)
+                    pts=[(x-width/2,y,bottom),(x+width/2,y,bottom),(x+width/2,y,top),(x-width/2,y,top)]
+                    strength=age*rng.uniform(.72,1)
+                    stamp(pts,'runoff',strength)
+                    # Nearby dry salts share the water path, not a separate
+                    # regularly repeated decorative white mark.
+                    if rng.random()<.72:
+                        salt=[(xx,yy+side*.0003,zz) for xx,yy,zz in pts]
+                        stamp(salt,'mineral',strength*rng.uniform(.45,.8))
                 if rng.random()<.65:
-                    x=rng.uniform(a+.5,c-.5);zz=z+rng.uniform(-.08,.40);w=rng.uniform(.28,.68);h=rng.uniform(.16,.34)
+                    x=rng.choice((a+.6,c-.6))+rng.uniform(-.2,.2);zz=z+rng.uniform(-.08,.30);w=rng.uniform(.45,.95);h=rng.uniform(.20,.42)
                     stamp([(x-w/2,y,zz),(x+w/2,y,zz),(x+w/2,y,zz+h),(x-w/2,y,zz+h)],'spall',.8)
     construction(root,p,rng,age,stamp,floor_mark)
     ob=batch.finish();ob['allow_boundary']=True # open pigment films, never a collision solid

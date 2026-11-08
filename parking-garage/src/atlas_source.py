@@ -90,7 +90,7 @@ def generate(folder=Path('build/lookdev/atlas-source'),layout_path=Path('build/l
             alpha*=.55+.45*np.sin(u*34+v*3)**2
             rgb=(42,39,31) if key=='rubber' else (186,179,155)
         bc[y0:y1,x0:x1,:3]=rgb;bc[y0:y1,x0:x1,3]=np.rint(np.clip(alpha,0,1)*255)
-        orm[y0:y1,x0:x1]=[255,130 if key=='oil' else 230,0]
+        orm[y0:y1,x0:x1]=[255,110 if key=='rubber' else 120 if key=='oil' else 230,0]
         if key=='spall':height[y0:y1,x0:x1]=.5-.18*alpha
         layout[key]=dict(rect=[(x0+16)/N,1-(y1-16)/N,(x1-16)/N,1-(y0+16)/N],coverage=None,repeat_u=False)
     Image.fromarray(bc).save(folder/'T_ParkingGarage_BaseColor.png')
