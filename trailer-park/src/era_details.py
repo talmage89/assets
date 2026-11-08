@@ -1,5 +1,5 @@
 """Era-specific construction cues; inferred from the cited park photographs."""
-import math
+import math,random
 
 
 def exterior(a,p):
@@ -69,6 +69,30 @@ def window(a,p,face,h,xf):
             m.prism([xf((uu,0,top)),xf((uu,yy,top-.19)),xf((uu,0,top-.40))],axis,.0009,'Trim',p['accent'])
         for j in range(5):
             d=(j+.5)*yy/5;m.box((u,d,top-.19*d/yy+.006),(w+.25,.018,.016),'Trim',xf=xf)
+        from surfaces import age
+        from mathutils import Vector
+        severity={'patched':1.,'faded':.72,'kept':.20}[p['upkeep']]
+        rng=random.Random(p['seed']+round(u*101)+sum(map(ord,face))*31)
+        rust=a.mesh('AwningFastenerAge_'+face+'_'+str(round(u*100)),component='weather_stains')
+        sign=-1 if face in ('front','left') else 1
+        normal=Vector((0,sign*.19/yy,1) if face in ('front','back') else (sign*.19/yy,0,1)).normalized()
+        for source in (-w*.36,w*.36):
+            if rng.random()>.42*severity:continue
+            vs=[];colors=[];length=rng.uniform(.17,.36);width=rng.uniform(.024,.040)
+            for j,t in enumerate((0,.2,.55,1)):
+                d=.025+t*length;z=top-.19*d/yy+.0018
+                for side in (-1,0,1):
+                    q=xf((u+source+side*width*(1-t*.85),d,z));base=Vector(age(q,normal,p['accent'],'Trim','window_detail',p,p['seed']))
+                    color=base.lerp(Vector((.15,.045,.009)),severity*.86*(1-t)**1.2 if side==0 else 0)
+                    vs.append(q);colors.append((*color,1))
+            fs=[(j*3+k,j*3+k+1,(j+1)*3+k+1,(j+1)*3+k) for j in range(3) for k in range(2)]
+            rust.geom(vs,fs,'Trim');rust.col[-len(colors):]=colors
+            rust.box(xf((u+source,.025,top-.19*.025/yy+.004)),(.013,.013,.006),'Trim',(.11,.058,.021))
+        if rust.v:
+            ob=rust.finish()
+            for poly in ob.data.polygons:
+                if poly.normal.z<-.5:poly.flip()
+            ob.data.update()
     elif p['era']=='1996':
         for sx in (-1,1):
             xx=u+sx*(w/2+.19)
