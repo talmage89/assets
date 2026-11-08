@@ -751,3 +751,49 @@ batch uses separate serial Blender processes and per-frame receipts to keep
 completed evidence and limit retained scene memory.
 
 Delivery gate: REJECTED
+
+## Completion pass 2 — verified crops; age remains too quiet
+
+**Color and value first.** Opened all four 1440 px export frames in
+`renders/finish-pass2/`, the corrected-camera before frame, the six same-camera
+crop pairs and the explicit camera-change pair under `renders/finish-fixes/`.
+Opened the replacement straight-lane pair at full size. Its primary neutral
+is the photograph's white PVC post; the separate lawn audit remains balanced
+on the two concrete pads named in pass 1. The July lawn is brighter and
+yellower, with preserved deep shade and restrained siding highlights. The
+grass clumps are too dark and hard beside the base lawn, especially in shade.
+Use the garden's neutral-normal/rough leaf response and lighter blade tint,
+rather than interpreting the Ground trim normal as mown blade relief.
+
+Sparse unequal rust replaces the periodic orange bars; raw exported colors
+confirm the sourced end stains exist. They still do not make the siding,
+awnings and skirt read old in the row, and the street hero remains too clean.
+This is a visual failure despite the passing data checks. A roof tarp at the
+rear of a distant kept template does not establish an emergency repair from
+the lane. Put one weighted, draped repair near the front of a neglected lot,
+with cloth stations under its weights. Keep the white/silver coating mix.
+
+Both lawn halves now contain clipped blades and the worn routes remain bare.
+The broad field still reads as a low planar texture between clumps. The
+garden's material response is part of the requested reuse, not just its
+albedo gain and crossed-card geometry. Keep testing the exported result.
+
+Black overbands and branches now read as filled cracks; small fatigue cells
+still look too regularly drawn. The independent shoulder fringe no longer
+matches the receded core, leaving black/yellow triangular gaps. Trace the
+actual core vertices for the next fringe. Keep the accepted repair/oil fields.
+
+The replacement camera has exactly zero roll and 10.94 px native road-anchor
+RMS; Blender independently agrees within .05 px. Lane and neighbors are in
+frame. Pitch and the wide lens still produce keystone perspective. The photo
+is a 2024 type/framing comparator, and the lane depths are inferred; neither
+the residual nor the pair proves a surveyed reconstruction. The original
+rolled view is retained separately and clearly labeled as a camera change.
+
+`make check` passes 21 exports, 1,000 plans, sampled construction and 936 home
+hinge poses; all 1,212 pre-existing delivery/image files remain unchanged.
+The shared new set remains 2048/three maps/16 MiB. Each completed frame now has
+its own image/source/camera receipt. Fresh serial Blender processes completed
+the set under one GPU lease, and the lease was released before this critique.
+
+Delivery gate: REJECTED
