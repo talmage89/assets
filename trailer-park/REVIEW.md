@@ -313,3 +313,46 @@ the posts in the cupped deck, lean tools against the wall, drape the cover
 over its actual support footprint, and map severity to the upkeep label
 (the former seed-index order made `kept` dirtier than `patched`). These
 await the next model build and imported-surface bearing measurements.
+
+## Look-dev pass 2 — useful daylight, still insufficient surface history
+
+**Color and value first.** Viewed all 18 PNGs at native 1100px width and all
+four complete-park photo pairs. The blue cast is resolved and the street
+heroes retain deep shade without clipping. Their p95 values are .835/.859,
+with zero near-clip pixels. The elevated views still read too dim, at
+p95 .592/.608; the roof and lawn exposure needs another adjustment. The
+2009 pair is now far too pale against its door-frame-balanced reference:
+lower its exposure, use the family's blue-gray paint on that later infill,
+and retain the white skirt's contrast. The clear-sky heroes look overcast
+because desaturating their fill also desaturated the visible sky. Keep the
+neutral fill while restoring a procedural blue sky in view/reflections.
+
+The finer irregular road fringe no longer reads as regularly spaced teeth.
+The end banks, proud glass/meeting rails, different blind openings and era
+roof construction are clearer. Entry cameras now see the actual door and
+storm hardware over the rail; the deck's timber fibers follow the members.
+Imported bearing rays on the three double-wides measure canopy post bottoms
+at .877m and board tops at .88197–.88312m, giving 4.97–6.12mm engagement.
+These are surface measurements, separate from the serialization checks.
+
+Still CG: almost uninterrupted felt-like lawns, clean white skirt feet,
+identically gray rolled roofs, and a hard white/metal finish boundary partway
+up the carport posts. Next corrections add actual compacted routes on some
+older lots, an aged cracked-concrete/gravel corner apron, stronger caused
+splash, maintenance-dependent roof coatings and a continuous zinc finish
+with seeded foot corrosion. The corner car/cart must clear the end window.
+Town cars need road-shoulder placement; rear tree ranks must clear buildings,
+and another block of varied ranches should close the older elevated view.
+
+The second street fit is rejected: I selected lot 18 without checking its
+room flag. It has no addition, so the fitted imaginary box is meaningless.
+The next calibration binds lot 36's actual exported AddedRoom node, asserts
+its existence, and checks the imported mesh group. The 2009 subject is now
+visible but two of five anchors are hidden by its cart/car; moving them into
+the corner hardstanding removes that obstruction. Aerial visibility is 9/10;
+the newer lane's four anchors are clear, but its road-depth stations remain
+inferred, and it only supplements the three construction comparisons.
+
+All construction, UV/resource and motion checks pass for this model state.
+The new town corrections were prepared after its context module loaded and
+are reserved for pass 3; they are not claimed as present in these images.
