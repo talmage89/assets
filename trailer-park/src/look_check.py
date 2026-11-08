@@ -34,7 +34,10 @@ def audit():
                     if name=='ManufacturedPatina':
                         assert ma.get('alphaMode')=='BLEND' and not ma.get('doubleSided',False)
                         rgba=g.accessor(pr['attributes']['COLOR_0'])
-                        assert rgba.shape[1]==4 and np.all((rgba[:,3]>0)&(rgba[:,3]<=1)),(path,'Lost seeded weather coverage')
+                        # glTF may omit an all-one alpha component. Full
+                        # severity stays VEC3 white; weaker skins need VEC4.
+                        assert rgba.shape[1] in (3,4) and np.all(rgba[:,:3]==1),(path,'Changed neutral weather tint')
+                        if rgba.shape[1]==4:assert np.all((rgba[:,3]>0)&(rgba[:,3]<=1)),(path,'Lost seeded weather coverage')
                     if name=='ManufacturedGrassBlades':
                         assert ma.get('alphaMode')=='MASK' and ma.get('doubleSided')
                     tex=d['textures'][pbr['baseColorTexture']['index']];im=d['images'][tex['source']];w,h=Image.open(path.parent/im['uri']).size
