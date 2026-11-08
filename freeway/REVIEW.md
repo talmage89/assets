@@ -834,3 +834,34 @@ rest of pass 3: hue, dense near grass, smooth grading, framing and lane wear.
 Regular joint staining, lane bands, manufacture grain and native silhouettes
 remain CG tells to assess again after this correction.
 
+## Round 4, pass 4: native fix gate passes
+
+Color and value: inspected all six 1400px key exports and all eight native
+before/after panels. The concrete-neutral 2002 aerial and 2008 bridge remain
+the summer-green and concrete comparisons; the March traffic reference has
+dormant grass and only an asphalt neutral, so it cannot set summer turf hue.
+The new grass is muted green rather than yellow camouflage, with a darker
+dense stand on the shaded near slope and shorter mown cover near pavement.
+The 202 transition now has short linked sward and a narrow exposed mineral
+edge. Blade/clump texture replaces the former sheet and isolated toothpicks;
+the lit slope no longer breaks into lighting triangles. These are visible
+changes at the retained cameras, without enlarging a crop.
+
+The new 101 hero reduces foreground turf to a band while retaining the town,
+bridge and lanes. That panel explicitly labels the changed composition; the
+seven physical-change panels retain identical cameras and 1400 native pixels
+per side. Column channels now continue below the accepted cap without pale
+opaque cutouts. Low road film and joint staining read on the barriers.
+Wheel response, lane-center darkening, joints and native-grain replacement
+panels survive at the hero distance; the road-camera panel is the clearest
+pavement comparison. Soil/gravel uses the existing mineral images, not a new
+texture allocation. Accepted town, traffic, sky and cap flow remain.
+
+Still CG: the eight clump patterns and mowing rows have more rhythm than the
+photographs, lane bands and barrier-joint staining are regular, and concrete
+manufacture grain is more even. Native house/tree/car silhouettes repeat.
+The photographic fits also differ in season, lane count and bridge type.
+The requested fix gate passes; the remaining final views may render under
+the current GPU lease. Gallery approval still requires every final, photo
+pair and contact sheet to be inspected, and the complete checks/repeats.
+
