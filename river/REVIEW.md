@@ -11,7 +11,9 @@ Read the complete repository contract, shared kit, common brief, owner log,
 rifle README/tools, native town/site/ground/vehicle/botanical families and all
 four skatepark briefs. Read the unmerged freeway README and girder/support
 source read-only. Main was merged at the start; no freeway branch code or map
-was copied. The Type III section is independently derived from FDOT 20130.
+was copied. Freeway subsequently landed on main and was merged at `dcc2132`;
+pass 6 uses its native factories and shared maps. The Type III section remains
+independently derived from FDOT 20130.
 
 Viewed the four period photographs in `build/reference-sheet.jpg` at size and
 the actual FDOT section. The type differs from the wider steel Huron reference;
@@ -19,8 +21,9 @@ the bank photo hides a simpler bridge's ends. The comparisons must retain those
 differences. Camera height priors reject an initial mathematically plausible
 but below-ground fit. Final fits retain their residuals, not just a nominal lens.
 
-Photo balance uses assumed neutrals: Raisin parapet concrete, Morrison trail
-wall and Huron concrete cap. The original images are unchanged. Exact patch
+Photo balance uses assumed neutrals: Raisin parapet concrete, Huron concrete
+cap and, in the final bank study, the weathered gray wooden dock. Earlier
+rejected studies used Morrison's trail wall. The originals are unchanged. Exact patch
 coordinates, medians and neutral gains live in `build/photo-calibration.json`.
 Neither the photographs' exposures nor these patches establish absolute albedo.
 
@@ -199,3 +202,136 @@ After these changes, raw/import checks pass: closed positive water shells,
 clearance samples (minimum **2.34770m**) and forty building/walk bounds checks.
 The exact rebuild repeats **41** generated mesh/image/manifest files byte for
 byte. Final images must still show the corrected construction and placement.
+
+## Pass 5 — corrected exported checkpoint, 1280px / 32 samples
+
+Opened all 21 scene/module frames, the three composed photo pairs and both
+contact sheets. Color/value first: the bridge has readable sunlit gray faces
+and deep underside cavities, and the aerials show an olive/brown water body.
+The low-angle water is still too blue and smooth beside the balanced Huron
+bank photograph. This is a recorded appearance miss for the next look-dev
+round; it is not a claim that a closed volume proves water realism.
+
+- The downtown hero now shows the low walk, backs of connected brick blocks,
+  actual traffic and a town continuing beyond the crossing. The rural hero
+  has its own bend, wooded banks, gravel edge and fields/houses beyond. These
+  are distinct plans. Both aerials still expose regular analytic bank slopes
+  and an abrupt change to the distant water approximation.
+- Girder/bearing close-ups now show pads seated on the projected abutment
+  shelves. Raking under-bridge views expose the section, diaphragms, drains
+  and conduit rather than hiding them behind soil. The rural abutment view
+  communicates wingwall and riprap better than the urban view.
+- One urban abutment camera remained blocked by foreground retaining work.
+  Move that inspection above the water toward the downstream wingwall. The
+  strict camera gate correctly rejected the old image; rerender that view
+  and require its new camera and unchanged bundle hashes to agree. The new
+  frame shows the assembly, but the wall still takes too much foreground.
+- Broader crossed grass cards provide continuous bank cover, but the clumps
+  and substrate still look procedural at water-edge distance. The riffle's
+  foam strokes are provisional and too evenly distributed; final causally
+  driven broken water is a look-dev task.
+- Raisin's bridge is now visible in the matched frame. The Huron underside
+  comparison is darker than its reference and compares our concrete girder
+  to a much wider steel bridge. The 2008 bank comparison replaces the failed
+  Morrison fit; it shows water/bank, but its 56.11px residual, elevated fitted
+  camera and unmodeled wooden landing prevent an exact-match claim. The
+  autumn trees differ. The neutral patch was inspected on gray dock decking,
+  not sampled from blue water.
+
+`make`, `make check` and `make repeat` passed after the camera correction.
+All 24 required frame receipts agree with the current export bundles and
+camera definitions; the gate checks visibility histograms but does not judge
+appearance. Photo projection verification agrees with the kit within .004px;
+that proves projection implementation only. This pass preceded freeway's
+main landing; its image archive is under `build/river-review-archive/pass5/`.
+No final docs images were committed.
+
+## Pass 6 — shared construction and distant-world controls
+
+Freeway landed on main and was merged. Replaced the duplicate bridge module
+construction with calls to its native factories, retaining our cited Type III
+profile and smaller crossing dimensions. Reused its Concrete and Zinc images.
+The adapter preserves circular 1.2m columns and adapts the cap/seat geometry;
+the native fixed overpass delivery is unchanged.
+
+Opened five refreshed controls: urban hero, aerial, under, bearings and pier.
+Color/value first: shared concrete reads gray in sun, while the bearing close
+view is too dark for inspection. Increase that camera's explicit exposure
+from +.8 to +2EV; do not lighten the material. The quick runoff strokes and
+algae bands remain geometric placeholders, visibly too regular for final art.
+
+- Lamp plates were wider than the parapet crown. Add local cast pedestals,
+  put all four bases on their actual top surfaces and face arms over the road.
+- Some native guardrail feet stood several millimeters above uneven approach
+  soil. Lower their mounting datum and sample actual exported bottom vertices.
+  This checks seating, not the buried length/strength of a highway post.
+- The underside photo anchors still used the old .8m cap. Use the actual
+  shared 1.10m cap and its 50mm chamfer endpoints. The residual grows to
+  **20.97px**, honestly showing the mismatch with the wide steel reference.
+- The aerial exposes side streets ending at ±150m and a straight change to
+  the opaque distant water. Reject this context. Continue the Main Street
+  roads/sidewalks toward ±650m, carry their elevations with the actual valley,
+  extend native neighborhood houses and riparian maples, and replace painted
+  distant water with finite closed bodies using the same medium and normal.
+  Add the submerged bed beneath them; check their welded edge incidence and
+  signed volumes independently. Cost all continuation as removable context.
+
+The pre-continuation construction gate passed: 196 light-base samples have
+zero measured gap; 672 rail-foot samples per crossing sit 3.6–18.7mm into the
+soil. Girder/pad gaps are zero and the largest plinth/support residual is
+.00000024m. Original 519 delivery files remain byte-identical, as do all 628
+current dependency files. These controls are archived at
+`build/river-review-archive/pass6-controls/`; the full refreshed set follows.
+
+The next eight city frames were also opened (hero, above, under, bearings,
+pier, abutment, driver, riffle). The aerial rejects the first continuation:
+separately closed adjoining volumes produce a dark refracting line. Remove
+their internal end faces, weld top and bottom vertices and use one closed
+water body; retain core/presentation limits as extras for streaming. Also
+continue horizontal surface normals through that boundary. The water budget
+now includes its presentation extension rather than hiding it in context.
+
+The riffle view also exposes an unsupported service alley on the natural
+right bank: its street elevation preceded the full raised terrace. Move it
+inland to the terrace, follow the local valley grade, insert the actual
+terrace/alley stations in the terrain and sample the exported paving against
+soil. The new gate rejected a stale pre-station mesh with a **.2194m** gap;
+do not loosen its .04–.10m paving/base interval to accept that geometry.
+These eight controls are under `build/river-review-archive/pass6-water-interface/`.
+
+## Pass 7 — connected-water form controls
+
+Opened the five connected-water controls (urban hero, above, under, bearings,
+pier) at native size. Color/value first: water is dark olive beneath the bridge
+and blue where it reflects the clear sky; the repeated ripple field still
+looks too uniform. The aerial now has a continuous reflection/depth response
+through the former boundary, with no black closing-plane line. Streets
+continue beyond the site. The bank still reads as a regular constructed
+profile rather than accumulated slumps; final material work will not, by
+itself, solve every such silhouette. Retain that weakness for the form review.
+
+The water is now one closed, outward mesh through ±800m, including the
+300m core. Exported signed volumes are **39,105.8 / 46,992.7m³** for the two
+whole presentation bodies, not measurements of only the core. The full water
+allocation is **31,480 triangles per crossing**, including foam/continuation.
+The 540 actual urban alley samples now measure **.0749996–.0750003m** above
+soil, matching their paving/base allocation. The five controls are archived
+under `build/river-review-archive/pass7-connected-control/`.
+
+Before the last full batch, audit also found the drift too far ahead of the
+supports and insufficiently immersed. Place it across local flow against the
+upstream column/cutwater and sample its actual exported vertices against the
+pier and water surfaces. Closest vertex-to-pier distances are **4.29mm** at
+both bents and **6.72mm** at the wall nose; wood extends about **108mm below**
+and **178mm above** the water. This is a geometric contact/immersion check,
+not a buoyancy simulation. The former log placement is rejected.
+
+Opened all fourteen pre-skirt frames: the full city set plus rural hero,
+above, under and bearings. The city abutment angle exposes the unclosed
+75mm paving gap: top-to-soil spacing alone did not prove a solid base. Add
+the exposed edge faces, omit buried undersides/internal bay walls, and measure
+the bottom vertices against soil as well. **1,057** actual alley-base samples
+now sit **4.9996–5.0004mm into soil**. The corrected body retains its 75mm top
+allocation. Break up the evenly spaced drift branches; their former comb is
+visibly artificial. These controls are at
+`build/river-review-archive/pass7-pre-skirts/`.

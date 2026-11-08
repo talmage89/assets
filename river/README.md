@@ -31,9 +31,9 @@ above water. Published sources and authored choices are separated in
 [REFERENCE.md](REFERENCE.md); all viewed/downloaded rights and exact uses are
 in [SOURCES.md](refs/SOURCES.md).
 
-Five original **AASHTO Type III** girders per span use the FDOT 20130 section:
+Five **AASHTO Type III** girders per span use the FDOT 20130 section:
 45in depth, 16in top, 22in bottom and 7in web. They have modest camber,
-haunches, diaphragms, concrete plinths, elastomer pads and steel sole plates.
+haunches, diaphragms, concrete plinths, steel seating plates and elastomer pads.
 Their exterior centers are .95m in from the deck edges. The wall cutwater
 follows local flow while its cap stays transverse to the road.
 Abutments have projecting seats, backwalls and wingwalls; approach slabs carry the road
@@ -59,7 +59,7 @@ The inspection library arranges them on a sheet; reset its display transforms
 before placing those roots into a new bridge.
 
 - Girder `W/E` sockets mark the bearing centers, .26m in from each end;
-  their flat seats meet the sole plates.
+  their flat seats meet the elastomer pads.
 - `Lane_*`, `Sidewalk_*`, `RiverbankTrail` and `FlowCenterline` retain sampled
   paths in `points_blender_m` / `points_gltf_m` extras. Samples are local to
   the identity path root; do not add its translation again.
@@ -77,13 +77,22 @@ vegetation are named and costed separately for removal, batching and engine LOD.
 ## Materials and checkpoint cost
 
 Ground's Asphalt, Concrete, Lawn and GroundTrim are reused without changes.
+Bridge concrete and galvanized parts use the landed freeway family's 2048
+Concrete and 1024 Zinc sets: 16MiB + 4MiB at 8bpp with full mips. Those images
+are shared external dependencies, not duplicate river allocations.
 Native trees and buildings retain their original library images. Bank/bed has
 one temporary original 1024 triple; a 512 bank-card image also contains the
 tiny plaque legends; water has one original tiling 512 normal. That is
 **4⅔ MiB new** at 8bpp with full mips. Final intent is a shared 2048 bank/bed
 triple (16MiB), the same card image (⅓MiB) and a 1024 water normal (1⅓MiB).
-The freeway has not landed on main; none of its unmerged code/maps is copied.
-Future concrete reuse is isolated behind the material role and beam interface.
+After freeway landed, `main` was merged at `dcc2132`. The small adapter in
+`src/freeway_bridge.py` calls its original girder, three-column bent, F-barrier,
+guardrail/terminal and bearing factories in an isolated module namespace.
+It substitutes the cited Type III section for freeway's larger Type IV,
+adapts cap span/height while preserving round 1.2m columns, and scales the
+native bearing layers to this bridge. It does not edit the freeway sources
+or canonical deliveries. The local deck, wall pier and abutment retain this
+crossing's dimensions and construction.
 
 Cycles uses imported transmission/IOR, the shipped normal and uniform river
 absorption/scattering extras. The coefficients in inverse meters are absorption
@@ -92,47 +101,52 @@ Stock glTF cannot carry the Blender volume node graph; the renderer reconstructs
 one Volume Coefficients node from those extras.
 An engine must implement the same depth absorption and flow. Quick bank
 fields and coarse placed maintenance remain provisional, not final baked art.
-The distant water continuation is a darker surface approximation, explicitly
-removable presentation context. It has no invented infinite volume.
+The water continues to ±800m as one closed medium over a submerged bed.
+Internal closing planes are removed and their boundary vertices welded so
+they cannot refract as artificial dams. The water object's extras distinguish
+the 300m core from that presentation extension for engine clipping/streaming.
+The measured water triangle count includes the extension; distant terrain,
+houses and trees remain separately removable presentation objects.
 
 <!-- measured-costs:start -->
 | Piece | Triangles |
 | --- | ---: |
-| TypeIII_Girder18 | 416 |
+| TypeIII_Girder18 | 696 |
 | DeckPanel6 | 260 |
 | Parapet6 | 52 |
-| PierColumns | 340 |
+| PierColumns | 712 |
 | PierWall | 226 |
 | Abutment | 112 |
-| GuardrailTerminal | 428 |
+| GuardrailTerminal | 404 |
 
 Flat panels intentionally stay below 300 triangles; no subdivisions are added for a minimum.
 
 | Assembled mesh type | Downtown count × max triangles | Edge count × max triangles |
 | --- | ---: | ---: |
 | Abutment | 2 × 112 | 2 × 112 |
-| ApproachRail | 4 × 428 | 4 × 428 |
+| ApproachRail | 4 × 404 | 4 × 404 |
 | ApproachSlab | 2 × 12 | 2 × 12 |
 | BearingStation | 4 × 396 | 3 × 396 |
 | DateAndNamePlaques | 1 × 14 | 1 × 14 |
 | Deck | 9 × 285 | 6 × 264 |
-| Girder | 15 × 416 | 10 × 416 |
-| Parapet | 18 × 52 | 12 × 52 |
-| Pier | 2 × 340 | 1 × 226 |
+| Girder | 15 × 696 | 10 × 696 |
+| Parapet | 36 × 28 | 24 × 28 |
+| ParapetLightPedestals | 1 × 48 | — |
+| Pier | 4 × 676 | 1 × 226 |
 | Span DiaphragmsHaunches | 3 × 204 | 2 × 204 |
 | Span DrainConduit | 3 × 1,024 | 2 × 1,024 |
 
 | Seed | Bridge | Bed / banks | Water | Site | Vegetation | Cars | Town / people | Total |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 101 | 16,685 | 67,234 | 20,560 | 40,356 | 1,648,012 | 561,418 | 827,236 | 3,181,501 |
-| 202 | 11,524 | 61,670 | 20,560 | 760 | 2,653,068 | 388,674 | 719,772 | 3,856,028 |
+| 101 | 21,581 | 68,434 | 31,480 | 40,452 | 1,648,008 | 561,418 | 1,133,488 | 3,504,861 |
+| 202 | 14,228 | 61,670 | 31,480 | 760 | 3,458,188 | 388,674 | 1,020,568 | 4,975,568 |
 
 | Seed | glTF + BIN bytes | Material states / unbatched placed draws |
 | --- | ---: | ---: |
-| 101 | 48,454,446 | 69 / 2586 |
-| 202 | 38,636,336 | 39 / 4720 |
+| 101 | 51,383,741 | 70 / 3894 |
+| 202 | 40,436,559 | 40 / 6091 |
 
-Both crossings share 35 unique image payloads, estimated **148.67 MiB** at 8bpp with full mips. PNG dependency bytes and uncompressed residency differ. These totals include native context; the new river-only allocation is listed above.
+Both crossings share 41 unique image payloads, estimated **168.67 MiB** at 8bpp with full mips. PNG dependency bytes and uncompressed residency differ. These totals include native context; the new river-only allocation is listed above.
 <!-- measured-costs:end -->
 
 ## Rebuild and evidence
@@ -151,8 +165,9 @@ existing deliveries are read-only. A serial render batch holds the kit GPU
 lock once. All scratch and downloaded references stay in ignored folders.
 
 `build/check.json` separates accessor/import preservation from actual sampled
-girder/pad and plinth/support contacts, walk clearance, building/walk bounds and
-reach measurements. Tiling UV reuse is intentional;
+girder/pad and plinth/support contacts, light-base seating, rail feet in soil,
+alley paving over its supporting terrace, walk clearance, building/walk bounds
+and reach measurements. Tiling UV reuse is intentional;
 finite UVs and density are measured, not a unique lightmap/atlas certification.
 `build/preservation.json` fingerprints every pre-existing delivery input.
 `build/repeat.json` records the exact deterministic rebuild comparison.
