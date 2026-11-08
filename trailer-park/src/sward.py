@@ -26,8 +26,16 @@ def add(parent,plan,lib):
                 cell=r.randrange(4);band=r.randrange(2)
                 cards.add_grid(grid,(u0+cell*cw+pad,v0+band*ch+pad,u0+(cell+1)*cw-pad,v0+(band+1)*ch-pad),(.02,.1,r.random(),0))
         # Mown street-end lawn; absent on pads and compacted approaches.
-        for j in range(360 if old else 440):
-            u=r.uniform(L/2+.15,L/2+5.35);v=r.uniform(.55,plan['lot_frontage']/2-1.6)
+        for j in range(640):
+            u=r.uniform(L/2+.15,L/2+5.35)
+            if j%2:
+                if old and row['number']==1:continue
+                v=r.uniform(-plan['lot_frontage']/2-(1.4 if old else 1.15)+.15,-2.65)
+                wy=-W/2-3.0;walk_end=L/2+1.2
+                if abs(v-wy)<.46 and u<walk_end+.46:continue
+                if abs(u-walk_end)<.46 and wy-.46<v<-2.55:continue
+                if p['carport'] and u<L/2+.65 and -W/2-3.65<v<-W/2:continue
+            else:v=r.uniform(.55,plan['lot_frontage']/2-1.6)
             clump=.5+.5*math.sin(u*4.1+v*2.7+p['seed'])*math.sin(v*3.7-u*.8)
             if r.random()>.40+.55*clump:continue
             if p['upkeep']!='kept' and abs(u-L/2-2.2)<1 and abs(v-1.2)<.6:continue

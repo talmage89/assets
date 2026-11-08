@@ -18,20 +18,25 @@ def runoff(a,p):
         along=face in ('front','back');sign=-1 if face in ('front','left') else 1
         length=L if along else W;holes=openings(p,face)
         normal=Vector((0,sign,0) if along else (sign,0,0))
-        def xf(u,z):return (u,sign*(W/2+.0008),z) if along else (sign*(L/2+.0008),u,z)
+        def xf(u,z):return (u,sign*(W/2+.0015),z) if along else (sign*(L/2+.0015),u,z)
         count=math.ceil(length/.9144);sources=[]
         for j in range(1,count):
             if r.random()>.12+.17*severity:continue
             u=-length/2+j*length/count
             if any(abs(u-h['u'])<h['w']/2+.15 for h in holes):continue
-            sources.append((u,E-.025,r.uniform(.13,.72),r.uniform(.018,.055),r.uniform(.22,.65)))
+            sources.append((u,E-.025,r.uniform(.17,.75),r.uniform(.028,.075),r.uniform(.42,.88)))
+        # A broad end window excludes the inner roof stations. Its outer
+        # hood/drip-rail fasteners still weather the exposed wall corners.
+        if not along and severity>.5:
+            h=holes[0];side=-1 if p['seed']%2 else 1
+            sources.append((side*(h['w']/2+.19),E-.018,r.uniform(.34,.68),.065,.86))
         for h in holes:
             if h['kind']!='window':continue
             for side in (-1,1):
                 if r.random()>.35+.3*severity:continue
                 # Corroded sill ends and awning screws bleed independently.
                 u=h['u']+side*(h['w']/2+.07)
-                sources.append((u,h['z']-.045,r.uniform(.09,.36),r.uniform(.018,.040),r.uniform(.20,.56)))
+                sources.append((u,h['z']-.045,r.uniform(.16,.48),r.uniform(.028,.065),r.uniform(.40,.78)))
                 if p['era']=='1972' and r.random()<.45:
                     sources.append((u+side*.07,min(E-.03,h['z']+h['h']+.16),r.uniform(.12,.35),.025,.48))
         for j,(u,top,drop,width,opacity) in enumerate(sources):

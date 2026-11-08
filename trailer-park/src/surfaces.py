@@ -105,19 +105,24 @@ def age(q,n,c,role,component,p,seed):
         seam=abs((x+L/2+stride/2)%stride-stride/2)
         oxide=severity*.65*math.exp(-(seam/.035)**2)*(.35+.65*math.sin(y*1.3+seed)**2)
         color=color.lerp(Vector((.22,.075,.022)),oxide)
+    if component=='roof_trim' and old and role=='Trim':
+        # Rain catches on the rolled drip rail's hem and laps; the older
+        # fascia must not stay a clean white outline above a weathered wall.
+        film=severity*(.17+.24*(.5+.5*math.sin(x*1.13+y*2.7+seed)))*(.55+.45*max(0,-n.z))
+        color=color.lerp(Vector((.10,.115,.075)),film)
     if component in ('skirting','skirt_access'):
         color=Vector((.62,.61,.55)).lerp(Vector((.40,.39,.32)),severity*.36)
         splash=.20+.18*(.5+.5*math.sin(x*2.1+y*2.8+seed))**2
-        soil=severity*.96*math.exp(-max(0,z-.04)/splash)*(.35+.65*ripple)
-        color=color.lerp(Vector((.075,.067,.033)),soil)
-        damp=severity*north*.44*(.5+.5*math.sin(x*1.9+seed))**2
+        soil=min(.98,severity*(1.55 if old else .94)*math.exp(-max(0,z-.04)/splash)*(.25+.75*ripple))
+        color=color.lerp(Vector((.035,.029,.014)),soil)
+        damp=severity*north*.70*(.5+.5*math.sin(x*1.9+seed))**2*math.exp(-max(0,z-.10)/.42)
         color=color.lerp(Vector((.09,.12,.055)),damp)
     if component=='window_detail' and old and max(c[:3])-min(c[:3])>.04:
         color=color.lerp(Vector((.37,.37,.29)),severity*.48)
     if component=='window_detail' and old:
         # Oxidized awning pans trap damp at the wall, screw rails and hems.
-        deposit=severity*(.20+.50*north)*(.35+.65*ripple)
-        color=color.lerp(Vector((.045,.065,.035)),deposit*.55)
+        deposit=severity*(.30+.60*north)*(.35+.65*ripple)
+        color=color.lerp(Vector((.045,.065,.035)),deposit*.78)
     if component=='carport_posts' and z<.43:
         rust=severity*.93*math.exp(-max(0,z-.08)/.20)*(.65+.35*ripple)
         color=color.lerp(Vector((.22,.065,.018)),rust)
