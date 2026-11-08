@@ -39,7 +39,7 @@ $(LOOK_MAPS) &: build/lookdev/atlas-bake/T_ParkingGarage_BaseColor.png build/loo
 	mkdir -p textures/lookdev/ship
 	$(PYTHON) $(KIT)/downsample.py --source build/lookdev/atlas-bake --out textures/lookdev/ship --asset ParkingGarage --size 2048
 lookdev-atlas: $(LOOK_MAPS)
-$(LOOK_EXPORTS) $(LOOK_MODULES) build/lookdev/sites.json build/lookdev/modules.json export/lookdev/comparison-precast.gltf export/lookdev/comparison-harmon.gltf &: $(LOOK_FORM) $(LOOK_MAPS) build/lookdev/comparison-precast.blend build/lookdev/comparison-harmon.blend src/lookdev_build.py src/atlas_binding.py src/service_age.py src/surface_revision.py src/traffic.py src/traffic_fit.py
+$(LOOK_EXPORTS) $(LOOK_MODULES) build/lookdev/sites.json build/lookdev/modules.json export/lookdev/comparison-precast.gltf export/lookdev/comparison-harmon.gltf &: $(LOOK_FORM) $(LOOK_MAPS) build/lookdev/comparison-precast.blend build/lookdev/comparison-harmon.blend src/lookdev_build.py src/atlas_binding.py src/service_age.py src/surface_revision.py src/traffic.py src/traffic_fit.py src/floor_deposits.py
 	$(LOOK_BP) --python src/lookdev_build.py --
 lookdev-export: $(LOOK_EXPORTS) $(LOOK_MODULES)
 

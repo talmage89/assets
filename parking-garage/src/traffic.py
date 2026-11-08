@@ -63,7 +63,7 @@ def revise(rt,p):
             for child in reversed([ob,*ob.children_recursive]):bpy.data.objects.remove(child,do_unlink=True)
     rng=random.Random(p['seed']+5160)
     def spawn(name,position,yaw,category,index=None,normal=None):
-        source=models[rng.randrange(4) if index is None else index]
+        source=models[rng.choices(range(4),[36,24,32,8])[0] if index is None else index]
         car=G.clone(source,name,position,yaw,rt)
         if normal is not None:
             car.rotation_mode='QUATERNION';car.rotation_quaternion=Vector((0,0,1)).rotation_difference(normal)@Quaternion((0,0,1),math.radians(yaw))
@@ -106,12 +106,17 @@ def revise(rt,p):
 def street(rt,p,rng,spawn):
     L,W=p['length'],p['width'];municipal=p['system']=='precast';sy=W/2+12.2 if municipal else 48.8
     ex=L/2-p['end_length']/2;sx=L/2+14.2
+    eye=Vector((-L/2-(41 if municipal else 36),-W/2-(19.896 if municipal else 22)))
+    target=Vector((ex-1.65,-W/2-3.3));direction=target-eye
+    def visible_entry(x,y):
+        delta=Vector((x,y))-eye;t=delta.dot(direction)/direction.length_squared
+        return not (0<t<1 and abs(delta.x*direction.y-delta.y*direction.x)/direction.length<3.1)
     # Metered cars occupy the visible garage-side curb as well as the far
     # curb. Leave the driveway, crossings and sight triangles open.
     meters=G.Mesh('Garage curb parking meters',rt)
     for i,x in enumerate((-33,-24,-13,-3,8,18,46,57)):
         if x>L/2+8 or abs(x-ex)<8:continue
-        spawn('Meter parked '+str(i),(x,-sy+4.85,-.14605+.02*(6.096-4.85)),-90,'street',normal=Vector((0,.02,1)).normalized())
+        if visible_entry(x,-sy+4.85):spawn('Meter parked '+str(i),(x,-sy+4.85,-.14605+.02*(6.096-4.85)),-90,'street',normal=Vector((0,.02,1)).normalized())
         yy=-sy+6.75
         meters.tube([(x,yy,0),(x,yy,1.17)],.026,'Steel')
         meters.box((x,yy,1.29),(.20,.15,.25),'Steel')
@@ -133,6 +138,7 @@ def street(rt,p,rng,spawn):
                 # A broad driveway/sight corridor makes the entry and queue
                 # legible in the unchanged 35mm public hero.
                 if xx>ex-13 or rng.random()>.70:continue
+                if not visible_entry(xx,yy):continue
                 z=-.14605+(yy-y0)*.14605/(y1-y0)
                 spawn(f'Court parked {row} {i}',(xx,yy,z),180 if row==-1 else 0,'surface court',normal=Vector((0,-.14605/(y1-y0),1)).normalized())
     from town_detail import fit_queue

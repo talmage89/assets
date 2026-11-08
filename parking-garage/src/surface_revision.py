@@ -18,6 +18,12 @@ def revise(root,p):
     marks=next(o for o in root.children if o.name.startswith('Parking markings and signs'))
     G.M['Graphics']=next(m for m in marks.data.materials if m and m.name.startswith('GroundParkingTrim'))
     marks.data=marks.data.copy();bm=bmesh.new();bm.from_mesh(marks.data)
+    from service_age import floor_surface
+    from mathutils import Vector
+    surface=floor_surface(root)
+    for v in {v for f in bm.faces if f.normal.z>.7 for v in f.verts}:
+        hit=surface.ray_cast(v.co+Vector((0,0,.05)),Vector((0,0,-1)),.10)
+        if hit[0] is not None:v.co.z=hit[0].z+.0005
     removed=[]
     for f in bm.faces:
         mat=marks.data.materials[f.material_index];center=f.calc_center_median()
@@ -35,10 +41,10 @@ def revise(root,p):
     b=G.Mesh('Accessible aisle hatching and ISA',root);done=set()
     for s in spaces:
         x,y=s['x'],s['y']+.25
-        def q(corners,mat,rect=None,offset=.012):
+        def q(corners,mat,rect=None,offset=.0005):
             b.quad([(xx,yy,deck_z(p,0,xx,yy)+offset) for xx,yy in corners],rect,mat)
         q([(x-.48,y-.48),(x+.48,y-.48),(x+.48,y+.48),(x-.48,y+.48)],'Blue')
-        q([(x-.43,y-.43),(x+.43,y-.43),(x+.43,y+.43),(x-.43,y+.43)],'Graphics',layout['♿'],.013)
+        q([(x-.43,y-.43),(x+.43,y-.43),(x+.43,y+.43),(x-.43,y+.43)],'Graphics',layout['♿'],.0007)
         left,right=s['access_aisle']
         if (left,right) in done:continue
         done.add((left,right));y0,y1=s['y']-s['depth']/2,s['y']+s['depth']/2

@@ -733,3 +733,38 @@ actual mirror envelope check by 63mm beyond a stall centerline. The replacement
 fits transformed native vertices, including the ramp bank. Fresh imports
 pass with maximum tire/deck discrepancy 2.001mm municipal and .003mm commercial.
 Those are surface checks, not a photographic acceptance.
+
+## Delivery pass 9 — reject buried floor films and the blocked queue
+
+Color/value first: opened all twelve 1280px `delivery-pass1` views and all
+four low/high direct-sun alternatives at native size. Retain the middle sun
+preset: the high version flattens the pale concrete, while the low version
+dulls it. The sky is now deeper, openings are dark and warm lit surfaces retain
+detail. Compared with Harmon balanced on bare concrete, the public square
+shafts remain lit rather than reproducing the reference's cylindrical shadow
+side. That is a geometric/normal difference, not a reason to paint a shadow
+into the albedo. The heroes still read too pristine at building scale.
+
+The car correction is visible: white, silver, graphite, black, blue, red,
+green and sand no longer form one dark model row. The municipal street has
+parked vehicles, moving traffic and a real west frontage. Too many randomly
+chosen pickup trucks dominate its foreground; lower the street pickup share.
+The commercial back row still hides the entry despite reducing its last slot.
+Reserve the actual hero-to-queue sight corridor in the presentation context,
+retaining the same public camera and garage occupancy.
+
+Accessible floor symbols now read, but the aisle remains nearly pristine.
+The ramp reveals large hard triangular patches. Reject those, not the
+accepted deck geometry: four projected corners bridge the crowned floor,
+leaving most of the film under the actual surface. Clip each deposit to
+the actual floor triangles, then recombine only coplanar fragments with
+surface samples and retained crowns. Keep the real deck, routes and budgets.
+Explicitly emit film triangles so opacity stays attached to its own deposit
+instead of relying on bmesh face ordering. Lower paint films to a realistic
+submillimeter offset so accumulated oil can show over old striping.
+
+The facade is improved from the comb, but the new thin stains and small
+patches are still too weak in the full heroes. Rejudge their correctly
+associated opacity in the next export before increasing coverage. Rust,
+salts and the barrier dent are still detail-scale. No gallery or docs
+are approved by this pass.

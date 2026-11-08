@@ -3,7 +3,7 @@
 Eight generic coverage/normal charts are shared. Positions and widths belong
 to this assembly, not the reusable tees. No photo or per-seed image enters.
 """
-import json,math,random
+import json,math,random,struct
 import bpy
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
@@ -12,24 +12,50 @@ from plan import FLOOR,TEE,SPAN,deck_z
 import atlas_binding as A
 
 
-def floor_surface(root):
-    vs=[];fs=[];bpy.context.view_layer.update()
+def floor_surface(root,details=False):
+    vs=[];fs=[];metadata=[];bpy.context.view_layer.update()
     for ob in root.children_recursive:
         if ob.type!='MESH' or not ob.name.startswith(('Flat_','Ramp_','Grade slab','SpeedRamp','North end grade','Inner closure')):continue
         offset=len(vs);vs.extend(ob.matrix_world@v.co for v in ob.data.vertices);ob.data.calc_loop_triangles()
         for tri in ob.data.loop_triangles:
-            if (ob.matrix_world.to_3x3()@tri.normal).z>.7:fs.append(tuple(offset+i for i in tri.vertices))
-    return BVHTree.FromPolygons(vs,fs,all_triangles=True)
+            if (ob.matrix_world.to_3x3()@tri.normal).z>.7:
+                fs.append(tuple(offset+i for i in tri.vertices))
+                if details:
+                    uv=ob.data.uv_layers.active;center=sum((uv.data[i].uv for i in tri.loops),Vector((0,0)))/3
+                    metadata.append(dict(object=ob.name,uv=list(center)))
+    surface=BVHTree.FromPolygons(vs,fs,all_triangles=True)
+    return (surface,metadata) if details else surface
 
 
 def placed(root,p,mats):
     rng=random.Random(p['seed']+3717);old=p['system']=='precast';age=1 if old else .65
     G.M['Age']=mats[1];batch=G.Mesh('Cause-driven service history',root);strengths=[];counts={};projection=[]
     surface=floor_surface(root)
+    from floor_deposits import Projector
+    floor_projector=Projector(root,surface)
     def stamp(pts,key,strength=1,uv=None):
-        if uv is None:batch.quad(pts,A.LAYOUT[key]['rect'],'Age')
-        else:batch.geom(pts,[(0,1,2,3)],'Age',uv)
-        strengths.append(strength);counts[key]=counts.get(key,0)+1
+        if uv is None:
+            a,b,c,d=A.LAYOUT[key]['rect'];uv=[(a,b),(c,b),(c,d),(a,d)]
+        for i in range(1,len(pts)-1):
+            tri=[0,i,i+1]
+            p0,p1,p2=[Vector(pts[j]) for j in tri];area2=(p1-p0).cross(p2-p0).length
+            edge=max((p1-p0).length,(p2-p1).length,(p0-p2).length)
+            # Float32 clipping can leave 1–5 micron flaps at a coincident
+            # topping boundary. They are hidden, subpixel numerical geometry.
+            if area2<1e-9 or area2/max(edge,1e-12)<1e-5:continue
+            a,b,c=[Vector(uv[j]) for j in tri]
+            # glTF flips V before float32 storage; Blender flips it back.
+            # Reject micron-wide clipped slivers that collapse in that actual
+            # serialization, rather than weakening the imported UV audit.
+            def encoded(p):return Vector((p.x,1-struct.unpack('<f',struct.pack('<f',1-p.y))[0]))
+            a,b,c=map(encoded,(a,b,c))
+            if abs((b-a).cross(c-a))<1e-13:continue
+            batch.geom([pts[j] for j in tri],[(0,1,2)],'Age',[uv[j] for j in tri]);strengths.append(strength)
+        counts[key]=counts.get(key,0)+1
+    def floor_stamp(pts,key,strength=1,uv=None):
+        if uv is None:
+            a,b,c,d=A.LAYOUT[key]['rect'];uv=[(a,b),(c,b),(c,d),(a,d)]
+        for polygon,coords in floor_projector.polygons(pts,uv):stamp(polygon,key,strength,coords)
     def floor_mark(x,y,z,w,d,key,strength=1,angle=0):
         ca,sa=math.cos(angle),math.sin(angle);pts=[]
         for u,v in ((-w/2,-d/2),(w/2,-d/2),(w/2,d/2),(-w/2,d/2)):
@@ -37,7 +63,7 @@ def placed(root,p,mats):
             hit=surface.ray_cast(Vector((xx,yy,z+.20)),Vector((0,0,-1)),.4)
             if hit[0] is None:return
             pts.append((xx,yy,hit[0].z+.0012));projection.append(abs(hit[0].z-z))
-        stamp(pts,key,strength)
+        floor_stamp(pts,key,strength)
     # Engines leak at different fore/aft positions, never a full row of equal
     # dots. Each vacant stall retains the former car's accumulated history.
     for s in p['stalls']:
@@ -80,13 +106,13 @@ def placed(root,p,mats):
                     q.append(tuple(hit[0]+Vector((0,0,.0015))))
                 if len(q)==4:
                     strength=age*(.36+.20*math.sin(math.pi*(progress+end)/2))
-                    stamp(q,'rubber',strength,[(u0,vstart),(u0,vend),(u1,vend),(u1,vstart)])
+                    floor_stamp(q,'rubber',strength,[(u0,vstart),(u0,vend),(u1,vend),(u1,vstart)])
     L,W=p['length'],p['width']
     ymin,ymax=p.get('comparison_y_bounds_m',(-W/2,W/2))
     # The exposed drive lane loses sealer where vehicles travel. This is a
     # projected soft ribbon with roughness, rather than vertex gradients
     # stretching a 20cm wear mask across a whole 18m deck triangle.
-    paths=[row for row in p['paths'] if row['name'].startswith('Drive_Up_')]
+    paths=[row for row in p['paths'] if row['name'].startswith('Drive_Up_') or row['name']=='Drive_Entry_to_L1']
     for path in paths:
       pts=[Vector(v) for v in path['points']];length=sum((b-a).xy.length for a,b in zip(pts,pts[1:]));distance=0
       for a,b in zip(pts,pts[1:]):
@@ -101,7 +127,7 @@ def placed(root,p,mats):
         if len(corners)==4:
             key='scuff' if roof else 'rubber'
             u0,v0,u1,v1=A.LAYOUT[key]['rect'];va=v0+start/max(length,.001)*(v1-v0);vb=v0+distance/max(length,.001)*(v1-v0)
-            stamp(corners,key,(.85 if roof else .42)*age,[(u0,va),(u0,vb),(u1,vb),(u1,va)])
+            floor_stamp(corners,key,(.85 if roof else .72)*age,[(u0,va),(u0,vb),(u1,vb),(u1,va)])
     for lev in range(p['levels']):
         z=lev*FLOOR
         for x in (-L/3,0,L/3):
@@ -141,9 +167,10 @@ def placed(root,p,mats):
     construction(root,p,rng,age,stamp,floor_mark)
     ob=batch.finish();ob['allow_boundary']=True # open pigment films, never a collision solid
     attr=ob.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER');ob.data.color_attributes.active_color=attr
-    # G.Mesh triangulates each quad into two consecutive faces.
+    # Triangles are emitted explicitly so opacity follows its own deposit,
+    # independently of bmesh's triangulation ordering.
     for f in ob.data.polygons:
-        strength=strengths[f.index//2]
+        strength=strengths[f.index]
         for li in f.loop_indices:attr.data[li].color=(1,1,1,strength)
     report=dict(seed=p['seed'],maintenance='1988 municipal: aged joints / 1996 commercial: more frequent patching',marks=counts,
         triangles=G.triangles([ob]),floor_corner_surface_samples=len(projection),max_corner_height_difference_m=max(projection,default=0))
