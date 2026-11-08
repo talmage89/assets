@@ -23,7 +23,19 @@ finally:
         if v:sys.modules[n]=v
 spec=importlib.util.spec_from_file_location('_trailer_native_library',ROOT/'apartments/src/presentation.py')
 P=importlib.util.module_from_spec(spec);spec.loader.exec_module(P)
-Library=P.Library
+class Library(P.Library):
+    def load(self,path):
+        path=Path(path)
+        if not path.is_file():
+            try:fallback=ROOT/'trailer-park/build/library'/path.relative_to(ROOT)
+            except ValueError:fallback=path
+            if not fallback.is_file():raise FileNotFoundError(f'Missing native delivery {path}; run make model to prepare immutable inputs')
+            path=fallback
+        objects=super().load(path)
+        # The native presentation adapter discovers imports through a set.
+        # Stabilize copy/export order here without changing that shared file.
+        objects.sort(key=lambda o:o.name)
+        return objects
 ROLES=H.ROLES
 
 
@@ -82,6 +94,7 @@ def label(a,text,p,size=.18,color=(.63,.61,.51),yaw=0):
     bpy.ops.object.select_all(action='DESELECT');ob.select_set(True);bpy.context.view_layer.objects.active=ob;bpy.ops.object.convert(target='MESH')
     ob['asset_set']='Manufactured';attr=ob.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT');ob.data.color_attributes.active_color=attr
     for v in attr.data:v.color=(*color,1)
+    for old_uv in list(ob.data.uv_layers):ob.data.uv_layers.remove(old_uv)
     uv=ob.data.uv_layers.new(name='UVMap')
     for f in ob.data.polygons:
         for li in f.loop_indices:

@@ -6,6 +6,18 @@ STEEL=(.045,.049,.043)
 ZINC=(.43,.45,.43)
 
 
+def hinge(fixed,moving,xf,u,d,z):
+    """Fixed pin/offset ears and a hollow moving sleeve with axial clearance."""
+    x,y,zz=xf((u,d,z));sides=8;vs=[]
+    for height,r in ((zz-.022,.005),(zz-.022,.007),(zz+.022,.007),(zz+.022,.005)):
+        vs.extend([(x+r*math.cos(k*math.tau/sides),y+r*math.sin(k*math.tau/sides),height) for k in range(sides)])
+    moving.geom(vs,[(j*sides+k,j*sides+(k+1)%sides,((j+1)%4)*sides+(k+1)%sides,((j+1)%4)*sides+k) for j in range(4) for k in range(sides)],'Trim',ZINC)
+    fixed.tube([(x,y,zz-.040),(x,y,zz+.040)],.004,'Trim',ZINC,8)
+    for dz in (-.031,.031):
+        # Ears connect into the actual wall return, beyond the sleeve ends.
+        fixed.beam(xf((u-.027,-.100 if d<0 else .025,z+dz)),xf((u-.006,d,z+dz)),.008,.010,'Trim',ZINC,r=0)
+
+
 def chassis(a,p):
     L,W=p['length'],p['width'];m=a.mesh('Chassis',component='chassis');rails=[]
     # 19.05 mm deck over actual 2x6 floor joists, bearing on 254 mm I rails.
@@ -48,8 +60,10 @@ def chassis(a,p):
     # 1-1/4 in straps terminate at exposed tensioning heads just above grade.
     for sx in (-1,1):
         for x in (-L/2+1,L/2-1):
-            y=sx*(W/2-.16);q=(x,sx*(W/2+.20),.09)
-            m.beam((x,y,rail_top-.03),q,.03175,.0009,'Trim',ZINC,r=0)
+            rail_y=sx*((W/4 if p['double'] else 0)+.94)
+            y=rail_y+sx*.009;q=(x,sx*(W/2-.20),.09)
+            m.box((x,rail_y+sx*.006,rail_top-.04),(.062,.012,.042),'Trim',ZINC)
+            m.beam((x,y,rail_top-.04),q,.03175,.0009,'Trim',ZINC,r=0)
             m.tube([(q[0],q[1],.02),(q[0],q[1],.14)],.014,'Trim',STEEL,8)
             m.box((q[0],q[1],.115),(.09,.055,.028),'Trim',ZINC)
     if p['double']:
@@ -109,21 +123,28 @@ def wall(a,p,face):
         for zz in (z-.022,z+ht+.022):tr.box((u,.018,zz),(w+.088,.046,.044),'Trim',xf=xf)
         tr.box((u,.045,z+ht+.045),(w+.125,.10,.014),'Trim',xf=xf)
         if h['kind']=='door':
-            name=face.title()+'Door';hinge=xf((u-w/2+.012,-.037,z+.006));pivot=a.pivot(name,hinge,(0,100) if face=='front' else (-100,0))
+            name=face.title()+'Door';pivot=a.pivot(name,xf((u-w/2+.002,-.126,z+.006)),(0,100) if face=='front' else (-100,0))
             leaf=a.mesh(name+'Leaf',part=pivot.name,component='door')
-            leaf.box((u,-.020,z+ht/2),(w-.024,.040,ht-.012),'Trim',p['accent'],r=.002,xf=xf)
+            leaf.box((u,-.104,z+ht/2),(w-.024,.040,ht-.012),'Trim',p['accent'],r=.002,xf=xf)
             # Door upper lite and lower pressed field remain attached to hinge.
-            leaf.box((u,.003,z+ht*.73),(w*.55,.005,ht*.22),'Glass',xf=xf)
-            leaf.box((u,.006,z+ht*.30),(w*.72,.008,ht*.32),'Trim',r=.002,xf=xf)
-            leaf.box((u+w*.34,.042,z+.96),(.030,.060,.045),'Trim',ZINC,r=.002,xf=xf)
+            leaf.box((u,-.081,z+ht*.73),(w*.55,.005,ht*.22),'Glass',xf=xf)
+            leaf.box((u,-.078,z+ht*.30),(w*.72,.008,ht*.32),'Trim',r=.002,xf=xf)
+            leaf.box((u+w*.34,-.042,z+.96),(.030,.060,.045),'Trim',ZINC,r=.002,xf=xf)
+            for hz in (z+.18,z+ht/2,z+ht-.18):
+                hinge(tr,leaf,xf,u-w/2+.002,-.126,hz)
+                leaf.box((u-w/2+.018,-.1095,hz),(.022,.027,.044),'Trim',ZINC,xf=xf)
             leaf.finish()
             if face=='front':
-                sp=a.pivot('StormDoor',xf((u-w/2+.012,.073,z+.006)),(-105,0))
+                sp=a.pivot('StormDoor',xf((u-w/2+.012,.103,z+.006)),(-105,0))
                 sm=a.mesh('StormDoorFrame',part=sp.name,component='storm_door')
                 for uu in (u-w/2+.028,u+w/2-.028):sm.box((uu,.083,z+ht/2),(.032,.024,ht-.016),'Trim',ZINC,xf=xf)
                 for zz in (z+.023,z+ht-.023,z+.80):sm.box((u,.083,zz),(w-.040,.024,.034),'Trim',ZINC,xf=xf)
                 sm.box((u,.083,z+ht*.7),(w-.075,.004,ht*.46),'Glass',xf=xf)
-                sm.box((u,.083,z+.39),(w-.075,.008,.73),'Trim',(.38,.40,.37),xf=xf);sm.finish()
+                sm.box((u,.083,z+.39),(w-.075,.008,.73),'Trim',(.38,.40,.37),xf=xf)
+                for hz in (z+.18,z+ht/2,z+ht-.18):
+                    hinge(tr,sm,xf,u-w/2+.012,.103,hz)
+                    sm.box((u-w/2+.024,.093,hz),(.024,.010,.045),'Trim',ZINC,xf=xf)
+                sm.finish()
                 a.socket('OccupantThreshold',xf((u,.26,F)),'occupant');a.socket('DoorApproach',xf((u,.75,0)),'walk')
         else:
             # Recessed dark room, glass, two offset aluminum sashes and storm.

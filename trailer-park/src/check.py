@@ -61,9 +61,13 @@ def check():
         assert triangles==meta['triangles'],(stem,'raw count',triangles,meta['triangles'])
         assert collapsed==0,(stem,'collapsed geometry',collapsed)
         assert maxnormal<2e-4,(stem,'normal length',maxnormal)
-        # Native quick shed/utility charts are diagnostic. Report collapsed UV
-        # triangles without calling them a delivered bake chart; homes/addons
-        # retain finite metric charts and intentional tiling overlap.
+        assert uv_bad==0,(stem,'collapsed UV triangles',uv_bad)
+        # Metric charts retain intentional tiling overlap. This verifies valid
+        # charts, not final bake packing or texel-density acceptance.
+        caps=dict(Deck=8000,Carport=8000,UtilityService=3000,PropaneBottles=3000,
+                  Condenser=8000,WindowAC=3000,SatelliteDish=3000,AddedRoom=8000,
+                  Household=3000,EntranceSign=3000)
+        if stem in caps:assert triangles<=caps[stem],(stem,'component triangle cap',triangles,caps[stem])
         for im in d.get('images',[]):
             q=(path.parent/im['uri']).resolve();assert q.is_file();images[str(q)]=hashlib.sha256(q.read_bytes()).hexdigest()
         bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()))
@@ -96,6 +100,10 @@ def check():
             construction[stem]=dict(sampled_deck_top_m=top[2],sampled_low_tread_m=bottom[2])
         if stem.startswith('Park'):
             p=meta['plan'];widths=[]
+            for lot in p['lots']:
+                h=meta['assemblies'][f'Lot_{lot["number"]:02}_Home']
+                cap=50000 if lot['home']['double'] else 35000
+                assert h['triangles']<=cap,(stem,lot['number'],'seeded home budget',h['triangles'],cap)
             # Source physical road surface is selected by a ray through its
             # center; width is measured on its actual imported mesh vertices.
             private=next(o for o in bpy.context.scene.objects if o.type=='MESH' and o.name.startswith('Private asphalt 0'))

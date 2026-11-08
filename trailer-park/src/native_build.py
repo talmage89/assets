@@ -59,9 +59,25 @@ from kit import model as G
 for ob in list(bpy.context.scene.objects):
     if ob.type!='MESH':continue
     G.apply(ob)
+    if args.kind in ('shed','utility'):
+        # These local quick materials have no image-dependent UVs. Replace
+        # native source staging charts with valid per-triangle metric charts.
+        import bmesh
+        bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free();ob.data.update()
+        for old_uv in list(ob.data.uv_layers):ob.data.uv_layers.remove(old_uv)
     if not ob.data.uv_layers:
         uv=ob.data.uv_layers.new(name='UVMap')
         for f in ob.data.polygons:
+            axes=sorted(range(3),key=lambda k:abs(f.normal[k]))[:2]
+            for li in f.loop_indices:
+                v=ob.data.vertices[ob.data.loops[li].vertex_index].co;uv.data[li].uv=(v[axes[0]],v[axes[1]])
+    if args.kind=='playground':
+        # Keep authored alpha-chain/deck charts; valid metric charts suffice
+        # for the native quick solid-color frame and molded surfaces.
+        uv=ob.data.uv_layers.active
+        for f in ob.data.polygons:
+            ma=ob.data.materials[f.material_index]
+            if ma.use_nodes and any(n.type=='TEX_IMAGE' and n.image for n in ma.node_tree.nodes):continue
             axes=sorted(range(3),key=lambda k:abs(f.normal[k]))[:2]
             for li in f.loop_indices:
                 v=ob.data.vertices[ob.data.loops[li].vertex_index].co;uv.data[li].uv=(v[axes[0]],v[axes[1]])

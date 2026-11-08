@@ -71,7 +71,7 @@ def carport(name='Carport',length=6.7056,width=3.3528,sag=0):
                 m.box((x,y+s*.0371,z/2),(.0722,.002,z-.14),'Trim',(.49,.50,.46))
             m.beam((x,y,z-.48),(x+(.28 if x<=0 else -.28),y,z-.05),.025,.025,'Trim',ZINC,r=0)
     for sy in (-1,1):m.box((0,sy*width/2,(zfront if sy<0 else zback)-.065),(length,.045,.13),'Trim')
-    for x in (-length/2,0,length/2):m.beam((x,-width/2,zfront-.025),(x,width/2,zback-.025),.05,.10,'Trim',r=0)
+    for x in (-length/2,0,length/2):m.beam((x,-width/2,zfront-.05065),(x,width/2,zback-.05065),.05,.10,'Trim',r=0)
     n=math.ceil(length/.3048)
     for j in range(n):
         x0=-length/2+j*length/n;x1=-length/2+(j+1)*length/n
@@ -81,12 +81,21 @@ def carport(name='Carport',length=6.7056,width=3.3528,sag=0):
         vs=[]
         for y in (-width/2,0,width/2):
             z=zfront+(y+width/2)/width*(zback-zfront)
-            drop=sag*math.sin((y+width/2)/width*math.pi) if abs((x0+x1)/2)<.55 else 0
+            drop=sag*math.sin((y+width/2)/width*math.pi) if abs((x0+x1)/2-length*.25)<.50 else 0
             vs.extend([(x,y,z+dz-drop) for x,dz in profile])
         fs=[]
         for row in range(2):
             for k in range(len(profile)-1):fs.append((row*6+k,row*6+k+1,(row+1)*6+k+1,(row+1)*6+k))
-        m.geom(vs,fs,'Trim',(.57,.56,.49))
+        # Actual 0.8 mm rolled skin, including the returned profile's cut ends.
+        count=len(vs);back=[(x,y,z-.0008) for x,y,z in vs];closed=fs+[tuple(i+count for i in reversed(f)) for f in fs]
+        occurrences={}
+        for f in fs:
+            for u,v in zip(f,f[1:]+f[:1]):
+                key=tuple(sorted((u,v)));occurrences.setdefault(key,[]).append((u,v))
+        for edge,uses in occurrences.items():
+            if len(uses)==1:
+                u,v=uses[0];closed.append((v,u,u+count,v+count))
+        m.geom(vs+back,closed,'Trim',(.57,.56,.49))
     m.finish();a.socket('Car',(0,-.05,0),'car',yaw=90);return a
 
 
@@ -113,13 +122,15 @@ def propane(name='PropaneBottles'):
     m.box((0,0,.035),(.85,.46,.07),'Concrete')
     for x in (-.22,.22):
         # 100 lb vertical cylinder envelope, foot ring and open protective collar.
-        profile=[(.08,.13),(.11,.16),(.16,.178),(.94,.178),(1.02,.15),(1.07,.055)]
+        profile=[(.08,.13),(.11,.17),(.16,.189),(1.01,.189),(1.09,.14),(1.12,.055)]
         for (z0,r0),(z1,r1) in zip(profile,profile[1:]):
             vs=[(x+r*math.cos(k*math.tau/20),r*math.sin(k*math.tau/20),z) for z,r in ((z0,r0),(z1,r1)) for k in range(20)]
             m.geom(vs,[(k,(k+1)%20,(k+1)%20+20,k+20) for k in range(20)],'Trim',(.58,.57,.49))
-        m.tube([(x,0,1.07),(x,0,1.14)],.019,'Trim',(.34,.23,.07),8)
-        for sy in (-1,1):m.box((x,sy*.11,1.12),(.18,.012,.12),'Trim')
-    m.tube([(-.22,0,1.13),(-.13,.08,1.17),(0,.14,1.13),(.14,.13,1.09),(.22,0,1.13)],.008,'Trim',STEEL,6)
+        for z,r in (profile[0],profile[-1]):m.geom([(x+r*math.cos(k*math.tau/20),r*math.sin(k*math.tau/20),z) for k in range(20)],[tuple(reversed(range(20))) if z==profile[0][0] else tuple(range(20))],'Trim',(.58,.57,.49))
+        m.tube([(x,0,.07),(x,0,.12)],.1778,'Trim',(.43,.44,.39),20)
+        m.tube([(x,0,1.12),(x,0,1.21)],.019,'Trim',(.34,.23,.07),8)
+        for sy in (-1,1):m.box((x,sy*.11,1.211),(.18,.012,.13),'Trim')
+    m.tube([(-.22,0,1.20),(-.13,.08,1.24),(0,.14,1.20),(.14,.13,1.16),(.22,0,1.20)],.008,'Trim',STEEL,6)
     m.finish();return a
 
 
@@ -168,7 +179,23 @@ def room(name='AddedRoom',width=3.2,depth=2.4):
     for xx in (-width*.355,width*.355):m.box((xx,-depth/2,1.85),(width*.29,.10,2.1),'Siding',(.34,.36,.28))
     m.box((0,-depth/2,1.12),(width*.42,.10,.64),'Siding',(.34,.36,.28));m.box((0,-depth/2,2.73),(width*.42,.10,.34),'Siding',(.34,.36,.28))
     m.box((0,-depth/2,2.925),(width,.10,.05),'Siding',(.34,.36,.28))
-    m.box((0,-depth/2,2.05),(width*.42,.01,1.2),'Glass');m.box((0,-depth/2-.018,2.05),(.032,.04,1.20),'Trim')
+    # Two hung aluminum sashes: recessed backing, perimeter returns, meeting
+    # rails and a projecting sill. The room is independently supported, with
+    # removable skirt panels hiding its piers as on an occupied addition.
+    ww=width*.42
+    m.box((0,-depth/2+.18,2.05),(ww,.018,1.20),'Trim',(.025,.026,.022))
+    m.box((0,-depth/2-.006,2.05),(ww,.005,1.20),'Glass')
+    for x in (-ww/2,0,ww/2):m.box((x,-depth/2-.027,2.05),(.036,.048,1.24),'Trim',ZINC)
+    for z in (1.45,2.05,2.65):m.box((0,-depth/2-.033,z),(ww+.07,.052,.032),'Trim',ZINC)
+    m.box((0,-depth/2-.05,1.424),(ww+.13,.12,.025),'Trim')
+    for j in range(9):m.box((0,-depth/2+.025,2.60-j*.04),(ww-.07,.020,.013),'Trim',(.43,.42,.35))
+    for x in (-width/2,width/2):m.box((x,-depth/2-.016,1.86),(.05,.035,2.13),'Trim')
+    for j in range(math.ceil(width/.2032)):
+        x=-width/2+(j+.5)*width/math.ceil(width/.2032)
+        m.box((x,-depth/2,.43),(width/math.ceil(width/.2032)-.008,.022,.70),'Trim',(.43,.44,.37))
+    for sx in (-1,1):
+        m.box((sx*width/2,0,.43),(.022,depth,.70),'Trim',(.43,.44,.37))
+    m.box((0,-depth/2-.018,.81),(width+.05,.045,.05),'Trim')
     m.prism([(-width/2-.10,-depth/2-.15,2.95),(width/2+.1,-depth/2-.15,2.95),(width/2+.1,depth/2,3.20),(-width/2-.1,depth/2,3.20)],(0,0,-1),.10,'Trim',(.47,.47,.41))
     m.finish();return a
 
