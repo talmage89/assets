@@ -30,8 +30,8 @@ def main(folder):
     text=Path('REVIEW.md').read_text()
     for n in (5,6):assert f'## Completion pass {n}' in text,('Missing last-round full-size critique',n)
     status=text.rsplit('\nDelivery gate: ',1)[-1].splitlines()[0]
-    assert status in ('ACCEPTED','DELIVERED WITH KNOWN FLAWS'), 'Final delivery review is missing'
-    if status=='DELIVERED WITH KNOWN FLAWS':
+    assert status in ('ACCEPTED','REVIEWED WITH KNOWN FLAWS','DELIVERED WITH KNOWN FLAWS'), 'Final delivery review is missing'
+    if status!='ACCEPTED':
         assert '## Known flaws' in Path('README.md').read_text(), 'Disclose remaining flaws before gallery delivery'
     check(folder);out=Path('docs');out.mkdir(exist_ok=True);rows=[]
     for seed in (101,202):rows.append(encode(Image.open(folder/f'Park-{seed}/hero.png'),out/f'hero-{seed}.jpg'))

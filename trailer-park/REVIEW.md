@@ -939,3 +939,71 @@ set; no background render is intentionally retained. The last-round brief
 requires complete delivery with known flaws after the final review.
 
 Delivery gate: REJECTED
+
+## Completion pass 6 — complete final views; deliver the remaining misses plainly
+
+**Color and value first.** Opened all 37 native final frames, the four
+shipped photo pairs, both final contact sheets, the complete older hero,
+and the same-camera correction crops at full size. The 2009 home and 2015
+park comparisons retain the concrete-pad balances recorded in pass 5;
+the replacement lane photo uses its neutral white PVC post. These balances
+support hue/value judgment under differing light, not albedo certification.
+Older/newer hero display-value p5/p95 is 0.071/0.776 and 0.184/0.796;
+near clipping is 0.000773% and zero. Deep under-deck, tree and crawl-space
+shade remains. The heroes do not fail by clipping or a pale global exposure.
+
+The lawn's principal tan/rosette contrast is removed. A yellow-green base
+and individually varied narrow blades blend much better. Bare approaches
+and the accepted edge weeds remain. The same-camera lawn panels are 1440 px
+wide each, without enlargement. **Partial overall:** broad areas still
+read as a flat tile, with values brighter and more uniform than the
+concrete-balanced photographic patches. Do not call the July lawn a full
+photographic match merely because its repeated rosettes are gone.
+
+**Home age is partial.** The 1224 px age panels show stronger lower skirt
+splash and darker damp/trim. The standalone single-wide shows an actual
+missing panel with a dark crawl space, and the separate frame view exposes
+real piers. But the upper siding stays too uniformly fresh beside the used
+home photograph. Cars hide the useful lower construction in the lane hero,
+which still does not show three complete older homes. The new source/shipped
+used-home views agree closely: a large bake loss is not the cause of this miss.
+Keep the earlier accepted sparse rust, two-tone paint and blue roof repair.
+
+**Seals are partial.** Both 1152 px lane panels show a quieter dusty gray
+overband, lighter oxidized old asphalt and darker wheel paths. The old black
+spidery diagram is removed. Alligator cracking now uses an original field
+within the existing atlas rather than separate polygon-net seal strokes.
+Its bounded cell still reads as a repeated treatment in a close view; some
+smooth seal paths, especially in the newer hero, still look drawn. The
+accepted broken edges, repairs, oil placement and bump paint remain.
+
+The final set contains two lane heroes, two park obliques, both eight-view
+home sets, deck, carport, utility, sign, module/home sheets, support frame
+and piers, plus Eevee and four shipped photographic comparisons. Every
+primary view imports its exact archived exported GLB and shipping images.
+`src/presentation_check.py` passes all 37 views against current delivery
+hashes, optics, light, traffic and tonal limits. All 21 exports, 1,000 plans,
+936 hinge poses, 1,365 static pairs, UV/resource checks and 1,217 preserved
+sibling files also pass. These prove their stated data/construction scopes,
+not photographic realism. Final source-pair completion and repeat proofs
+remain to be recorded before the gallery commit.
+
+The other CG tells are regular house/lot rhythm, schematic small dressing,
+the very smooth concrete apron beside the used-home photograph, dark rear
+inspection elevations and pale Eevee glazing. The 1.8 m scale figures are
+partly hidden by the steps. The brighter park obliques are construction
+overviews. None of these is silently fixed by the passing geometric checks.
+
+The same-camera comparisons in `renders/last-round-fixes/` use supplied
+`5a3935d` frames and unchanged matrices, optics, resolution and eight light
+controls; maximum matrix delta is exactly zero. Panels are 1152–1440 px
+wide, with a separate full-frame older hero. The accepted level lane fit
+remains zero pitch/roll, lens rise 0.165700 and 11.53 px RMS. Photographed
+lane depths are inferred, not surveyed. No accepted sibling delivery changes.
+
+The owner's last-round instruction supersedes the earlier stop-at-the-gate
+brief: deliver the complete family even when a fix remains partial. The
+README names all three residual misses. This is final visual review with
+known flaws, not a claim that the earlier visual gate has passed.
+
+Delivery gate: REVIEWED WITH KNOWN FLAWS
