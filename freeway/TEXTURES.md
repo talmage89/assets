@@ -6,17 +6,25 @@ review; none is sampled by a material generator.
 
 Ground Asphalt, Concrete, Lawn and GroundTrim remain byte-identical inputs.
 The freeway's seasonal lawn derivative changes only the original scripted
-Lawn BaseColor pigment; its canonical blade normal and ORM stay shared. This
+Lawn BaseColor pigment and clump-scale value contrast; its canonical blade
+normal and ORM stay shared. This
 2048 color map adds 5⅓ MiB when a scene also loads the native commercial lawn.
 Dry straw pigment lives in that image, with normalized vertex colors at or
 below one; glTF cannot retain an HDR multiplier in its normalized COLOR_0.
 Broad dry/mown/unmown fields follow exposure and drainage on the actual graded
-earth. There are no overlapping opaque mowing skins. Bent, individually rooted
-blade clumps share the same turf set and belong to the optional context budget.
+earth. There are no overlapping opaque mowing skins. Dense crossed-card tiles
+sample the maintenance atlas's original rooted fan of blades/seed heads and
+belong to the optional context budget. Eight linked tile meshes carry the
+near-field parallax; density falls toward the textured base at distance. Tiles
+follow actual earth normals and reject paved footprints. Mown cards are short;
+unmown drifts past the maintenance line are taller. The card material is stock
+double-sided glTF MASK and allocates no extra image.
 World/meter tile UVs intentionally repeat. Existing manufacture remains in
 those maps; broad traffic causes belong to lane-space vertex colors and
-placement-owned maintenance charts. The wheel-polish material shares Ground
-Concrete's three images and reduces its roughness in the wheel paths.
+placement-owned maintenance charts. Wheel-polish materials share Ground
+Concrete's or Asphalt's three images and reduce roughness in the wheel paths.
+Explicit lane-center sample vertices retain the narrow oil field rather than
+interpolating between its two edges.
 
 | New shared set | Shipped maps | Full-mip BC7/BC5-equivalent memory | Reason |
 | --- | --- | ---: | --- |
@@ -49,7 +57,8 @@ the physical source height; its metadata explicitly labels that inspection.
 Pavement is divided at measured lane/wheel offsets. Smooth wheel contact and
 narrow engine-line darkening follow the driving direction, with interrupted
 station history rather than a uniform noise wash. Slab repairs stay between
-joints, spalls follow seals, shoulder crack sealants stay on asphalt, and the
+joints and sample native paving grain instead of an atlas patch stamp;
+spalls follow seals, shoulder crack sealants stay on asphalt, and the
 later overlay is confined to a maintained stretch. Old dashes are offset from
 the restripe and raised markers are omitted by a deterministic seed.
 
@@ -58,7 +67,10 @@ cap concentrations follow the actual bearing lines, with variable width,
 opacity and run length. Broad damp film remains below the bearing shelf.
 Girder drips
 follow the actual flange/web profile and camber. Column repairs follow the
-cylinder; no flat patch floats in front of it. A few ramp-rail bays are bent,
+cylinder; no flat patch floats in front of it. Additional column height
+stations carry narrow head-connected runoff channels and low spray deposits
+without extending a ground tint over the whole shaft. Barrier toes retain
+road film, and open assembly ends concentrate joint staining. A few ramp-rail bays are bent,
 with neighboring replacements brighter than the older zinc. Litter and rooted
 volunteers accumulate at barrier drainage and fence traps.
 
