@@ -28,7 +28,7 @@ def panel(folder,items,cols=2):
 def main(folder):
     from presentation_check import check
     text=Path('REVIEW.md').read_text()
-    for n in (1,2,3):assert f'## Completion pass {n}' in text,('Missing current-round full-size critique',n)
+    for n in (5,6):assert f'## Completion pass {n}' in text,('Missing last-round full-size critique',n)
     status=text.rsplit('\nDelivery gate: ',1)[-1].splitlines()[0]
     assert status in ('ACCEPTED','DELIVERED WITH KNOWN FLAWS'), 'Final delivery review is missing'
     if status=='DELIVERED WITH KNOWN FLAWS':
