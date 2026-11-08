@@ -15,12 +15,16 @@ def drought(x,y):
     return .72*math.exp(-((x+.1)**2+(y+5)**2)/3.5)+.48*math.exp(-((x+11)**2+(y-5)**2)/10)
 
 
-def summer_tint(x,y,extra_dry=0):
+def summer_tint(x,y,extra_dry=0,verge=False):
     stripe=.92+.065*math.tanh(math.sin((x+.23)*math.pi/1.22)*4)
     dry=min(.9,drought(x,y)+extra_dry)
     trample=.30*math.exp(-((x-.18-.12*math.sin(y*.55))/.29)**4)
     varied=.94+.035*math.sin(x*2.3+y*.77)+.025*math.sin(y*3.1-x*.9)
-    return (min(1,stripe*varied*(1+dry*.18)),stripe*varied*(1-dry*.55-trample*.24),stripe*varied*(1-dry*.35-trample*.35),1)
+    color=(min(1,stripe*varied*(1+dry*.18)),stripe*varied*(1-dry*.55-trample*.24),stripe*varied*(1-dry*.35-trample*.35))
+    # The brighter summer tile serves the unirrigated verge. Compensating
+    # gains preserve the accepted irrigated garden turf's linear albedo.
+    gain=(1,1,1) if verge else (2.25/4.2,2.55/3.8,1.65/2.8)
+    return tuple(c*g for c,g in zip(color,gain))+(1,)
 
 
 def verge(p,parent):
@@ -37,10 +41,38 @@ def verge(p,parent):
     ob=Q.mesh('Summer street turf verge',vertices,faces,parent,'Lawn',upward=True);tiling.world_uv(ob,3.048)
     tint=ob.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT')
     for row,v in zip(tint.data,ob.data.vertices):
-        x,y=v.co[:2];dry=.40*math.exp(-((x-p.get('sign_x',3.4))**2+(y-front+1.45)**2)/2.0)
-        color=summer_tint(x,y,dry);fade=min(1,max(0,(edge-abs(x))/.8))
+        x,y=v.co[:2];sign_x=-7.0 if p['archetype']=='park' else 3.4
+        dry=.40*math.exp(-((x-sign_x)**2+(y-front+1.45)**2)/2.0)+.22*math.exp(-((y-back-.3)/.4)**2)*(.6+.4*math.sin(x*.7)**2)
+        color=summer_tint(x,y,dry,verge=True);fade=min(1,max(0,(edge-abs(x))/.8))
         row.color=tuple(1+(c-1)*fade for c in color[:3])+(1,)
     ob['cause']='unirrigated roadside verge; mowing follows the garden and dry grass follows the curb/sign frontage'
+    # Actual clipped blades break the road-side foreground's planar read.
+    # Reuse the imported alpha atlas and material; no extra texture or material.
+    import bpy
+    from kit.botany import Cards
+    from atlas import grass_rect
+    from mathutils import Vector
+    rng=random.Random(p['seed']+3247);cards=Cards()
+    for j in range(round(2*(edge-gap)*(front-back)*12)):
+        x=rng.uniform(-edge,edge);y=rng.uniform(back+.03,front-.05)
+        if abs(x)<gap+.08:continue
+        height=rng.uniform(.024,.047);width=rng.uniform(.14,.23);angle=rng.uniform(0,math.tau)
+        for k in range(2):
+            a=angle+k*1.4;axis=Vector((math.cos(a),math.sin(a),0));bend=Vector((-axis.y,axis.x,0))
+            grid=[]
+            for t in (0,.5,1):
+                base=Vector((x,y,-.0397+height*t))+bend*(.009*t*t)
+                grid.append([base+axis*(sign*width/2) for sign in (-1,1)])
+            cards.add_grid(grid,grass_rect(rng.randrange(4)),(.02,.1,rng.random(),0))
+    material=bpy.data.materials.get('GardenPlants');assert material
+    blades=cards.mesh('Clipped roadside grass blades',material);blades.parent=parent;blades.data.uv_layers.active.name='UVMap'
+    colors=blades.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT')
+    blades.data.color_attributes['Wind'].name='_WIND'
+    blades.data.color_attributes.active_color_index=blades.data.color_attributes.find('Tint')
+    for row,vertex in zip(colors.data,blades.data.vertices):
+        x,y=vertex.co[:2];dry=.35+.25*math.sin(x*1.1+y*.4)**2
+        row.color=(1,1-dry*.32,1-dry*.45,1)
+    blades['cause']='clipped unirrigated street verge, 24–47 mm blades rooted at the actual grade'
     return ob
 
 
@@ -52,7 +84,7 @@ def maps(repo,out):
         if channel=='BaseColor':
             rgb=np.asarray(Image.open(source).convert('RGB'),dtype=float)/255
             linear=np.where(rgb<=.04045,rgb/12.92,((rgb+.055)/1.055)**2.4)
-            linear*=np.array([2.25,2.55,1.65])
+            linear*=np.array([4.2,3.8,2.8])
             rgb=np.where(linear<=.0031308,linear*12.92,1.055*linear**(1/2.4)-.055)
             Image.fromarray(np.uint8(np.clip(rgb,0,1)*255+.5)).save(target)
         else:target.write_bytes(source.read_bytes())

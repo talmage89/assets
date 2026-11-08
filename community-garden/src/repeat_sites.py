@@ -10,6 +10,6 @@ from plan import SEEDS
 for seed in SEEDS:
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(Path(f'export/final/Garden_{seed}.gltf').resolve()))
-    p=json.loads(Path(f'build/garden-{seed}.json').read_text())['plan'];context(p)
+    p=json.loads(Path(f'build/garden-{seed}.json').read_text())['plan'];rt=context(p);neighborhood.close_rear_block(p,rt)
     neighborhood.export(f'export/final/Site_{seed}.gltf',REPO)
 

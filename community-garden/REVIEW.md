@@ -778,3 +778,67 @@ smooth fruit and husks, sparse angular silk, cool squash leaves, star-like
 marigold florets, shallow graphic chips, even aggregate and repeated native
 tree crowns. All requested corrections show in their crops; proceed to the
 clean final build. No docs images have been generated or approved.
+
+## Delivery pass 13 — full park pair rejects the street-side turf
+
+Color and value first: reopening the complete neutral-balanced Martin pair
+shows that accepting the interior crop was insufficient. Its street-side
+foreground remains too green, dark and planar against the photographed July
+verge. The photo uses the pale siding neutral already documented. A matched foreground region (x .42–.65, y .88–.98 within each panel) has
+median display luma .527 in the render versus .744 in the balanced photograph.
+This is an exposure-dependent diagnostic, not a measured reflectance. The
+foliage and architecture also differ; those differences do not explain the
+flat turf.
+Stop the queued final renderer before any image or gallery is generated.
+
+The private summer albedo now has a brighter, warmer unirrigated response.
+Inverse linear gains on the irrigated interior tints preserve its accepted
+response, apart from image/color quantization. The roadside has actual
+24–47 mm crossed blade cards, using the existing alpha atlas and material,
+with sign-foot and irregular curb-dry masks. Correct the sign mask's position
+from the old default to the actual park sign. Native Ground images, garden
+plant budgets and texture allocations are unchanged; the additional triangles
+are in separately costed street context. The Martin pair also gains .4 EV
+and modest sky fill to match the source photograph; hero lighting stays.
+Explicitly name Wind as _WIND and
+activate Tint on the new cards, avoiding the prior serialization failure.
+
+The new final set starts with the garden comparisons, so the actual exported
+verge can be judged before the remaining views complete. A failed comparison
+will still stop gallery generation. Repeated leaf silhouettes, smooth husks,
+regular branch tiers, shallow chips and repeated crowns remain the other CG
+cues already recorded.
+
+## Delivery pass 14 — first complete final set, three presentation corrections
+
+Color and value first: the three 192-sample heroes and all three full garden
+pairs were opened at native size, along with the city and park construction,
+ground, crop and service views. Every hero's measured clipped-channel share
+is zero. Eaves and canopy interiors stay deep. The corrected Martin verge
+region now measures display luma .688, versus the photograph's .744 and the
+previous render's .527. It remains greener and more regular than the photo;
+the bright roadside response and actual blades nevertheless remove the dark
+even sheet. The old and new texture gains both have zero clipped albedo texels.
+
+A clean make completed with exit 0 and 56 exported-PBR render receipts. That
+proves the build, not final visual approval: the first detailed image review
+rejects the cramped, very dark tomato close-ups. Wider whole-plant framing
+and modest fill expose the cage while keeping the canopy density. A separate
+camera recipe covers only these details, so heroes remain fixed. The low
+orthographic inspection cameras also place some sensor rays below the studio
+floor, producing a black lower band. Raise those cameras by their actual
+sensor half-height plus clearance; do not hide the defect by cropping.
+
+Several service views still expose a flat horizon through rear-house gaps.
+Add a staggered second native-house row behind the park and accessible sites,
+using existing mesh/material instances and no new images. The rows sit behind
+the current neighborhood; game gardens and the city composition stay fixed.
+Rebuild the context costs, imports and motion/color checks, then replace the
+affected exported views. No gallery has been generated or approved.
+
+Still CG: analytic leaf silhouettes and veins, regular bean tiers, cool squash,
+smooth fruit/husks and sparse silk, graphic chips and flat straw, coarse grass
+card silhouettes at macro distance, simple compost mounds, faceted small
+vessels, overly straight suspended hose spans and regular track spacing.
+The Eevee view has flatter glass/foliage response than Cycles. Native tree
+crowns repeat; more samples resolve their leaves but cannot change that shape.

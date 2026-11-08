@@ -93,6 +93,18 @@ def export(path,repo):
     return rows
 
 
+
+def close_rear_block(plan,parent):
+    """A staggered second neighborhood row closes gaps at service cameras."""
+    if plan['archetype']=='city':return
+    master=next(ob for ob in parent.children if ob.name.startswith('Rear block neighbor'))
+    xs=(-29,-7,15,37) if plan['archetype']=='park' else (-12,12,37)
+    for j,x in enumerate(xs):
+        Q.instance(master,'Further rear block neighbor',(x,plan['size'][1]/2+46,-.03),180 if j%2 else 0,parent)
+    path=Path(f'build/context/costs-{plan["seed"]}.json');costs=json.loads(path.read_text());costs['triangles']=Q.count(parent)
+    path.write_text(json.dumps(costs,indent=2))
+
+
 def prepare(seed,repo,recipe,context):
     """CPU assembly/cache boundary shared by checks and GPU presentation."""
     garden=Path(f'export/final/Garden_{seed}.gltf');scene=Path(f'export/final/Site_{seed}.gltf');receipt=Path(f'build/context/site-{seed}.json')
@@ -103,7 +115,7 @@ def prepare(seed,repo,recipe,context):
         except (OSError,KeyError):pass
     if valid and old.get('garden_bundle')==digest(garden) and old.get('render_recipe')==recipe and old.get('package_recipe')==package_recipe:return scene,receipt
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(garden.resolve()))
-    p=json.loads(Path(f'build/garden-{seed}.json').read_text())['plan'];rt=context(p)
+    p=json.loads(Path(f'build/garden-{seed}.json').read_text())['plan'];rt=context(p);close_rear_block(p,rt)
     expected=sum(Q.count(o) for o in bpy.context.scene.objects if not o.parent);maps=export(scene,repo)
     receipt.write_text(json.dumps(dict(garden_bundle=digest(garden),render_recipe=recipe,package_recipe=package_recipe,
         scene_bundle=digest(scene),triangles=expected,context_triangles=Q.count(rt),images=maps),indent=2))
