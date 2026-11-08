@@ -209,12 +209,14 @@ dot products. Blender's [normal-map evaluation](https://github.com/blender/blend
 define the tested frame. A regression evaluates the actual re-imported base
 and coat shader outputs on a varying-normal cage, independently of that inverse.
 
-The pickup's shared-map middle level uses a scoped local-patch limit of .12.
-At its unchanged .10 switch, unchanged LOD0 shifted by a measured .75 pixel
-reaches .11632 in the same 8x8 metric; the reduced surface reaches .08324.
-Native three-view strips retain color, lamps and silhouette. Global RGB,
-p95, alpha and silhouette bounds stay at their defaults. This calibration
-does not apply to the near level or far proxy.
+The pickup's shared-map middle level uses the same .2-pixel reflective bound
+as its near level and passes the original .08 local-patch limit. An earlier
+.12 allowance was based on unchanged LOD0's .11632 result after a measured
+.75-pixel film shift. Native review still exposed a changed grille-band
+reflection. The tighter geometry fixes that response; its three local maxima
+are .05500/.05454/.03424, and the .12 allowance is removed. A phase control
+cannot approve a visible reflection, layer-ordering or missing-part fault.
+The far proxy keeps all original color limits.
 
 The final arbiter remains the default image limits, for LOD0 and the preceding
 level at each switch (24 opaque / 128 foliage samples by default, with a seed-noise-calibrated `render_samples` override for noisy powered/specular assets; same fixed seed): mean absolute display RGB <= .02; p95 max-channel change
@@ -251,13 +253,16 @@ justify mean .03, p95 .13 and local .10 for that level only. Alpha and silhouett
 limits stay unchanged. Broad proxy color errors, such as the pickup's lamp
 surround, are not explained by these house controls.
 
-Near source controls at +/- .75 pixel also justify local bounds .11 for the
-colonial's .30 switch, .095 for its .12 switch, and .09 for the grill's .12
-switch. Unchanged-source maxima are .10650, .09038 and .08409 respectively;
-the selected native results are .10721, .08589 and .08805. The differences
-follow bright trim and highlight contours. Other near metrics retain their
-defaults. This calibration does not excuse a changed lamp interior: the
-pickup's red-to-gray reflector defect required preserving its source contact.
+Near colonial source controls at +/- .75 pixel reach local maxima .10650 and
+.09038. Earlier .11/.095 allowances nevertheless admitted long dark window
+seams in the reduced walls. Both levels now use a .125-pixel structural bound,
+which removes those native seams while keeping the original .08 local limit.
+The cheaper faulty meshes and their native images are retained as witnesses.
+The grill's .12 switch still uses .09: unchanged-source maximum .08409,
+selected native maximum .08805, with the lid-open pose separately reviewed.
+Other near metrics retain their defaults. Source controls also cannot excuse
+a changed lamp interior: the pickup's red-to-gray reflector defect required
+preserving its source contact.
 
 ## Configuration and assembly
 
@@ -575,7 +580,11 @@ cannot approve it. The adoption proofs record the frozen tool before use.
 
    Build each config, inspect the exported
    comparisons and close views, adjust configuration as necessary, then run
-   `check-lod`. Adoption uses the frozen tool. A tool defect needs a separate
+   `check-lod`. Inspect thin seams, glossy response and part coverage at native
+   size. A numeric pass or source-only phase control cannot approve a visible
+   fault. Preserve the failed config, payload hashes and native images before
+   replacing its output, so a cheaper rejected level remains reproducible.
+   Adoption uses the frozen tool. A tool defect needs a separate
    general fix and a fresh adoption proof from this step. Do not bypass a failed
    image/normal/topology/memory check. An above-target level may pass its visual
    checks, but must keep `target_met: false` and the achieved/goal counts in the

@@ -2423,3 +2423,37 @@ The accepted chain remains 11840/4736/8, with the separate two-triangle
 alternative. All image comparisons and the captured `make check-lod` pass.
 Default-chain residency is 21.204 MiB versus LOD0's 18.550 MiB. No maple
 policy, count or switch changed.
+
+## Pass 64 — validated middle fixes restore the original near color gates
+
+Opened every native middle control at full size. The pickup's .2-pixel
+reflective control removes the changed grille band at 25448 triangles (42.53%
+of LOD0). Mean RGB is .00449/.00382/.00382 and local
+.05500/.05454/.03424. Geometry/re-import and original UV/frame audits pass.
+Adopted the bound for LOD2 as well as LOD1. The former .12 local allowance
+was too lenient for that visible reflection defect: its source-phase control
+did not prove the reduced surface looked right. The allowance is removed;
+all original near color limits now pass. The 23530-triangle wrong-band witness
+remains in `build/lod-v4/car-middle-baseline/`; the 20608-triangle skin-tear
+witness remains separately retained. The 25% target is still unmet.
+
+The colonial .125-pixel middle control removes the native window/wall seams
+at 18427 triangles (31.64%). Mean RGB is .00285/.00254/.00172, local
+.02043/.02157/.01075, with alpha and silhouette errors below .00037.
+Geometry/re-import and original UV/normal audits pass. Adopted the bound at
+both near levels and removed their old .11/.095 local allowances. The original
+.08 local gate passes. LOD1 remains 28698 (49.28%); LOD2 still misses 25%.
+The cheaper 13218 native seam failure is retained in
+`build/lod-v4/house-seam-baseline/`. These are the lowest reviewed passing
+controls, not a mathematical minimum over all possible meshes.
+
+The recipe now explicitly requires checking thin seams, glossy response and
+coverage at native size before accepting a phase-based limit, and archiving
+a failed config, payload hashes and images before replacement. Its earlier
+claims that those faulty near trials looked correct are withdrawn. Because
+the literal document changed, the prior frozen adoption proof is archived;
+both families must repeat the updated text under a new freeze. The 102 kit
+source files are unchanged, as are all test inputs: no kit test reads this
+document or these pilot configs. The 34-file source-verified suite remains
+valid. Full canonical pickup/colonial rebuilds and the new literal recipe
+proof are pending, with the pickup far color failure still explicit.
