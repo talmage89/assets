@@ -402,3 +402,40 @@ the photo again found its right-front roof/floor pixels had been placed on
 the window edge. The corrected calibration uses the actual room corners;
 the home fit uses outer fascia corners instead of hidden wall corners.
 Check these revisions on imported geometry before the next GPU batch.
+
+## Look-dev pass 4 — correct sightlines, rejected ground-wear visibility
+
+**Color and value first.** Viewed all 44 native 1440px frames and the
+balanced park comparisons in `renders/checkpoint/look4`. Hero/above p95
+is .784/.773 in Alder Court and .804/.718 in Meadow Bend; near-clipping
+stays below .001%. The asphalt now separates from pale concrete pads,
+while siding remains distinct from white skirting and deep cavity shade.
+The photo neutrals are unchanged: storm frame, addition fascia, aluminum
+pan and white PVC post, balanced in linear RGB.
+
+The three construction fits now pass imported-triangle visibility for
+5/5, 6/6 and 9/9 anchors, with 18.43/16.95/16.65 native-pixel RMS.
+The supplementary lane clears 4/4 at 8.53px, with its inferred depth still
+disclosed. The incorrect room pixels are corrected, fascia replaces hidden
+wall corners and the obscured aerial post foot is excluded. An independent
+Blender projection check disagrees with the solver by at most .00674px.
+The renderer now rejects an occluded required anchor before rendering.
+
+The added cover is visible and supported, and the carport has continuous
+painted posts with localized foot rust. However, the old apron still reads
+too smooth against the battered 2009 photograph. Raw exported geometry
+reveals a cause: some isolated pavement cards face downward after the
+generic volume-normal recalculation. The first settlement-crack card has
+glTF normal (0,−1,0), while a repair card faces (0,+1,0). Unit-length checks
+passed despite this construction error; one-sided culling hides the crack.
+Preserve authored upward winding for these open terrain skins and add a
+positive-up normal/winding audit. No triangle or texture increase is needed.
+
+Still CG: planar turf away from its edge tufts, coarse leaf-card silhouettes,
+and wood-like texture on small plant pots. The latter is a finish assignment
+error: give terracotta and foliage their nonmetal finish swatches. The newer
+aerial also reveals a public-road stub behind the tree line; continue that
+road beyond the camera's set. The homes, density and actual fit subjects
+remain; this pass is rejected for these surface/context defects rather
+than counted as final look approval. All eight historical comparisons pass
+their camera/lens/resolution/light equality checks.
