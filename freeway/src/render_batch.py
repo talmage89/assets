@@ -7,18 +7,19 @@ outer kit/with_gpu.sh owns FD 9 for the complete set; children inherit it.
 import argparse,hashlib,json,os,shlex,subprocess,sys
 from pathlib import Path
 from external import bundle
+from render_recipe import digest as render_recipe
 
-SCENES={101:['terminal','hero','above','above_clean','alignment','barrier','guardrail_end',
-             'sign_structure','south_sign','pier_girders','gore',
+SCENES={101:['terminal','hero','hero_cut','above','above_clean','alignment','barrier','guardrail_end',
+             'sign_structure','south_sign','pier_girders','bearings','gore',
              'terminal_controls','rail_repair'],
-        202:['hero','above','above_clean','alignment','sound_wall','cable_median']}
+        202:['hero','hero_old','above','above_clean','alignment','sound_wall','cable_median']}
 
 def fresh(path,source,args,camera=None):
     try:
         data=json.loads(path.with_suffix('.json').read_text())
         return (not args.source_fields and path.is_file()
                 and data['frame_sha256']==hashlib.sha256(path.read_bytes()).hexdigest()
-                and data['recipe_sha256']==hashlib.sha256(Path('src/render.py').read_bytes()).hexdigest()
+                and data['recipe_sha256']==render_recipe()
                 and data['bundle_sha256']==bundle(source)
                 and all(r['bundle_sha256']==bundle(r['source']) for r in data.get('context',[]))
                 and data['width']==args.width and data['samples']==args.samples
@@ -54,13 +55,13 @@ def main():
         print(f'SERIAL RENDER CHUNK {i+1}/{len(jobs)}: {job}',flush=True)
         subprocess.run(shlex.split(a.blender)+['-b','--factory-startup','--python-exit-code','1','--python',a.python,'--']+job,check=True,pass_fds=fds)
     if r.all_inspections:
-        subprocess.run([sys.executable,'src/presentation_batch.py','--blender',a.blender,'--width',str(r.width),'--samples',str(r.samples)],check=True,pass_fds=fds)
+        subprocess.run([sys.executable,'src/presentation_batch.py','--blender',a.blender,'--width',str(r.width),'--samples',str(r.samples),'--out',r.out],check=True,pass_fds=fds)
         # Rendering is complete. Release the lease before CPU photo assembly.
         if fds:os.close(9)
         sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
         from kit.photo_match import compose
-        for folder in ('look-matches','source-matches'):
-            compose('build/cameras.json','renders/'+folder,'renders/'+folder)
-            (Path('renders')/folder/'.stamp').touch()
+        for folder in (r.out+'-matches',r.out+'-source-matches'):
+            compose('build/cameras.json',folder,folder)
+            (Path(folder)/'.stamp').touch()
     print('SERIAL RENDER SET COMPLETE',len(jobs),flush=True)
 if __name__=='__main__':main()

@@ -25,6 +25,9 @@ def install():
                     node.image=bpy.data.images.load(str((Path('textures/source')/f'T_{name}_{channel}.png').resolve()),check_existing=True);node.image.colorspace_settings.name='sRGB' if channel=='BaseColor' else 'Non-Color'
                     if name=='FreewayMaintenance' and channel=='BaseColor':
                         alpha=nodes.new('ShaderNodeTexImage');alpha.image=bpy.data.images.load(str(Path('textures/source/T_FreewayMaintenance_Alpha.png').resolve()),check_existing=True);alpha.image.colorspace_settings.name='Non-Color'
-                        bs=next(n for n in nodes if n.type=='BSDF_PRINCIPLED');links.new(alpha.outputs[0],bs.inputs['Alpha'])
+                        # Replace the texture coverage upstream of any imported
+                        # COLOR_0 alpha multiplication, retaining placed opacity.
+                        destinations=[link.to_socket for link in node.outputs['Alpha'].links]
+                        for socket in destinations:links.new(alpha.outputs[0],socket)
                 changed.append((mat.name,name,channel))
     return changed

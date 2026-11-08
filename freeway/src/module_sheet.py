@@ -1,5 +1,5 @@
 """Individually framed Cycles views of every exported reusable module."""
-import argparse,json,sys,math
+import argparse,json,sys,math,hashlib
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
 from mathutils import Vector
@@ -22,5 +22,5 @@ def main():
         sheet.paste(im,(x+(cell-10-im.width)//2,y));d.text((x,y+height-48),name+' / '+str(row['triangles'])+' tris',font=font,fill=(226,235,219))
         d.text((x,y+height-29),'%.2f x %.2f x %.2f m'%tuple(extent),font=font,fill=(184,200,180))
     sheet.save(Path(a.out)/'modules.png')
-    (Path(a.out)/'modules.json').write_text(json.dumps(dict(source='export/FreewayModules.gltf',bundle_sha256=__import__('external').bundle('export/FreewayModules.gltf'),engine='CYCLES',individual=metadata),indent=2))
+    (Path(a.out)/'modules.json').write_text(json.dumps(dict(source='export/FreewayModules.gltf',bundle_sha256=__import__('external').bundle('export/FreewayModules.gltf'),engine='CYCLES',frame_sha256=hashlib.sha256((Path(a.out)/'modules.png').read_bytes()).hexdigest(),sheet_recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),individual=metadata),indent=2))
 if __name__=='__main__':main()

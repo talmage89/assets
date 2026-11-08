@@ -17,21 +17,21 @@ CHECKPOINT_BLEND := build/Freeway.blend
 CHECKPOINT_OUTPUTS := build/Freeway.blend build/modules.json $(foreach s,$(SEEDS),$(foreach n,Freeway Town Traffic,export/$(n)-$(s).gltf export/$(n)-$(s).bin) build/scene-$(s).json build/Freeway-$(s).blend) export/FreewayModules.gltf export/FreewayModules.bin $(foreach p,$(PARTS),export/modules/$(p).gltf export/modules/$(p).bin)
 CHECKPOINT_ARGS := --seeds $(SEEDS) --stage look
 CHECKPOINT_DEPS := $(addprefix src/,build.py geom.py plan.py pieces.py roads.py site.py roadside.py neighborhood.py weather.py materials.py look_materials.py textures.py external.py context_colors.py town_context.py landscape.py) $(CONTEXT) $(CONTEXT_COLOR_MAPS) $(FORM_MAPS) $(SHIP_MAPS)
-CHECKPOINT_OUT := renders/lookdev
-SCENE_SHOTS_101 := hero above above_clean alignment barrier guardrail_end sign_structure south_sign pier_girders gore terminal terminal_controls rail_repair
-SCENE_SHOTS_202 := hero above above_clean alignment sound_wall cable_median
-PRESENTATION_OUTPUTS := renders/lookdev/modules.png renders/lookdev/scale.png renders/look-matches/.stamp renders/source-matches/.stamp
-CHECKPOINT_RENDER_OUTPUTS := renders/lookdev/.stamp $(foreach s,$(SEEDS),$(foreach v,$(SCENE_SHOTS_$(s)),renders/lookdev/$(s)/$(v).png)) $(PRESENTATION_OUTPUTS)
+CHECKPOINT_OUT := renders/final
+SCENE_SHOTS_101 := hero hero_cut above above_clean alignment barrier guardrail_end sign_structure south_sign pier_girders bearings gore terminal terminal_controls rail_repair
+SCENE_SHOTS_202 := hero hero_old above above_clean alignment sound_wall cable_median
+PRESENTATION_OUTPUTS := renders/final/modules.png renders/final/scale.png renders/final-eevee/101/hero.png renders/final-matches/.stamp renders/final-source-matches/.stamp $(foreach p,$(PARTS),renders/final/modules/$(p).png)
+CHECKPOINT_RENDER_OUTPUTS := renders/final/.stamp $(foreach s,$(SEEDS),$(foreach v,$(SCENE_SHOTS_$(s)),renders/final/$(s)/$(v).png)) $(PRESENTATION_OUTPUTS)
 CHECKPOINT_RENDER_ARGS := --source export/Freeway-101.gltf --seeds $(SEEDS) --all-inspections
-CHECKPOINT_CHECK = $(BP) --python src/check.py && $(BP) --python src/edge_check.py && $(BP) --python src/bridge_check.py && $(BP) --python src/context_check.py
-CHECKPOINT_REVIEW = $(PYTHON) src/review.py && $(PYTHON) src/quality_receipts.py
+CHECKPOINT_CHECK = $(PYTHON) src/accepted_check.py && $(BP) --python src/check.py && $(BP) --python src/edge_check.py && $(BP) --python src/bridge_check.py && $(BP) --python src/context_check.py
+CHECKPOINT_REVIEW = $(PYTHON) src/review.py && $(PYTHON) src/quality_receipts.py --folder renders/final
 include ../kit/checkpoint_rules.mk
 
 # The kit still owns the grouped render graph and its single GPU lease. Limit
 # scene lifetime inside that lease rather than retaining twelve Cycles views.
 RBP = $(PYTHON) src/render_batch.py --blender '$(BLENDER)'
 $(CHECKPOINT_RENDER_OUTPUTS): private BP = $(RBP)
-$(CHECKPOINT_RENDER_OUTPUTS): src/render_batch.py src/module_sheet.py src/presentation_batch.py src/source_compare.py build/camera-verification.stamp
+$(CHECKPOINT_RENDER_OUTPUTS): src/render_batch.py src/module_sheet.py src/presentation_batch.py src/source_compare.py src/foliage_adapter.py src/render_recipe.py ../kit/foliage.py ../trees/src/leaf_material.py build/camera-verification.stamp
 
 .PHONY: preserve inputs context textures sheet scale matches preview repeat check-look evidence
 preserve:
@@ -70,21 +70,25 @@ build/cameras.json: src/matches.py | refs
 build/camera-verification.stamp: build/cameras.json $(KIT)/photo_match.py
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/cameras.json
 	@touch $@
-sheet: renders/lookdev/modules.png
-scale: renders/lookdev/scale.png
-matches: renders/look-matches/.stamp
+sheet: renders/final/modules.png
+scale: renders/final/scale.png
+matches: renders/final-matches/.stamp
 review: sheet scale matches evidence source-pairs
 preview: model
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --out renders/look-preview --engine BLENDER_EEVEE --shots hero above terminal pier_girders --width 1000 --samples 16
 repeat: model
 	$(PYTHON) src/repeat.py
-evidence: render renders/lookdev/modules.png
-	$(PYTHON) src/baseline.py
-	$(PYTHON) src/evidence.py
+evidence: render
+	$(PYTHON) src/final_evidence.py
 
 .PHONY: source-pairs
-source-pairs: renders/source-matches/.stamp
+source-pairs: renders/final-source-matches/.stamp
 
 .PHONY: check-texture-repeat
 check-texture-repeat: textures
 	$(PYTHON) src/texture_repeat.py
+
+.PHONY: docs
+all: docs
+docs: review
+	$(PYTHON) src/docs.py

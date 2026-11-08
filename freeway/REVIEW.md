@@ -453,3 +453,164 @@ Opened all 45 raw rendered views: 19 scene views, 17 modules, the scale view,
 four shipped photo views and four source-field views, plus the labeled sheet,
 photo pairs, before/after evidence and contacts. The reviewed remaining defects
 above still apply. This round stops before a README gallery or docs images.
+## Delivery critique 6 — first dense town, rejected hero and lost assembly tint
+
+**Color and value first.** Opened all nine native 1200 px views in
+`renders/final-pass1/`: both 101 compositions, both 202 compositions, both
+aerials, pier/girders, bearings and sign structure. The clear low sun now
+produces a blue sky, deep under-bridge shadow and unclipped surfaces. The
+sky is too cyan, the aerial foliage too black, and native house facades are
+still white. Read the actual staged GLB's CORNER colors: gray/sage/cream
+siding and colored roof factors are present there. Read the town's actual
+accessors: the second import renames the layer Color, while assembly exports
+only Tint. The native tint is lost at that boundary. The adapter now retains
+that layer only when the material actually reads color, leaving Wind data
+independent. A new raw-export assertion rejects a missing COLOR_0 on a material
+that declares tiling_vertex_tint.
+
+The 101 hero is rejected: its dominant foreground fence still hides the freeway.
+Move it to the arterial's east-terminal walk, looking west across the bridge
+and down into the cut, with the west gas canopy, strip signs and queues in frame.
+The aerial has the requested small lots and substantial canopy, but wholesale
+reserved blocks still leave a 256 m empty band along the arterial. Reserve only
+the actual commercial/apartment parcels and fill the rest with houses, yards and
+alley segments. In 202 the front tree belt still hides every roof and wire. Thin
+that belt, plant the first houses' trees toward their street frontage and retain
+actual Telephone/primary sockets and sag. The Telephone key had been wrong.
+
+Turf is warmer/yellower, with original Ground blade grain and dry-height color
+stations, but long bands still read smooth; bring rooted seed stems to the
+upper cut and sound-wall mowing edges, instead of hiding them at the ROW fence.
+Runoff no longer has rectangular stamp boundaries and reads in the original
+cut hero. Its cap channels are too strong and too regular; lower their opacity,
+retain the damp shelf film, and improve the bearing close-up's neutral fill and
+pad framing. Restore the tree family's documented thin-leaf response from the
+exported images and reduce sky saturation. These are rejected intermediates,
+not final docs. The render set was interrupted after nine views (exit 143),
+before its four photo views; none of those missing views is claimed reviewed.
+
+## Delivery critique 7 — native tint survives, but the hero and runoff still fail
+
+**Color and value first.** Opened all thirteen 1200 px frames in
+`renders/final-pass2/`, including its four photographic-camera views. The
+concrete-balanced 2002 aerial now has gray, sage and cream house facades,
+narrow parcels and a substantial broken canopy. The sky is less cyan and the
+native thin-leaf response opens the excessively black tree masses. Summer turf
+is muted yellow/olive with dry variation, rather than the original saturated
+green. The 2007 road-balanced traffic photograph still has a darker fleet than
+this seed's near view. Its exported paint bindings and independently decoded
+pixels are correct; the metallic factors were still the imported Atlantic
+factor. Apply the actual factory factors and put more weight on Carbon, blue
+and red, retaining silver/gray/white. This is a color/value correction, not a
+claim that a histogram alone proves the appearance.
+
+The 101 east-terminal hero is rejected again: grass dominates and the freeway
+is a sliver. Opened the two ramp-shoulder candidate views at native size. The
+70 m station gives the freeway, bridge, signal queue, west gas canopy, strip
+front and roof/tree/pole skyline together. Tighten that framing and aim lower
+to remove surplus sky. The 115 m view loses the bridge and has a dominant
+light pole; reject it. The 202 new hero shows roofs and utility conductors above
+the wall, with varied trees behind them. The aerials still show regular block
+repetition and only four native house silhouettes; those remain context limits.
+
+The full-scene bearing photo view has real road/landscape surroundings now,
+but the close inspection camera is much too dark. Opened the wider bearing
+candidate: the actual pads, pedestals, cap and passing traffic are readable.
+Use that view and neutral sky fill. The cap's overlapping equal-length drips
+still form a curtain unlike the concrete-balanced 2008 photo. Move their
+concentrations under the actual seven bearing lines, vary width, strength and
+run length, and break the girder drip-line repetition. Preserve the broad damp
+shelf film and actual scupper/joint concentrations.
+
+The verge stems can intersect an elevated ramp because roots were sampled only
+on earth. Reject roots under real paving. Open the ROW fence across the arterial
+and audit that clearance explicitly; the accepted bridge, plan, controls and
+paving remain geometrically identical. This is still an intermediate set:
+the warmer concrete has usable highlight range and deep cavities, but the
+repeated vehicle types, smooth slopes and regular native tree silhouettes
+continue to read as CG. No gallery images are approved by this pass.
+
+## Delivery critique 8 — new traffic and town framing, rejected sparse crowns and clean cap
+
+**Color and value first.** Opened all thirteen native 1200 px pass-3 frames,
+the four kit-composed photographic pairs, both newly rendered historical
+reframed views and all nine native before/after panels. The traffic now reads
+blue, black, gray, silver, white, red and green at full frame. The factory
+metallic values survive actual serialization; the inverse image audit checks
+all 21 derived RGB maps. The guide's green and the heroes' clear blue upper sky
+retain color, with deep bridge shade and no clipped concrete. The low horizon
+in the ramp hero is naturally lighter than the high sky in the cut view.
+
+The matched 2002 aerial is decisive: narrow lots, drives, alleys, paved commercial
+parcels and much more foliage are present, but individual small crowns still
+look like dots beside the photograph's connected mature canopy. Increase yard
+and apartment crown scale 1.4×, street crowns 1.2×, with more broad red maples.
+Use instance transforms, adding no triangles. Keep the closest 202 roof/wire
+zone at its current scale so that canopy does not hide it again. Record species,
+yaw and actual scale in the placement manifest for engine replacement/batching.
+
+The new 101 ramp hero finally includes the strip front, gas canopy, signal queue
+and passing freeway below. The 202 view has gables, different trees and utility
+conductors above the wall. The sign/traffic views confirm the busier seeded
+snapshot; the models still repeat three vehicle types and four house envelopes.
+
+The 2008 cap comparison still fails the age test. Rectangular stamps are gone,
+and the seven concentrations follow actual bearings and the cap chamfers, but
+too much cap stays uniform and clean. Broaden and strengthen those variable
+top-connected concentrations, clip them at the real cap ends, slightly warm the
+concrete tint, and increase base spray/road film on barriers. The comparison
+also needs broad environmental bounce like the photograph's bright surrounding
+site; add one recorded soft area fill to that photographic shot only. Keep the
+heroes' deep shade. No source photograph supplies any material pixel.
+
+The turf has distinct dry/mown/unmown treatment and rooted stems, but the right
+sign-view slope is shaded and is a poor crop for the requested sunlit value
+comparison. Use the same reframed ramp camera's sunlit slope and mowing edge,
+at native pixel size, and strengthen the exposed dry grass's straw pigment.
+Long slopes, straight bristly clumps and broad repeating asphalt variation still
+read as CG. These frames are rejected intermediates; no gallery is approved.
+
+The expanded tire audit initially made an incorrect diagnosis: SUV rubber uses
+separate tiled Tire meshes while atlas Wheel meshes contain rims/markings.
+Requiring both to touch paving falsely implicated simplification. Restored the
+original distance reduction and check four actual tire surfaces per actor.
+The audit did find a real 57 mm parked-car gap; flat-road actor heights now use
+actual paving and native tire minima. Fresh exports measure 1,656 tire surfaces
+between −12.04 and +13.27 mm. The gate is now ±20 mm. A separate correction
+starts support rays beside the tire so overhead bridge decks are excluded.
+
+## Delivery critique 9 — connected canopy and runoff; reject overlapping turf
+
+**Color and value first.** Opened all thirteen native pass-4 frames, all four
+photographic pairs, and all nine native before/after panels. The concrete-neutral
+2002 comparison has much narrower, occupied parcels and linked mature crowns;
+the oblique aerial reads as a wooded neighborhood rather than isolated white
+houses. The concrete-neutral 2008 comparison now shows warm cap runoff beginning
+at the actual bearing lines, varying in length and strength. Its real road,
+trees and slope replace the isolated white background. A recorded broad bounce
+opens this photographic view; the heroes retain deep bridge shade. These are
+different lighting situations and neither is an albedo measurement.
+
+The 2007 road-neutral pair confirms denser daily traffic with dark blue, black,
+gray, silver, red, green and white finishes. The new ramp hero includes the gas
+canopy, strip signs, signal queue and freeway below. The curved hero includes
+house gables, mixed crowns and the pole/conductor line. Upper skies are clear
+blue and concrete highlights retain texture. The dark maple masses still repeat
+two native silhouettes, and the aerial street/parcel grid is more regular than
+the photograph. Four house envelopes and three vehicle types remain visible
+repetitions; report them as context limitations.
+
+Reject the grass crop. Its yellow/olive pigment is closer to the reference,
+but angular green patches persist on the far sunlit slope. Actual pixel rays
+hit overlapping opaque mowing skins with different tint from the graded soil.
+Remove those cosmetic skins, carry mowing tint on the existing terrain instead,
+and retain all drainage geometry and volunteer leaves. The final comparison
+must show that this fixes the patches. Preserve the native yard color while
+moving dry red pigment into the texture: normalized glTF vertex colors cannot
+carry a multiplier above one. Replace straight triangular stems with bent,
+three-triangle blades rooted individually on the measured soil. No new texture
+allocation or civil surface change is needed.
+
+The broad asphalt variation, regular tire bands and smooth distant slopes still
+read as CG. Final raw frames and crops are pending the clean rebuild; this pass
+does not approve docs.

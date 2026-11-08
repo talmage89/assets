@@ -8,6 +8,11 @@ Ground Asphalt, Concrete, Lawn and GroundTrim remain byte-identical inputs.
 The freeway's seasonal lawn derivative changes only the original scripted
 Lawn BaseColor pigment; its canonical blade normal and ORM stay shared. This
 2048 color map adds 5⅓ MiB when a scene also loads the native commercial lawn.
+Dry straw pigment lives in that image, with normalized vertex colors at or
+below one; glTF cannot retain an HDR multiplier in its normalized COLOR_0.
+Broad dry/mown/unmown fields follow exposure and drainage on the actual graded
+earth. There are no overlapping opaque mowing skins. Bent, individually rooted
+blade clumps share the same turf set and belong to the optional context budget.
 World/meter tile UVs intentionally repeat. Existing manufacture remains in
 those maps; broad traffic causes belong to lane-space vertex colors and
 placement-owned maintenance charts. The wheel-polish material shares Ground
@@ -84,3 +89,7 @@ vertex tint. Tree finals use the tree family's documented two-sided thin-leaf
 response with the actual exported baked images. Stock glTF MASK is the portable
 fallback; an engine needs the corresponding foliage shader for that response.
 No new foliage image or procedural leaf field is substituted in final renders.
+Cycles uses 128 transparent bounces, following the native oak's overlapping
+cards; the default eight made mature crowns artificially black. Larger mature
+yard crowns and smaller freeway-front trees are recorded instance transforms,
+not additional unique foliage meshes or new image allocations.

@@ -26,11 +26,12 @@ def tones(folder):
   p=Path(folder)/str(seed)/'hero.png';a=np.asarray(Image.open(p).convert('RGB'),float)/255;y=a@np.array([.2126,.7152,.0722]);h,w=y.shape
   # Hero-specific object samples exclude the sky; they are display values,
   # deliberately not claims about spectral albedo or calibrated photometry.
-  regions={'pavement':[.40,.72,.80,.97],'shade':[.12,.25,.45,.50] if seed==101 else [.75,.48,.97,.65]}
+  regions=({'pavement':[.15,.62,.55,.66],'shade':[.84,.41,.90,.47]} if seed==101 else
+           {'pavement':[.45,.72,.80,.97],'shade':[.85,.59,.97,.69]})
   samples={}
   for name,(x0,y0,x1,y1) in regions.items():
    box=y[round(h*y0):round(h*y1),round(w*x0):round(w*x1)];samples[name]=np.quantile(box,[.05,.5,.95]).tolist()
-  result[str(seed)]=dict(p01_p50_p99=np.quantile(y,[.01,.5,.99]).tolist(),rgb_clipped_fraction=float((a>=.99).mean()),object_display_luma=samples,scope='Display luminance including scene illumination; no albedo/engineering calibration')
+  result[str(seed)]=dict(p01_p50_p99=np.quantile(y,[.01,.5,.99]).tolist(),rgb_clipped_fraction=float((a>=.99).mean()),object_display_luma=samples,normalized_sample_regions=regions,scope='Display luminance including scene illumination; no albedo/engineering calibration')
  Path('build/tones-look.json').write_text(json.dumps(result,indent=2));return result
 def albedos():
  import sys

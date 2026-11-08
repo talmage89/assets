@@ -33,7 +33,7 @@ def cameras():
         'bearing_2008':dict(title='Bearing-seat and cap plane / FHWA 2008 bridge',photo=bridge,crop=[0,0,2816,2112],
             location=(5,0,4.8),target=(0,-7,5.0),lens=45,lens_bounds_mm=(24,100),
             landmarks=[dict(world=(1.15,y,z),pixel=px) for y,z,px in [(-9.9,5.4384,(1044,1345)),(-7.,5.4384,(1620,1255)),(-7.,4.3384,(1620,1695)),(-9.9,4.3384,(1044,1730))]],
-            source='export/modules/Overpass.gltf',limitations='Cap-plane framing fit only. The photo has a pile bent and SCC beams; this family uses round columns and traditional I girders. No survey dimensions or one-to-one bridge reproduction claimed.'),
+            source='export/Freeway-101.gltf',limitations='Cap-plane framing fit only. The photo has a pile bent and SCC beams; this family uses round columns and traditional I girders. No survey dimensions or one-to-one bridge reproduction claimed.'),
         'diamond_2002':dict(title='Diamond plan / USGS 2002 aerial photograph',photo=diamond,crop=[0,0,636,413],
             location=(-90,-40,1100),target=(0,0,0),lens=65,lens_bounds_mm=(24,200),
             landmarks=[dict(world=p,pixel=px) for p,px in [((78,0,7.35),(355,162)),((-78,0,7.35),(318,248)),((0,40,0),(310,195)),((0,-40,0),(357,213)),((0,0,7.35),(335,204))]],
@@ -51,10 +51,10 @@ def cameras():
         if name=='guide_2008':rows[name]['shot'].update(sun_direction=(.2,.45,-1),sun_energy=5.4)
         if name=='traffic_2007':rows[name]['shot'].update(sun_energy=.8,sun_angle_degrees=15,sky_strength=.15,sky_saturation=.08)
         if name=='bearing_2008':
-            # Side daylight plus a neutral procedural floor supplies the
-            # bounce missing from an isolated bridge module over empty sky.
+            # Broad environment bounce approximates the photographed open,
+            # bright site; the full urban scene remains around the structure.
             rows[name]['shot'].update(sun_direction=(-.5,2,-1),sun_energy=4.5,sky_strength=.70,sky_saturation=.08,
-                stage_floor=dict(size=200,location=(0,0,-.06)))
+                diffuse_bounce=dict(location=(3,-13,4.5),target=(0,-4,5.5),energy=500,size=7,color=(1,.98,.90)))
         print(name,'RMS',round(rows[name]['residual_rms_pixels'],3),'lens',round(rows[name]['shot']['lens'],2))
     Path('build/cameras.json').write_text(json.dumps(rows,indent=2))
     Path('build/reference-balance.json').write_text(json.dumps(dict(guide_2008=hw,bearing_2008=br,diamond_2002=di,traffic_2007=tr),indent=2))
