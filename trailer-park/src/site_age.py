@@ -9,17 +9,17 @@ def road(a,p,lib,material):
     w,span=p['street_width'],p['span'];m=a.mesh('CrackSeals',component='street_age')
     seal_rng=random.Random(p['seed']+18171)
     def seal(points,width):
-        smooth=[]
+        smooth=[];steps=1 if width<.006 else 7
         for j in range(len(points)-1):
             a0,a1,a2,a3=points[max(0,j-1)],points[j],points[j+1],points[min(len(points)-1,j+2)]
-            for k in range(7):
-                t=k/7;smooth.append(tuple(.5*(2*a1[axis]+(-a0[axis]+a2[axis])*t+(2*a0[axis]-5*a1[axis]+4*a2[axis]-a3[axis])*t*t+(-a0[axis]+3*a1[axis]-3*a2[axis]+a3[axis])*t**3) for axis in (0,1)))
+            for k in range(steps):
+                t=k/steps;smooth.append(tuple(.5*(2*a1[axis]+(-a0[axis]+a2[axis])*t+(2*a0[axis]-5*a1[axis]+4*a2[axis]-a3[axis])*t*t+(-a0[axis]+3*a1[axis]-3*a2[axis]+a3[axis])*t**3) for axis in (0,1)))
         smooth.append(points[-1]);vs=[];fs=[];colors=[]
         for j,(x,y) in enumerate(smooth):
             before=smooth[max(0,j-1)];after=smooth[min(len(smooth)-1,j+1)];dx,dy=after[0]-before[0],after[1]-before[1];d=math.hypot(dx,dy)
             # 2–4in overband, applicator wander, irregular squeeze-out and
             # cooler tar at the margins. Each edge has independent width.
-            wobble=seal_rng.uniform(-.016,.016);x+=-dy/d*wobble;y+=dx/d*wobble
+            wander=min(.016,width*.35);wobble=seal_rng.uniform(-wander,wander);x+=-dy/d*wobble;y+=dx/d*wobble
             half=width*seal_rng.uniform(.72,1.28);nx,ny=-dy/d*half,dx/d*half
             asym=seal_rng.uniform(.70,1.30)
             vs.extend([(x+nx,y+ny,.017),(x,y,.019),(x-nx*asym,y-ny*asym,.017)])
