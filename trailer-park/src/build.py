@@ -38,9 +38,13 @@ def canonical_images():
     known={}
     for family in ('ground','fences','mailbox','trash-cart','patio-set','gas-grill','houses','trees','shrubs','trailer-park'):
         for q in (ROOT/family).rglob('*.png'):
-            if 'ship' in q.parts:known[hashlib.sha256(q.read_bytes()).hexdigest()]=q
+            # Review snapshots and independent rebakes are never canonical
+            # dependencies, even when their pixels happen to be identical.
+            parts=q.relative_to(ROOT/family).parts
+            if 'ship' in parts and not {'build','renders','export'}.intersection(parts):known[hashlib.sha256(q.read_bytes()).hexdigest()]=q
     for q in Path('build/library').rglob('*.png'):
-        if 'ship' in q.parts:known[hashlib.sha256(q.read_bytes()).hexdigest()]=q.resolve()
+        parts=q.relative_to('build/library').parts
+        if 'ship' in parts and not {'build','renders','export'}.intersection(parts):known.setdefault(hashlib.sha256(q.read_bytes()).hexdigest(),q.resolve())
     q=Path('textures/checkpoint/T_ManufacturedForm.png');known[hashlib.sha256(q.read_bytes()).hexdigest()]=q.resolve()
     _IMAGE_CACHE=known;return known
 
