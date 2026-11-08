@@ -34,7 +34,7 @@ def audit():
                     if name=='ManufacturedPBR_Metal':
                         assert 'COLOR_0' in pr['attributes'],(path,'Lost authored finish tint')
                         color=g.accessor(pr['attributes']['COLOR_0'])
-                        assert np.min(color[:,:3])<.95,(path,m['name'] if 'm' in locals() else name,'White replacement of authored finish tint')
+                        assert np.min(color[:,:3])<.95,(path,mesh['name'],'White replacement of authored finish tint')
                     if name=='ManufacturedPatina':
                         assert ma.get('alphaMode')=='BLEND' and not ma.get('doubleSided',False)
                         rgba=g.accessor(pr['attributes']['COLOR_0'])

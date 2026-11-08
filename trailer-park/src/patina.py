@@ -49,10 +49,17 @@ def home(a,p,skirt):
             quad(a.root,'Protected '+kind+' '+face,[xf(u-w/2,z),xf(u+w/2,z),xf(u+w/2,z+h),xf(u-w/2,z+h)],rect(kind,r.randrange(4)),strength)
         north=(face=='back')==(p.get('site_yaw',0)==0) if along else False
         # Microclimate below the eave; sparse fans, rather than a uniform band.
-        for u in (-length*.33,length*.04,length*.32):
-            width=r.uniform(.48,.9);z=E-r.uniform(.18,.29)
+        for station in range(3):
+            if r.random()>.7*severity:continue
+            u=r.uniform(-length*.4,length*.4);width=r.uniform(.20,.60);z=E-r.uniform(.18,.36)
             if any(abs(u-h['u'])<h['w']/2+width/2 and z<h['z']+h['h']+.025 for h in holes):continue
-            wall('Damp',u,z,width,E-z,severity*(.85 if north else .48))
+            wall('Damp',u,z,width,E-z,severity*(.36 if north else .20))
+        if north:
+            for station in range(3):
+                if r.random()>.8*severity:continue
+                u=r.uniform(-length*.4,length*.4);width=r.uniform(.7,1.5);height=r.uniform(.28,.48)
+                if any(abs(u-h['u'])<h['w']/2+width/2 and h['z']<F+height+.03 for h in holes):continue
+                wall('Damp',u,F+.025,width,height,severity*.48)
         for h in holes:
             if h['kind']!='window':continue
             if r.random()<.60*severity:
@@ -75,7 +82,9 @@ def home(a,p,skirt):
             if r.random()>.44*severity:continue
             u=-length/2+(j+.5)*length/count;w=length/count-.012;z=.046;ht=r.uniform(.29,.40)
             points=[xf(u-w/2,z,.014),xf(u+w/2,z,.014),xf(u+w/2,z+ht,.014),xf(u-w/2,z+ht,.014)]
-            quad(skirt,'Grade splash '+face,points,rect('Splash'),severity*.95)
+            chart=rect('Splash')
+            if r.random()<.5:chart=(chart[2],chart[1],chart[0],chart[3])
+            quad(skirt,'Grade splash '+face,points,chart,severity*.65)
 
 
 def awning(a,p,face,h,xf):

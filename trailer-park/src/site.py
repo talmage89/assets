@@ -122,7 +122,7 @@ def lot(p,record,lib,parent,instances):
     add(a,spec,seed)
     if spec['tarp']:
         m=a.mesh('BlueTarp',component='tarp');vs=[];fs=[]
-        cx=L/2-1.1;us=(-1.4,-1,-.9,-.6,-.2,.2,.55,.65,.86,1.18,1.26,1.45,1.65);nx=len(us)
+        cx=L/2-1.1;us=(-1.4,-1,-.9,-.6,-.2,.2,.55,.65,.86,1.18,1.24,1.30,1.34);nx=len(us)
         ys=tuple(v*W for v in (-.525,-.4167,-.37,-.3083,-.20,-.0917,.0167,.05,.125))
         weights=((- .9,-.37*W),(.65,-.37*W),(-.9,.05*W),(.65,.05*W))
         for j,y in enumerate(ys):
