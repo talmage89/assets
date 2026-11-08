@@ -1,7 +1,7 @@
 # Manufactured communities / reference register
 
 Inspection and dimensional sources only. No photographic texel enters any
-material. Retrieved 2026-11-07. Fictional home and community identities.
+material. Retrieved 2026-11-07–08. Fictional home and community identities.
 Downloaded files remain ignored; `make refs` retrieves this table.
 
 | File | Direct image/PDF URL | Author / rights | Used for |

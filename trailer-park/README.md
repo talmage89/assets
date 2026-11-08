@@ -38,12 +38,12 @@ about original 1972 installation practice or engineering adequacy.
 
 | Inspection home | Era | Authored body, ft | Body width × length, m | Triangles | Materials | glTF + BIN, MiB |
 | --- | --- | --- | --- | ---: | ---: | ---: |
-| SingleWide-120 | 1972 | 12 × 60 | 3.6576 × 18.2880 | 26,615 | 3 | 2.294 |
-| SingleWide-147 | 1984 | 14 × 70 | 4.2672 × 21.3360 | 23,287 | 4 | 1.881 |
-| SingleWide-168 | 1984 | 16 × 80 | 4.8768 × 24.3840 | 26,671 | 4 | 2.183 |
-| DoubleWide-245 | 1996 | 24 × 52 | 7.3152 × 15.8496 | 26,690 | 5 | 2.230 |
-| DoubleWide-228 | 1996 | 28 × 60 | 8.5344 × 18.2880 | 29,153 | 5 | 2.421 |
-| DoubleWide-326 | 1996 | 32 × 64 | 9.7536 × 19.5072 | 31,276 | 5 | 2.619 |
+| SingleWide-120 | 1972 | 12 × 60 | 3.6576 × 18.2880 | 26,735 | 3 | 2.307 |
+| SingleWide-147 | 1984 | 14 × 70 | 4.2672 × 21.3360 | 23,407 | 4 | 1.894 |
+| SingleWide-168 | 1984 | 16 × 80 | 4.8768 × 24.3840 | 26,791 | 4 | 2.196 |
+| DoubleWide-245 | 1996 | 24 × 52 | 7.3152 × 15.8496 | 26,834 | 5 | 2.245 |
+| DoubleWide-228 | 1996 | 28 × 60 | 8.5344 × 18.2880 | 29,297 | 5 | 2.436 |
+| DoubleWide-326 | 1996 | 32 × 64 | 9.7536 × 19.5072 | 31,420 | 5 | 2.634 |
 
 The body sizes are **original grammar dimensions**, not replicas of named
 manufacturer models. Published Champion dimension sheets distinguish a
@@ -94,7 +94,7 @@ Construction sections:
 | EntranceSign | 2.9 m fictional sign on timber posts; open-license lettering | 685 | 2 |
 | SupportFrame | Unskirted single-wide chassis/pier inspection assembly | 4,036 | 2 |
 | Modules sheet | Add-ons with labels; inspection assembly, not one prop budget | 11,491 | 4 |
-| HomeForms sheet | All six bodies and labels; inspection assembly | 165,638 | 5 |
+| HomeForms sheet | All six bodies and labels; inspection assembly | 166,430 | 5 |
 
 The deck top is authored at 0.885 m; a fresh-import ray measures
 0.884807 m on a cupped board and 0.147550 m at the low tread. Six equal
@@ -126,8 +126,8 @@ posts. Their original family materials and pivot structures are retained.
 
 | Park | Homes | Ground envelope, m | Lot, ft / sq ft | Street | Placed / unique triangles | Materials | glTF + BIN, MiB |
 | --- | ---: | --- | --- | --- | ---: | ---: | ---: |
-| 101 / Alder Court, 1968 plan | 36 | 149.304 × 107.7824 | 32 × 110 / 3,520 | 20 ft / 6.096 m through lanes | 2,132,680 / 651,820 | 29 | 51.134 |
-| 202 / Meadow Bend, 1994 plan | 33 | 133.4544 × 173.6192 | 56 × 95 / 5,320 | 24 ft / 7.3152 m rounded loop | 1,958,764 / 661,768 | 33 | 50.462 |
+| 101 / Alder Court, 1968 plan | 36 | 149.304 × 107.7824 | 32 × 110 / 3,520 | 20 ft / 6.096 m through lanes | 2,135,310 / 663,362 | 29 | 52.026 |
+| 202 / Meadow Bend, 1994 plan | 33 | 133.4544 × 173.6192 | 56 × 95 / 5,320 | 24 ft / 7.3152 m rounded loop | 1,963,684 / 672,772 | 33 | 51.328 |
 
 Counts include home bodies, decks, carports, native props, facilities,
 private ground/roads, small edge plants and service infrastructure. Cars,
@@ -252,10 +252,13 @@ packages, scripts or binaries are downloaded. From this folder:
 make                         # references, models, checks, locked Cycles set, pairs, contacts
 make check                   # raw export, sampled dimensions, re-import, home door sweeps, repo rules
 make repeat                  # regenerate packages and compare bytes with cached native inputs
-make OLD_SEED=303 NEW_SEED=404 ROWS=9 PASS=alternate
+make model OLD_SEED=303 NEW_SEED=404 ROWS=9
 make render PASS=preview WIDTH=1000 SAMPLES=16
 make check-preservation
 ```
+
+Alternate seeds rebuild the grammar. The photo-calibrated cameras and
+published comparisons target the supplied 101/202 examples.
 
 Historical before/after evidence uses the supplied earlier checkpoint cache:
 `make baseline` freezes its six packages before `make repeat` replaces that
@@ -290,7 +293,7 @@ Evidence is local and rebuildable:
 | `renders/checkpoint/<pass>/sources/` | Exact embedded GLBs used by that pass, retaining its original baked images |
 | `renders/checkpoint/<pass>/tonal-report.json` | Percentiles and near-clip fractions; supports visual judgement, not albedo certification |
 | `renders/checkpoint/<pass>/source-verification.json` | Archived GLB and referenced image SHA-256 receipts |
-| `renders/checkpoint/<pass>/matches/` | Three complete-park pairs, neutral balance, anchor overlays and calibration residuals |
+| `renders/checkpoint/<pass>/matches/` | Three construction pairs plus a supplementary newer-lane pair; neutral balance, anchor overlays and residuals |
 
 Heroes are perspective views from 1.68 m at 40 mm under a procedural clear
 sky and 18° raking sun. The complete set also includes turnarounds,
