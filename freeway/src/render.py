@@ -31,7 +31,8 @@ def setup(samples,engine):
 
 def shots(seed):
     if seed==101:return {
-        'hero':dict(location=(67.894475458,-69.253495475,8.086790339),target=(-125,25,-6.5),lens=50,aspect=1.78),
+        'hero':dict(location=(52,-36,8.65),target=(-56,18,4.6),lens=45,aspect=1.78),
+        'hero_previous':dict(location=(67.894475458,-69.253495475,8.086790339),target=(-125,25,-6.5),lens=50,aspect=1.78),
         'hero_cut':dict(location=(12.15,-42,1.43),target=(-1,1,3.8),lens=40,aspect=1.78),
         'above':dict(location=(-275,-430,365),target=(0,0,0),lens=35,aspect=1.5,overlay=True,sky_strength=.13,sky_saturation=.75),
         'alignment':dict(location=(-850,-1300,1000),target=(0,0,0),lens=40,aspect=1.5,overlay=True),

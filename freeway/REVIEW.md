@@ -695,3 +695,28 @@ separately in the README. All 1,094 other-delivery files remain hash-identical.
 Five JPGs are 184,392; 183,427; 199,904; 194,695; and 190,665 bytes, with widths
 1400/1400/1600/1600/1600. No kit or top-level README change was made. Gallery
 images are ready for the final, separate commit.
+# Round 4: rejected grass and surface age / baseline
+
+Color and value: at native size the aaf099e 101 hero has a dark olive ground
+sheet with too little local contrast, while its sun-facing slope jumps to a
+flat yellow triangle. The 202 median is similarly smooth with broad brown
+patches. I inspected grass.jpg, concrete.jpg, backyards.jpg and both final
+heroes before editing. The comparison photographs are the existing concrete-
+balanced freeway/bridge/traffic images; their neutral ROIs and gains remain in
+build/reference-balance.json. The 2002 aerial has summer green ROW; the 2007
+traffic photograph has dormant turf, so season limits a literal hue match.
+
+CG tells: isolated tall stems emphasize the flat base, triangulated slope
+normals expose the terrain grid, the 101 foreground overwhelms the freeway,
+the column bodies have almost no age and the median faces read as new castings.
+The road's narrow oil field misses the lane center at its mesh sample points;
+the replacement panel reads as an atlas stamp. Accepted canopy, houses,
+traffic paint/density, clear-sky light and cap runoff are retained.
+
+Implementation checkpoint: clumped seasonal color over the native baked blade
+normal/ORM, shared crossed-card tiles with a spatial density falloff, smooth
+earth normals, closer candidate hero, head-connected column streams and low
+splash, dark barrier toes/joints, sampled lane centers and native-textured
+replacement slabs. Full-size exported visual checkpoints remain pending here;
+syntax and texture-field checks alone do not accept these fixes.
+

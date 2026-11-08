@@ -9,7 +9,7 @@ from pathlib import Path
 from external import bundle
 from render_recipe import digest as render_recipe
 
-SCENES={101:['terminal','hero','hero_cut','above','above_clean','alignment','barrier','guardrail_end',
+SCENES={101:['terminal','hero','hero_previous','hero_cut','above','above_clean','alignment','barrier','guardrail_end',
              'sign_structure','south_sign','pier_girders','bearings','gore',
              'terminal_controls','rail_repair'],
         202:['hero','hero_old','above','above_clean','alignment','sound_wall','cable_median']}

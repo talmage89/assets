@@ -18,6 +18,8 @@ def main():
  review();proof=json.loads(Path('build/final-provenance.json').read_text())
  crops=json.loads(Path('renders/fix-crops/cameras.json').read_text());assert len(crops)==9
  for row in crops.values():assert hashlib.sha256(Path(row['after']).read_bytes()).hexdigest()==row['after_sha256']
+ current=json.loads(Path('renders/round4-crops/evidence.json').read_text());assert len(current)==7
+ for row in current.values():assert hashlib.sha256(Path(row['after']).read_bytes()).hexdigest()==row['after_sha256']
  folder=Path('renders/final');docs=Path('docs');docs.mkdir(exist_ok=True)
  spec={
   'hero-101.jpg':[(folder/'101/hero.png','Alder Junction')],
