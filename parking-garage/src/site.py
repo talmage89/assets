@@ -34,6 +34,8 @@ def main():
         Path(f'build/actors-{seed}.json').write_text(json.dumps(report,indent=2)+'\n')
         path=Path(f'export/sites/ParkingGarageSite-{seed}.gltf')
         delivery=export(path,list(bpy.context.scene.objects))
+        from tangent_rounding import stabilize
+        stabilize(path)
         doc=json.loads(path.read_text());unique=sum(doc['accessors'][p['indices']]['count']//3 for m in doc['meshes'] for p in m['primitives'])
         receipts.append(dict(seed=seed,garage_triangles=p['garage_triangles'],**report,delivery=delivery,
             unique_mesh_triangles=unique,expanded_scene_triangles=G.triangles(bpy.context.scene.objects)))
