@@ -99,6 +99,8 @@ Vehicles
     liftgate, diamond grille and projector lamps.
   - [Alder S240 sedan](cars/README.md#alder-s240--midsize-sedan): midsize four-door on 18-inch touring tires, with a
     hinged trunk, hexagonal mesh grille and swept lamps.
+- [Morrow C75 school bus](school-bus/README.md): late-2000s Type C conventional in three district seeds; entrance
+  and emergency doors, stop and crossing arms, roof hatches, steering and wheels move.
 
 Recreation
 - [Skateboard](skateboard/README.md): seven-ply street skateboard with cast trucks, urethane wheels and three original
@@ -109,6 +111,8 @@ Recreation
   riders, and three seeded playgrounds of 1996, 2005 and 2013 on wood fiber and poured rubber.
 - [Miniature golf](minigolf/README.md): two seeded 18-hole roadside courses, an older repainted classic with its
   lighthouse and a terraced 1990s adventure course with rockwork, a waterfall and ponds, each with its clubhouse.
+- [Community gardens](community-garden/README.md): raised and in-ground plots with July crops by growth stage,
+  sheds, compost bays and water, in three seeded gardens: a city lot, a park's plots and an accessible garden.
 
 Trees and shrubs
 - [Trees](trees/README.md): summer street trees with leaf cards and wind weights.
@@ -133,3 +137,5 @@ Held weapons
 Toolkit
 - [Shared toolkit](kit/README.md): procedural modeling and materials, UV, bake and export, verification and studio
   renders of the exported GLB.
+- [Levels of detail](kit/LOD.md): opt-in `make lod` chains that reuse each asset's own maps, piloted on the pickup,
+  colonial, gas station, grill, cone and maple and adopted by the street light and fences.

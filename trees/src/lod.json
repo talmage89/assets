@@ -1,0 +1,29 @@
+{
+  "kind": "red maple",
+  "source": "export/RedMaple.glb",
+  "levels": [
+    {
+      "ratio": 0.5,
+      "screen_height": 0.08,
+      "leaf_cards": true,
+      "leaf_scale_exponent": 0.39
+    },
+    {
+      "ratio": 0.2,
+      "screen_height": 0.032,
+      "leaf_cards": true,
+      "leaf_scale_exponent": 0.4,
+      "leaf_selection": "density"
+    },
+    {
+      "ratio": 0.0004,
+      "screen_height": 0.015,
+      "impostor": "crossed"
+    }
+  ],
+  "foliage_shader": "maple",
+  "readme_before": "\n## Pin oak /",
+  "readme_level": 3,
+  "silhouette_loss": 0.09,
+  "render_samples": 512
+}
