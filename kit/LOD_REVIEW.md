@@ -2471,7 +2471,7 @@ The chain is 9130/4542/1798 (50.01%/24.88%/9.85% of selected LOD0), with
 4/4/1 materials and 10/10/1 active draws. Both near triangle caps are met.
 All nine rendered comparisons and the captured `make check-lod` pass, including
 the independent UV/frame audit. The far reference means are
-.01049/.01222/.01386, p95 .04863/.05224/.06275 and local maxima remain below
+.01049/.01221/.01386, p95 .04856/.05225/.06275 and local maxima remain below
 .057. Lettering and broad column/fascia values agree at the 4.5% switch.
 The corrected cause is switch-capped chart allocation and a 4x antialiased
 field bake filtered into the same 512 atlas, with delivered shading frames;
@@ -2495,3 +2495,39 @@ true pins; UV/normal/material membership alone does not freeze a vertex on the
 sliding path. Remaining persistent pins belong to protected optical/alpha/contact
 sets. Initial offer eligibility and later geometry/frame/visibility rejections
 remain separate, as do retained source geometry and refinement triangle costs.
+
+## Pass 66 — final pickup rebuild, with the proxy failure retained
+
+Opened all nine newly rebuilt native strips, four construction views and the
+contact sheet. LOD1 and LOD2 now preserve the grille surround's value and
+reflection band at their switches. All six comparisons pass the original
+color limits, including the .08 local bound; no near phase allowance remains.
+The transported original normal/tangent fields and .2-pixel reflective surface
+bound are both retained. Close LOD2 inspection still exposes hood/front-joint
+and A-pillar gaps and coarse wheels. That is a closer-camera limitation, not
+a claim of close-view equivalence.
+
+Final counts are 32612/25448/2800 against 59838 original triangles:
+54.50%/42.53%/4.68%. LOD1 meets 55%; LOD2 misses 25%. The lower reviewed
+23530-triangle trial changes the native grille reflection, archived at
+`build/lod-v4/car-middle-baseline/renders/LOD2-0-strip.jpg`. The separate
+20608-triangle backface control exposes skin tears at the native side views,
+`build/lod-v4/previews/cars/double-sided/2-55-strip.jpg`. These witnesses
+explain the chosen tested bound; they do not prove a global minimum.
+
+The 2800-triangle proxy still fails color at all three native views:
+`cars/renders/lod/LOD3-{0,55,145}-strip.jpg`. Mean RGB is
+.02956/.01901/.02258, p95 .13227/.08310/.10980 and local
+.17559/.21085/.15800. Lamps, hood and window highlights remain wrong;
+coverage passes. There is no color-limit waiver. The full captured
+`make check-lod` returns 2. Its independently captured geometry check returns
+zero and the original UV/frame audit passes; the failed full report is kept.
+
+The final manifest is
+`f932af0ba5239677a1a6ce78ca78df44e3278c8418499c05b50aee1579dfa4e9`.
+Default-chain residency is 28.662 MiB versus 21.140 MiB for LOD0, including
+2.334 MiB additional proxy maps and 5.188 MiB additional mesh buffers.
+Near levels add no image and retain all four canonical source materials;
+active draws are 30/30/30/1. Mesh, render and independent audit commands
+return zero; the render command's zero exit means images were produced,
+not that its failed image gates were accepted.
