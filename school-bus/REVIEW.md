@@ -391,6 +391,6 @@ The preliminary four-point side result in pass 1 fails its body holdouts
 has a shorter rear overhang. Replace it with a photographed used 77-place
 long body, balanced on the white trailer panel behind the nose. Eight
 landmarks cover hubs, ground contacts and both upper/lower body ends:
-23.62 native px RMS at 26.84 mm (18.13 px at 1400 px width), versus the
+23.62 native px RMS at 26.84 mm (16.40 px at 1400 px width), versus the
 original 82.8 native px. Different makers' body/hood details remain visible;
 the accepted 40 ft body is unchanged.
