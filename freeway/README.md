@@ -249,16 +249,14 @@ both stages. The historic 0d5b092 archive
 can reconstruct missing before views inside this worktree, with read-only
 library inputs and without touching another checkout.
 
-The clean checkpoint, `make`, `make check`, `make repeat`,
-`make check-texture-repeat` and repository check passed. Exact repeat covers
-175 deterministic files: 69 CPU fields/calibration products, 73 native-cache,
-export and manifest files, and 33 CPU presentation products. All twelve GPU
-rebakes compare within one byte maximum and .002474 byte worst RMS difference;
-coverage alpha is exact. Blend containers and stochastic raw renders are
-outside the byte-repeat claim. Their current export/image/camera provenance
-is checked separately. All 1,094 preserved files from other deliveries remain
-byte-identical. The five gallery JPGs are 183,427–199,904 bytes and at most
-1600 pixels wide.
+`make check` passes on the revised exports. It includes 343 bidirectional
+surface comparisons, fresh imports, actual parcel clearances, 11,808 paving
+edge probes with zero exposed gap and 168 bearing probes within .76mm of
+contact. These geometric measurements are separate from serialization and
+visual judgment. All 1,099 preserved files from other deliveries remain
+byte-identical; both Traffic glTF/BIN packages exactly match the handoff.
+Blend containers and stochastic raw renders are outside the byte-repeat
+claim. Current export/image/camera provenance is checked separately.
 
 `renders/final/` contains both heroes, aerials with/without driving overlays,
 all close-ups, 17 individually framed modules, the labeled sheet, human/car
@@ -284,8 +282,11 @@ and `accepted-construction.json` distinguish actual surface measurements from
 serialization checks. The accepted bridge, plan, controls and seated paving
 are preserved; the inherited ROW fence is opened across the arterial. Obsolete
 opaque mowing skins were removed, with their color carried on the existing
-graded earth. The construction comparison excludes only maintenance deposits,
-those large cosmetic grass faces, and the local fence opening; every drain,
+graded earth. The construction comparison excludes maintenance deposits,
+replacement-slab skins/sealant spread, revised turf shading/UVs, the obsolete
+large cosmetic grass faces, the measured 48-triangle opaque column repair
+skin and the local fence opening. Added color stations on supporting pavement,
+barriers and shafts receive a bidirectional surface comparison; every drain,
 flume and small volunteer leaf remains in its strict comparison.
 `look-audit.json` measures raw exported geometry, UV charts, resources and
 preserved inputs. `final-provenance.json` verifies every final frame's source,
