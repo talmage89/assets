@@ -13,7 +13,7 @@ SCENES={101:['terminal','hero','above','above_clean','alignment','barrier','guar
              'terminal_controls','rail_repair'],
         202:['hero','above','above_clean','alignment','sound_wall','cable_median']}
 
-def fresh(path,source,args):
+def fresh(path,source,args,camera=None):
     try:
         data=json.loads(path.with_suffix('.json').read_text())
         return (not args.source_fields and path.is_file()
@@ -22,7 +22,8 @@ def fresh(path,source,args):
                 and data['bundle_sha256']==bundle(source)
                 and all(r['bundle_sha256']==bundle(r['source']) for r in data.get('context',[]))
                 and data['width']==args.width and data['samples']==args.samples
-                and data['engine']==args.engine)
+                and data['engine']==args.engine
+                and (camera is None or data['camera']==camera))
     except (OSError,KeyError,ValueError):return False
 
 def main():
@@ -40,7 +41,7 @@ def main():
     if r.camera_file:
         for name,row in json.loads(Path(r.camera_file).read_text()).items():
             if r.shots and name not in r.shots:continue
-            if fresh(Path(r.out)/(name+'.png'),row.get('source',r.source),r):continue
+            if fresh(Path(r.out)/(name+'.png'),row.get('source',r.source),r,row['shot']):continue
             jobs.append(shared+['--camera-file',r.camera_file,'--shots',name]+(['--source-fields'] if r.source_fields else []))
     else:
         for seed in r.seeds:

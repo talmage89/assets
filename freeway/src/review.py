@@ -30,12 +30,13 @@ def main():
     sheet(files,'renders/lookdev/contact.jpg')
     pairs=sorted(Path('renders/look-matches').glob('*-pair.jpg'));assert len(pairs)>=3
     for folder,stage in [('look-matches','exported shipped PBR'),('source-matches','4096 source-field inspection')]:
-        for name in json.loads(Path('build/cameras.json').read_text()):
+        for name,row in json.loads(Path('build/cameras.json').read_text()).items():
             path=Path('renders')/folder/(name+'.png');record=json.loads(path.with_suffix('.json').read_text())
             assert record['material_stage']==stage,(path,'Wrong inspection stage')
             assert record['bundle_sha256']==bundle(record['source']),('Stale matched source',path)
             assert record['frame_sha256']==hashlib.sha256(path.read_bytes()).hexdigest(),('Changed matched pixels',path)
             assert record['recipe_sha256']==hashlib.sha256(Path('src/render.py').read_bytes()).hexdigest(),('Stale matched recipe',path)
+            assert record['camera']==row['shot'],('Stale matched camera or light',path)
             for ctx in record.get('context',[]):assert ctx['bundle_sha256']==bundle(ctx['source']),('Stale matched context',path)
             if folder=='source-matches':assert record['source_field_changes'],('Source material inspection changed no fields',path)
     sheet(pairs,'renders/look-matches/contact.jpg',cols=1,width=1400)
