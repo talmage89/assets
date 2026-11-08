@@ -41,9 +41,12 @@ def definitions():
     # Native construction differs. Restrict anchors to the cap/column frame;
     # the photographed steel cross-bracing remains an explicit mismatch.
     p=generate(101);x=-p.span/2;half=p.deck_width/2-.3
+    cap_top=p.deck_z-.32-1.143-.30
+    # Native F-cap is 2.30m wide, 1.10m deep, with 50mm chamfers.
+    # Use its actual upper/lower chamfer endpoints after height adaptation.
     under=definition('under-huron.jpg','Under bridge / support frame; steel reference differs',[
-        ((x-.86,half,2.687),.170,.660),((x-.86,-half,2.687),.849,.679),
-        ((x-.86,half,1.887),.170,.711),((x-.86,-half,1.887),.849,.730)],
+        ((x-1.10,half,cap_top),.170,.660),((x-1.10,-half,cap_top),.849,.679),
+        ((x-1.10,half,cap_top-1.10),.170,.711),((x-1.10,-half,cap_top-1.10),.849,.730)],
         (-24,-.4,2.15),(x,0,3.7),24,height=[2.15,.25])
     return dict(urban=(101,urban),bank=(202,bank),under=(101,under))
 
