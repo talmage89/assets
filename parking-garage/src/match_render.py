@@ -38,7 +38,12 @@ def main():
             bpy.context.scene.world.node_tree.nodes.get('Background').inputs['Strength'].default_value=.45
             next(o.data for o in bpy.context.scene.objects if o.type=='LIGHT' and o.data.type=='SUN').energy=3
             bpy.context.scene.view_settings.exposure=-.3
-        if name=='precast':bpy.context.scene.view_settings.exposure=.35
+        if name=='precast':
+            bpy.context.scene.view_settings.exposure=.35
+            # Surrounded flat spans, open sides and broad wraparound lenses.
+            # Match practical output as a whole; never tint a diagnostic ROI.
+            for ob in bpy.context.scene.objects:
+                if ob.type=='LIGHT' and ob.data.type=='AREA':ob.data.energy*=1.5
         shot=fit['shot'];shot['aspect']=(fit['crop'][2]-fit['crop'][0])/(fit['crop'][3]-fit['crop'][1]);shot['max_bounces']=12
         r=render_shot(a.out/(name+'.png'),shot,a.width,a.samples,'CYCLES',path)
         digest=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()

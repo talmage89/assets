@@ -80,6 +80,7 @@ def placed(root,p,mats):
                     strength=age*(.36+.20*math.sin(math.pi*(progress+end)/2))
                     stamp(q,'rubber',strength,[(u0,vstart),(u0,vend),(u1,vend),(u1,vstart)])
     L,W=p['length'],p['width']
+    ymin,ymax=p.get('comparison_y_bounds_m',(-W/2,W/2))
     # The exposed drive lane loses sealer where vehicles travel. This is a
     # projected soft ribbon with roughness, rather than vertex gradients
     # stretching a 20cm wear mask across a whole 18m deck triangle.
@@ -99,12 +100,13 @@ def placed(root,p,mats):
     for lev in range(p['levels']):
         z=lev*FLOOR
         for x in (-L/3,0,L/3):
-            for yy in (-W/2+.5,p['joint_y']-.5):
+            for yy in (ymin+.5,p['joint_y']-.5):
                 floor_mark(x+.15,yy+.15,deck_z(p,lev,x,yy),rng.uniform(1,1.7),rng.uniform(.45,.85),'runoff',.48*age)
         # Runoff descends from panel tops and leaking flange joints. Individual
         # narrow streams, dry gaps and pale salts avoid a uniform dirty band.
+        if lev not in p.get('comparison_facade_levels',range(p['levels'])):continue
         for side in (-1,1):
-            y=side*(W/2+(.1308 if old else .0908))
+            y=(ymin if side<0 else ymax)+side*(.1308 if old else .0908)
             for a,c in zip(p['structural_stations'],p['structural_stations'][1:]):
                 mid=(a+c)/2
                 if lev==0 and side==-1 and mid>L/2-p['end_length']-3:continue

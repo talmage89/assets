@@ -47,7 +47,7 @@ def main():
     Path('build/lookdev/comparison-harmon.json').write_text(json.dumps(p,indent=2)+'\n')
     bpy.ops.wm.save_as_mainfile(filepath=str(Path('build/lookdev/comparison-harmon.blend').resolve()))
     from precast_specimen import build
-    rt,p=build(json.loads(Path('textures/lookdev/layout.json').read_text()))
+    rt,p=build(json.loads(Path('textures/lookdev/layout.json').read_text()),tee_count=18,rear_spans=2)
     export('export/form/comparison-precast.gltf',[o for o in bpy.context.scene.objects if o.type!='CURVE'],Path('textures/lookdev').rglob('*.png'))
     from tangent_rounding import stabilize
     stabilize(Path('export/form/comparison-precast.gltf'))

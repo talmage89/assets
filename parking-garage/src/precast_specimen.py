@@ -1,8 +1,10 @@
-"""Two flat precast bays for the interior photograph, using our stock kit.
+"""Flat precast assembly for the interior photograph, using our stock kit.
 
 The town garage has a ramp at its middle line; the photo has a flat inverted-T
 seat. This calibration specimen keeps the actual sections and 11ft spacing.
-It is a measured assembly comparator, not a third town garage delivery.
+Visible central members are measured. Roof continuation outside that crop
+supplies surrounding shade, not a claim about the photographed full footprint.
+This is an assembly comparator, not a third town garage delivery.
 """
 import json,math
 from pathlib import Path
@@ -15,7 +17,7 @@ from tee_detail import source
 from build import members
 
 
-def build(layout):
+def build(layout,tee_count=6,rear_spans=1):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(Path('export/sites/ParkingGarageSite-101.gltf').resolve()));bpy.context.view_layer.update()
     old=bpy.data.objects['Garage_101'];town=bpy.data.objects['TownContext']
@@ -31,42 +33,54 @@ def build(layout):
     for rr in list(town.children):
         if rr.name.startswith(('Native Main Street row','Continuing block','Native commercial center')):
             for ob in reversed(members(rr)):bpy.data.objects.remove(ob,do_unlink=True)
-    G.palette(Path('textures/lookdev'));rt=G.root('Garage_101',system='precast',stage='Flat two-bay calibration specimen')
-    L=6*TEE;W=2*SPAN;p=garage(101)
-    p.update(length=L,width=W,levels=2,tee_count=6,flat_y=-SPAN/2,ramp_y=SPAN/2,ramp_width=SPAN,
-        structural_stations=[-L/2,0,L/2],ramp_limits=[-7.5,7.5],joint_y=0,towers=[],stalls=[],pieces=[])
+    G.palette(Path('textures/lookdev'));rt=G.root('Garage_101',system='precast',stage='Flat assembly calibration specimen')
+    assert tee_count>=6 and tee_count%6==0
+    assert rear_spans in (1,2)
+    L=tee_count*TEE;ymin,ymax=-rear_spans*SPAN,SPAN;W=ymax-ymin;p=garage(101)
+    transverse=[-SPAN,0,SPAN,*[-(i+2)*SPAN for i in range(rear_spans-1)]]
+    stations=[(i-tee_count//6)*3*TEE for i in range(tee_count//3+1)]
+    centers=[(a+c)/2 for a,c in zip(stations,stations[1:])]
+    p.update(length=L,width=W,levels=2,tee_count=tee_count,flat_y=-SPAN/2,ramp_y=SPAN/2,ramp_width=SPAN,
+        structural_stations=stations,ramp_limits=[-7.5,7.5],joint_y=0,towers=[],stalls=[],pieces=[],drains=[],
+        comparison_y_bounds_m=[ymin,ymax],comparison_facade_levels=[0],comparison_origin='Measured central column')
     p['comparison_actors']=actors
-    b=G.Mesh('Grade slab comparison',rt);b.box((0,0,-.08),(L,W,.16),'Deck');b.finish()
-    for ix,x in enumerate((-L/2,0,L/2)):
-        for iy,y in enumerate((-SPAN,0,SPAN)):
-            rr=G.root(f'ColumnShaft_{ix}_{iy}',(x,y,0),rt,module_kind='ColumnCorbel');pieces.column(rr)
+    b=G.Mesh('Grade slab comparison',rt);b.box((0,(ymin+ymax)/2,-.08),(L,W,.16),'Deck');b.finish()
+    for ix,x in enumerate(stations):
+        for iy,y in enumerate(transverse):
+            core_index=ix-(len(stations)-3)//2
+            rr=G.root(f'ColumnShaft_{core_index}_{iy}',(x,y,0),rt,module_kind='ColumnCorbel');pieces.column(rr)
             for ob in rr.children:
                 remove_paint(ob)
                 if ob.type=='MESH':
                     for v in ob.data.vertices:
                         if abs(v.co.z-(FLOOR-1.60))<1e-6:v.co.z-=(FLOOR-1.60)*.15
                     ob.data.update()
-    for x in (-L/4,L/4):
-        for y in (-SPAN,0,SPAN):
-            rr=G.root(f'Girder_{x}_{y}',(x,y,FLOOR),rt,module_kind='InvertedT' if y==0 else 'LBeam')
-            pieces.beam(rr,edge=y!=0)
+    for x in centers:
+        for y in transverse:
+            edge=y in (ymin,ymax)
+            rr=G.root(f'Girder_{x}_{y}',(x,y,FLOOR),rt,module_kind='LBeam' if edge else 'InvertedT')
+            pieces.beam(rr,edge=edge)
             if y<0:rr.rotation_euler.z=math.pi
-    for row,cy in enumerate((-SPAN/2,SPAN/2)):
-        for i in range(6):
+    for row,cy in enumerate((-SPAN/2,SPAN/2,*[-(i+1.5)*SPAN for i in range(rear_spans-1)])):
+        for i in range(tee_count):
             x=-L/2+(i+.5)*TEE
-            rr=G.root(f'Flat_L2_R{row}_T{i}',(x,cy,FLOOR),rt,module_kind='DoubleTee');source(rr)
+            core_index=i-(tee_count-6)//2
+            rr=G.root(f'Flat_L2_R{row}_T{core_index}',(x,cy,FLOOR),rt,module_kind='DoubleTee');source(rr)
             if i%2==0:
                 for yy in (cy-2.5,cy+2.5):
                     fr=G.root(f'Fixture_{row}_{i}_{yy}',(x,yy,FLOOR-.7024),rt,module_kind='Fixture');pieces.fixture(fr,refined=True,strap=.5524)
-    closure=G.Mesh('Inner closure pour comparison',rt);closure.box((0,0,FLOOR-.025),(L,.08,.05),'Deck');closure.finish()
+    closure=G.Mesh('Inner closure pour comparison',rt)
+    for y in transverse:
+        if y not in (ymin,ymax):closure.box((0,y,FLOOR-.025),(L,.08,.05),'Deck')
+    closure.finish()
     marks=G.Mesh('Parking markings comparison',rt)
     for i,x in enumerate((-7.0,-2.7,4.2,8.4)):
         s=dict(x=x,y=12.,z=0,yaw=180,depth=DEPTH,width=STALL,level=0,ramp=False);p['stalls'].append(s)
         for xx in (x-STALL/2,x+STALL/2):marks.quad([(xx-.045,9.25,.006),(xx+.045,9.25,.006),(xx+.045,14.75,.006),(xx-.045,14.75,.006)])
     marks.finish()
     for side in (-1,1):
-        for x in (-L/4,L/4):
-            rr=G.root(f'Facade_0_{side}_{x}',(x,side*SPAN,0),rt,module_kind='Spandrel');pieces.spandrel(rr,refined=True)
+        for x in centers:
+            rr=G.root(f'Facade_0_{side}_{x}',(x,ymin if side<0 else ymax,0),rt,module_kind='Spandrel');pieces.spandrel(rr,refined=True)
     notice=G.Mesh('Column level and payment notice',rt)
     notice.box((.12,-.386,.80),(.45,.01,.86),'White')
     for z,h,key in ((1.08,.22,'LEVEL 2'),(.78,.10,'PAY BEFORE RETURNING'),(.57,.10,'PAY HERE')):
