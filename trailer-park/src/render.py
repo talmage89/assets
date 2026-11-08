@@ -65,7 +65,7 @@ def image_resources():
 def source_finish():
     """Same game geometry/cause colors, original manufacture before GPU bake."""
     for mat in bpy.data.materials:
-        if not mat.name.startswith(('ManufacturedPBR_Metal','ManufacturedPatina')):continue
+        if not mat.name.startswith(('ManufacturedPBR_Metal','ManufacturedPatina','ManufacturedGrassBlades')):continue
         ns,ls=mat.node_tree.nodes,mat.node_tree.links
         for node in ns:
             if node.type!='TEX_IMAGE' or not node.image:continue
@@ -77,10 +77,11 @@ def source_finish():
         height=ns.new('ShaderNodeTexImage');height.image=bpy.data.images.load(str(Path('textures/source/T_Manufactured_Height.png').resolve()),check_existing=True);height.image.colorspace_settings.name='Non-Color'
         bump=ns.new('ShaderNodeBump');bump.inputs['Distance'].default_value=.012;ls.new(height.outputs['Color'],bump.inputs['Height'])
         bs=next(n for n in ns if n.type=='BSDF_PRINCIPLED');ls.new(bump.outputs['Normal'],bs.inputs['Normal'])
-        if mat.name.startswith('ManufacturedPatina'):
+        if mat.name.startswith(('ManufacturedPatina','ManufacturedGrassBlades')):
             coverage=ns.new('ShaderNodeTexImage');coverage.image=bpy.data.images.load(str(Path('textures/source/T_Manufactured_Coverage.png').resolve()),check_existing=True);coverage.image.colorspace_settings.name='Non-Color'
-            alpha=bs.inputs['Alpha'].links[0].from_node
-            ls.new(coverage.outputs['Color'],alpha.inputs[0])
+            if mat.name.startswith('ManufacturedPatina'):
+                alpha=bs.inputs['Alpha'].links[0].from_node;ls.new(coverage.outputs['Color'],alpha.inputs[0])
+            else:ls.new(coverage.outputs['Color'],bs.inputs['Alpha'])
 
 
 def clear_raking_direction(plan):

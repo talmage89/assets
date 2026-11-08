@@ -72,7 +72,7 @@ def publish(stem,root,plan=None):
     # may otherwise serialize a redundant RGB copy for the opaque subset.
     from PIL import Image
     for ma in doc['materials']:
-        if ma['name'].split('.')[0] not in ('ManufacturedPBR_Metal','ManufacturedPatina'):continue
+        if ma['name'].split('.')[0] not in ('ManufacturedPBR_Metal','ManufacturedPatina','ManufacturedGrassBlades'):continue
         texture=ma['pbrMetallicRoughness']['baseColorTexture']['index'];im=doc['images'][doc['textures'][texture]['source']]
         original=Path('textures/ship/T_Manufactured_BaseColor.png').resolve()
         actual=np.asarray(Image.open(path.parent/im['uri']).convert('RGB'),dtype=np.int16)
@@ -93,6 +93,7 @@ def publish(stem,root,plan=None):
     for ma in doc['materials']:
         if ma['name'].startswith('ManufacturedSoilFringe'):ma.update(alphaMode='BLEND',doubleSided=True)
         if ma['name'].startswith('ManufacturedPatina'):ma.update(alphaMode='BLEND',doubleSided=False)
+        if ma['name'].startswith('ManufacturedGrassBlades'):ma.update(alphaMode='MASK',alphaCutoff=.45,doubleSided=True)
     images=[];indices={};remap={}
     for i,im in enumerate(doc.get('images',[])):
         key=im['uri']

@@ -8,13 +8,27 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
-from kit.image_io import write_png,linear_to_srgb
+from kit.image_io import write_png,linear_to_srgb,srgb_to_linear
 
 NAME='Manufactured'
 COVERAGE=4.8768
 RECTS=dict(Ribbed=(0,.5,.5,1),Skirt=(.5,.5,1,.75),Roof=(.5,.75,1,1),
-           Zinc=(0,0,.25,.5),Steel=(.25,0,.5,.5),Pier=(.5,0,.75,.5),Plain=(.75,.25,1,.5),
-           Rust=(.75,0,.875,.25),Damp=(.875,0,1,.125),Splash=(.875,.125,1,.25))
+           Zinc=(0,0,.25,.5),Steel=(.25,0,.5,.5),Pier=(.5,0,.75,.5),Plain=(.875,.25,1,.5),
+           Rust=(.75,0,.875,.25),Damp=(.875,0,1,.125),Splash=(.875,.125,1,.25),Grass=(.75,.25,.875,.5))
+
+
+def garden_grass(w,h):
+    """Garden's four original Ground tufts, same linear gain and rough leaf."""
+    import importlib.util
+    from PIL import ImageFilter
+    path=Path(__file__).resolve().parents[2]/'ground/src/organic.py'
+    spec=importlib.util.spec_from_file_location('_manufactured_native_turf',path)
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    original=module.edging(1024,1024)[:,:512]
+    pixels=np.array(Image.fromarray(np.uint8(original*255)).resize((w,h),Image.Resampling.LANCZOS))
+    alpha=np.asarray(Image.fromarray(pixels[:,:,3]).filter(ImageFilter.MaxFilter(3)),float)/255
+    color=srgb_to_linear(pixels[:,:,:3].astype(float)/255)*np.array([1.45,1.75,2.0])
+    return np.clip(color,0,1),alpha
 
 
 def field(w,h,cells,seed):
@@ -65,6 +79,9 @@ def source(out,n=4096):
             from weather_fields import field as weather
             c,packed,relief,opacity=weather(kind,w,h,8401+index)
             ao,r,m=packed[:,:,0],packed[:,:,1],packed[:,:,2];alpha[y0:y1,x0:x1]=opacity
+        elif kind=='Grass':
+            c,opacity=garden_grass(w,h);alpha[y0:y1,x0:x1]=opacity
+            relief=np.full((h,w),.5);r[:]=240/255
         else:
             c*=.97+.025*(mid-.5)[:,:,None];r=.68+.04*mid
         bc[y0:y1,x0:x1]=np.clip(c,0,1);height[y0:y1,x0:x1]=np.clip(relief,0,1)

@@ -3,14 +3,15 @@ import math,random
 
 
 def add(parent,plan,lib):
-    from ground_edges import edges,modules
+    from ground_edges import edges
     from terrain import sward_height
     from kit.botany import Cards
     from mathutils import Vector
     import bpy
-    base,additions=modules();cards=Cards();old=plan['kind']=='old';paths=[]
+    cards=Cards();old=plan['kind']=='old';paths=[]
     # The accepted garden copies this same original Ground alpha field.
-    u0,v0,u1,v1=additions.RECTS['grass'];cw=(u1-u0)/4;ch=(v1-v0)/2;pad=2/2048
+    from textures import RECTS
+    u0,v0,u1,v1=RECTS['Grass'];cw=(u1-u0)/2;ch=(v1-v0)/2;pad=2/2048
     for row in plan['lots']:
         p=row['home'];r=random.Random(p['occupant_seed']+8603);L,W=p['length'],p['width'];angle=math.radians(row['yaw']);cs,sn=math.cos(angle),math.sin(angle)
         def world(u,v):
@@ -54,15 +55,15 @@ def add(parent,plan,lib):
             u=L/2+r.uniform(.1,5.3);v=r.choice((.48,plan['lot_frontage']/2-1.6));point=world(u,v)
             paths.append([point,point+Vector((.12,.05,0))])
     fringe=edges(parent,paths,plan['seed']+9713,lib);fringe['component']='summer_weeds'
-    material=fringe.data.materials[0].copy();material.name='ManufacturedGrassBlades';material['tiling_vertex_tint']=True
+    from surfaces import palette
+    material=palette()['Metal'].copy();material.name='ManufacturedGrassBlades';material['tiling_vertex_tint']=True
+    material.use_backface_culling=False;material.surface_render_method='DITHERED'
     ns,ls=material.node_tree.nodes,material.node_tree.links
-    bs=next(n for n in ns if n.type=='BSDF_PRINCIPLED');original=bs.inputs['Base Color'].links[0].from_socket
-    # Garden's copied tufts use neutral normals and a very rough leaf field;
-    # the Ground trim normal must not turn fine mown blades into hard lumps.
-    for link in list(bs.inputs['Normal'].links):ls.remove(link)
-    tint_node=ns.new('ShaderNodeVertexColor');tint_node.layer_name='Tint'
-    multiply=ns.new('ShaderNodeMixRGB');multiply.blend_type='MULTIPLY';multiply.inputs[0].default_value=1
-    ls.new(original,multiply.inputs[1]);ls.new(tint_node.outputs['Color'],multiply.inputs[2]);ls.new(multiply.outputs[0],bs.inputs['Base Color'])
+    bs=next(n for n in ns if n.type=='BSDF_PRINCIPLED')
+    # The shared grass cell has the garden's neutral normal, roughness and
+    # linear albedo gains. It does not read unrelated Ground trim normals.
+    image=next(n for n in ns if n.type=='TEX_IMAGE' and 'BaseColor' in n.image.name)
+    ls.new(image.outputs['Alpha'],bs.inputs['Alpha'])
     ob=cards.mesh('Clumped clipped summer lawn blades',material);ob.parent=parent;ob['component']='summer_weeds'
     ob.data.uv_layers.active.name='UVMap'
     wind=ob.data.color_attributes.get('Wind')
