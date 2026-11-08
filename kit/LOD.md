@@ -489,6 +489,13 @@ pass. The six-pilot checkpoint and its remaining failures are recorded in
 [LOD_REVIEW.md](LOD_REVIEW.md). Each adoption must pass its own checks and review; another family's result
 cannot approve it. The adoption proofs record the frozen tool before use.
 
+The colonial far switch also has a scoped phase calibration. At .045 screen
+height (49 pixels), measured +/- .75-pixel film shifts of unchanged LOD0 reach
+mean .02472, p95 .12549 and local .09585. Its retained native control strips
+justify mean .03, p95 .13 and local .10 for that level only. Alpha and silhouette
+limits stay unchanged. Broad proxy color errors, such as the pickup's lamp
+surround, are not explained by these house controls.
+
 1. Add `src/lod.json` using the applicable complete example below, replacing the
    source filename and kind label. Keep each config directly inside `src/`.
    Paths resolve from the **asset folder**, not from `src/`. A family with several kinds adds one config per delivered kind or

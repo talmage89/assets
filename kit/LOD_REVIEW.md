@@ -1962,3 +1962,47 @@ almost three hours. A read-only descriptor audit found no leftover own holder.
 The CPU runner yielded with genuine completed caches intact when a lease
 became available; queued native reviews have begun. No interrupted build is
 reported as a successful chain and no image gate is waived by the wait.
+
+## Pass 51 — native reductions, individual proxy fields, and house phase limit
+
+Opened the 512-sample native pickup LOD1 strips at all three azimuths under
+`build/lod-v4/previews/cars/density012/`. The 35212-triangle result passes the
+unchanged image limits: mean .00142/.00185/.00193, local
+.05805/.04310/.06271. Grille highlights and the original hood skin remain
+consistent. Production now uses the tested .35 roughness classification,
+.125-pixel reflective cap and explicit original `HoodMesh`. The 25648-triangle
+middle control still awaits its own native review; its count alone is no pass.
+
+Opened all six colonial near strips in `previews/houses/near-v5/`: garage
+panels, roof, siding and window construction remain readable at their true
+switch sizes. Both counts meet the requested caps (24949/13218). The middle
+rear local metric is .08589 versus .08; near source-only controls are queued
+before any scoped correction. Opened both grill middle controls at all three
+azimuths: 6144 and 6214 triangles. The lower count retains the hose, frame,
+lid and wheels; its front local .08805 narrowly fails. The 6214 control has
+worse side/rear local errors, so it is not preferred merely for its count.
+The 6144 setting is selected provisionally, pending source phase and open-lid
+checks. The accepted 1796-triangle grill proxy remains unchanged.
+
+Opened all six .75-pixel unchanged-house controls under
+`source-pixel-controls075/houses-3/`. Front mean/p95/local reach
+.02472/.12549/.09585 with identical maps, geometry and lighting. At 49 pixels
+high, aligned bright trim alone makes the previous generic mean/p95 limits
+reject immutable LOD0. The SS4 proxy's native front .02593/.10980/.07079 is
+comparable and its silhouette/alpha pass. Set only the house far level to
+mean .03, p95 .13 and local .10; all other metrics and levels keep their own
+limits. This is a switch-size phase correction, not a global color tolerance.
+The atlas uses the tested 1/4 density caps and 4x bake, with no new near maps.
+
+Opened all 21 single-field-removal proxy strips in `proxy-field-controls/`.
+Removing base normals, coat normals, both, emission, transmission, coat or AO
+does not produce an acceptable pickup. AO removal is numerically identical
+to baseline. Transmission removal makes broad pale window/lens patches;
+emission removal turns the lamps off. No such omission is adopted. A
+transmission-receiver density control improves front mean from .03547 to
+.02954, but local .17559/.21062/.15803 still fails. It is not a color fix.
+Its alpha errors are **identical** to baseline (.02232/.02200/.02340): an
+earlier scratch interpretation misread the decimal, and is withdrawn.
+Geometry, normals and material settings are also unchanged. Additional
+light-free shader-input comparisons are queued to distinguish field transfer
+from lighting response. No pickup proxy color exception is granted.
