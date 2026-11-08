@@ -1,6 +1,11 @@
 """Batched Cycles review from fresh external glTF imports, never source blends."""
-import argparse,hashlib,json,math,sys
+import argparse,hashlib,json,math,os,sys
 from pathlib import Path
+# The shared Make recipe launches Blender. Replace this empty process with
+# the serial driver before any scene is loaded; FD 9 keeps its GPU lease.
+if __name__=='__main__' and '--delivery' in sys.argv:
+    argv=sys.argv[sys.argv.index('--')+1:]
+    os.execvp('python3',['python3',str(Path(__file__).with_name('render_batch.py')),*argv])
 import bpy
 from mathutils import Vector,Matrix
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE),str(HERE.parents[1])]
@@ -226,6 +231,7 @@ def render(stem,path,meta,views,out,width,samples,dress=True,source=False):
         # Commit evidence per completed frame; a later scene import must not
         # erase all provenance when a long shared-machine batch is stopped.
         receipt=Path(sc.render.filepath).with_suffix('.receipt.json')
+        provenance[-1]['image_sha256']=hashlib.sha256(Path(sc.render.filepath).read_bytes()).hexdigest()
         receipt.write_text(json.dumps(provenance[-1],indent=2))
         for root in temporary:
             for o in [*root.children_recursive,root]:bpy.data.objects.remove(o,do_unlink=True)
@@ -261,11 +267,12 @@ def main():
     a.add_argument('--only',default='all');a.add_argument('--shots',default='all');a.add_argument('--cameras',type=Path)
     a.add_argument('--before-cameras',type=Path);a.add_argument('--baseline',type=Path);a.add_argument('--no-context',action='store_true')
     a.add_argument('--retain-cameras',type=Path);a.add_argument('--eevee',action='store_true');a.add_argument('--source-finish',action='store_true');a.add_argument('--delivery',action='store_true')
+    a.add_argument('--exports',type=Path,default=Path('export'))
     a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
     stems=[*[k for k in json.loads(Path('build/family.json').read_text()) if k.startswith('Park-')],'SingleWide-120','DoubleWide-228','Deck','Carport','UtilityService','EntranceSign','Modules','HomeForms','SupportFrame'] if a.only=='all' else a.only.split(',')
     receipts=[]
     for stem in stems:
-        path=Path('export')/(stem+'.gltf');meta=json.loads(path.with_suffix('.json').read_text());views=shot_views(stem,meta)
+        path=a.exports/(stem+'.gltf');meta=json.loads(path.with_suffix('.json').read_text());views=shot_views(stem,meta)
         if a.shots!='all':views={k:v for k,v in views.items() if k in a.shots.split(',')}
         if a.retain_cameras:
             prior=json.loads(a.retain_cameras.read_text())
@@ -291,14 +298,18 @@ def main():
         from kit.photo_match import verify
         verify(a.cameras)
         for name,row in json.loads(a.cameras.read_text()).items():
-            stem=row['asset'];meta=json.loads(Path('export',stem+'.json').read_text())
+            stem=row['asset'];meta=json.loads((a.exports/(stem+'.json')).read_text())
             v=row['shot'];v['aspect']=(row['crop'][2]-row['crop'][0])/(row['crop'][3]-row['crop'][1]);v['review_landmarks']=row['landmarks_world_m'];v['review_subject_nodes']=row.get('subject_nodes',[])
             v['light']=(dict(sun_energy=.8,sky_strength=.40,sky_saturation=.06,camera_sky_strength=.40,camera_sky_saturation=.06,angle_degrees=12,direction=(.3,.3,-1),exposure=-1.25) if name=='single-2009' else
                         dict(sun_energy=5,sky_strength=.12,sky_saturation=.35,angle_degrees=.65,direction=(.5,.5,-1),exposure=.10) if name=='street-2007' else
                         dict(sun_energy=5,sky_strength=.12,sky_saturation=.35,angle_degrees=.65,direction=(.5,.5,-1),exposure=.10))
-            receipts+=render(stem,Path('export',stem+'.gltf'),meta,{name:v},a.out/'matches',a.width,a.samples,True,a.source_finish)
+            receipts+=render(stem,a.exports/(stem+'.gltf'),meta,{name:v},a.out/'matches',a.width,a.samples,True,a.source_finish)
     if a.baseline and a.baseline.exists():receipts+=baseline_renders(a.baseline,receipts,a.out,a.width,a.samples)
-    a.out.mkdir(parents=True,exist_ok=True);(a.out/'provenance.json').write_text(json.dumps(receipts,indent=2));print('RENDERED',len(receipts),flush=True)
+    a.out.mkdir(parents=True,exist_ok=True);report=a.out/'provenance.json'
+    previous=json.loads(report.read_text()) if report.exists() else []
+    keys={(r['stem'],r['shot']) for r in receipts}
+    combined=[r for r in previous if (r['stem'],r['shot']) not in keys]+receipts
+    report.write_text(json.dumps(combined,indent=2));print('RENDERED',len(receipts),flush=True)
     if a.delivery:
         from delivery_batch import extra
         extra(main,a)
