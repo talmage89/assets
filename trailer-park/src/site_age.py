@@ -7,6 +7,7 @@ def road(a,p,lib,material):
     from soil_finish import material as soil_material
     trim=material(lib,'GroundTrim');r=random.Random(p['seed']+1371);old=p['kind']=='old'
     w,span=p['street_width'],p['span'];m=a.mesh('CrackSeals',component='street_age')
+    seal_rng=random.Random(p['seed']+18171)
     def seal(points,width):
         smooth=[]
         for j in range(len(points)-1):
@@ -16,9 +17,13 @@ def road(a,p,lib,material):
         smooth.append(points[-1]);vs=[];fs=[];colors=[]
         for j,(x,y) in enumerate(smooth):
             before=smooth[max(0,j-1)];after=smooth[min(len(smooth)-1,j+1)];dx,dy=after[0]-before[0],after[1]-before[1];d=math.hypot(dx,dy)
-            half=width*(.70+.30*math.sin(j*.47)**2);nx,ny=-dy/d*half,dx/d*half
-            vs.extend([(x+nx,y+ny,.017),(x,y,.0185),(x-nx,y-ny,.017)])
-            colors.extend([(.037,.037,.033,1),(.014,.015,.013,1),(.037,.037,.033,1)])
+            # 2–4in overband, applicator wander, irregular squeeze-out and
+            # cooler tar at the margins. Each edge has independent width.
+            wobble=seal_rng.uniform(-.016,.016);x+=-dy/d*wobble;y+=dx/d*wobble
+            half=width*seal_rng.uniform(.72,1.28);nx,ny=-dy/d*half,dx/d*half
+            asym=seal_rng.uniform(.70,1.30)
+            vs.extend([(x+nx,y+ny,.017),(x,y,.019),(x-nx*asym,y-ny*asym,.017)])
+            colors.extend([(.009,.009,.008,1),(.004,.004,.004,1),(.009,.009,.008,1)])
             if j:
                 k=(j-1)*3;fs.extend([(k,k+3,k+4,k+1),(k+1,k+4,k+5,k+2)])
         m.geom(vs,fs,'Trim');m.col[-len(colors):]=colors
@@ -26,16 +31,29 @@ def road(a,p,lib,material):
         # Longitudinal fatigue seal; offset from the centerline oil drips.
         points=[(lane-.85+r.uniform(-.32,.32),-span/2+1+j*1.5) for j in range(math.floor((span-2)/1.5)+1)]
         for start in range(0,len(points)-3,7):
-            if r.random()<(.92 if old else .68):seal(points[start:min(start+r.randint(5,8),len(points))],.017 if old else .011)
+            if r.random()<(.92 if old else .68):seal(points[start:min(start+r.randint(5,8),len(points))],.039 if old else .030)
         for j in range(math.ceil(span/7)):
             y=-span/2+3+j*7+r.uniform(-2.4,2.4)
             branch=[(lane-.85,y),(lane+.25,y+.4),(lane+w/2-.10,y+1.0)]
-            if old or r.random()<.58:seal(branch,r.uniform(.011,.025) if old else r.uniform(.008,.016))
+            if old or r.random()<.58:seal(branch,r.uniform(.030,.045) if old else r.uniform(.026,.037))
+            # Branches leave the principal fatigue crack, with short unfilled
+            # ends; own RNG leaves accepted oil and service patch placements.
+            if seal_rng.random()<.72:
+                bx,by=branch[1];sign=seal_rng.choice((-1,1))
+                seal([(bx,by),(bx+sign*.35,by+.42),(bx+sign*.72,by+.64)],.030)
             if j%3!=1:
                 decal(a.root,'Settled service-cut patch',(lane+r.uniform(-1.1,1.1),y+2),(r.uniform(.7,1.5),r.uniform(1.0,2.5)),trim,(.25,.25,.5,.5),r.uniform(-8,8),p['seed'],z=.019)
             variant=r.randrange(3);rect=(.5+variant/12,.5,.5+(variant+1)/12,.75)
             decal(a.root,'Centerline traffic oil',(lane+r.uniform(-.45,.45),y-1.5),(r.uniform(.35,.75),r.uniform(.55,1.3)),trim,rect,r.uniform(-35,35),p['seed'],z=.020)
         for side in (-1,1):
+            if old:
+                # Connected irregular cells near loaded, unsupported margins.
+                for station in range(math.ceil(span/8)):
+                    cy=-span/2+3+station*8;cx=lane+side*(w/2-.45)
+                    for cell in range(5):
+                        yy=cy+cell*.24;dx=seal_rng.uniform(-.10,.10)
+                        seal([(cx-.20+dx,yy),(cx+.02,yy+.07),(cx+.20+dx,yy+.29)],.004)
+                        seal([(cx+.02,yy+.07),(cx-.05,yy+.28)],.003)
             for j in range(math.ceil(span/3.3)):
                 y=-span/2+(j+.5)*3.3
                 decal(a.root,'Raveled asphalt shoulder',(lane+side*(w/2-.12),y),(.38,3.5),trim,(0,.5,.5,.75),0 if side>0 else 180,p['seed'],z=.0205)
@@ -68,10 +86,17 @@ def road_tone(ob,tint,seed):
     bm=bmesh.new();bm.from_mesh(ob.data)
     lo=min(v.co.y for v in bm.verts);hi=max(v.co.y for v in bm.verts);half=max(abs(v.co.x) for v in bm.verts)
     if hi-lo<10:bm.free();return
-    for axis,values in ((1,[lo+j*(hi-lo)/math.ceil((hi-lo)/4) for j in range(1,math.ceil((hi-lo)/4))]),(0,[-half*.70,-half*.45,0,half*.45,half*.70])):
+    for axis,values in ((1,[lo+j*(hi-lo)/math.ceil((hi-lo)/.65) for j in range(1,math.ceil((hi-lo)/.65))]),(0,[-half*.70,-half*.45,0,half*.45,half*.70])):
         for value in values:
             co=[0,0,0];n=[0,0,0];co[axis]=value;n[axis]=1
             bmesh.ops.bisect_plane(bm,geom=[*bm.verts,*bm.edges,*bm.faces],plane_co=co,plane_no=n,dist=1e-6)
+    # Recede the actual asphalt edge between isolated intact stations. Width
+    # remains the nominal maximum; the boundary is physically broken.
+    for v in bm.verts:
+        if abs(v.co.x)>half-.0001 and lo+.01<v.co.y<hi-.01:
+            t=v.co.y
+            inset=.02+.12*(.5+.5*math.sin(t*5.71+seed))*math.sin(t*2.19+seed*.3)**2
+            v.co.x-=math.copysign(inset,v.co.x)
     bm.to_mesh(ob.data);bm.free();ob.data.update()
     for attr in ob.data.color_attributes:
         if attr.domain!='POINT':continue
