@@ -12,6 +12,22 @@ def plain(name,c,rough=.8,metal=0):
     return m
 
 
+def volume_from_extras(material):
+    """Uniform physical coefficients in 1/m; one HG phase closure in 5.2.
+
+    Equivalent to adding classic absorption and scatter nodes. Using one
+    coefficient node avoids Cycles' conservative two-volume closure estimate.
+    """
+    node=material.node_tree.nodes.new('ShaderNodeVolumeCoefficients')
+    node.phase='HENYEY_GREENSTEIN'
+    color=material['river_volume_color'];density=material['river_volume_density']
+    node.inputs['Absorption Coefficients'].default_value=tuple((1-c)*density for c in color)
+    node.inputs['Scatter Coefficients'].default_value=tuple(c*material['river_scatter_density'] for c in material['river_scatter_color'])
+    node.inputs['Anisotropy'].default_value=material['river_scatter_anisotropy']
+    out=next(n for n in material.node_tree.nodes if n.type=='OUTPUT_MATERIAL')
+    material.node_tree.links.new(node.outputs[0],out.inputs['Volume'])
+
+
 def palette(repo):
     # Complete importer settings group before tiling creates its AO socket.
     from io_scene_gltf2.blender.com.material_helpers import create_settings_group
@@ -40,14 +56,21 @@ def palette(repo):
     plants.node_tree.links.new(tex.outputs['Color'],b.inputs['Base Color'])
     plants.node_tree.links.new(tex.outputs['Alpha'],b.inputs['Alpha']);plants.surface_render_method='DITHERED'
     G.M['plants']=plants
-    water=plain('River_water',(.22,.255,.115),.23)
+    water=plain('River_water',(.80,.86,.64),.12)
     b=water.node_tree.nodes.get('Principled BSDF');b.inputs['Transmission Weight'].default_value=1
     b.inputs['IOR'].default_value=1.333
     tex=water.node_tree.nodes.new('ShaderNodeTexImage')
     tex.image=bpy.data.images.load(str(Path('textures/checkpoint/T_RiverWater_Normal.png').resolve()),check_existing=True);tex.image.colorspace_settings.name='Non-Color'
-    nm=water.node_tree.nodes.new('ShaderNodeNormalMap');nm.inputs['Strength'].default_value=.23
+    nm=water.node_tree.nodes.new('ShaderNodeNormalMap');nm.inputs['Strength'].default_value=.85
     water.node_tree.links.new(tex.outputs['Color'],nm.inputs['Color']);water.node_tree.links.new(nm.outputs['Normal'],b.inputs['Normal'])
-    absorb=water.node_tree.nodes.new('ShaderNodeVolumeAbsorption');absorb.inputs['Color'].default_value=(.29,.36,.095,1);absorb.inputs['Density'].default_value=.65
-    water.node_tree.links.new(absorb.outputs[0],water.node_tree.nodes.get('Material Output').inputs['Volume'])
-    water['river_volume_color']=[.29,.36,.095];water['river_volume_density']=.65
+    water['river_volume_color']=[.50,.55,.20];water['river_volume_density']=.70
+    water['river_scatter_color']=[.30,.31,.11];water['river_scatter_density']=.35;water['river_scatter_anisotropy']=.20
     water['river_flow_attribute']='_FLOW';G.M['water']=water
+    volume_from_extras(water)
+    # Finite-distance background approximation: an open distant surface must
+    # not introduce an unbounded volume into the scene's medium stack.
+    back=water.copy();back.name='DistantRiverSurface';bs=back.node_tree.nodes.get('Principled BSDF')
+    bs.inputs['Transmission Weight'].default_value=0;bs.inputs['Base Color'].default_value=(.008,.014,.004,1)
+    output=back.node_tree.nodes.get('Material Output')
+    for link in list(output.inputs['Volume'].links):back.node_tree.links.remove(link)
+    G.M['distant_water']=back

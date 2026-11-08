@@ -30,24 +30,27 @@ def definitions():
         ((-p.span/2,y,0),.264,.839),((p.span/2,y,0),.471,.837)],
         (3,-110,3.5),(0,0,2.4),42,height=[4.3,.6])
     urban['lens_bounds_mm']=[32,70]
-    p=generate(202);l=p.length/2;y=-p.deck_width/2
-    bank=definition('CO_SH_8_bridge_over_Bear_Creek,_Morrison,_CO.jpg','Bank bridge / abutment, planted slope and trail',[
-        ((-l,y,5.348),.255,.310),((l,y,5.348),.772,.280),
-        ((-l,y,4.13),.255,.369),((l,y,4.13),.772,.335)],
-        (-1,-86,3.3),(0,0,3.1),42,height=[3.3,.8])
+    p=generate(202)
+    shores=[]
+    for y,left,right in ((42,(.03,.68),(.94,.70)),(76,(.20,.44),(.91,.43))):
+        l,r=p.water_edges(y)
+        shores += [((l,y,p.water_z(y)),*left),((r,y,p.water_z(y)),*right)]
+    bank=definition('riverside-2008.jpg','Town park bank and water / autumn reference; dock differs',shores,
+        (15,-45,11),(p.center(130),130,0),99)
+    bank['lens_bounds_mm']=[98.5,99.5]
     # Native construction differs. Restrict anchors to the cap/column frame;
     # the photographed steel cross-bracing remains an explicit mismatch.
     p=generate(101);x=-p.span/2;half=p.deck_width/2-.3
     under=definition('under-huron.jpg','Under bridge / support frame; steel reference differs',[
         ((x-.86,half,2.687),.170,.660),((x-.86,-half,2.687),.849,.679),
         ((x-.86,half,1.887),.170,.711),((x-.86,-half,1.887),.849,.730)],
-        (-24,-.4,1.65),(x,0,3.7),24,height=[1.65,1.2])
+        (-24,-.4,2.15),(x,0,3.7),24,height=[2.15,.25])
     return dict(urban=(101,urban),bank=(202,bank),under=(101,under))
 
 
 def prepare():
     result={}
-    neutral=dict(urban=(260,466,350,477),bank=(1140,1070,1220,1150),under=(380,582,460,610))
+    neutral=dict(urban=(260,466,350,477),bank=(1660,857,1740,865),under=(380,582,460,610))
     Path('build/photo-balanced').mkdir(parents=True,exist_ok=True)
     for name,(seed,d) in definitions().items():
         original=d['photo'];im=ImageOps.exif_transpose(Image.open(original)).convert('RGB')
@@ -61,8 +64,11 @@ def prepare():
         # Original photographs remain untouched. The neutral gains are
         # recorded separately from the fitted geometry and not baked into art.
         result[name]['construction_status']='type comparison, not reconstruction'
+        result[name]['shot']['exposure']=1.0 if name=='under' else -.4
+        if name=='under':result[name]['reference_optics']='18mm EXIF on APS-C Canon Rebel T3i; fit uses a 36mm sensor and authored narrower bridge'
+        if name=='bank':result[name]['reference_optics']='99mm equivalent in EXIF; fit estimates the authored channel scale, not a surveyed park replica'
         result[name]['white_balance']=dict(original=original,neutral_patch_xyxy=neutral[name],
-            assumed_neutral=['bridge concrete','trail wall concrete','pier cap concrete'][['urban','bank','under'].index(name)],
+            assumed_neutral=['bridge concrete','weathered gray dock decking','pier cap concrete'][['urban','bank','under'].index(name)],
             photo_patch_rgb=med.tolist(),gains=gain.tolist())
     Path('build/photo-calibration.json').write_text(json.dumps(result,indent=2)+'\n')
     print('PHOTO_FITS',[(k,round(v['residual_rms_pixels'],2),round(v['shot']['lens'],2)) for k,v in result.items()])

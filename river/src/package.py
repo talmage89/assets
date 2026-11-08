@@ -20,19 +20,19 @@ def externalize(source,dest):
     # Search only existing original maps, never download or synthesize substitutes.
     for folder in ([] if KNOWN is not None else sorted(REPO.iterdir())):
         if not folder.is_dir() or folder.name in ('.git','build','river'): continue
-        for sub in ('textures','export/textures','build/context'):
+        for sub in ('textures','export','build/context'):
             for p in sorted((folder/sub).rglob('*.png')):
                 known.setdefault(sha(p),p)
     KNOWN=known
     local=Path('export/textures');local.mkdir(parents=True,exist_ok=True)
+    authored={sha(p):p.name for p in Path('textures/checkpoint').glob('*.png')}
     for im in d.get('images',[]):
         v=d['bufferViews'][im.pop('bufferView')];a=v.get('byteOffset',0)
         data=g.binary[a:a+v['byteLength']];digest=hashlib.sha256(data).hexdigest()
         target=known.get(digest)
         if target is None:
-            target=local/(im.get('name','image')+'.png')
-            if target.exists() and target.read_bytes()!=data:target=local/(digest[:16]+'.png')
-            if not target.exists():target.write_bytes(data)
+            target=local/authored.get(digest,digest[:16]+'.png')
+            if not target.exists() or target.read_bytes()!=data:target.write_bytes(data)
         im.pop('mimeType',None);im['uri']=os.path.relpath(target.resolve(),dest.parent.resolve())
     for ma in d.get('materials',[]):
         if ma.get('name')=='River_paint_yellow':ma['pbrMetallicRoughness']['baseColorFactor']=[.9,.66,.08,1]

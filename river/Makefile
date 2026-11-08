@@ -4,7 +4,7 @@ PIECES := TypeIII_Girder18 DeckPanel6 Parapet6 PierColumns PierWall Abutment Gua
 CHECKPOINT_OUTPUTS += export/RiverCrossing-101.bin export/RiverCrossing-202.bin export/RiverModules.bin $(foreach p,$(PIECES),export/pieces/$(p).gltf export/pieces/$(p).bin)
 CHECKPOINT_DEPS := $(wildcard src/*.py) textures/checkpoint/.stamp build/preservation.json build/dependencies.json
 CHECKPOINT_CHECK = $(BP) --python src/check.py
-CHECKPOINT_REVIEW = $(PYTHON) src/matches.py --compose && $(PYTHON) src/review.py && $(PYTHON) src/report.py
+CHECKPOINT_REVIEW = $(PYTHON) src/matches.py --compose && $(PYTHON) src/review.py --gate && $(PYTHON) src/report.py
 CHECKPOINT_RENDER_ARGS := --seeds 101 202 --modules --matches
 WIDTH ?= 1280
 SAMPLES ?= 32
@@ -34,6 +34,14 @@ match: render
 	$(PYTHON) src/matches.py --compose
 repeat: model
 	$(PYTHON) src/repeat.py
+
+# Only a camera correction with otherwise current hash/camera receipts can
+# refresh the batch stamp. Any changed geometry or other camera fails the gate.
+.PHONY: inspection
+inspection: model check build/photo-calibration.json
+	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --out renders/checkpoint --width $(WIDTH) --samples $(SAMPLES) --seeds 101 --shots abutment
+	$(PYTHON) src/review.py --gate
+	@touch $(CHECKPOINT_RENDER_OUTPUTS)
 
 clean: river-clean
 .PHONY: river-clean

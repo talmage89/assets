@@ -2,7 +2,8 @@
 
 **Form and construction checkpoint; quick PBR, before final look-dev.**
 An original scripted river reach and a parameterized prestressed-girder road
-bridge, assembled into two different American town settings in 2010.
+bridge, assembled into two different American town settings with period
+infrastructure and the library's native vehicle context.
 No final texture bake or gallery JPGs are delivered in this round.
 
 Local exported Cycles views: [downtown hero](renders/checkpoint/101/hero.png),
@@ -23,7 +24,8 @@ mirrors under `build/embedded/`, never the scene's high-detail source.
 | Place | Low floodable riverwalk, floodwall and brick Main Street backs | Natural banks, gravel bar, launch/fishing access, fields and houses |
 
 Normal width varies along the reach, and the bar narrows the low-flow surface.
-Runs are about 1.05m deep, the riffle about .37m, the outer pool about 2.2m.
+Runs are about 1.05m deep, the riffle about .37m, and the outer pool about 2.1m
+(the exported vertex-depth maximum is 2.04m).
 Bankfull and normal water are separate; the natural floodplain is about 2.15m
 above water. Published sources and authored choices are separated in
 [REFERENCE.md](REFERENCE.md); all viewed/downloaded rights and exact uses are
@@ -32,7 +34,9 @@ in [SOURCES.md](refs/SOURCES.md).
 Five original **AASHTO Type III** girders per span use the FDOT 20130 section:
 45in depth, 16in top, 22in bottom and 7in web. They have modest camber,
 haunches, diaphragms, concrete plinths, elastomer pads and steel sole plates.
-Abutments have seats, backwalls and wingwalls; approach slabs carry the road
+Their exterior centers are .95m in from the deck edges. The wall cutwater
+follows local flow while its cap stays transverse to the road.
+Abutments have projecting seats, backwalls and wingwalls; approach slabs carry the road
 onto fill. Deck panels carry a 2% crown, two 11ft lanes, raised walks, 32in
 parapets, expansion gaps/seals, drains and supported utility conduits.
 The W-beam approaches retain sheet gauge, blockouts, posts and generic terminals.
@@ -43,9 +47,10 @@ load-rated bridge or a hydraulic design.
 
 `src/plan.py` is Blender independent. `generate(seed, **changes)` returns an
 immutable `Plan`: kind, reach length, channel width, bend amplitude/phase,
-bar and riffle stations, span count (2–4), span length (12–27m), deck width,
+bar and riffle stations, span count (2–4), span length (12–27m), deck width (10–14m),
 deck elevation, pier type and construction year. The two defaults change the
 channel and site plans, rather than recoloring one composition.
+Their bend amplitudes are −7m / +15m, with different phases and bar/riffle stations.
 
 Meters, +Z up; river flow +Y; bridge station +X. glTF converts positions to
 `(x,z,-y)`. Whole-crossing roots are at the crossing center on normal-water
@@ -53,7 +58,8 @@ datum. Module exports are locally centered and can be placed independently.
 The inspection library arranges them on a sheet; reset its display transforms
 before placing those roots into a new bridge.
 
-- Girder `W/E` bearing sockets mark each end.
+- Girder `W/E` sockets mark the bearing centers, .26m in from each end;
+  their flat seats meet the sole plates.
 - `Lane_*`, `Sidewalk_*`, `RiverbankTrail` and `FlowCenterline` retain sampled
   paths in `points_blender_m` / `points_gltf_m` extras. Samples are local to
   the identity path root; do not add its translation again.
@@ -80,33 +86,37 @@ The freeway has not landed on main; none of its unmerged code/maps is copied.
 Future concrete reuse is isolated behind the material role and beam interface.
 
 Cycles uses imported transmission/IOR, the shipped normal and uniform river
-absorption extras. Stock glTF cannot carry the Blender volume node graph;
-the renderer reconstructs that uniform volume response from those extras.
+absorption/scattering extras. The coefficients in inverse meters are absorption
+`(.35, .315, .56)` and scattering `(.105, .1085, .0385)`, with HG anisotropy `.2`.
+Stock glTF cannot carry the Blender volume node graph; the renderer reconstructs
+one Volume Coefficients node from those extras.
 An engine must implement the same depth absorption and flow. Quick bank
 fields and coarse placed maintenance remain provisional, not final baked art.
+The distant water continuation is a darker surface approximation, explicitly
+removable presentation context. It has no invented infinite volume.
 
 <!-- measured-costs:start -->
 | Piece | Triangles |
 | --- | ---: |
-| TypeIII_Girder18 | 360 |
+| TypeIII_Girder18 | 416 |
 | DeckPanel6 | 260 |
 | Parapet6 | 52 |
 | PierColumns | 340 |
 | PierWall | 226 |
-| Abutment | 100 |
+| Abutment | 112 |
 | GuardrailTerminal | 428 |
 
 Flat panels intentionally stay below 300 triangles; no subdivisions are added for a minimum.
 
 | Assembled mesh type | Downtown count × max triangles | Edge count × max triangles |
 | --- | ---: | ---: |
-| Abutment | 2 × 100 | 2 × 100 |
+| Abutment | 2 × 112 | 2 × 112 |
 | ApproachRail | 4 × 428 | 4 × 428 |
 | ApproachSlab | 2 × 12 | 2 × 12 |
 | BearingStation | 4 × 396 | 3 × 396 |
 | DateAndNamePlaques | 1 × 14 | 1 × 14 |
 | Deck | 9 × 285 | 6 × 264 |
-| Girder | 15 × 360 | 10 × 360 |
+| Girder | 15 × 416 | 10 × 416 |
 | Parapet | 18 × 52 | 12 × 52 |
 | Pier | 2 × 340 | 1 × 226 |
 | Span DiaphragmsHaunches | 3 × 204 | 2 × 204 |
@@ -114,13 +124,13 @@ Flat panels intentionally stay below 300 triangles; no subdivisions are added fo
 
 | Seed | Bridge | Bed / banks | Water | Site | Vegetation | Cars | Town / people | Total |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 101 | 15,821 | 67,438 | 20,560 | 11,592 | 1,935,154 | 561,418 | 826,816 | 3,438,799 |
-| 202 | 10,940 | 60,470 | 20,560 | 760 | 2,664,858 | 388,674 | 719,352 | 3,865,614 |
+| 101 | 16,685 | 67,234 | 20,560 | 40,356 | 1,648,012 | 561,418 | 827,236 | 3,181,501 |
+| 202 | 11,524 | 61,670 | 20,560 | 760 | 2,653,068 | 388,674 | 719,772 | 3,856,028 |
 
 | Seed | glTF + BIN bytes | Material states / unbatched placed draws |
 | --- | ---: | ---: |
-| 101 | 41,570,069 | 69 / 2609 |
-| 202 | 33,676,544 | 39 / 4721 |
+| 101 | 48,454,446 | 69 / 2586 |
+| 202 | 38,636,336 | 39 / 4720 |
 
 Both crossings share 35 unique image payloads, estimated **148.67 MiB** at 8bpp with full mips. PNG dependency bytes and uncompressed residency differ. These totals include native context; the new river-only allocation is listed above.
 <!-- measured-costs:end -->
@@ -141,7 +151,8 @@ existing deliveries are read-only. A serial render batch holds the kit GPU
 lock once. All scratch and downloaded references stay in ignored folders.
 
 `build/check.json` separates accessor/import preservation from actual sampled
-girder/pad contacts and reach measurements. Tiling UV reuse is intentional;
+girder/pad and plinth/support contacts, walk clearance, building/walk bounds and
+reach measurements. Tiling UV reuse is intentional;
 finite UVs and density are measured, not a unique lightmap/atlas certification.
 `build/preservation.json` fingerprints every pre-existing delivery input.
 `build/repeat.json` records the exact deterministic rebuild comparison.
@@ -153,3 +164,11 @@ with quick materials; they are presentation resources, not new canonical
 deliveries. Native street-signs supply approach speed signs. Full appearance,
 fine causal weathering, collisions/LOD and final game performance remain for
 later stages after the lead's form review.
+
+Heroes use 40mm lenses, eye-height bank/trail cameras and a procedural clear
+23° sun at −.4EV. Underside inspections adapt exposure to the shade; every
+frame records its camera, exposure and exact glTF/image bundle hash.
+The three final comparisons use Raisin's town bridge (2008), the Huron bridge
+underside (2013) and a Huron bank/water stretch (2008). White-balance assumptions,
+fit residuals and the different structures/seasons remain visible. They are
+reference comparisons, not reconstructions or dimensional surveys.

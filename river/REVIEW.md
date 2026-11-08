@@ -112,3 +112,90 @@ The new construction gate passes: actual exported section dimensions agree
 within 2e-5m; sampled bearing gaps are zero; minimum sampled riverwalk clearance
 is **2.34795m** (the prestress camber adds to the nominal 2.337m).
 The next images must show the changes before they can be accepted.
+
+## Pass 3 — exported Cycles, 1000px / 24 samples
+
+Opened all twelve frames in `renders/pass3/`. Color/value first: the water
+still reflects as broad blue smears; its low-amplitude normal and .24 roughness
+lose the broken reflections in the photographs. The bank-edge view does show
+submerged cobbles, but it is not enough. Increase normal strength and reduce
+microfacet roughness so the surface breaks reflections instead of blurring them.
+Concrete reads in sun, while underside cavities retain deep shade. No exposure
+increase is used to turn the gray concrete white.
+
+- The urban riverwalk is now clear in the hero; both underside inspections
+  reveal the girder rhythm and support frames. The rural hero now stands on
+  the actual trail, rather than in the shallows. Final planting clears its
+  narrow maintained sightline while retaining native trees around it.
+- The urban abutment inspection is mostly foreground soil. Relocate it into
+  the dry under-bridge maintenance bay, looking toward the seat and wingwall.
+- Roads end abruptly in both aerials. Extend them into the distant town/fields,
+  grade them to the floodplain, and carry actual soil under their approaches.
+  Bring Main Street's backs closer to their service alleys. The distant terrain
+  remains explicit removable context, not part of the 300m reach budget.
+- Independent edge incidence finds **1,000 open edges in each water shell**.
+  Side closures sampled the analytic bed while the floor sampled triangles.
+  Use identical sampled bottom points and require two faces per welded edge
+  plus positive signed volume. The old visual claim of a closed shell was
+  incorrect; this supersedes it.
+- The former bearing check sampled the minimum girder end height, not its
+  actual underside at the pad. Replace it with a ray onto each real bearing
+  seat, then a ray onto the sole plate. Add short flat end seats and put the
+  sockets at their centers. Also reduce the excessive deck overhang to .95m
+  from the exterior girder centerline and align the wall cutwater with flow.
+- House and tree placements in the final model use actual terrain seating;
+  rural houses move beyond the bank camera. Lower the urban maintenance bay
+  and its retaining cap to clear the measured under-bridge photo camera.
+
+The twelve frames are retained as rejected controls. The final pass must prove
+the volume, views and comparisons after a clean rebuild. Fine bank materials,
+wear, turf response and maintenance texture work remain outside this form gate.
+
+## Pass 4 — clean build, exported Cycles, 1280px / 32 samples
+
+Opened all 21 scene/module images and the three photo pairs. Color/value first:
+the water now breaks reflections and shows a darker brown/olive body from above,
+but remains blue at grazing angles. The river's far surface approximation is
+too light; lower its diffuse contribution. The hero exposure stays at −.4EV.
+The underside inspections need normal photographic exposure adaptation, so
+their final exposures are explicit in each frame's receipt, not a hidden grade.
+
+This batch is **rejected**. The image gate independently rejected the urban
+abutment frame as nearly black; no threshold was relaxed.
+
+- The urban photo is blocked by a building. Moving aligned fronts inward was
+  wrong: native depths are **27.432–33.528m**, not guessed shallow shops. Derive
+  a safe street line from those actual lot depths, bend and bank width. Check
+  all forty exported building bounds against the full walk corridor. Also
+  exclude tree trunks from lots and paving rather than letting trees grow
+  through brick walls. The urban riffle frame revealed the same overlap as an
+  overhead slab; it is placement failure, not an exposure failure.
+- The urban abutment camera hits the retaining wall only **1.647m** ahead.
+  Choosing the wall bay's height from its start station left the −8..−6m bay
+  high. Choose its midpoint. Keep the dry maintenance path unobstructed.
+- The bearing close-ups reveal unsupported abutment plinths. Girder-to-pad
+  contact was correct but insufficient: the stem ended behind the pads.
+  Add the real projecting seat and test plinth-to-seat contact at centers and
+  four near-corner points as well. Do not describe the old partial check as
+  proof of a supported assembly.
+- The rural bank camera sees a field, whereas Morrison's photograph sees a
+  path; its small bridge-anchor fit did not validate terrain correspondence.
+  Retire that final comparison and add a 2008 Huron bank-and-water study.
+  Its EXIF reports 99mm equivalent. Shore shapes and scale are unsurveyed;
+  retain the larger fit residual and disclose the different wooden landing
+  and autumn vegetation. These are comparisons, not scene reconstructions.
+- Grass cards remain narrow toothpicks over a smooth base. Widen the low
+  clumps, cross their cards and increase colony density, keeping the trail
+  and launch clear. Add the riverwalk's actual square-bar infill. All new
+  geometry remains separately costed and the new construction stays within
+  the reach/bridge budgets.
+- A Cycles **76 > 64** closure warning comes from its conservative allocation
+  for the two volume nodes plus Principled surface, not proof of a bad mesh.
+  Use one Volume Coefficients node with the same RGB absorption/scattering
+  coefficients and HG anisotropy. No native shader or delivery is rewritten.
+
+After these changes, raw/import checks pass: closed positive water shells,
+30/20 girder-seat contacts, 150/100 plinth-support contacts, fifteen walk
+clearance samples (minimum **2.34770m**) and forty building/walk bounds checks.
+The exact rebuild repeats **41** generated mesh/image/manifest files byte for
+byte. Final images must still show the corrected construction and placement.

@@ -11,19 +11,20 @@ from mathutils import Vector
 from kit import gpu
 from package import bundle
 from views import views
+from plan import Plan
 
 
 def setup(width,samples):
     sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable()
     sc.cycles.samples=samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=8
-    sc.cycles.transmission_bounces=6;sc.render.resolution_x=width;sc.render.resolution_y=round(width*2/3);sc.render.resolution_percentage=100
+    sc.cycles.transmission_bounces=6;sc.cycles.volume_bounces=2;sc.render.resolution_x=width;sc.render.resolution_y=round(width*2/3);sc.render.resolution_percentage=100
     sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.4
     sc.world=bpy.data.worlds.new('Procedural clear late-afternoon sky');sc.world.use_nodes=True
     nodes=sc.world.node_tree.nodes;links=sc.world.node_tree.links
     sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(23);sky.sun_rotation=math.radians(224);sky.sun_disc=False
     sky.altitude=100;sky.air_density=1
-    sat=nodes.new('ShaderNodeHueSaturation');sat.inputs['Saturation'].default_value=1.65
-    links.new(sky.outputs[0],sat.inputs['Color']);links.new(sat.outputs[0],nodes.get('Background').inputs[0]);nodes.get('Background').inputs[1].default_value=.06
+    sat=nodes.new('ShaderNodeHueSaturation');sat.inputs['Saturation'].default_value=1.15
+    links.new(sky.outputs[0],sat.inputs['Color']);links.new(sat.outputs[0],nodes.get('Background').inputs[0]);nodes.get('Background').inputs[1].default_value=.16
     light=bpy.data.lights.new('Low raking sun','SUN');light.energy=4.5;light.angle=math.radians(.65)
     sun=bpy.data.objects.new(light.name,light);sc.collection.objects.link(sun)
     direction=Vector((-.67,-.64,.39));sun.rotation_euler=(-direction).to_track_quat('-Z','Y').to_euler()
@@ -35,18 +36,17 @@ def setup(width,samples):
 def restore_water():
     # glTF cannot carry a node volume closure. Its documented material extras
     # contain only the river's original uniform absorption color and density.
+    from materials import volume_from_extras
     for ma in bpy.data.materials:
         if not ma.use_nodes or 'River_water' not in ma.name:continue
         out=ma.node_tree.nodes.get('Material Output')
         if not out:out=next(n for n in ma.node_tree.nodes if n.type=='OUTPUT_MATERIAL')
         if out.inputs['Volume'].is_linked:continue
-        ab=ma.node_tree.nodes.new('ShaderNodeVolumeAbsorption')
-        ab.inputs['Color'].default_value=(*ma.get('river_volume_color',[.37,.43,.20]),1)
-        ab.inputs['Density'].default_value=ma.get('river_volume_density',.27)
-        ma.node_tree.links.new(ab.outputs[0],out.inputs['Volume'])
+        volume_from_extras(ma)
 
 
 def shot(sc,cam,definition,path,source,width,samples):
+    sc.view_settings.exposure=definition.get('exposure',-.4)
     cam.location=definition['location'];cam.rotation_euler=(Vector(definition['target'])-cam.location).to_track_quat('-Z','Y').to_euler()
     if definition.get('roll'):cam.rotation_euler.rotate_axis('Z',definition['roll'])
     cam.data.lens=definition['lens'];sc.render.resolution_x=width;sc.render.resolution_y=round(width/definition.get('aspect',1.5))
@@ -61,7 +61,9 @@ def shot(sc,cam,definition,path,source,width,samples):
 def render(seed,out,width,samples,names):
     bpy.ops.wm.read_factory_settings(use_empty=True);source=Path('export')/f'RiverCrossing-{seed}.gltf'
     bpy.ops.import_scene.gltf(filepath=str(source.resolve()));restore_water();sc,cam=setup(width,samples)
-    for name in names:shot(sc,cam,views(seed)[name],out/str(seed)/(name+'.png'),source,width,samples)
+    exported=next(o['plan'] for o in bpy.context.scene.objects if o.name==f'Crossing_{seed}')
+    plan=Plan(**dict(exported));definitions=views(seed,plan)
+    for name in names:shot(sc,cam,definitions[name],out/str(seed)/(name+'.png'),source,width,samples)
 
 
 def main():
@@ -70,6 +72,19 @@ def main():
     if a.modules:
         bpy.ops.wm.read_factory_settings(use_empty=True);source=Path('export/RiverModules.gltf')
         bpy.ops.import_scene.gltf(filepath=str(source.resolve()));sc,cam=setup(a.width,a.samples)
+        floor_mat=bpy.data.materials.new('Module review floor');floor_mat.diffuse_color=(.09,.10,.085,1)
+        floor_mat.use_nodes=True;floor_mat.node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value=(.09,.10,.085,1)
+        bpy.ops.mesh.primitive_plane_add(size=120,location=(23,15,-1.82));bpy.context.object.data.materials.append(floor_mat)
+        from kit.fonts import find_font
+        labelmat=bpy.data.materials.new('Module review lettering');labelmat.diffuse_color=(.55,.56,.49,1)
+        labelmat.use_nodes=True;labelmat.node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value=(.55,.56,.49,1)
+        for row in json.loads(Path('build/manifest.json').read_text())['modules']:
+            ob=bpy.data.objects.get(row['name'])
+            if ob is None:continue
+            cu=bpy.data.curves.new('Review label '+row['name'],'FONT');cu.font=bpy.data.fonts.load(find_font('DejaVu Sans','Book'))
+            cu.body=row['name']+'\n'+str(row['triangles'])+' tris';cu.size=.85;cu.align_x='CENTER'
+            label=bpy.data.objects.new(cu.name,cu);bpy.context.collection.objects.link(label)
+            label.location=(ob.location.x,ob.location.y-7,-1.80);cu.materials.append(labelmat)
         shot(sc,cam,dict(location=(39,-63,48),target=(23,15,.3),lens=43),a.out/'modules.png',source,a.width,a.samples)
     if a.matches:
         for name,row in json.loads(Path('build/photo-calibration.json').read_text()).items():

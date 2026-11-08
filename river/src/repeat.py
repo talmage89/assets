@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import shlex
 import subprocess
 from pathlib import Path
 
@@ -15,7 +16,7 @@ def hashes():
 def main():
     before=hashes()
     with Path('build/repeat.log').open('w') as f:
-        subprocess.run([os.environ.get('BLENDER','blender'),'-b','-t','1','--factory-startup','--python-exit-code','1',
+        subprocess.run(shlex.split(os.environ.get('BLENDER','blender'))+['-b','-t','1','--factory-startup','--python-exit-code','1',
             '--python','src/build.py','--','--out','build/repeat.blend'],stdout=f,stderr=subprocess.STDOUT,check=True)
     after=hashes();changed=[p for p in before if after.get(p)!=before[p]]
     Path('build/repeat.json').write_text(json.dumps(dict(passed=not changed,files=len(before),changed=changed),indent=2)+'\n')

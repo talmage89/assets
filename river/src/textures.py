@@ -4,6 +4,7 @@ CPU analytic quick materials for the form gate; no reference pixel inputs.
 Final high-source manufacture baking is deliberately deferred.
 """
 from pathlib import Path
+import math
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import sys
@@ -29,7 +30,7 @@ def generate(folder=Path('textures/checkpoint')):
         rgb[mask,:3]=tint+v[mask,None]*.025+grain[mask,None]*.018
         height=np.maximum(height,h)
     Image.fromarray(np.uint8(np.clip(rgb,0,1)*255)).save(folder/'T_RiverBank_BaseColor.png')
-    dy,dx=np.gradient(height,n and 2/n)
+    dy,dx=np.gradient(height,2/n)
     normal=np.stack((-dx,-dy,np.ones_like(dx)),axis=2);normal/=np.linalg.norm(normal,axis=2)[:,:,None]
     Image.fromarray(np.uint8((normal*.5+.5)*255)).save(folder/'T_RiverBank_Normal.png')
     orm=np.zeros((n,n,3),np.uint8);orm[:,:,0]=255;orm[:,:,1]=220
@@ -52,8 +53,13 @@ def generate(folder=Path('textures/checkpoint')):
         d.text((128,y+32),str(year)+'  COUNTY WORKS',font=ImageFont.truetype(font,12),anchor='mt',fill=(171,168,149,255))
     im.save(folder/'T_RiverPlants_BaseColor.png')
     n=512;y,x=np.mgrid[:n,:n]/n
-    h=.0025*np.sin(2*np.pi*(x*11+y*4)+.8*np.sin(y*np.pi*6))
-    h+=.0011*np.sin(2*np.pi*(x*29-y*9))+.0005*np.cos(2*np.pi*(x*53+y*31))
+    # Several wind/current wave trains, with different phases and scales.
+    # Integer modes tile exactly without a dominant regular comb.
+    rng=np.random.default_rng(381);h=np.zeros((n,n))
+    for i in range(18):
+        kx=int(rng.integers(3,54));ky=int(rng.integers(-24,25))
+        amplitude=.0007/(1+math.hypot(kx,ky)/18)
+        h+=amplitude*np.sin(2*np.pi*(kx*x+ky*y)+rng.uniform(0,6.28)+.6*np.sin(2*np.pi*(x*2+y*3)+i))
     dy,dx=np.gradient(h,2/n);normal=np.stack((-dx,-dy,np.ones_like(dx)),axis=2)
     normal/=np.linalg.norm(normal,axis=2)[:,:,None]
     Image.fromarray(np.uint8((normal*.5+.5)*255)).save(folder/'T_RiverWater_Normal.png')
