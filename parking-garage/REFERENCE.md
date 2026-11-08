@@ -25,8 +25,17 @@ sloping undersides, separate elastomeric seats and girder end bearings. The
 cast-in-place variant has 220mm slabs and transverse .61m-wide downstand PT
 beams, .76m overall below the deck, on monolithic columns. Its anchor pocket
 patches are modeled at exposed slab ends. No tendon/rebar design is supplied.
+The precast pinned seats rely on the concrete stair/lift cores for the
+authored lateral system; floor-level collector plates key the end diaphragms
+into those cores. The PT columns and beams form monolithic frames. Collector,
+core and connection capacities are not structurally analyzed here.
 
 The long garage has one flat parking bay and one full-rise sloping parking bay.
+Its tee sections deliberately follow two crowned drainage planes, rather than
+pretending prestress camber alone produces drainage. Bent/cranked long-span
+tees have a period precedent in PCI Journal's York Quay article (1985, p147).
+The precise sections here are authored and require engineering design beyond
+this visual construction checkpoint.
 West landings meet the low end; east landings meet the preceding ramp's high
 end. The highest drive route returns along the flat aisle and terminates there;
 it does not drive onto the missing next ramp. Internal barriers separate the

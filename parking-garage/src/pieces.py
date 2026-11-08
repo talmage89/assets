@@ -22,10 +22,10 @@ def tee(r):
     stations(section,[-SPAN/2+.22,0,SPAN/2-.22],'Concrete')
     stations([(-x,0),(x,0),(x,-.05),(-x,-.05)],[-SPAN/2+.03,0,SPAN/2-.03],'Deck')
     # Sealant along longitudinal flange joint, not a painted black outline.
-    b.box((TEE/2-.010,0,-.003),(.018,SPAN-.06,.010),'Seal')
+    stations([(TEE/2-.011,-.010),(TEE/2+.011,-.010),(TEE/2+.011,.002),(TEE/2-.011,.002)],[-SPAN/2+.03,0,SPAN/2-.03],'Seal')
     # Bearing pads and real welded flange connector plates.
     for sy in (-1,1):
-        for sx in (-1,1):b.box((sx*s,sy*(SPAN/2-.29),-h-.0625),(.24,.30,.025),'Seal')
+        for sx in (-1,1):b.box((sx*s,sy*(SPAN/2-.34),-h-.0625),(.24,.22,.025),'Seal')
     for y in (-6.1,0,6.1):b.box((x-.075,y,-.048),(.12,.10,.008),'Steel')
     b.finish()
 
@@ -37,24 +37,38 @@ def beam(r,edge=False):
     b.prism([(-L/2,y,z) for y,z in sec],(L,0,0));b.finish()
 
 
-def column(r,corbels=True):
+def column_body(r,height=FLOOR):
     b=Mesh(r.name+'__Mesh',r);w=.762;ch=.02
     sec=[(-w/2+ch,-w/2),(w/2-ch,-w/2),(w/2,-w/2+ch),(w/2,w/2-ch),
          (w/2-ch,w/2),(-w/2+ch,w/2),(-w/2,w/2-ch),(-w/2,-w/2+ch)]
-    b.prism([(x,y,0) for x,y in sec],(0,0,FLOOR))
-    if corbels:
-        for sign in (-1,1):
-            poly=[(sign*.37,-.38,FLOOR-1.60),(sign*.69,-.38,FLOOR-.97),(sign*.69,-.38,FLOOR-.825),(sign*.37,-.38,FLOOR-.825)]
-            b.prism(poly,(0,.76,0));b.box((sign*.54,0,FLOOR-.8125),(.26,.50,.025),'Seal')
+    b.prism([(x,y,0) for x,y in sec],(0,0,height))
     # Paint is physically on the column, shallow surface film on lower 1.2m.
-    b.box((0,-w/2-.001,.6),(w-.06,.002,1.2),'Blue')
+    for level in range(math.ceil(height/FLOOR)):
+        h=min(1.2,height-level*FLOOR)
+        if h>.03:b.box((0,-w/2-.001,level*FLOOR+h/2),(w-.06,.002,h),'Blue')
+    return b
+
+
+def corbel_parts(b):
+    for sign in (-1,1):
+        poly=[(sign*.37,-.38,FLOOR-1.60),(sign*.69,-.38,FLOOR-.97),(sign*.69,-.38,FLOOR-.825),(sign*.37,-.38,FLOOR-.825)]
+        b.prism(poly,(0,.76,0));b.box((sign*.54,0,FLOOR-.8125),(.26,.50,.025),'Seal')
+
+
+def column(r,corbels=True):
+    b=column_body(r)
+    if corbels:corbel_parts(b)
     b.finish()
+
+
+def corbel_pair(r):
+    b=Mesh(r.name+'__Mesh',r);corbel_parts(b);b.finish()
 
 
 def spandrel(r):
     b=Mesh(r.name+'__Mesh',r);L=3*TEE-.035
     # Cast panel: sloped cap, chamfered bottom arrises, recessed horizontal band.
-    sec=[(-.13,-.34),(.13,-.34),(.13,.94),(.10,1.02),(-.10,1.04),(-.13,.98)]
+    sec=[(-.13,-.34),(.13,-.34),(.13,.98),(.10,1.06),(-.10,1.08),(-.13,1.02)]
     b.prism([(-L/2,y,z) for y,z in sec],(L,0,0))
     for x in (-L/2+.35,L/2-.35):
         b.box((x,.18,-.17),(.24,.16,.16),'Concrete');b.box((x,.175,-.07),(.16,.12,.018),'Steel')
@@ -71,8 +85,18 @@ def cables(r):
     b.finish()
 
 
+def pt_guard(r):
+    b=Mesh(r.name+'__Mesh',r);L=3*TEE-.025
+    section=[(-.09,-.22),(.09,-.22),(.09,.54),(.07,.55),(-.07,.56),(-.09,.54)]
+    b.prism([(-L/2,y,z) for y,z in section],(L,0,0))
+    for x in (-L/2+.13,0,L/2-.13):
+        b.box((x,0,.825),(.09,.09,.55),'Steel');b.box((x,0,.568),(.20,.20,.036),'Steel')
+    for z in (.74,.97):b.tube([(-L/2+.13,0,z),(0,0,z-.008),(L/2-.13,0,z)],.0095,'Steel')
+    b.beam((-L/2,0,1.09),(L/2,0,1.09),.055,.055);b.finish()
+
+
 def ptdeck(r):
-    b=Mesh(r.name+'__Mesh',r);w=TEE-.015
+    b=Mesh(r.name+'__Mesh',r);w=TEE
     sec=[(-w/2,0),(w/2,0),(w/2,-.22),(-w/2,-.22)];ys=[-SPAN/2,0,SPAN/2]
     vs=[(x,y,z) for y in ys for x,z in sec]
     fs=[(3,2,1,0),(8,9,10,11)]+[(j*4+i,j*4+(i+1)%4,(j+1)*4+(i+1)%4,(j+1)*4+i) for j in range(2) for i in range(4)]
@@ -84,9 +108,11 @@ def ptdeck(r):
 
 
 def ptbeam(r):
-    b=Mesh(r.name+'__Mesh',r);b.box((0,0,-.49),(SPAN,.61,.54))
-    # Cast beam with folded return strips at its edge rather than precast pads.
-    b.box((0,0,-.23),(SPAN,.68,.04));b.finish()
+    b=Mesh(r.name+'__Mesh',r)
+    sec=[(-.34,-.21),(.34,-.21),(.34,-.25),(.305,-.25),(.305,-.76),(-.305,-.76),(-.305,-.25),(-.34,-.25)]
+    n=len(sec);vs=[(x,y,z) for x in (-SPAN/2,0,SPAN/2) for y,z in sec]
+    fs=[tuple(reversed(range(n))),tuple(range(2*n,3*n))]+[(j*n+i,j*n+(i+1)%n,(j+1)*n+(i+1)%n,(j+1)*n+i) for j in range(2) for i in range(n)]
+    b.geom(vs,fs);b.finish()
 
 
 def fixture(r):
@@ -129,64 +155,71 @@ def ticket(r,pay=False):
 
 def tower(r,levels=4,elevator=True):
     b=Mesh(r.name+'__Fabric',r);H=(levels-1)*FLOOR+3.0
-    # 5.6 x 5m external tower. Front curtain-wall and hollow stair enclosure.
-    b.box((2.7,0,H/2),(.20,5,H))
+    # 5.6 x 5.4m tower: two 1.30m concrete flights, 1.142m between
+    # handrails, and full-depth landings. Rear faces the garage.
+    b.box((2.7,0,H/2),(.20,5.4,H))
     # Ground exit pierces the stair's side at its lower landing; there is no
     # door trying to pass underneath the half-level return landing.
-    b.box((-2.7,0,(H+2.2)/2),(.20,5,H-2.2))
-    b.box((-2.7,-.75,1.1),(.20,3.50,2.2))
-    b.box((-2.7,2.32,1.1),(.20,.36,2.2))
-    b.box((.25,0,H/2),(.20,5,H))
-    b.box((1.50,-2.40,H/2),(2.40,.20,H))
+    b.box((-2.7,0,(H+2.2)/2),(.20,5.4,H-2.2))
+    b.box((-2.7,-.85,1.1),(.20,3.70,2.2))
+    b.box((-2.7,2.42,1.1),(.20,.56,2.2))
+    b.box((.25,0,H/2),(.20,5.4,H))
+    b.box((1.50,-2.60,H/2),(2.40,.20,H))
     # Rear wall has actual 1.12m door apertures per level.
-    for x,w in ((-2.355,.69),(-.57,.64),(.55,.60),(2.525,.35)):
-        b.box((x,2.40,H/2),(w,.20,H))
+    for x,w in ((-2.355,.69),(-.57,.64),(.40,.30),(2.375,.65)):
+        b.box((x,2.60,H/2),(w,.20,H))
     for lev in range(levels):
         z=lev*FLOOR
-        b.box((1.60,2.40,z+2.65),(1.50,.20,.86))
-        b.box((-1.45,2.4,z+2.55),(1.12,.20,.70))
-        b.box((-1.35,1.65,z-.08),(2.50,1.5,.16))
-        b.box((-1.35,-1.7,z+FLOOR/2-.08),(2.50,1.30,.16))
-        # Two opposing 10-riser flights, with 279mm treads, 167.64mm risers.
+        head=min(FLOOR,H-z)
+        b.box((1.30,2.60,z+(2.22+head)/2),(1.50,.20,head-2.22))
+        b.box((-1.45,2.60,z+(2.20+head)/2),(1.12,.20,head-2.20))
+        rear=1.28;front=rear-9*.2794
+        b.box((-1.225,(rear+2.5)/2,z-.08),(2.75,2.5-rear,.16))
+        if lev<levels-1:b.box((-1.225,(-2.5+front)/2,z+FLOOR/2-.08),(2.75,front+2.5,.16))
+        # Ten risers / nine treads per half-level. A single sawtooth section
+        # includes the sloping waist and terminal riser; no floating boxes.
         if lev<levels-1:
             rise=FLOOR/20;run=.2794
             for flight in (0,1):
-                xx=-2.05 if flight==0 else -.73
-                for i in range(10):
-                    yy=1.05-(i+.5)*run if flight==0 else -1.744+(i+.5)*run
-                    zz=z+(flight*10+i+1)*rise
-                    b.box((xx,yy,zz-.07),(1.10,run,.14))
-                a=(xx,1.05,z+.90) if flight==0 else (xx,-1.744,z+FLOOR/2+.90)
-                c=(xx,-1.744,z+FLOOR/2+.90) if flight==0 else (xx,1.05,z+FLOOR+.90)
+                xx=-1.95 if flight==0 else -.53;direction=-1 if flight==0 else 1
+                start=rear if flight==0 else front;base=z+flight*FLOOR/2
+                section=[(start,base)]
+                for i in range(9):
+                    section.extend([(start+direction*i*run,base+(i+1)*rise),(start+direction*(i+1)*run,base+(i+1)*rise)])
+                end=start+direction*9*run
+                section.extend([(end,base+10*rise),(end+direction*.10,base+10*rise),(end+direction*.10,base+9*rise-.16),(start,base-.16)])
+                b.prism([(xx-.65,yy,zz) for yy,zz in section],(1.30,0,0))
+                a=(xx,start,base+rise+.90);c=(xx,end,base+10*rise+.90)
                 for side in (-1,1):
-                    aa=(a[0]+side*.53,a[1],a[2]);cc=(c[0]+side*.53,c[1],c[2]);b.tube([aa,cc],.019,'Steel')
+                    aa=(a[0]+side*.59,a[1],a[2]);cc=(c[0]+side*.59,c[1],c[2]);b.tube([aa,cc],.019,'Steel')
                     for j in (0,3,6,9):
-                        t=j/9;pt=Vector(aa).lerp(Vector(cc),t);b.tube([pt-Vector((0,0,.85)),pt],.015,'Steel')
+                        t=j/9;pt=Vector(aa).lerp(Vector(cc),t);b.tube([(pt.x,pt.y,base+(j+1)*rise-.025),pt],.015,'Steel')
         # Stair door at actual back-wall jamb. Outward swing into clear end bay.
-        pv=root(f'{r.name}__StairDoor_L{lev+1}',(-2.00,2.515,z),r,pivot_axis='Z',range_degrees=[0.,95.])
+        pv=root(f'{r.name}__StairDoor_L{lev+1}',(-2.00,2.715,z),r,pivot_axis='Z',range_degrees=[0.,95.])
         d=Mesh(pv.name+'__Leaf',pv);d.box((.55,0,1.0825),(1.10,.045,2.115),'Blue');d.box((.55,-.028,1.47),(.38,.01,.45),'Glass');d.beam((.2,-.08,1.02),(.88,-.08,1.02),.025,.04);d.finish()
         # Elevator doors slide in front of a recessed dark car opening.
-        b.box((1.60,2.315,z+1.08),(1.50,.08,2.16),'Seal')
+        b.box((1.30,2.515,z+1.08),(1.50,.08,2.16),'Seal')
         for sign in (-1,1):
-            pv=root(f'{r.name}__ElevatorDoor_L{lev+1}_{sign}',(1.60,2.58,z),r,slide_axis='X',range_m=[0.,sign*.72])
+            pv=root(f'{r.name}__ElevatorDoor_L{lev+1}_{sign}',(1.30,2.78,z),r,slide_axis='X',range_m=[0.,sign*.72])
             d=Mesh(pv.name+'__Leaf',pv);d.box((sign*.355,0,1.0825),(.70,.035,2.115),'Steel');d.finish()
-        b.box((1.60,2.61,z+2.22),(1.65,.14,.10),'Steel')
+        b.box((1.30,2.81,z+2.22),(1.65,.14,.10),'Steel')
     # Glazed stair face, individually divided by floor and mullion.
     for lev in range(levels):
         z=lev*FLOOR
-        b.box((-1.32,-2.475,z+1.5),(2.62,.025,2.98),'Glass')
-        b.box((-1.32,-2.51,z+.08),(2.78,.07,.16),'Steel')
-        for x in (-2.61,-1.32,-.03):b.box((x,-2.51,z+1.5),(.06,.07,3.0),'Steel')
-    b.box((0,0,H+.10),(5.8,5.2,.20));b.finish()
+        b.box((-1.32,-2.675,z+1.5),(2.62,.025,2.98),'Glass')
+        b.box((-1.32,-2.71,z+.08),(2.78,.07,.16),'Steel')
+        if lev<levels-1:b.box((-1.32,-2.66,z+3.175),(2.62,.10,.37),'Blue')
+        for x in (-2.61,-1.32,-.03):b.box((x,-2.71,z+1.5),(.06,.07,3.0),'Steel')
+    b.box((0,0,H+.10),(5.8,5.6,.20));b.finish()
     pv=root(r.name+'__StreetDoor',(-2.815,2.13,0),r,pivot_axis='Z',range_degrees=[-95.,0.]);pv.rotation_euler.z=-math.pi/2
     d=Mesh(pv.name+'__Leaf',pv);d.box((.55,0,1.0825),(1.10,.045,2.115),'Blue');d.beam((.2,-.08,1.02),(.88,-.08,1.02),.025,.04);d.finish()
     root(r.name+'__StreetThreshold',(-2.85,1.58,0),r,socket_kind='pedestrian_threshold')
-    root(r.name+'__GarageStairThreshold',(-1.45,2.65,0),r,socket_kind='pedestrian_threshold')
-    root(r.name+'__GarageLiftThreshold',(1.60,2.65,0),r,socket_kind='accessible_threshold')
+    root(r.name+'__GarageStairThreshold',(-1.45,2.85,0),r,socket_kind='pedestrian_threshold')
+    root(r.name+'__GarageLiftThreshold',(1.30,2.85,0),r,socket_kind='accessible_threshold')
 
 
 def jobs(levels=4):
-    return dict(DoubleTee=tee,InvertedT=beam,LBeam=lambda r:beam(r,True),ColumnCorbel=column,
+    return dict(DoubleTee=tee,InvertedT=beam,LBeam=lambda r:beam(r,True),ColumnCorbel=column,CorbelPair=corbel_pair,ColumnPlain=lambda r:column(r,False),
                 PTColumn=lambda r:column(r,False),PTSlab=ptdeck,PTBeam=ptbeam,Spandrel=spandrel,
-                CableBarrier=cables,Fixture=fixture,WheelStop=wheelstop,Drain=drain,Gate=gate,
+                CableBarrier=cables,PTGuard=pt_guard,Fixture=fixture,WheelStop=wheelstop,Drain=drain,Gate=gate,
                 Ticket=ticket,PayStation=lambda r:ticket(r,True),Tower=lambda r:tower(r,levels))

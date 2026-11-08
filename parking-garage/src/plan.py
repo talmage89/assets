@@ -35,7 +35,12 @@ def deck_z(p, level, x, y, ramp=False):
     # receive the same 1% plane, safely below the 1:48 maximum.
     center = p['ramp_y'] if ramp else p['flat_y']
     width = p['ramp_width'] if ramp else SPAN
-    return level*FLOOR + (FLOOR*ramp_fraction(x, p) if ramp else 0) + .01*(width/2-abs(y-center))
+    return level*FLOOR + (FLOOR*ramp_fraction(x, p) if ramp else 0) + .01*(width/2-abs(y-center))*end_fade(p,x)
+
+
+def end_fade(p,x):
+    """Grade the crowns into the flat tower thresholds at the terminal edge."""
+    return max(0,min(1,(x+p['length']/2)/p['end_length'],(p['length']/2-x)/p['end_length']))
 
 
 def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
@@ -59,7 +64,7 @@ def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
              end_length=end, transition=0 if municipal else 10*FT,
              occupancy=occupancy if occupancy is not None else (.67 if municipal else .74),
              structural_grid=3*TEE, stalls=[], paths=[], pedestrian_paths=[],
-             towers=[[-length/2-2.5,-width/2+2.8,0], [length/2+2.5,-width/2+2.8,0]],
+             towers=[[-length/2-2.5,-width/2+4.0,0], [length/2+2.5,-width/2+4.0,0]],
              joint_y=(SPAN-rw)/2)
     p['ramp_slope'] = FLOOR/(p['ramp_limits'][1]-p['ramp_limits'][0]-p['transition'])
     if municipal and p['ramp_slope'] > 1/15+1e-9: raise ValueError('Parking slope exceeds 1:15')
@@ -71,6 +76,8 @@ def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
     pairs=4 if municipal else 2
     reserved_width=sum((11 if j<(2 if municipal else 1) else 8)*FT+5*FT+8*FT for j in range(pairs))
     reserved_normal=math.ceil(reserved_width/STALL)
+    p['accessible_interval']=[x0,x0+reserved_width]
+    p['ground_lane_shift']=.5148
     index = 0
     for level in range(levels):
         for ramp in (False, True):
@@ -82,11 +89,13 @@ def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
                     if level == 0 and not ramp and row == -1 and i < reserved_normal: continue
                     y = cy+row*(AISLE/2+DEPTH/2)
                     index += 1
-                    compact = not ramp and level == levels-1 and row == 1 and i in (n-3,n-2,n-1)
+                    compact = not ramp and row==1 and ((level==levels-1 and i in (n-3,n-2,n-1)) or (level==0 and x0-2<x<x0+reserved_width+2))
+                    dep=16*FT if compact else DEPTH
+                    if compact:y+=row*(DEPTH-dep)/2
                     p['stalls'].append(dict(id=f'L{level+1}-{index:03d}', x=x, y=y, z=deck_z(p,level,x,y,ramp),
-                         level=level, ramp=ramp, yaw=180 if row==-1 else 0, width=STALL, depth=DEPTH,
+                         level=level, ramp=ramp, yaw=180 if row==-1 else 0, width=STALL, depth=dep,
                          slope_x=p['ramp_slope'] if ramp else 0, crossfall=-.01*row,
-                         occupied=rng.random()<p['occupancy'], car=rng.randrange(6), compact=compact, accessible=False))
+                         occupied=rng.random()<p['occupancy'], car=rng.choice((0,3)) if compact else rng.randrange(6), compact=compact, accessible=False))
     # Count-dependent paired spaces: eight at the municipal garage, four at
     # the smaller garage. Two / one vans respectively (one in every six).
     x = x0
@@ -97,7 +106,7 @@ def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
         for side in (0,1):
             xx = x+w/2 if side==0 else x+w+aisle+8*FT/2
             ww = w if side==0 else 8*FT
-            yy = fy-AISLE/2-DEPTH/2
+            yy = fy-AISLE/2-DEPTH/2+.42
             p['stalls'].append(dict(id=f'ACCESS-{pair*2+side+1}',x=xx,y=yy,z=deck_z(p,0,xx,yy),level=0,ramp=False,
                 yaw=180,width=ww,depth=DEPTH,slope_x=0,crossfall=.01,occupied=False,car=1,compact=False,accessible=True,
                 van=is_van and side==0,access_aisle=[x+w,x+w+aisle]))
@@ -130,5 +139,34 @@ def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
                 pts.append([xx,yy,deck_z(p,level+1,xx,yy,yy>p['joint_y'])-FLOOR*ramp_fraction(xx,p)*(yy>p['joint_y'])])
         p['paths'].append(dict(name=f'Drive_Up_{level+1}_{level+2}',points=pts,width=AISLE,two_way=True))
         p['paths'].append(dict(name=f'Drive_Down_{level+2}_{level+1}',points=list(reversed(pts)),width=AISLE,two_way=True))
+    # Street to ground aisle, then the actual first ramp. The exit is a
+    # different lane, not an oppositely directed copy through the same gate.
+    ex=length/2-end/2;turn=15*FT;entry_x=ex-1.65;exit_x=ex+1.65
+    def ground_point(xx,yy):
+        if abs(yy-fy)<1e-6:yy+=ground_lane_offset(p,xx)
+        return [xx,yy,max(0,deck_z(p,0,xx,yy,yy>p['joint_y'])-FLOOR*ramp_fraction(xx,p)*(yy>p['joint_y']))]
+    entry=[ground_point(entry_x,-width/2-6.05),ground_point(entry_x,fy-turn)]
+    for j in range(1,9):
+        th=j*math.pi/16;entry.append(ground_point(entry_x-turn*(1-math.cos(th)),fy-turn+turn*math.sin(th)))
+    entry_start=entry[-1][0]
+    entry.extend(ground_point(entry_start+(a-entry_start)*j/32,fy) for j in range(1,33))
+    west=[(-xx,fy+ry-yy) for xx,yy in arc]
+    entry.extend(ground_point(xx,yy) for xx,yy in west)
+    exit_route=[ground_point(xx,yy) for xx,yy in reversed([(a,fy),*west])]
+    exit_route.extend(ground_point(a+(exit_x-turn-a)*j/32,fy) for j in range(1,33))
+    for j in range(1,9):
+        th=j*math.pi/16;exit_route.append(ground_point(exit_x-turn+turn*math.sin(th),fy-turn*(1-math.cos(th))))
+    exit_route.append(ground_point(exit_x,-width/2-6.05))
+    p['paths'].extend([dict(name='Drive_Entry_to_L1',points=entry,width=3.3,two_way=False),dict(name='Drive_L1_to_Exit',points=exit_route,width=3.3,two_way=False)])
     p['pedestrian_paths']=[dict(name='Accessible_to_street',width=1.524,points=[[x0,-width/2-.8,.01],[-length/2-2.5,-width/2-.8,.01],[-length/2-2.5,-width/2-4.0,0]])]
+    for level in range(levels):
+        pts=[]
+        for xx,yy in ((b,fy+2.2),(0,fy+2.2),(a,fy+2.2),(-length/2+.35,fy+2.2),(-length/2+.215,p['towers'][0][1]+1.45)):
+            pts.append([xx,yy,deck_z(p,level,xx,yy)])
+        p['pedestrian_paths'].append(dict(name=f'Walk_L{level+1}_to_WestStair',width=1.524,points=pts))
     return p
+
+
+def ground_lane_offset(p,x):
+    a,b=p['accessible_interval']
+    return p['ground_lane_shift']*max(0,min(1,(x-a+2)/2,(b+2-x)/2))

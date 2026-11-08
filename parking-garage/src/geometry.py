@@ -46,6 +46,7 @@ def palette():
     for key in ('Asphalt','Concrete','Lawn','GroundTrim'):
         if key=='Concrete':continue
         M[key]=tiling.material(key,ROOT/'ground/textures/ship',alpha=key=='GroundTrim')
+    M['GroundConcrete']=tiling.material('Concrete',ROOT/'ground/textures/ship')
     m=material('GroundParkingTrim form extension',(1,1,1),.75)
     t=m.node_tree.nodes.new('ShaderNodeTexImage');t.image=bpy.data.images.load(str(Path('textures/checkpoint/T_GroundParkingTrim_BaseColor.png').resolve()),check_existing=True)
     l=m.node_tree.links;p=m.node_tree.nodes.get('Principled BSDF');l.new(t.outputs['Color'],p.inputs['Base Color']);l.new(t.outputs['Alpha'],p.inputs['Alpha']);m.surface_render_method='DITHERED'
@@ -96,7 +97,8 @@ class Mesh:
             axes=sorted(range(3),key=lambda i:abs(p.normal[i]))[:2]
             for j,li in enumerate(p.loop_indices):
                 v=me.vertices[me.loops[li].vertex_index].co
-                uv.data[li].uv=coords[j] if coords else (v[axes[0]]/(6.096 if key=='Asphalt' else 3.048),v[axes[1]]/3.048)
+                coverage=6.096 if key=='Asphalt' else 3.048
+                uv.data[li].uv=coords[j] if coords else (v[axes[0]]/coverage,v[axes[1]]/coverage)
         bm=bmesh.new();bm.from_mesh(me);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(me);bm.free();me.update()
         ob['asset_set']='ParkingGarage';return ob
 
