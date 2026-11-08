@@ -1,54 +1,101 @@
-# Freeway — look-dev checkpoint
+# Freeway — Alder Junction and Cedar Hollow
 
-Two original procedural freeway places in a town of 2012: a maintained 1970s
-concrete diamond under an arterial, and a curved asphalt corridor with a wide
-median and residential sound walls. The accepted alignments, lane section,
-ramp geometry and driving/chaining sockets are retained. **This round stops
-before a README gallery or docs images.**
+![Alder Junction: town, terminal and freeway](docs/hero-101.jpg)
+![Cedar Hollow: afternoon traffic and residential skyline](docs/hero-202.jpg)
+![Dense lots and the two civil alignments](docs/plans.jpg)
+![Exported bridge, bearings and roadside details](docs/details.jpg)
+![Human/car scale, Eevee and barrier/cable details](docs/scale-eevee.jpg)
 
-[LOOKDEV.md](LOOKDEV.md) maps each requested fix to its views and measured costs.
-[REVIEW.md](REVIEW.md) records the native critiques and remaining CG cues;
-[REFERENCE.md](REFERENCE.md) gives real dimensions and source limits;
-[TEXTURES.md](TEXTURES.md) describes the four shared PBR sets and caused age.
-The inspection images remain rebuildable, ignored artifacts.
+Two original, scripted freeway places in a town of 2012: maintained 1970s
+concrete beneath an arterial diamond, and a curved asphalt corridor with a
+wide median and residential sound walls. The first hero looks across the cut
+from an exit shoulder toward the signal queue, gas canopy, strip storefronts
+and the town's roof/tree/pole skyline. The second looks down afternoon traffic
+with roofs, varied yard trees and a utility line above its wall.
 
-## Places and delivery
+[REVIEW.md](REVIEW.md) records the photographic critiques and remaining CG cues;
+[REFERENCE.md](REFERENCE.md) gives dimensions and source limits;
+[TEXTURES.md](TEXTURES.md) describes the shared PBR resources.
+All final views use freshly imported exports and their shipped baked images.
+The native tree family's thin-leaf shader is restored from those same images;
+its stock glTF MASK fallback is also retained in the delivery. The context
+is static; canonical cars and trees provide the working animation/wind data.
 
-| Seed / place | Freeway triangles | Town context triangles | Traffic triangles / actors | Freeway glTF + BIN |
-| --- | ---: | ---: | ---: | ---: |
-| 101 / Alder Junction | 264,660 | 5,180,146 | 3,702,680 / 196 | 20,959,281 B |
-| 202 / Cedar Hollow | 161,542 | 2,737,356 | 1,219,222 / 84 | 14,449,592 B |
+## Places, cost and context
 
-`export/Freeway-{101,202}.gltf` contains the civil asset and its roadside.
-`Town-<seed>.gltf` and `Traffic-<seed>.gltf` are separate context packages; every
-inspection view imports all three. The freeway's own count remains below
-400k. Native foliage and near cars dominate the larger context counts. Those
-are instance-expanded totals; `build/look-audit.json` also reports unique mesh
-triangles, material states, primitives, geometry bytes and image memory.
+| Seed | Civil plan | Length | Center radius | Elevation datum (`Plan.grade`) | Crossfall |
+| --- | --- | ---: | ---: | ---: | --- |
+| 101 | Alder Junction diamond | 1,600 m | Straight | 0 m | 2% crown |
+| 202 | Cedar Hollow sound walls | 1,000 m | 1,400 m | 1.4 m | −4% bank |
 
-Alder Junction has two native gas parcels and a strip center at the arterial,
-663 native-plan house shells, seven parallel streets on each side,
-backyards, utility conductors, public lights and native trees. The strip's
-public street wraps behind its parcel; graded aprons use the commercial
-family's actual driveway openings. Cedar Hollow has a differently arranged
-residential grid of 216 houses behind the walls, with roofs/trees above them and cross
-streets ending at the right of way. Context uses the existing explicit house
-plan-envelope adapter and canonical materials. It is a visual town context,
-not a complete civil/architectural town delivery.
+| Scene / package | Expanded tris | Unique tris | Mesh instances | Materials | glTF + BIN bytes | Referenced PNG bytes | Full-mip GPU MiB |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 101 Freeway | 263,504 | 245,884 | 837 | 29 | 20,860,317 | 71,408,972 | 106.25 |
+| 101 Town | 108,889,701 | 1,280,312 | 10,715 | 83 | 115,606,496 | 95,124,781 | 171.58 |
+| 101 Traffic | 5,305,194 | 1,330,615 | 6,014 | 64 | 71,472,895 | 26,553,791 | 73.33 |
+| 202 Freeway | 160,534 | 160,534 | 590 | 16 | 14,362,950 | 63,909,043 | 88.25 |
+| 202 Town | 36,607,910 | 343,018 | 3,670 | 48 | 33,132,702 | 69,035,195 | 98.92 |
+| 202 Traffic | 2,221,793 | 936,056 | 2,945 | 57 | 50,385,538 | 27,970,229 | 76.00 |
 
-Traffic uses all three native bodies and five original factory colors. Near
-vehicles retain their full geometry, including actors within 36m of the stock
-close-up cameras; distant bodies retain coherent local LOD normals and native
-BaseColor/ORM. The native paint-coverage data is decoded
-into local stock-PBR RGB variants. Afternoon flow uses seeded 25–29m/s speeds
-and 1.7–3.1s headways; ramp and arterial queues have stopped actors. Ramp cars
-follow grade and bank; daytime flowing lamps are off and queues retain brakes.
-The snapshot is static. Use the canonical cars for working gameplay pivots.
+Whole-scene image unions (shared hashes counted once):
 
-Keep repository-relative external image URIs, or remap them into an engine's
-shared texture cache. Original library deliveries remain read-only and are
-hash-checked. No image is embedded per seed, downloaded into a material, or
-copied from a photograph.
+- 101: 105 unique images, 144,083,120 PNG bytes and 298.92 MiB compressed GPU memory.
+- 202: 78 unique images, 119,311,178 PNG bytes and 226.92 MiB compressed GPU memory.
+- Both scenes together: 107 unique images, 145,499,558 PNG bytes and 301.58 MiB.
+
+The civil files are `export/Freeway-{101,202}.gltf`. Separate
+`Town-<seed>.gltf` and `Traffic-<seed>.gltf` packages make the context optional;
+every final scene view loads all three. Counts distinguish expanded instance
+triangles from stored unique meshes. The town is an instanced context, not a
+single efficient game-level draw call: stream/cull its parcels and generate foliage LODs/impostors in an engine.
+Repeated glTF nodes share mesh indices; group their transforms into GPU
+instance batches per streamed tile. No frame-rate claim is made for loading
+the whole town at once. PNG bytes, material states and primitive counts are in
+`build/look-audit.json`; the table's image estimates assume 8bpp compression
+and full mips, deduplicated by actual image hash.
+
+Alder Junction's narrow lots are 50/55/60 ft wide and 106.9 ft deep, using four
+native ranch/Cape envelopes, their garages and driveway/walk sockets. Rear
+fences and service alleys, sidewalk drive openings, street and yard trees,
+four garden apartment blocks and three native commercial parcels fill the
+arterial frontage. Commercial lots retain the native paved footprints and
+actual driveway openings. The strip's public street wraps behind its parcel.
+Cedar Hollow uses offset-curve frontage compensation to retain the same lot
+scale; its inner yards put trees behind the roofs from the freeway's view.
+Measured lot and house-clearance ranges are in `build/context-audit.json`.
+
+Seed 101: 1,710 houses, 4,362 trees and 4 apartment blocks; 10,715 town mesh instances share 202 unique meshes.
+
+Seed 202: 656 houses, 1,463 trees and 0 apartment blocks; 3,670 town mesh instances share 12 unique meshes.
+
+The 50–60 × 100–130 ft range comes from this brief; the 2002 USGS aerial is
+the density/canopy comparison, not a cadastral survey. House roofs, openings,
+garages, finish colors and UVs come from the original library plans. Their
+local distance adapter rebuilds wall/roof skins from the native plan and
+openings, simplifies casings/fixtures and omits the fine weather grids. It retains
+each native construction envelope. Town foliage links the native oak and
+maple meshes with seeded rotations/scales. Mature yard crowns are scaled 1.4×,
+street crowns 1.2×; the closest roof/wire zone stays smaller. Species, yaw and
+actual scale are recorded in the placement manifest. Utilities use actual pole sockets
+and sagging primary, neutral and telephone conductors.
+
+The two snapshots have 279 / 135 actors, including 183 / 111 mainline actors;
+the rest occupy ramps, queues, arterial, commercial parking or neighborhood
+streets. Traffic uses the original Alder H120 hatch, X220 SUV and C150 pickup, with
+full native geometry near the principal inspection zones and local reduced
+bodies targeting 5.5k triangles at distance. Parked and neighborhood actor
+heights are sampled from the actual paved surfaces. The native paint coverage is decoded in linear
+light into ordinary local RGB variants, preserving contamination and factory
+metallic factors. Seeded silver/gray/black/white/blue/red/green/tan weights are
+22/16/22/12/12/10/4/2 percent. Five colors are native factory presets; Garnet,
+Spruce and Sand are original local tints. Mainline spacing uses 20–27 m/s and
+1.15–1.9 second headways, plus stopped signal queues. This is a static snapshot;
+use canonical cars for working gameplay pivots. The old context cache calls
+the pickup “Crossover”; it remains the native C150 pickup geometry.
+
+All original library deliveries stay read-only and are hash-checked. Keep
+repository-relative external image URIs, or remap them into an engine's shared
+texture cache. No photograph supplies any exported vertex or texel.
 
 ## Dimensions and construction
 
@@ -94,7 +141,7 @@ Fresh raw-accessor counts. Material states differ from placed draw calls.
 | GorePaving36 | 20 | 2 |
 | GuardrailEnd | 404 | 4 |
 | MedianF | 76 | 1 |
-| Overpass | 22,556 | 9 |
+| Overpass | 22,788 | 9 |
 | PierBent | 676 | 1 |
 | PrestressedGirder24 | 796 | 1 |
 | RampBranch | 548 | 3 |
@@ -111,9 +158,11 @@ again. All ordinary pieces stay below 2k, structures below 8k, the bridge below
 
 ## Shared materials and memory
 
-Ground Asphalt, Concrete, Lawn and GroundTrim remain canonical. New
+Ground Asphalt, Concrete and GroundTrim remain canonical. Seasonal summer turf
+uses a local 2048 color derivative with the original Lawn normal/ORM. The
+original native Lawn color also remains shared by commercial context. New
 FreewayConcrete and FreewaySigns are 2048 triples (16 MiB each);
-FreewayZinc and FreewayMaintenance are 1024 triples (4 MiB each): **40 MiB new**,
+FreewayZinc and FreewayMaintenance are 1024 triples (4 MiB each): **40 MiB in the four freeway sets**,
 shared across seeds and modules. The sign triple replaces the old temporary
 single sheet. The small fence field reuses the original chain-link recipe.
 `TEXTURES.md` separates the manufacturing fields, caused placement layers and
@@ -145,34 +194,100 @@ Those samples are already in the authored path-root frame. The path empty's
 translation marks its start; do not add that translation to the samples again.
 No new freeway animation or armature is needed.
 
+Use the road's S/N sockets to align successive modules in +Y tangent order;
+match the preceding N frame to the next S frame without a 180° flip. A straight
+example is 36.576 m long. A curve example spans the same station interval on
+the 1,400 m circle. Matching sockets alone cannot repair different crossfalls:
+use `roads.road(..., bank=(start,end))` for a transition with the actual adjacent
+end profiles. The supplied transition illustrates −2% to −2.5%; the curved
+scene's constant bank is −4%. Terrain, signs, bridge and terminal clearance
+still need placement against the new alignment. A complete Overpass already
+contains its girders and bent; do not stack the individual examples into it.
+
+The `Plan` dataclass in `src/plan.py` exposes length, median, radius, elevation,
+bank, pavement and terminal offset. `build.py --seeds 101 202 --stage look`
+builds the two validated places. Other integer seeds are deterministic examples;
+the fixed terminal context has only been validated for these two deliveries.
+`town_context.py` controls parcel widths, setbacks and tree planting;
+`context_colors.py` controls the weighted fleet. Sources stay parameterized,
+with no hand edits to saved Blender files.
+
 ```sh
-make                         # fields/bakes, exports, checks, all checkpoint views/pairs
-make check                   # fresh import, raw PBR/UV, real contacts and preservation
-make repeat                  # exact buffers and independently generated CPU fields
-make check-texture-repeat    # fresh GPU bake; kit 2/255 max and .02-byte RMSE limits
-make render sheet scale      # exported Cycles views, large labeled pieces, human/car scale
-make matches source-pairs    # four balanced-photo pairs, shipped and 4096 source fields
-make evidence                # native before/after views from identical cameras
+make                         # fields/bakes, exports, checks, final views, evidence and docs
+make check                   # fresh imports, budgets, UV/density, real contacts, preservation
+make repeat                  # exact deterministic CPU fields, caches, glTF/BIN and manifests
+make check-texture-repeat    # fresh GPU rebake within the kit's tolerance
+make render sheet scale      # Cycles scenes, labeled modules and 1.8 m human/car scale
+make matches source-pairs    # four balanced-photo pairs, shipped and 4096 source-field views
+make evidence                # nine native before/after pairs from identical cameras
 ```
 
-Blender runs serially and GPU work uses the shared kit lock. Scratch files stay
-inside build/. No kit code changed. `make` stops at this look-dev checkpoint.
-The scene views, sheet, scale and both photo sets share one serial GPU lease.
-The isolated accepted-source archive can reconstruct missing before views from
-commit 3681a2c without touching another worktree.
+Blender runs serially, and each render/bake set uses the shared kit GPU lock.
+Scratch stays inside build/. No kit code changed. For final review, a clean
+`make checkpoint` builds every current model, texture, export and full-size
+inspection before `make` assembles the gallery; the default target contains
+both stages. The historic 0d5b092 archive
+can reconstruct missing before views inside this worktree, with read-only
+library inputs and without touching another checkout.
 
-`renders/lookdev/` holds the 1400px Cycles scene views, 1000px individual pieces,
-2000px labeled sheet, scale and contact. `renders/look-matches/` holds the four
-shipped-PBR comparisons, with `renders/source-matches/` for source-field bake-loss
-inspection. `renders/fixes/` contains native before/after pairs and camera receipts.
-`build/check.json`, `edge-audit.json`, `bridge-audit.json`, `look-audit.json`,
-`context-audit.json`, `albedos.json`, `tones-look.json` and repeat receipts separate construction,
-serialization, resource, appearance and reproducibility evidence.
+The clean checkpoint, `make`, `make check`, `make repeat`,
+`make check-texture-repeat` and repository check passed. Exact repeat covers
+175 deterministic files: 69 CPU fields/calibration products, 73 native-cache,
+export and manifest files, and 33 CPU presentation products. All twelve GPU
+rebakes compare within one byte maximum and .002474 byte worst RMS difference;
+coverage alpha is exact. Blend containers and stochastic raw renders are
+outside the byte-repeat claim. Their current export/image/camera provenance
+is checked separately. All 1,094 preserved files from other deliveries remain
+byte-identical. The five gallery JPGs are 183,427–199,904 bytes and at most
+1600 pixels wide.
 
-The scene remains more orderly than the photographed town: repeated house and
-foliage silhouettes, regular lots, simplified context interfaces, crisp concrete
-edges and overly clean barrier/cap surfaces remain visible. Zinc's crystalline
-pattern is still exaggerated in the close gore/repair views. Ground's broad asphalt
-variation and fine alpha rib/wire parallax also show at close range. Photo fits
-compare original types: lane counts, bridge construction, season and cities
-differ. No photographic equivalence or traffic/civil certification is claimed.
+`renders/final/` contains both heroes, aerials with/without driving overlays,
+all close-ups, 17 individually framed modules, the labeled sheet, human/car
+scale and `contact.jpg`. `renders/final-eevee/101/hero.png` is the Eevee view.
+`renders/final-matches/` contains four photographic comparisons and its contact;
+`renders/final-source-matches/` has the explicitly labeled source-field pairs
+for bake-loss inspection. `renders/fix-crops/` contains nine native before/after
+panels (980–1400 px per side, with no enlargement) and camera receipts. All of these are rebuildable and
+ignored; only the five bounded gallery JPGs are committed.
+
+`build/check.json`, `edge-audit.json`, `bridge-audit.json`, `context-audit.json`
+and `accepted-construction.json` distinguish actual surface measurements from
+serialization checks. The accepted bridge, plan, controls and seated paving
+are preserved; the inherited ROW fence is opened across the arterial. Obsolete
+opaque mowing skins were removed, with their color carried on the existing
+graded earth. The construction comparison excludes only maintenance deposits,
+those large cosmetic grass faces, and the local fence opening; every drain,
+flume and small volunteer leaf remains in its strict comparison.
+`look-audit.json` measures raw exported geometry, UV charts, resources and
+preserved inputs. `final-provenance.json` verifies every final frame's source,
+images, camera and render recipe; it does not certify appearance. Exact repeat
+and tolerant GPU receipts are separate. `REVIEW.md` records full-size visual
+judgment and the concrete/asphalt neutral patches used to balance each photo.
+
+The town's repeated native house/tree silhouettes and orderly block rhythms
+remain visible. The long slopes are smoother than real turf, and broad asphalt
+variation and fine alpha rib/wire parallax remain CG cues at close distance.
+The supplementary wall close-up is strongly backlit and has limited material
+readability. Raking light makes the zinc grain look coarse in the gore view.
+The bridge's fine manufacture grain remains more uniform than the reference.
+Small native vehicle details simplify at distance; the supplied snapshot is
+not a traffic simulation. Context consumes far more expanded triangles and
+texture memory than the civil family and needs engine culling/LOD work.
+The source-field pairs show the main wear surviving delivery reduction, while
+fine manufacture grain softens. Photo fits compare original types: lane counts,
+bridge construction, season and cities differ; they are not reconstructions.
+
+Native context comes from the original [houses](../houses/README.md),
+[trees](../trees/README.md), [cars](../cars/README.md),
+[apartments](../apartments/README.md), [commercial lots](../commercial/README.md),
+[ground](../ground/README.md), [signals](../signals/README.md),
+[utility poles](../utility/README.md) and [street lights](../street-light/README.md).
+The [school](../school/README.md) lawn stations informed exposure/root-shade
+variation; no existing family delivery is rewritten.
+
+Credits: original procedural geometry/materials and native library construction;
+FHWA, USGS, TxDOT/TTI and the period agency documents in
+[refs/SOURCES.md](refs/SOURCES.md) for viewed references; Commons photographers
+Francis Rogers/Krimpet and Coolcaesar, with their stated licenses; DejaVu's
+open font for fictional highway and business legends. Photographs are comparison
+inputs only and are not redistributed in the gallery or textures.

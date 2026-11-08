@@ -27,7 +27,7 @@ def tones(folder):
   # Hero-specific object samples exclude the sky; they are display values,
   # deliberately not claims about spectral albedo or calibrated photometry.
   regions=({'pavement':[.15,.62,.55,.66],'shade':[.84,.41,.90,.47]} if seed==101 else
-           {'pavement':[.45,.72,.80,.97],'shade':[.85,.59,.97,.69]})
+           {'pavement':[.45,.72,.80,.97],'shade':[.90,.50,.98,.55]})
   samples={}
   for name,(x0,y0,x1,y1) in regions.items():
    box=y[round(h*y0):round(h*y1),round(w*x0):round(w*x1)];samples[name]=np.quantile(box,[.05,.5,.95]).tolist()

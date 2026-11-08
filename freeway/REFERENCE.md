@@ -46,7 +46,7 @@ an original plain state marker. No Interstate shield appears in an asset.
 | Construction | Dimensions and limits |
 | --- | --- |
 | Jointed concrete | 4.572 m / 15 ft transverse spacing; 12 mm visible joint, longitudinal joints on lane boundaries; placement-owned retrofit patch groups |
-| Milled shoulder strip | .4064 × .1778 m / 16 × 7 in envelopes at .3048 m / 12 in pitch, .3048 m off travel edge; represented by cards at this form gate |
+| Milled shoulder strip | .4064 × .1778 m / 16 × 7 in envelopes at .3048 m / 12 in pitch, .3048 m off travel edge; represented by flat detail cards |
 | F barrier | .8128 m / 32 in high; .6096 m / 24 in base, .1524 m / 6 in top; 3 in toe / 10 in slope break; 6.096 m bay, authored .3048 × .0762 m / 12 × 3 in drainage opening |
 | W-beam | 2.66 mm sheet, 311.15 mm face envelope, 83 mm depth; 31 in steel top, 1.905 m post centers; 3.81 m bay pitch / 4.1148 m rail including laps; rail has two shells and edge returns |
 | Blockout | 203.2 × 152.4 × 355.6 mm; top slightly above steel top, as a separate timber component |
@@ -62,8 +62,8 @@ WSDOT's 1999 bridge-rail memo supports the 32 in F-shape type; its 2015
 barrier material supports the maintained Type 31 installation. The truss,
 terminal and attenuator are original generic constructions: their member
 sizes and mechanical arrangement remain illustrative, not agency-approved
-hardware. Retroreflection, small bolts, grate casting marks and wear belong
-to look-dev, rather than additional silhouette triangles.
+hardware. Retroreflection, small bolts, grate casting marks and fine wear use
+the look-dev fields rather than additional silhouette triangles.
 
 ## Bridge load path
 

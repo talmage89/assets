@@ -614,3 +614,84 @@ allocation or civil surface change is needed.
 The broad asphalt variation, regular tire bands and smooth distant slopes still
 read as CG. Final raw frames and crops are pending the clean rebuild; this pass
 does not approve docs.
+
+## Delivery critique 10 — cold exported finals and native fix panels
+
+**Color and value first.** Opened all 49 current raw frames at native size:
+22 scene views, 17 individual modules, human/car scale, Eevee, four shipped-PBR
+photo cameras and four source-field cameras. Also opened the labeled sheet
+and all five native row crops, eight composed photo pairs, nine before/after
+panels and all three contact sheets. Photo balance still uses the recorded
+concrete patches in the 2002 aerial and 2008 bridge/guide views, and roadway in
+the 2007 traffic view. The gains make an approximate field neutral, with no
+exposure adjustment or calibrated-reflectance claim.
+
+Warm concrete is retained after shipping: actual bridge BaseColor median is
+(.2462, .2270, .1946) linear RGB before placed age and illumination. The heroes'
+99th-percentile display luminance is .777/.770; clipped RGB samples are
+.001513%/.000333%. The bridge shade sample has median .0396 versus .4160 on
+sunlit pavement. A tighter wall-only sample in 202 has median .1063 versus
+.3175 on pavement; the earlier sample included the adjacent road. These are
+measured display samples with stored ROI coordinates, not albedo measurements.
+The low horizon is lighter than the upper sky, and the underpass retains deep
+shade without clipping the sunlit concrete.
+
+Each requested correction now shows in its identical-camera panel. `town`
+has occupied narrow lots, garages/drives, alleys, fences, apartments and linked
+mature canopy. `hero-town` includes the gas canopy, strip signs, signal queue
+and freeway below; `backyards` has roofs, varied trees and utility conductors
+over the wall. `traffic` has denser daily traffic and dark/color finishes
+instead of the pale fleet. `grass` has dry straw/olive variation and rooted
+seed stems, and the overlapping green polygon patches are gone. `concrete`
+and `bearing-surroundings` show variable top-connected runoff without the old
+rectangular stamps, with actual road/landscape surroundings. Both sky panels
+replace the white haze with clear upper sky. Native widths are 980, 1120 or
+1400 pixels per side; no panel is enlarged.
+
+Compared with the photos, the repeated four house envelopes, two crown types,
+three vehicle types and regular block rhythm remain CG cues. Long turf is
+smoother than real grass, verge clumps still repeat, lane polish is too regular,
+and concrete manufacture grain is more uniform than the bridge photograph.
+Raking foreground rail views make the zinc/spangle response look coarse.
+Rumble and fence alpha detail has limited parallax. The supplementary wall
+close-up is strongly backlit, limiting its material read; keep it in the raw
+inspection set and use the clearer cable-median image in the bounded gallery.
+Eevee has flatter bridge shade and foliage than Cycles. None of these limits
+is hidden by the contact sheet or replaced with a source-scene final.
+
+The cold `make checkpoint` passed after current generation products were
+removed. Historical handoff comparisons and preservation hashes were retained
+only as evidence. All 49 current-frame provenance checks passed, together with
+raw PBR/UV/normal/resource budgets, fresh imports, actual edge/bearing/tire
+contacts, measured parcels and accepted-construction comparison. The town's
+expanded tree count remains expensive despite shared meshes; it needs engine
+parcel culling and foliage LODs/impostors. No whole-town frame-rate claim is
+made. The six-fix visual gate passes; the gallery may now be assembled.
+Full repeat, tolerant GPU rebake and the final gallery checks remain separate.
+
+## Delivery critique 11 — gallery and completed verification
+
+**Color and value first.** Opened all five bounded gallery JPGs at native size
+after the full-size source-frame review. Their warm concrete, dark bridge
+shade, clear skies, native paint colors and dry turf survive JPEG compression.
+Captions and the two aerial plans remain readable. The gallery deliberately
+uses the cable-median view in place of the very dark supplementary wall view.
+The concrete grain, regular lane polish, smooth distant turf, coarse raking
+zinc and repeated native silhouettes remain the limits described in pass 10.
+
+The clean checkpoint and subsequent `make` and `make check` passed. Full
+`make repeat` regenerated 175 files byte for byte: 69 CPU field/calibration
+files, 73 native-cache/export/manifest files and 33 CPU photo/crop/contact/gallery
+products. `make check-texture-repeat` independently rebaked all twelve shipped
+maps: maximum difference one byte, worst RMS .002473744 byte, with exact
+maintenance coverage alpha. No blend-container or stochastic raw-render byte
+claim is made. Current-frame provenance still passed after the regenerated
+exports, and the gallery/pair/contact bytes remained identical.
+
+The final repository check reports 2,116 source files and zero errors. Actual
+freeway triangles are 263,504 / 160,534; town/traffic expanded counts, instances,
+unique meshes, geometry/PNG bytes and deduplicated image memory are listed
+separately in the README. All 1,094 other-delivery files remain hash-identical.
+Five JPGs are 184,392; 183,427; 199,904; 194,695; and 190,665 bytes, with widths
+1400/1400/1600/1600/1600. No kit or top-level README change was made. Gallery
+images are ready for the final, separate commit.

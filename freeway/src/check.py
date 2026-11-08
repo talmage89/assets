@@ -80,7 +80,7 @@ def base_checks():
     assert not bad,('Missing UV channels',bad)
     assert world_area_degenerate==0,('Collapsed physical triangles',world_area_degenerate)
     assert normal_error<.002,normal_error
-    return dict(triangles=triangles,normal_length_max_error=normal_error,degenerate_triangles=world_area_degenerate,degenerate_uv_triangles=uv_degenerate,uv_scope='Authored repeating terrain charts and quick constants; atlas overlap/density certification belongs to look-dev')
+    return dict(triangles=triangles,normal_length_max_error=normal_error,degenerate_triangles=world_area_degenerate,degenerate_uv_triangles=uv_degenerate,uv_scope='Intentional tiling and chart reuse; raw density, textured UV and resource checks are in look-audit.json')
 
 def modules():
     report={}
@@ -273,6 +273,6 @@ def main():
         for path,h in json.loads(previous.read_text()).items():
             q=HERE.parents[1]/path
             assert hashlib.sha256(q.read_bytes()).hexdigest()==h,('Existing delivery changed',path)
-    report=dict(stage='Look-dev checkpoint: fresh-import construction; raw PBR/UV/bake audit in look-audit.json',modules=rows,scenes=scenes,existing_delivery_hashes_checked=len(json.loads(previous.read_text())) if previous.exists() else 0)
+    report=dict(stage='Exported construction audit; raw PBR/UV/bake audit in look-audit.json',modules=rows,scenes=scenes,existing_delivery_hashes_checked=len(json.loads(previous.read_text())) if previous.exists() else 0)
     Path('build/check.json').write_text(json.dumps(report,indent=2));print('CHECK PASSED',[(k,v['triangles']) for k,v in scenes.items()])
 if __name__=='__main__':main()

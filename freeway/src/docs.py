@@ -24,7 +24,7 @@ def main():
   'hero-202.jpg':[(folder/'202/hero.png','Cedar Hollow')],
   'plans.jpg':[(folder/'101/above_clean.png','Diamond / 101'),(folder/'202/above_clean.png','Sound-wall corridor / 202')],
   'details.jpg':[(folder/'101/pier_girders.png','Type IV girders and pier'),(folder/'101/bearings.png','Bearing seats and joint runoff'),(folder/'101/terminal.png','Ramp terminal'),(folder/'101/gore.png','Gore and attenuator'),(folder/'101/sign_structure.png','Guide-sign structure'),(folder/'101/guardrail_end.png','Guardrail and terminal')],
-  'scale-eevee.jpg':[(folder/'scale.png','1.8 m figure and native car'),(Path('renders/final-eevee/101/hero.png'),'Exported scene / Eevee'),(folder/'101/barrier.png','Median barrier'),(folder/'202/sound_wall.png','Sound wall and backyards')]}
+  'scale-eevee.jpg':[(folder/'scale.png','1.8 m figure and native car'),(Path('renders/final-eevee/101/hero.png'),'Exported scene / Eevee'),(folder/'101/barrier.png','Median barrier'),(folder/'202/cable_median.png','Cable median and backyards')]}
  rows={}
  for name,sources in spec.items():
   im=Image.open(sources[0][0]).convert('RGB') if len(sources)==1 else collage(sources,3 if name=='details.jpg' else 2)
