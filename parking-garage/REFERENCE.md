@@ -65,3 +65,29 @@ The Chicago screened wall and Alewife roof/atrium photographs are secondary
 construction/occupancy references. They are not asserted as geometry matches:
 the Alewife atrium is a different architectural type and the roof has a canopy
 that is not part of these original open-top designs.
+
+## Look-dev construction revision
+
+The accepted 24in tee remains in the immutable first checkpoint. The revised
+precast export uses a 30in / .762m body with a 4in / .1016m flange, 6ft /
+1.8288m stem centers and approximately 7¾in / 4¾in tapered web widths. PCI's
+2015 double-tee history, Fig17 p58, supplies those 12ft-section proportions.
+The paper summarizes the seventh-edition handbook and notes that precaster
+sections vary. The original 24in choice was shallower than that example.
+
+New ends are dapped to the existing 24in seats, with a 480mm end block and
+a short vertical transition. MNL129 §6.2.1.2 describes dapping to reduce
+framing depth; the precise dap, strand layout and end-zone reinforcement
+are authored visual construction, not an engineered member design.
+The 50mm topping, drainage crown, ramp grades and bearing pad positions
+remain those of the accepted generator. Fixtures lower by 152.4mm and their
+mounting straps lengthen by the same amount, keeping their upper contact.
+
+The imported form revision measures 2.5408m at municipal aisle section rays
+(regular stations plus actual downward-face sections), 2.5898m at the PT
+aisle, and 2.4892m along both sampled van approaches, stalls and exits.
+The entry bar remains the van route's minimum. These are discrete surface
+measurements in `build/lookdev/form-headroom.json`, not constants or a
+continuous clearance certificate. The plans and all route/socket coordinates
+are retained. The tower revision follows the added Ratto 2008 photo and the
+existing Harmon flight/landing photograph; all identities remain fictional.

@@ -38,6 +38,9 @@ def tower_signs(r,levels,layout,label):
 
 def upgrade(rt,p,layout):
     for ob in list(rt.children_recursive):remove_paint(ob)
+    if p['system']=='precast':
+        from tee_detail import deepen
+        p['deepened_tee_count']=deepen(rt,p)
     towers=[o for o in rt.children if o.name.startswith('Tower_') and o.get('module_kind')]
     for old in towers:
         matrix=old.matrix_basis.copy();name=old.name;kind=old['module_kind']

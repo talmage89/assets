@@ -19,6 +19,8 @@ Downloaded files are ignored, used only for looking and measuring. No reference 
 
 Online primary sources (read, not downloaded):
 
+- [The legacy and future of an American icon: The precast, prestressed concrete double tee](https://www.pci.org/PCI_Docs/Publications/PCI%20Journal/2015/July/Legacy%20Future%20American%20Icon%20Precast%20Double%20Tee.pdf), George D. Nasser, Maher Tadros, Adam Sevenker, David Nasser; PCI Journal July–August 2015; copyright PCI. Fig17 p58: 12ft width, 6ft stem centers, 30in depth / 4in flange, 7¾in/4¾in web. New source uses these proportions with authored dapped ends per MNL129 §6.2.1.2. Read publisher PDF via web; direct local retrieval was blocked and no response was retained.
+
 - [York Quay Parking Garage](https://www.pci.org/PCI_Docs/Publications/PCI%20Journal/1985/July-1985/York%20Quay%20Parking%20Garage.pdf), PCI Journal, July–August 1985, p147, copyright PCI: period precedent for bent/cranked 58ft double tees and flexible joint treatment; not copied geometry. Direct download blocked, read via indexed publisher excerpt.
 - [US Access Board ADA Chapter 5](https://www.access-board.gov/ada/guides/chapter-5-parking/): 502 stalls, aisles, routes, 98 inch van clearance, 1:48 accessible slope; table 208 stall counts. US government.
 - [PCI parking FAQ](https://www.pci.org/GCPCI/GCPCI/Technical_Resources/FAQs/Parking-Structures.aspx): 12 ft tees and 36/48 ft bays; minimum 1% drainage. Copyright PCI.
