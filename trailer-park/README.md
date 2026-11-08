@@ -374,7 +374,8 @@ comparison evidence, never in shipped maps or committed gallery images.
 - **Lawn has a remaining planar read.** The July base and individual narrow
   blades replace the tan/rosette contrast. Broad middle-distance areas still
   flatten into the repeated Ground tile; peripheral native weeds repeat
-  their silhouettes, and the sunny lawn remains more uniform than the photos.
+  their silhouettes, and the sunny lawn remains brighter and more uniform
+  than the concrete-balanced reference patches.
 - **Road fatigue remains an atlas treatment.** Dusty gray 2–4 in overbands
   and darker wheel paths improve the lane. Fine alligator cracks share a
   bounded, rotated atlas cell, whose pattern can be recognized in a close
@@ -385,7 +386,7 @@ comparison evidence, never in shipped maps or committed gallery images.
   simpler finishes. The aerial is a construction overview with brighter
   exposure than the lane heroes. There are no interiors or collision meshes.
 - Eevee glazing is pale and flatter than Cycles. Rear inspection elevations
-  are dark, and the single-wide scale figure is partly hidden by the steps.
+  are dark, and the scale figures are partly hidden by the steps.
 
 There are no interiors. This delivery does not claim structural/civil
 certification, unique lightmap packing, full-site motion clearance or final
