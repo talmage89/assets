@@ -471,3 +471,69 @@ bank 11.57px framing remain. The new fit still needs an exposed render to
 prove visibility. No low RMS is accepted as appearance or camera-clearance
 proof. Controls are retained at `renders/pass10/`; their photograph frames
 are archived before the next render batch.
+
+## Pass 11 — full exported revision, rejected surface and inspection faults
+
+Color/value first: opened all 21 new 1280px crossing/module frames and the
+three freshly composed pairs at native size. The bridge is neutral warm gray,
+the sky has depth, and the reeds catch yellow-green sunlight. Those changes
+hold. Water is still much too dark blue in the bank pair compared with the
+dock-balanced Riverside photograph. Broad smooth reflections suppress its
+own color. The bar's high-contrast circular clasts look printed; applying the
+same bed map to quarry rocks makes polka dots. Reject both surface responses.
+
+The urban hero now has native rear doors, escapes and service equipment at
+the river, and the rural hero has layered vegetation and occupied frontage.
+The aerial still shows similar-height Midwest roofs and empty ends of rows.
+Use varied native regional parameter draws, extend the rows, and use their
+remaining unique buildings along the crossing street. Native per-building
+budgets remain enforced; the river does not alter downtown's factory.
+
+The bearing images fail despite the new geometry: the outside keeper leg
+conceals its own anchor nuts. Put that leg beside the pad and the nuts on
+the outboard horizontal foot. The city camera sees soil, while the rural
+seat macro makes the missing nut visibility especially clear. The additional
+camera controls show the city pier seat clearly; retain that view after the
+construction correction. The abutment bench also buries most of the stem.
+Lower its under-deck bench and blend to the outer bank, exposing the actual
+retaining construction rather than moving a camera through ground.
+
+Quarry stones crossing the clipped approach soil have stretched lower
+corners and become tall posts. Reject placements with excessive soil-height
+variation; grade the toe outside the retaining wings. The farm's large hay
+quads intersect their undulating support, producing triangular green gaps.
+Assign the harvest rows on actual terrain faces, and subdivide the drives
+against the measured soil. These are construction faults, not shadows.
+
+The wet-band atlas is upside down for algae: its dense origin is at the top,
+leaving squared high edges. Reverse that chart for water-grown stains and
+connect the column band's heights smoothly. The cap runoff direction stays
+unchanged. The riffle's foam is too fine and faint; increase its broken
+coverage and actual surface relief. Native boxwood was stretched vertically
+into topiary-like cones; use lower, wider, leaning clumps.
+
+The replacement concrete underside is exposed and readable at **10.93px**;
+its wider fascia view still differs substantially from the photograph's
+interior beam arrangement. Four support anchors prove only that framing.
+The urban fit remains **12.69px**, the bank **11.57px**. Pass 11 exports,
+pairs and receipts are retained at `renders/pass11/` and
+`build/pass11-matches/`. Its full make, construction/preservation gates,
+41-file repeat and 20 identical-camera panels passed. Passing them did not
+make these appearance faults acceptable.
+
+## Pass 12 — targeted camera and scattering controls
+
+Color/value first: opened all ten 960px controls. Increasing volume scatter
+alone barely changes the grazing hero reflections (A/B mean pixel difference
+is .154/255). The water needs stronger, less repetitive local surface slopes
+so the turbid body contributes between reflections. Keep transmission and
+the closed volume; test the stronger flow-driven normal against a fresh
+export rather than calling the scattering-only controls a solution.
+
+The city pier-seat control clears the terrain and frames the laminated
+stack. The rural abutment seat control frames the pad clearly. Both still
+show the keeper blocking the nuts, confirming the construction correction.
+The two city abutment controls from across the river show the enclosing
+riverwalk but hide the stem behind its bank. Prefer the bank inspection
+after correcting the bench itself. Controls remain in
+`renders/pass12-controls/`. None is final checkpoint evidence.
