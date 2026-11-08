@@ -292,82 +292,8 @@ def bumper(b,name,front,width,depth,z0,z1):
     ob=G.loft(name,rings,b.m['black']);G.bevel(ob,.0015,1);b.add(ob)
 
 def hood(b):
-    # Compound molded hood: each section is independently rounded across width and down both cheeks.
-    # No extrusion of a side-view polygon; transverse crown changes along its length.
-    stations=[(-5.916,.725,1.520,1.060),(-5.87,.755,1.565,1.035),(-5.55,.780,1.642,1.015),(-4.95,.800,1.765,1.045),(-4.38,.825,1.860,1.145),(-3.96,.858,1.888,1.240)]
-    loops=[]
-    for y,w,top,bottom in stations:
-        sec=[(-w,bottom),(-w,top-.145),(-w*.98,top-.078),(-w*.91,top-.026),(-w*.76,top),(-w*.42,top+.017),(0,top+.025),(w*.42,top+.017),(w*.76,top),(w*.91,top-.026),(w*.98,top-.078),(w,top-.145),(w,bottom)]
-        loops.append([(x,y,z) for x,z in sec])
-    ob=G.loft('Compound hood shell',loops,b.m['yellow'],caps=False,closed=False);G.smooth(ob,50)
-    mod=ob.modifiers.new('Molded hood wall','SOLIDIFY');mod.thickness=.006;mod.offset=-1;b.add(ob)
-    # One closed molded nose ring follows the actual hood section and grille
-    # opening. Merge both contours' radial stations so neither loses a corner.
-    y=-5.922;center=1.294
-    outer=[(x,z-center) for x,_,z in loops[0]]
-    outer[0]=(outer[0][0],1.0335-center);outer[-1]=(outer[-1][0],1.0335-center)
-    inner=G.rounded_rectangle(.994,.392,.065,5)
-    angles=sorted({round(math.atan2(z,x),10) for x,z in outer+inner})
-    def ray(poly,t):
-        dx,dz=math.cos(t),math.sin(t);hits=[]
-        for a,c in zip(poly,poly[1:]+poly[:1]):
-            vx,vz=c[0]-a[0],c[1]-a[1];den=dx*vz-dz*vx
-            if abs(den)<1e-12:continue
-            distance=(a[0]*vz-a[1]*vx)/den;u=(a[0]*dz-a[1]*dx)/den
-            if distance>0 and -1e-7<=u<=1+1e-7:hits.append(distance)
-        d=min(hits);return d*dx,d*dz+center
-    outline=[ray(outer,t) for t in angles];mouth=[ray(inner,t) for t in angles]
-    rings=[[(x,yy,z) for x,z in contour] for contour,yy in [(outline,y),(mouth,y+.004),(mouth,y+.010),(outline,y+.006)]]
-    ob=G.ring_loft('Unified molded nose',rings,b.m['yellow']);G.smooth(ob,35);b.add(ob)
-    b.box('Front lower molded chin',(0,-5.871,.890),(1.65,.11,.27),'yellow',r=.055)
-    b.box('Front recessed valance',(0,-5.960,.799),(2.05,.10,.10),'black',r=.027)
-    # Narrow rounded grille molding, its back and cell webs all behind the nose lands.
-    contour=G.rounded_rectangle(.994,.392,.065,5)
-    rings=[[(x,y+.010,z+1.294) for x,z in contour],[(x*.967,y+.018,1.294+z*.92) for x,z in contour],[(x*.967,y+.050,1.294+z*.92) for x,z in contour]]
-    ob=G.ring_loft('Seated grille molding',rings,b.m['black']);b.add(ob)
-    b.box('Grille radiator bed',(0,-5.826,1.294),(.976,.018,.366),'black',r=.055)
-    # Import the accepted hatchback's recessed open-web manufacturing method.
-    # Only authored scale/bow/pitch differ; no car source or delivery is modified.
-    from hatch_grille import lattice,face_y
-    b.m['grille_bar']=b.m['frame']
-    lattice(b,'C75 recessed diamond web',.585,.942,.348,17,3,.0035,.014)
-    web=bpy.data.objects['C75 recessed diamond web'];web['part_category']='shell'
-    for v in web.data.vertices:
-        xx,yy,zz=v.co
-        # Keep depth, compress the hatch's bow and place it in the bus opening.
-        v.co.y=-5.878+.4*(face_y(xx,zz)-face_y(0,.585))+(yy-face_y(xx,zz)-.026)
-        v.co.z+=1.294-.585
-    # Front fenders are rounded annular moldings with a deep wheelhouse.
-    for sign in [-1,1]:
-        def quarter(u,v,sign=sign):
-            yy=-4.42+.515*u;d=yy-S.FRONT_AXLE
-            lower=max(.755,S.HUB+math.sqrt(max(0,.69**2-d*d)))
-            xx=.86+.34*u+.31*(1-u)*(1-v)**2
-            zz=lower+(1.85+.03*u-lower)*v
-            return (sign*xx,yy,zz)
-        ob=panel('Compound fender cowl '+str(sign),quarter,[i/8 for i in range(9)],[0,.12,.3,.5,.72,.9,1],b.m['yellow'],(sign,0,0),gauge=.004,return_depth=.018);b.add(ob)
-        loops=[]
-        for x,r in [(sign*.785,.680),(sign*.91,.727),(sign*1.080,.733),(sign*1.174,.700),(sign*1.196,.648),(sign*1.170,.622)]:
-            # Shared trim heights close a manufactured end. Equal angles on
-            # different radii previously staggered these ends into visible fins.
-            rear=math.asin((.430-S.HUB)/r);front=math.pi-math.asin((.750-S.HUB)/r)
-            loops.append([(x,S.FRONT_AXLE+r*math.cos(t),S.HUB+r*math.sin(t)) for t in [rear+(front-rear)*i/40 for i in range(41)]])
-        n=len(loops[0]);m=len(loops);vs=[p for ring in loops for p in ring]
-        fs=[(j*n+k,j*n+k+1,((j+1)%m)*n+k+1,((j+1)%m)*n+k) for j in range(m) for k in range(n-1)]
-        fs += [tuple(j*n for j in reversed(range(m))),tuple(j*n+n-1 for j in range(m))]
-        ob=G.mesh('Molded front fender '+str(sign),vs,fs,b.m['yellow']);G.smooth(ob,45);b.add(ob)
-        # Corner lamp enclosure: closed yellow molded fairing, sealed lens on its face.
-        b.box('Front optical housing '+str(sign),(sign*.948,-5.688,1.052),(.400,.185,.365),r=.070)
-        b.box('Headlamp gasket '+str(sign),(sign*.948,-5.791,1.066),(.325,.015,.203),'black',r=.034)
-        b.box('Lamp front lowbeam '+str(sign),(sign*.948,-5.801,1.066),(.277,.006,.157),'headlight',category='lamps',r=.026)
-        def cover(u,v,sign=sign):
-            xx=sign*.948+(u-.5)*.281;zz=1.066+(v-.5)*.161
-            return (xx,-5.808-.006*math.sin(math.pi*u)*math.sin(math.pi*v),zz)
-        ob=panel('Glass sealed headlamp cover '+str(sign),cover,[0,.15,.35,.65,.85,1],[0,.25,.75,1],b.m['windshield'],(0,-1,0),gauge=.0024,return_depth=0);b.add(ob,category='glass')
-        b.box('Front amber signal '+str(sign),(sign*.948,-5.798,.906),(.230,.009,.073),'amber',category='lamps',r=.017)
-        b.box('Hood shut line '+str(sign),(sign*.849,-4.005,1.646),(.008,.022,.320),'black')
-        b.box('Hood rubber latch '+str(sign),(sign*.855,-4.18,1.476),(.030,.060,.155),'black',r=.008)
-        b.tube('Hood latch loop '+str(sign),[(sign*.865,-4.20,1.54),(sign*.875,-4.20,1.62),(sign*.866,-4.16,1.65)],.007,'aluminum')
+    from front import sculpt
+    sculpt(b)
     # Broad pressed steel bumpers wrap the corners and carry the crossing-arm actuator.
     bumper(b,'Front pressed bumper',True,2.35,.204,.470,.790)
     bumper(b,'Rear pressed bumper',False,2.43,.180,.500,.800)
