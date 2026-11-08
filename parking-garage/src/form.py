@@ -26,7 +26,7 @@ def tower_signs(r,levels,layout,label):
     for side in (-1,1):
         x=side*2.844
         def plaque(y,z,w,h,key):
-            b.box((x-side*.012,y,z),(.028,w+.06,h+.06),'Steel')
+            b.box((x-side*.023,y,z),(.028,w+.06,h+.06),'Steel')
             pts=[(x,y-w/2,z-h/2),(x,y+w/2,z-h/2),(x,y+w/2,z+h/2),(x,y-w/2,z+h/2)]
             if side<0:pts.reverse()
             b.quad(pts,layout[key],'Graphics')

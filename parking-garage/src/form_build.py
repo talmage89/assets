@@ -30,12 +30,15 @@ def main():
         bpy.ops.wm.save_as_mainfile(filepath=str(Path(f'build/lookdev/form-{seed}.blend').resolve()))
         ctx=town(p,rt)
         from town_detail import refine
-        refine(ctx['root'],p,layout)
+        added=refine(ctx['root'],p,layout)
+        ctx['actors'].extend(added);ctx['actor_triangles']+=sum(r['triangles'] for r in added)
         report={k:v for k,v in ctx.items() if k!='root'}
         report['context_triangles']=G.triangles(members(ctx['root']))
         Path(f'build/lookdev/actors-{seed}.json').write_text(json.dumps(report,indent=2)+'\n')
         path=Path(f'export/form/sites/ParkingGarageFormSite-{seed}.gltf')
         delivery=export(path,list(bpy.context.scene.objects),folder.glob('*.png'))
+        from tangent_rounding import stabilize
+        stabilize(path)
         bpy.ops.wm.save_as_mainfile(filepath=str(Path(f'build/lookdev/form-site-{seed}.blend').resolve()))
         receipts.append(dict(seed=seed,garage_triangles=p['garage_triangles'],**report,delivery=delivery))
         Path('build/lookdev/form-sites.json').write_text(json.dumps(receipts,indent=2)+'\n')

@@ -62,3 +62,5 @@ def add(r,levels,H):
     for yy in (-1.0,1.0):b.box((1.43,yy,1.17),(1.90,.06,2.2),'Steel')
     b.finish()
     root(r.name+'__StairDaylight',(-2.10,-.7,H/2),r,socket_kind='daylight_core')
+    for lev in range(levels):
+        root(r.name+f'__StairFixture_{lev}',(-1.35,.40,lev*FLOOR+2.75),r,socket_kind='light_emitter')

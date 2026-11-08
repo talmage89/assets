@@ -56,12 +56,25 @@ def refine(rt,p,layout):
     b.tube([(sx,yy,0),(sx,yy,2.8)],.03,'Steel');b.box((sx,yy,2.52),(.45,.035,.58),'Steel')
     b.quad([(sx-.21,yy-.020,2.25),(sx+.21,yy-.020,2.25),(sx+.21,yy-.020,2.79),(sx-.21,yy-.020,2.79)],layout['2 HOUR PARKING'],'Graphics')
     b.finish()
+    near=G.Mesh('Near crossing parking meters',rt)
+    for yy in (-W/2-4.8,-W/2+1):
+        xx=-L/2-6.6
+        near.tube([(xx,yy,0),(xx,yy,1.17)],.026,'Steel')
+        near.box((xx,yy,1.29),(.20,.15,.25),'Steel');near.box((xx-.103,yy,1.32),(.006,.105,.08),'Seal')
+    near.finish()
     tree=next(o for o in rt.children if o.name.startswith('Library RedMaple'))
     for i,xx in enumerate((-L/2-2,-L/2+12,12,L/2+9)):
         # Trees are planted outside the 1.83m walk, on the far curb's verge.
         G.clone(tree,'Opposite street tree '+str(i),(xx,-sy-rw/2-3.65,0),i*57,rt)
+    # A smaller native street tree at the crossing is visible in the hero.
+    # Its narrow soil well leaves the long side walk clear beside it.
+    t=G.clone(tree,'Crossing street tree',(-L/2-7.55,-W/2-4.7,0),37,rt);t.scale=(.60,.60,.60)
+    G.M['Soil']=G.material('Tree well soil',(.065,.047,.024),.98)
+    soil=G.Mesh('Crossing tree well',rt);soil.box((-L/2-7.55,-W/2-4.7,.001),(.65,.85,.006),'Soil');soil.finish()
     # The entry queue is a separate actor, shared native mesh, not garage
     # geometry. Place at the actual apron before the clearance gantry.
     car=next(o for o in rt.children if o.name.startswith('Street parked '))
     ex=L/2-p['end_length']/2
-    G.clone(car,'Entry queue vehicle',(ex-1.65,-W/2-5.0,-.02),0,rt)
+    pos=(ex-1.65,-W/2-3.3,0)
+    queued=G.clone(car,'Entry queue vehicle',pos,180,rt)
+    return [dict(socket='Entry queue',category='entry queue',kind=car.name,triangles=G.triangles([queued,*queued.children_recursive]),position=list(pos),yaw=180)]

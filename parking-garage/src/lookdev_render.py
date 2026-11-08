@@ -13,7 +13,8 @@ def main():
         p=json.loads(Path(f'build/lookdev/garage-{seed}.json').read_text())
         bpy.ops.wm.read_factory_settings(use_empty=True)
         prefix='ParkingGarageFormSite' if args.stage=='form' else 'ParkingGarageLookSite'
-        path=Path(f'export/{args.stage}/sites/{prefix}-{seed}.gltf');bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
+        path=Path(f'export/{args.stage}/sites/{prefix}-{seed}.gltf') if args.stage!='baseline' else Path(f'export/sites/ParkingGarageSite-{seed}.gltf')
+        bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
         if args.source_finish:
             from atlas_binding import source_finish
             source_finish()
@@ -23,7 +24,11 @@ def main():
             if name=='plan_path' and seed!=101:continue
             shot=shotdefs[name];bpy.ops.wm.open_mainfile(filepath=str(cache))
             if shot.get('paths'):overlays(p)
-            lighting(interior=shot.get('interior',False))
+            if args.stage=='baseline':
+                from render import lighting as old_lighting
+                old_lighting(interior=shot.get('interior',False))
+                shot['max_bounces']=7
+            else:lighting(interior=shot.get('interior',False))
             r=render_shot(args.out/str(seed)/(name+'.png'),shot,args.width,args.samples,shot.get('engine','CYCLES'),path)
             from hashlib import sha256
             d=json.loads(path.read_text());r['images']={im['uri']:sha256((path.parent/im['uri']).read_bytes()).hexdigest() for im in d.get('images',[])}

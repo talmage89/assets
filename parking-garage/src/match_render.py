@@ -16,14 +16,22 @@ def main():
         if a.stage=='lookdev':
             path=Path(f'export/lookdev/comparison-{name}.gltf') if name!='pleasant' else Path('export/lookdev/sites/ParkingGarageLookSite-101.gltf')
         bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
+        from mathutils import Vector
+        eye=Vector(fit['shot']['location']);hidden=[]
+        for root in list(bpy.context.scene.objects):
+            if not root.name.startswith(('Parked ','Street parked ')):continue
+            if root.parent and root.parent.name.startswith(('Parked ','Street parked ')):continue
+            if (root.matrix_world.translation-eye).xy.length<3.5:
+                hidden.append(root.name)
+                for ob in [root,*root.children_recursive]:ob.hide_render=True
         if a.source_finish:
             from atlas_binding import source_finish
             source_finish()
         lighting(elevation=36 if name!='precast' else 20,azimuth=-120 if name!='pleasant' else 145,interior=name=='precast')
         if name=='precast':bpy.context.scene.view_settings.exposure=1.0
-        shot=fit['shot'];shot['aspect']=(fit['crop'][2]-fit['crop'][0])/(fit['crop'][3]-fit['crop'][1])
+        shot=fit['shot'];shot['aspect']=(fit['crop'][2]-fit['crop'][0])/(fit['crop'][3]-fit['crop'][1]);shot['max_bounces']=12
         r=render_shot(a.out/(name+'.png'),shot,a.width,a.samples,'CYCLES',path)
-        r.update(name=name,stage=a.stage,source_finish=a.source_finish,native_rms_px=fit['residual_rms_pixels']);receipts.append(r)
+        r.update(name=name,stage=a.stage,source_finish=a.source_finish,native_rms_px=fit['residual_rms_pixels'],camera_clearance_hidden_context_cars=hidden);receipts.append(r)
         (a.out/'views.json').write_text(json.dumps(receipts,indent=2)+'\n')
     photo_match.compose(calibration,a.out,a.out)
     from kit.contact import review_sheet

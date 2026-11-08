@@ -1,7 +1,5 @@
 #!/bin/sh
-# Serialize Blender work on the shared machine; inherited render locks are kept.
+# CPU construction/export does not occupy the GPU. Make's render/bake recipes
+# acquire the shared lock once around their whole set before calling Blender.
 set -eu
-if [ "${ASSETS_GPU_HELD:-0}" = 1 ]; then
-    exec blender -t 4 "$@"
-fi
-exec "$(dirname "$0")/../../kit/with_gpu.sh" blender -t 4 "$@"
+exec blender -t 2 "$@"

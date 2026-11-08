@@ -90,7 +90,7 @@ def render_shot(out,shot,width,samples,engine='CYCLES',source=None):
     if 'roll' in shot:cam.rotation_euler.rotate_axis('Z',shot['roll'])
     aspect=shot.get('aspect',1.6);sc.render.resolution_x=width;sc.render.resolution_y=round(width/aspect);sc.render.resolution_percentage=100
     sc.render.engine=engine
-    if engine=='CYCLES':gpu.enable();sc.cycles.samples=samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=7;sc.cycles.transparent_max_bounces=32
+    if engine=='CYCLES':gpu.enable();sc.cycles.samples=samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=shot.get('max_bounces',7);sc.cycles.transparent_max_bounces=32
     sc.render.image_settings.file_format='PNG';out.parent.mkdir(parents=True,exist_ok=True);sc.render.filepath=str(out.resolve());bpy.ops.render.render(write_still=True)
     receipt=dict(camera=list(cam.location),camera_world_z_m=float(cam.location.z),lens_mm=float(cam.data.lens),engine=engine,samples=samples,
         exposure=sc.view_settings.exposure,width=width,height=sc.render.resolution_y,output=str(out),sha256=hashlib.sha256(out.read_bytes()).hexdigest())
