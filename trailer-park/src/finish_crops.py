@@ -6,7 +6,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from kit.fonts import find_font
 
 
-def compare(before,after,out):
+def compare(before,after,out,before_label='aa071cd / same camera and light'):
     out.mkdir(parents=True,exist_ok=True);font=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),21)
     a=json.loads((before/'provenance.json').read_text());b=json.loads((after/'provenance.json').read_text());receipt=[]
     def frame(folder,stem,shot):
@@ -28,7 +28,7 @@ def compare(before,after,out):
         for key in ('direction','sun_energy','sky_strength','exposure','angle_degrees','sky_saturation','camera_sky_strength','camera_sky_saturation'):assert aa['light'][key]==bb['light'][key]
         im=Image.open(frame(before,stem,shot)).convert('RGB');other=Image.open(frame(after,stem,shot)).convert('RGB');assert im.size==other.size
         crop=tuple(round(v*(im.width if k%2==0 else im.height)) for k,v in enumerate(box))
-        im=im.crop(crop);other=other.crop(crop);pair(name,im,other,'aa071cd / same camera and light','Current export / same camera and light')
+        im=im.crop(crop);other=other.crop(crop);pair(name,im,other,before_label,'Current export / same camera and light')
         receipt.append(dict(path=str(out/(name+'.jpg')),panel_size=im.size,crop_pixels=crop,max_camera_delta=delta,same_light=True))
     # Camera corrections also retain the actual rolled historical view.
     history=Path('renders/age-pass3/matches/Park-101/street-2007.png')
@@ -39,4 +39,5 @@ def compare(before,after,out):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--before',type=Path,default=Path('renders/finish-before'));p.add_argument('--after',type=Path,required=True);p.add_argument('--out',type=Path,default=Path('renders/finish-fixes'));a=p.parse_args();compare(a.before,a.after,a.out)
+    p=argparse.ArgumentParser();p.add_argument('--before',type=Path,default=Path('renders/finish-before'));p.add_argument('--after',type=Path,required=True);p.add_argument('--out',type=Path,default=Path('renders/finish-fixes'))
+    p.add_argument('--before-label',default='aa071cd / same camera and light');a=p.parse_args();compare(a.before,a.after,a.out,a.before_label)

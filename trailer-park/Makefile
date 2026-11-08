@@ -28,6 +28,9 @@ ifneq ($(wildcard build/round4-before/export/Park-101.gltf),)
 CHECKPOINT_RENDER_OUTPUTS += renders/finish-before/provenance.json renders/finish-before/Park-101/hero.png renders/finish-before/Park-101/row.png renders/finish-before/Park-202/hero.png renders/finish-before/matches/Park-101/street-2007.png
 FINISH_CROPS = $(PYTHON) src/finish_crops.py --after $(CHECKPOINT_OUT) &&
 endif
+ifneq ($(wildcard renders/finish-pass4/provenance.json),)
+FINISH_CROPS = $(PYTHON) src/finish_crops.py --before renders/finish-pass4 --after $(CHECKPOINT_OUT) --out renders/last-round-fixes --before-label '5a3935d / same camera and light' &&
+endif
 CHECKPOINT_REVIEW = $(PYTHON) src/matches.py compose $(CHECKPOINT_OUT) && $(PYTHON) src/review.py --renders $(CHECKPOINT_OUT) && $(PYTHON) src/matches.py compose renders/source && $(PYTHON) src/review.py --renders renders/source && $(FINISH_CROPS) $(PYTHON) src/metrics.py --renders $(CHECKPOINT_OUT) && $(PYTHON) src/presentation_check.py --renders $(CHECKPOINT_OUT)
 endif
 include ../kit/checkpoint_rules.mk
