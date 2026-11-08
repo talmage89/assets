@@ -966,3 +966,77 @@ BaseColor and ORM are byte-identical; the normal differs by at most one
 8-bit code, mean normalized error 9.35e-10. Canonical maps were untouched.
 This is a tolerance result, not byte determinism for GPU baking. The native
 crossover cold-build block remains unresolved; do not approve final docs.
+
+## Final validation audit — native inputs remain inconsistent
+
+Color/value first: the reviewed candidate remains the pass-16 gallery, with
+warm concrete, dark returns/openings, visible leaking joints and used floors.
+Its 33 scene frames, 25 module frames and six photographic pairs passed
+receipt verification after `make check`. All 14 correction comparisons use
+the unchanged cameras, with 1280px panels. No final docs are committed.
+The full gallery is `renders/final/contact.jpg`; the fixed-camera evidence is
+`renders/delivery-fixes/contact.jpg`. The source/baked pair folders and
+module sheet are recorded above. The smoother floor polish, repeating small
+coverage kernels, plain tower panels and uniform car finishes remain CG tells.
+
+`make -j1 check` passed: UV/normal/scale and parameter checks, 60 pivot sweeps,
+actual support/headroom measurements, final GLB payload checks, and tire/film
+contact samples. The measured pigment-film gap is 1.189–1.206mm. Tire samples
+reach at most 2.001mm below the deck in 101 and about 0.003mm in 202. These
+are sampled surface measurements, not a continuous vehicle-motion proof.
+
+One complete `make -j1 repeat` passed: three original 4096px source fields,
+189 look-dev/export/GLB/manifest files (1,363,346,043 bytes), all four native
+context GLBs regenerated independently, and 70 original checkpoint files
+(91,258,230 bytes). Crucially, that native repeat reproduced the old
+crossover SHA a9926128e7b30cb24cdeba4d8203eaab317094b4cc5d24acc73877298f15d6ef.
+That single success does **not** establish reliable native determinism:
+the subsequent empty-cache builds failed their original-input hash guards.
+
+The relative-argv cold attempt produced a hatchback with 58,035 triangles,
+SHA 36b3a094c4f0fdd87226dd45376a8a94db4c95ac8898a9031980b791ab6cc902,
+instead of the accepted 58,032 / SHA
+18436abe2fbde7a2bcdcbe1ee45959dc7b48e6f8f291ca94b57250b39da892b4.
+Using the same fresh worker workspace as the passing independent repeat
+reproduced the hatchback exactly, but the crossover again came back at
+73,422 triangles / SHA
+6ab97eabd2eedf0b484685d5b63561e2bc1edce60ff2b33fdb8dc2d2d5d61f02,
+instead of 73,426 / the accepted a992 hash. Differences occur in native
+clipped skin/gauge geometry. Worker count and a common argv/workspace did
+not resolve the inconsistency; no root cause is claimed.
+
+Both cold attempts began without local generated geometry, native caches,
+textures or renders. Their logs and clean-start receipts remain under
+`../build/parking-garage-cold-workspace-failed-20261108/build/` and
+`../build/parking-garage-cold-canonical-failed-20261108/build/`.
+The unproven workspace changes were reverted. Restored the reviewed
+candidate's accepted native inputs and exports, then rechecked preservation:
+all 63 protected garage files, the earlier 559-file library inventory and
+all 570 current other-family delivery files are unchanged.
+
+The strict hash guard is retained. No geometry delta was embedded in code,
+no alternate car was substituted, no old delivery was silently regenerated,
+and no cached-input run is called a successful empty-cache build. The
+remaining requirement needs a reproducible native recipe, or an explicit
+scope decision about stabilizing those generators and regenerating the two
+historical site glTF/BIN pairs. The prior exception question is unanswered.
+Final README prose remains reviewable at `build/README-draft.md`; publishing
+its gallery and final docs is deferred until that requirement is resolved.
+
+Current garage costs are 148,625 / 56,383 triangles, 11 materials and 13
+shared images (57.333MiB with mipmaps). The added 11,987 / 1,917 triangles
+over the accepted structure belong to floor-conforming pigment films; all
+25 structural module counts remain unchanged. Garage glTF+BIN payloads are
+27,246,177 / 9,708,114 bytes; embedded GLBs are 49,946,068 / 32,408,004 bytes.
+The full per-module triangle/byte/material/memory ledger is generated at
+`build/delivery-metrics.md`. Cars and town remain separate presentation
+costs: the complete expanded scenes are 14,980,883 / 6,622,411 triangles;
+their unique mesh payloads are 2,119,947 / 2,003,139 triangles. Site image
+allocations are 142.667 / 148MiB, with a 148MiB union. No kit changes.
+
+The final explicit `make -j1 check-texture-repeat` also passed. This second
+independent GPU bake has a maximum one-code difference in BaseColor/normal,
+mean normalized errors 2.34e-10 / 3.12e-10, and byte-identical ORM. Canonical
+maps remain unchanged. The repository check reports 2299 source files and
+zero errors. All render/bake workers and GPU-lock waits finished before
+reporting; no detached job remains.
