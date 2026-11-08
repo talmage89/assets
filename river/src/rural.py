@@ -18,13 +18,26 @@ def add(p,parent,lots):
     soil=bpy.context.scene.objects['BedBanksFloodplain']
     soil.data.materials.append(ma);material_index=len(soil.data.materials)-1
     tint=soil.data.color_attributes['Tint']
+    # Recover each original quad from its fixed LL-to-UR diagonal. Classifying
+    # its two triangles separately cuts long green teeth into a field edge.
+    cells={}
     for face in soil.data.polygons:
-        x,y,_=face.center
+        vertices=[soil.data.vertices[i] for i in face.vertices]
+        lo=min(v.co.y for v in vertices);hi=max(v.co.y for v in vertices)
+        ll=min((v for v in vertices if v.co.y==lo),key=lambda v:v.co.x)
+        ur=max((v for v in vertices if v.co.y==hi),key=lambda v:v.co.x)
+        cells.setdefault((ll.index,ur.index),[]).append(face)
+    for faces in cells.values():
+        corners=sorted({i for face in faces for i in face.vertices})
+        x=sum(soil.data.vertices[i].co.x for i in corners)/len(corners)
+        y=sum(soil.data.vertices[i].co.y for i in corners)/len(corners)
         edge=max(abs(p.center(y))+p.halfwidth(y)+23,45)
-        if not (49<abs(y)<160 and edge<abs(x)<170):continue
-        face.material_index=material_index
+        # Continue the crop to the terrain's actual outer boundary.
+        if not (49<abs(y)<160 and edge<abs(x)):continue
         row=math.floor((abs(y)-48)/4);value=.97+.035*math.sin(row*2.39)
-        for li in face.loop_indices:tint.data[li].color=(.20*value,.165*value,.078*value,1)
+        for face in faces:
+            face.material_index=material_index
+            for li in face.loop_indices:tint.data[li].color=(.20*value,.165*value,.078*value,1)
     for side in (-1,1):
         for end in (-1,1):
             # Post-and-wire field boundary with uneven, supported volunteers.

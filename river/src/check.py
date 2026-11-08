@@ -85,6 +85,28 @@ def bvh(ob):
     return BVHTree.FromPolygons(verts,faces,all_triangles=True)
 
 
+def crop_cells(bed):
+    """Measure crop consistency across exported terrain-cell diagonals.
+
+    Coordinate keys cross the glTF material/UV vertex splits independently
+    of the source mesh's vertex indices. Collapsed single triangles are valid.
+    """
+    cells={}
+    for face in bed.data.polygons:
+        vertices=[bed.data.vertices[i].co for i in face.vertices]
+        lo=min(v.y for v in vertices);hi=max(v.y for v in vertices)
+        ll=min((v for v in vertices if v.y==lo),key=lambda v:v.x)
+        ur=max((v for v in vertices if v.y==hi),key=lambda v:v.x)
+        material=bed.data.materials[face.material_index]
+        cells.setdefault((tuple(ll),tuple(ur)),[]).append('harvest_stubble' in material.name)
+    paired=sum(len(flags)==2 for flags in cells.values())
+    divided=sum(any(flags) and not all(flags) for flags in cells.values())
+    assert paired>1000,('Incomplete crop-cell audit',paired)
+    assert divided==0,('Crop boundary splits terrain-cell diagonal',divided)
+    return dict(paired_cells=paired,collapsed_single_triangles=sum(len(f)==1 for f in cells.values()),
+                divided_crop_cells=divided)
+
+
 def construction(seed):
     path=Path('export')/f'RiverCrossing-{seed}.gltf';bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
@@ -121,6 +143,7 @@ def construction(seed):
     assert max(seat_gaps)<.002,('Plinth/support gap',max(seat_gaps))
     # Sample actual imported reach cross-sections, not declared width constants.
     bed=next(o for o in obs if o.name=='BedBanksFloodplain');tree=bvh(bed);water=next(o for o in obs if o.name=='WaterSurface')
+    crop_audit=crop_cells(bed) if seed==202 else None
     rail_gaps=[]
     for rail in [o for o in obs if o.type=='MESH' and o.name.startswith('ApproachRail_')]:
         tips=rail.data.attributes.get('_GROUND_TIP');assert tips is not None,('No post-tip semantics',rail.name)
@@ -232,7 +255,7 @@ def construction(seed):
         soil=tree.ray_cast(point+Vector((0,0,100)),Vector((0,0,-1)),200)[0]
         assert soil is not None and point.z-soil.z>.65,('Photo camera in bank',point,soil)
         photo_camera=dict(nearest_support_surface_m=distance,ground_clearance_m=point.z-soil.z)
-    return dict(categories=counts,inspection_camera_ground_clearance_m=camera_clearance,under_photo_camera_clearance=photo_camera,bearing_surface_samples=len(gaps),max_girder_pad_gap_m=max(gaps),
+    return dict(categories=counts,crop_cell_audit=crop_audit,inspection_camera_ground_clearance_m=camera_clearance,under_photo_camera_clearance=photo_camera,bearing_surface_samples=len(gaps),max_girder_pad_gap_m=max(gaps),
                 plinth_support_samples=len(seat_gaps),max_plinth_support_gap_m=max(seat_gaps),girder_lengths_m=sorted(set(round(x,5) for x in lengths)),water_width_samples=samples,
                 riverwalk_headroom_samples=len(headroom),minimum_sampled_riverwalk_headroom_m=min(headroom) if headroom else None,
                 gameplay_socket_surface_gaps_m=socket_gaps,building_walk_bounds_checks=building_walk_checks,

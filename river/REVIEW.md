@@ -644,3 +644,11 @@ and independent photo projection verification. All 628 existing delivery files
 remain unchanged. The set is retained at `renders/pass15/` and
 `build/pass15-matches/`. It is still rejected for the visible field defect;
 the remaining visual limitations recorded in Pass 14 also remain.
+
+The replacement classifies both halves from their original cell's four
+corners. The regression check first reproduced all **37** failures on a fresh
+import of the preceding export. A fresh corrected import then measured
+**8,273** paired cells, **20** collapsed single triangles and **zero** divided
+crop cells. Construction and 628-file preservation checks pass, with the same
+triangle counts and image allocations. Its full-size appearance check remains
+pending; these measurements establish material continuity alone.
