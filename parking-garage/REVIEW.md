@@ -1154,3 +1154,39 @@ than accumulated real traffic; the photographed interior has much stronger
 irregular trowel relief. Close tower hardware and concrete edges remain
 too uniformly manufactured. These fixes solve the requested lighting and
 whole-lane smear; they do not establish photographic equivalence everywhere.
+
+## Pass 20 — full exported family and source/bake comparison
+
+Color/value first: reopened all six full-size photo pairs, both hero value
+annotations, the module sheet, the complete contact and the historical
+correction pairs after inspecting the 64 individual final PNGs: 33 site
+frames, 25 modules, three baked and three source-finish matches. Approximate
+neutral balance uses the same concrete bases as pass 19; Pleasant uses its
+pale shaded temporary enclosure panel, gains 1.534/1.003/0.740. Its sunset
+photograph remains warmer than this clear-day calibration. The differently
+lit matched views do not replace the sunny final heroes for judging their
+column shadows. Source and baked pairs retain the same main hue/value
+relationships, connector/cavity shade and finish details. The calibrated
+landmark RMS remains 15.8px precast, 5.7px Harmon and 14.9px Pleasant.
+
+The exported aisle, ramp turn, engine-drip stalls and roof all retain localized
+use; the accessible symbols/hatching and empty stalls remain legible. Both
+entries expose their gate, pay station and queued vehicle. The town closes
+the municipal frame; the commercial arrival court no longer blocks its entry.
+Closed and open tower views show the exported sliding leaves and their
+interior; scale, Eevee and four elevations of each garage were inspected too.
+Every image's receipt names its actual imported GLB and verifies its hashes.
+
+The 25 construction modules retain their accepted triangle counts. The two
+complete garages are 149,684 / 57,116 triangles, 1,059 / 733 over the prior
+service-age delivery because of the paired floor-film tessellation. No
+additional map or material is needed. Faces conform to the crowned deck;
+the final support/contact checks measure the exported surfaces independently
+of the serialization comparison.
+
+Remaining CG tells are consistent across the full-size views: modest trowel
+relief, regular turning paths, uniform small edges/cab fittings, simplified
+dark car cabins and some grazing-angle floor-reflection stretch in isolated
+elevations. These are disclosed in the README. Both requested corrections
+are visible, the accepted facade/tower/markings/car palette/street treatment
+is retained, and the exported final recipe is suitable for the bounded docs.
