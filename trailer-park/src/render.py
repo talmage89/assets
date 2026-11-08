@@ -290,7 +290,7 @@ def main():
             stem=row['asset'];meta=json.loads(Path('export',stem+'.json').read_text())
             v=row['shot'];v['aspect']=(row['crop'][2]-row['crop'][0])/(row['crop'][3]-row['crop'][1]);v['review_landmarks']=row['landmarks_world_m'];v['review_subject_nodes']=row.get('subject_nodes',[])
             v['light']=(dict(sun_energy=.8,sky_strength=.40,sky_saturation=.06,camera_sky_strength=.40,camera_sky_saturation=.06,angle_degrees=12,direction=(.3,.3,-1),exposure=-1.25) if name=='single-2009' else
-                        dict(sun_energy=2.0,sky_strength=.30,sky_saturation=.10,camera_sky_strength=.30,camera_sky_saturation=.10,angle_degrees=5,direction=(.6,.6,-1),exposure=.10) if name=='street-2007' else
+                        dict(sun_energy=5,sky_strength=.12,sky_saturation=.35,angle_degrees=.65,direction=(.5,.5,-1),exposure=.10) if name=='street-2007' else
                         dict(sun_energy=5,sky_strength=.12,sky_saturation=.35,angle_degrees=.65,direction=(.5,.5,-1),exposure=.10))
             receipts+=render(stem,Path('export',stem+'.gltf'),meta,{name:v},a.out/'matches',a.width,a.samples,True,a.source_finish)
     if a.baseline and a.baseline.exists():receipts+=baseline_renders(a.baseline,receipts,a.out,a.width,a.samples)
