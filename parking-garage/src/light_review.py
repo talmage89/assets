@@ -10,17 +10,17 @@ import bpy
 from mathutils import Vector
 
 
-def lighting(elevation=18,azimuth=-135,interior=False,matched=False):
+def lighting(elevation=18,azimuth=-135,interior=False,matched=False,roof=False):
     # Keep accepted interior and photo illumination. Public exterior daylight
     # has a low oblique sun, a clean atmosphere and less diffuse sky fill.
     exterior=not interior and not matched
-    if exterior:elevation,azimuth=12,-22
+    if exterior:elevation,azimuth=12,(-158 if roof else -45)
     sc=bpy.context.scene;world=bpy.data.worlds.new('Clear sky with daylight bounce');world.use_nodes=True;sc.world=world
     nodes=world.node_tree.nodes;links=world.node_tree.links
     sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(elevation);sky.sun_rotation=math.radians(azimuth);sky.sun_disc=False
     sky.altitude=100;sky.air_density=1;sky.aerosol_density=.08 if exterior else .35
     links.new(sky.outputs[0],nodes.get('Background').inputs['Color']);nodes.get('Background').inputs['Strength'].default_value=.50 if interior else .058 if exterior else .22
-    light=bpy.data.lights.new('Low raking daylight','SUN');light.energy=9.5 if exterior else 4.5;light.color=(1,.88,.70) if exterior else (1,.91,.79);light.angle=math.radians(.53 if exterior else .65)
+    light=bpy.data.lights.new('Low raking daylight','SUN');light.energy=(9.5 if roof else 5.0328463) if exterior else 4.5;light.color=(1,.88,.70) if exterior else (1,.91,.79);light.angle=math.radians(.53 if exterior else .65)
     ob=bpy.data.objects.new(light.name,light);sc.collection.objects.link(ob)
     sun=Vector((math.cos(math.radians(elevation))*math.cos(math.radians(azimuth)),math.cos(math.radians(elevation))*math.sin(math.radians(azimuth)),math.sin(math.radians(elevation))))
     ob.rotation_euler=(-sun).to_track_quat('-Z','Y').to_euler()

@@ -37,7 +37,7 @@ def main():
                 from render import lighting as old_lighting
                 old_lighting(interior=shot.get('interior',False))
                 shot['max_bounces']=7
-            else:lighting(interior=shot.get('interior',False))
+            else:lighting(interior=shot.get('interior',False),roof=name in ('above','plan_path','top_deck','top'))
             if shot.get('human'):
                 from kit import studio
                 from mathutils import Vector

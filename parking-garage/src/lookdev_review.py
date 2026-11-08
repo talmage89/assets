@@ -11,6 +11,7 @@ from kit.image_io import srgb_to_linear
 def verify_receipt(r):
     digest=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
     assert digest(r['output'])==r['sha256']
+    if 'pair_output' in r:assert digest(r['pair_output'])==r['pair_sha256']
     path=Path(r['source']);assert digest(path)==r['source_sha256']
     for uri,value in {**r.get('source_buffer_sha256',{}),**r.get('images',{})}.items():assert digest(path.parent/uri)==value
     for uri,value in r.get('source_finish_images',{}).items():assert digest(uri)==value

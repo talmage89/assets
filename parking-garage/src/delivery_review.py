@@ -57,8 +57,14 @@ def main():
     if (folder/'modules.png').exists():rows.append([folder/'modules.png'])
     for suffix in ('-matches','-source-matches'):
         pair=Path('renders')/(a.pass_name+suffix)
-        if not pair.exists():continue
-        for r in json.loads((pair/'views.json').read_text()):verify_receipt(r)
+        if not pair.exists():
+            assert a.pass_name!='final','Missing final matched-light gallery'
+            continue
+        pair_receipts=json.loads((pair/'views.json').read_text())
+        if a.pass_name=='final':
+            assert {r['name'] for r in pair_receipts}=={'precast','pleasant','harmon'},'Incomplete photo pairs'
+            assert all('pair_sha256' in r for r in pair_receipts),'Unfinished photo composition'
+        for r in pair_receipts:verify_receipt(r)
         rows.extend([[q] for q in sorted(pair.glob('*-pair.jpg'))])
     review_sheet(rows,folder/'contact.jpg',width=2400,title='Parking garages / current exported game surfaces')
     fixes(folder)

@@ -56,6 +56,10 @@ def main():
         if a.stage=='final':r.update(imported_glb=str(imported),imported_glb_sha256=digest(imported))
         (a.out/'views.json').write_text(json.dumps(receipts,indent=2)+'\n')
     photo_match.compose(calibration,a.out,a.out)
+    for r in receipts:
+        pair=a.out/(r['name']+'-pair.jpg')
+        r.update(pair_output=str(pair),pair_sha256=digest(pair))
+    (a.out/'views.json').write_text(json.dumps(receipts,indent=2)+'\n')
     from kit.contact import review_sheet
     review_sheet([[p] for p in sorted(a.out.glob('*-pair.jpg'))],a.out/'contact.jpg',width=2400,title='Concrete-balanced photographic comparisons / exported geometry')
 

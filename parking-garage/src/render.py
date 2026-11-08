@@ -96,6 +96,13 @@ def render_shot(out,shot,width,samples,engine='CYCLES',source=None):
     receipt=dict(camera=list(cam.location),camera_world_z_m=float(cam.location.z),lens_mm=float(cam.data.lens),engine=engine,samples=samples,
         exposure=sc.view_settings.exposure,width=width,height=sc.render.resolution_y,output=str(out),sha256=hashlib.sha256(out.read_bytes()).hexdigest())
     receipt.update(target=list(shot['target']),rotation_quaternion=list(cam.rotation_euler.to_quaternion()),sensor_width_mm=float(cam.data.sensor_width),roll=shot.get('roll',0))
+    sun=next((ob for ob in sc.objects if ob.type=='LIGHT' and ob.data.type=='SUN'),None)
+    if sun:receipt['sun']=dict(energy=float(sun.data.energy),color=list(sun.data.color),angle_radians=float(sun.data.angle),direction_to_source=list(sun.matrix_world.to_quaternion()@Vector((0,0,1))))
+    if sc.world and sc.world.use_nodes:
+        sky=next((n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY'),None)
+        bg=next((n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND'),None)
+        if sky:receipt['sky']=dict(elevation_radians=float(sky.sun_elevation),azimuth_radians=float(sky.sun_rotation),aerosol_density=float(sky.aerosol_density))
+        if bg:receipt['world_strength']=float(bg.inputs['Strength'].default_value)
     if cam.data.type=='ORTHO':receipt.update(camera_type='ORTHO',ortho_scale_m=cam.data.ortho_scale)
     if source is not None:receipt.update(source_identity(source))
     return receipt

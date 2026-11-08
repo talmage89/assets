@@ -37,7 +37,10 @@ def main():
     assert len(module_receipts)==25
     for r in module_receipts:verify_receipt(r)
     for suffix in ('-matches','-source-matches'):
-        for r in json.loads(Path('renders/final'+suffix+'/views.json').read_text()):verify_receipt(r)
+        pairs=json.loads(Path('renders/final'+suffix+'/views.json').read_text())
+        assert {r['name'] for r in pairs}=={'precast','pleasant','harmon'}
+        assert all('pair_sha256' in r for r in pairs)
+        for r in pairs:verify_receipt(r)
     work=Path('build/docs');work.mkdir(parents=True,exist_ok=True)
     review_sheet([[folder/'101/above.png',folder/'202/above.png'],[folder/'101/plan_path.png']],work/'family.jpg',width=1600,title='Two systems / bays, parking and drive paths')
     names=['101/aisle','101/ramp_turn','101/tower_open','202/entry','202/top_deck','101/scale','202/eevee']

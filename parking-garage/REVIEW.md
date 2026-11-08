@@ -870,3 +870,21 @@ Preserve future interrupted render groups with `.PRECIOUS`, and explicitly
 require the complete 33-view and 25-module receipt inventory before a final
 gallery can pass. No docs are approved. Uniform context-car finishes and
 repeated small wear kernels remain the other known CG tells.
+
+## Delivery pass 14 — choose readable raking-light presentation
+
+Color/value first: inspected all twelve 1280px `delivery-angle` images at
+native size. Equal direct facade illumination isolates the sun-angle effect.
+The −45° hero keeps the west shaft faces dark, sunlit concrete warm and the
+level colors legible, with less frontal sign glare than −22°. The −60°
+version casts broad tree shadows across the lower facade; reject it. The
+−35° version retains more glare. Use −45° at 12° elevation for the heroes.
+
+The new sun direction backlights the foreground roof cars and conceals
+their paint differences and floor use. Retain the front-lit roof/detail
+preset already inspected in pass 11 (−158°, 12°), including above/plan/top
+views. These are separate presentation views; materials are not overridden.
+Record actual sun/sky parameters in every render receipt. Printed markings,
+texture allocations, accepted interior illumination and matched-light
+presets remain unchanged. The full 1600px gallery still needs inspection;
+no docs or visual acceptance recipe are approved by this probe pass.
