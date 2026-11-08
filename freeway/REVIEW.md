@@ -760,3 +760,20 @@ splash, dark barrier toes/joints, sampled lane centers and native-textured
 replacement slabs. Full-size exported visual checkpoints remain pending here;
 syntax and texture-field checks alone do not accept these fixes.
 
+## Round 4 construction and determinism checkpoint
+
+The clean rebuild removed the freeway's generated context cache, working
+blends, exports and all four source/bake/shipped texture sets. It regenerated
+4096 bakes and 2048/1024 deliveries from scripts. `make check` passes:
+287,600 / 162,518 civil triangles, raw PBR/UV/normal checks, fresh imports,
+retained context and 1,099 other-delivery hashes. All 21 paint transfers pass;
+both traffic glTF/BIN pairs remain byte-identical to aaf099e.
+
+The independent construction comparison passes 343 retessellated mesh
+surfaces, plus strict oriented corner data for unchanged civil meshes. Actual
+edge/soil contact passes 11,808 probes with zero exposed gap; 168 bearing
+probes have at most .760mm pad/girder discrepancy. These are surface checks;
+the separate source/import equality checks establish serialization only.
+All 69 CPU manufacture/calibration products independently repeat byte for byte.
+This checkpoint does not approve the appearance or the gallery.
+
