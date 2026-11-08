@@ -620,3 +620,21 @@ basic; fine fasteners and lettering soften at this atlas density. Runoff is
 now narrow and broken, but retains some regularity. The cabin is intended
 for exterior views, not close first-person play. Accept this look checkpoint
 subject to the corrected fleet render and final proof audit; defer docs.
+
+### Final fleet verification pending a shared GPU lock
+
+After the marking repair, all three fresh-import delivery checks pass,
+including the independent marking-corner test. The complete gallery must
+still refresh: the existing hero's queued buses and the fleet image predate
+that repair. Seed 101, its shared maps and all other gallery geometry are
+byte-identical to the reviewed pass-8 inputs. Do not treat those two fleet
+presentations as evidence of the repaired alternate markings.
+
+The replacement `make` batch has waited over 45 minutes for the shared lock.
+Repeated GPU compute-process queries are empty; the lock holder is outside
+this worktree's visible processes. Leave its lock intact. A detached supervisor
+keeps the authorized, serial batch queued; its log is
+`build/round2-corrected-final-detached.log`. The lead must inspect the external
+holder if this wait is abandoned. After release, inspect the regenerated
+images, run `make check` and finish this critique before calling the checkpoint
+complete. No docs or README gallery has been created.
