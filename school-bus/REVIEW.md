@@ -1,5 +1,39 @@
 # C75 form and construction checkpoint
 
+## Round 3 — pass 1, refreshed baseline rejected
+
+Color/value first: opened the fresh 1200px round-2 export views in
+`renders/round3-before/`, including the current lettering on both queued
+seeds. The saturated school-lane read remains the accepted target. The same
+enamel becomes peach under the front studio sky; compare the snow-balanced
+first maker and parking-stripe-balanced second maker in `build/balanced/`.
+The photo neutrals are assumptions, not calibrated gray cards. The cabin
+ceiling patch at x150–1050/y15–95 measures displayed RGB 115/140/138;
+the pale lining reads cyan even before inspecting the seats. The period
+interior photographs were opened at native size: their light panels give
+the neutral, and their upholstery retains an identifiable vinyl color.
+
+Opened both procedural reflection-line views at 1200px. The broad crown
+bands run roughly fore/aft, but wobble near the cowl and at the shoulder;
+the product view shows soft dents where those reflections bend. Reject the
+surface. The irregular longitudinal cage stations and overlapping shoulder
+eases need fairing, followed by the same check on the baked export. Keep
+the accepted crown height, long hood, wheel openings and recessed grille.
+
+The lamp buckets still read as boxes. Their exposed walls and thick black
+seals need to sit behind a molded yellow reveal, with covers sweeping into
+the corners. The pale header is the gray-painted underside of the front
+cap, visible from outside; it should retain exterior enamel. Several sewn
+welts also sit behind the nominal front vinyl face. Re-seat them on the
+actual padded section. These are identified causes, not a claim that the
+forthcoming source/export repair has passed.
+
+Remaining CG tells in this baseline: melted-looking shoulder reflections,
+projecting optical boxes, cyan interior adaptation, simple warning optics,
+soft fasteners and repeated seat geometry. No final docs are authorized
+by this visual pass. The complete before-export, source and gallery are
+archived under the ignored `build/bus-round3/before/` for held-camera pairs.
+
 This is the requested stop before look development. Quick surfaces are baked
 and judged on the export later in this log; this is not final game-ready acceptance.
 
