@@ -131,6 +131,17 @@ glass samples are paid for within the original 86.6k count. Fine reflector
 construction and warning optics remain simple at macro range. Do not infer
 final acceptance from the source; rebuild the actual atlas/exports next.
 
+### Rear-label audit before the replacement cold build
+
+The rejected gallery's emergency close-up exposed another real regression:
+the rear emergency label was a gray rectangle. The source audit found its
+open print plane facing inward, with both triangles assigned `Bus ceiling`.
+Closed-solid normal recalculation had flipped the authored face, then the
+interior-lining classifier painted it over. Preserve authored print normals
+and exclude print planes from lining. The new material audit passes with no
+damaged prints, including `Bus print emergency` on that label. This is source
+evidence; inspect the next baked rear view before calling the label repaired.
+
 This is the requested stop before look development. Quick surfaces are baked
 and judged on the export later in this log; this is not final game-ready acceptance.
 

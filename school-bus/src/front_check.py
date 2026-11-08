@@ -21,11 +21,11 @@ def optical_seating(covers):
     rows={}
     for cover in covers:
         ps,fs=triangles(cover);glass=BVHTree.FromPolygons(ps,fs,all_triangles=True)
-        center=sum(p.x for p in ps)/len(ps);samples=[]
+        center=sum(p.x for p in ps)/len(ps);height=sum(p.z for p in ps)/len(ps);samples=[]
         for dx in [-.12,0,.12]:
-            start=Vector((center+dx,-6.5,1.070));direction=Vector((0,1,0))
+            start=Vector((center+dx,-6.5,height));direction=Vector((0,1,0))
             a=body.ray_cast(start,direction,1)[0];c=glass.ray_cast(start,direction,1)[0]
-            samples.append(dict(x_m=center+dx,z_m=1.070,
+            samples.append(dict(x_m=center+dx,z_m=height,
                 uncut_mold_hit_m=list(a) if a is not None else None,
                 cover_hit_m=list(c) if c is not None else None,
                 setback_m=c.y-a.y if a is not None and c is not None else None))

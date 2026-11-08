@@ -129,9 +129,13 @@ def model(path):
     error=[];total=sum(cats.values());exterior=total-cats['interior']
     source_audits={ob.name:measure(ob) for ob in obs}
     failed_meshes=[name for name,row in source_audits.items() if not row['passed']]
+    printed={ob.name:[ob.data.materials[p.material_index].name for p in ob.data.polygons]
+             for ob in obs if any(m and m.name.startswith('Bus print ') for m in ob.data.materials)}
+    damaged_prints=[name for name,materials in printed.items() if any(not m.startswith('Bus print ') for m in materials)]
     landing=landing_check(obs,steps)
     if not landing['passed']:error.append('Entrance landing continuity')
     if failed_meshes:error.append('Source full-face mesh check')
+    if damaged_prints:error.append('Printed exterior markings painted over by lining')
     if total>90000 or exterior>70000:error.append('Triangle budget')
     if abs(wb-S.WHEELBASE)>1e-5:error.append('Wheelbase')
     if abs(shell['size'][1]-S.LENGTH)>.002 or abs(roof['size'][0]-S.WIDTH)>.002:error.append('Bumper length / steel body width')
@@ -145,7 +149,7 @@ def model(path):
     if abs(roof['max'][2]-S.HEIGHT)>.002:error.append('Roof height')
     if max(v['max'][2] for v in steps.values())>1.19:error.append('Step envelope')
     return dict(passed=not error,errors=error,triangles=total,exterior_triangles=exterior,interior_triangles=cats['interior'],wheels_triangles=cats['wheels'],
-        mesh_audits=source_audits,failed_meshes=failed_meshes,
+        mesh_audits=source_audits,failed_meshes=failed_meshes,printed_materials=printed,damaged_prints=damaged_prints,
         entrance_landing=landing,
         categories=cats,triangles_per_mesh=parts,triangles_per_pivot={n:sum(parts.get(o.name,0) for o in bpy.data.objects[n].children_recursive) for n in pivots},
         roof_bounds_m=roof,body_bumper_bounds_m=shell,full_rest_bounds_m=bounds(obs),wheelbase_m=wb,tire_bounds_m=tires,step_bounds_m=steps,

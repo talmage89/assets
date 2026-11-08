@@ -521,6 +521,8 @@ def finish_scene(b,out):
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or 'asset_set' not in ob:continue
         if ob.modifiers:G.apply(ob)
+        printed=any(m and m.name.startswith('Bus print ') for m in ob.data.materials)
+        authored=ob.data.polygons[0].normal.copy() if printed else None
         # Reject zero-area construction crumbs before they become an optical shard.
         bm=bmesh.new();bm.from_mesh(ob.data)
         bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-7)
@@ -528,9 +530,14 @@ def finish_scene(b,out):
         bmesh.ops.triangulate(bm,faces=list(bm.faces),quad_method='BEAUTY',ngon_method='BEAUTY')
         bad=[f for f in bm.faces if f.calc_area()<1e-12]
         if bad:bmesh.ops.delete(bm,geom=bad,context='FACES')
-        bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
+        bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
+        # Open graphics have an authored outside face. Closed-solid normal
+        # recalculation can flip them and make a rear decal look inward.
+        if printed and sum(f.normal.dot(authored) for f in bm.faces)<0:
+            bmesh.ops.reverse_faces(bm,faces=list(bm.faces))
+        bm.to_mesh(ob.data);bm.free()
         ob.data.update()
-        paint_reverse_faces(b,ob)
+        if not printed:paint_reverse_faces(b,ob)
         attr=ob.data.attributes.new('VehicleRest','FLOAT_VECTOR','POINT')
         for row,v in zip(attr.data,ob.data.vertices):row.vector=ob.matrix_world@v.co
         ob.data.calc_loop_triangles();n=len(ob.data.loop_triangles);parts[ob.name]=n
