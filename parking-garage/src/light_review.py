@@ -19,8 +19,8 @@ def lighting(elevation=18,azimuth=-135,interior=False,matched=False):
     nodes=world.node_tree.nodes;links=world.node_tree.links
     sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(elevation);sky.sun_rotation=math.radians(azimuth);sky.sun_disc=False
     sky.altitude=100;sky.air_density=1;sky.aerosol_density=.08 if exterior else .35
-    links.new(sky.outputs[0],nodes.get('Background').inputs['Color']);nodes.get('Background').inputs['Strength'].default_value=.50 if interior else .085 if exterior else .22
-    light=bpy.data.lights.new('Low raking daylight','SUN');light.energy=5.3 if exterior else 4.5;light.color=(1,.88,.70) if exterior else (1,.91,.79);light.angle=math.radians(.53 if exterior else .65)
+    links.new(sky.outputs[0],nodes.get('Background').inputs['Color']);nodes.get('Background').inputs['Strength'].default_value=.50 if interior else .058 if exterior else .22
+    light=bpy.data.lights.new('Low raking daylight','SUN');light.energy=9.5 if exterior else 4.5;light.color=(1,.88,.70) if exterior else (1,.91,.79);light.angle=math.radians(.53 if exterior else .65)
     ob=bpy.data.objects.new(light.name,light);sc.collection.objects.link(ob)
     sun=Vector((math.cos(math.radians(elevation))*math.cos(math.radians(azimuth)),math.cos(math.radians(elevation))*math.sin(math.radians(azimuth)),math.sin(math.radians(elevation))))
     ob.rotation_euler=(-sun).to_track_quat('-Z','Y').to_euler()
@@ -34,7 +34,7 @@ def lighting(elevation=18,azimuth=-135,interior=False,matched=False):
             oo.location=socket.matrix_world@Vector((socket.get('uplight_x',.15),0,socket.get('uplight_z',.065)) if upward else (0,0,-socket.get('downlight_offset',.015)))
             oo.rotation_euler=socket.matrix_world.to_euler()
             if upward:oo.rotation_euler.rotate_axis('X',math.pi)
-    sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=.65 if interior else -.65 if exterior else -.75
+    sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=.65 if interior else -.10 if exterior else -.75
     sc.cycles.diffuse_bounces=7;sc.cycles.glossy_bounces=5;sc.cycles.transmission_bounces=10;sc.cycles.max_bounces=12
 
 
@@ -64,5 +64,10 @@ def views(p,original):
     s['tower_landing']=dict(location=(-L/2+6,tower[1]+.3,1.65),target=(tower[0]+2.78,tower[1],1.45),lens=35,interior=True)
     s['tower_open']=dict(s['tower_landing'],open_lift=True)
     s['eevee']=dict(s['hero'],engine='BLENDER_EEVEE')
+    garage=next(o for o in bpy.context.scene.objects if o.name.startswith('Garage_') and o.get('system')==p['system'])
+    points=[o.matrix_world@Vector(c) for o in garage.children_recursive if o.type=='MESH' for c in o.bound_box]
+    lo=Vector([min(v[k] for v in points) for k in range(3)]);hi=Vector([max(v[k] for v in points) for k in range(3)]);center=(lo+hi)/2
+    for name,direction,aspect,scale in [('front',(0,-1,0),2.35,hi.x-lo.x),('back',(0,1,0),2.35,hi.x-lo.x),('side',(-1,0,0),1.6,hi.y-lo.y),('top',(0,0,1),2.0,max(hi.x-lo.x,(hi.y-lo.y)*2))]:
+        s[name]=dict(location=list(center+Vector(direction)*150),target=list(center),lens=50,ortho_scale=scale*1.15,aspect=aspect,garage_only=True)
     for shot in s.values():shot['max_bounces']=12
     return s

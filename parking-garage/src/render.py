@@ -87,6 +87,7 @@ def render_shot(out,shot,width,samples,engine='CYCLES',source=None):
     sc=bpy.context.scene
     cam=bpy.data.objects.new('Export review camera',bpy.data.cameras.new('Export review camera'));sc.collection.objects.link(cam);sc.camera=cam
     cam.location=shot['location'];cam.rotation_euler=(Vector(shot['target'])-cam.location).to_track_quat('-Z','Y').to_euler();cam.data.lens=shot['lens'];cam.data.sensor_width=36;cam.data.sensor_fit='HORIZONTAL'
+    if 'ortho_scale' in shot:cam.data.type='ORTHO';cam.data.ortho_scale=shot['ortho_scale']
     if 'roll' in shot:cam.rotation_euler.rotate_axis('Z',shot['roll'])
     aspect=shot.get('aspect',1.6);sc.render.resolution_x=width;sc.render.resolution_y=round(width/aspect);sc.render.resolution_percentage=100
     sc.render.engine=engine
@@ -95,6 +96,7 @@ def render_shot(out,shot,width,samples,engine='CYCLES',source=None):
     receipt=dict(camera=list(cam.location),camera_world_z_m=float(cam.location.z),lens_mm=float(cam.data.lens),engine=engine,samples=samples,
         exposure=sc.view_settings.exposure,width=width,height=sc.render.resolution_y,output=str(out),sha256=hashlib.sha256(out.read_bytes()).hexdigest())
     receipt.update(target=list(shot['target']),rotation_quaternion=list(cam.rotation_euler.to_quaternion()),sensor_width_mm=float(cam.data.sensor_width),roll=shot.get('roll',0))
+    if cam.data.type=='ORTHO':receipt.update(camera_type='ORTHO',ortho_scale_m=cam.data.ortho_scale)
     if source is not None:receipt.update(source_identity(source))
     return receipt
 

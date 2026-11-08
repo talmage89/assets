@@ -15,7 +15,7 @@ def main():
     run_path(str(HERE/'preserve.py'),run_name='__main__')
     results=[]
     for seed in (101,202):
-        path=Path(f'export/lookdev/sites/ParkingGarageLookSite-{seed}.gltf');doc=json.loads(path.read_text())
+        path=Path(f'export/final/sites/ParkingGarageSite-{seed}.gltf');doc=json.loads(path.read_text())
         bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
         garage=bpy.data.objects[f'Garage_{seed}'];surface,floor_meta=floor_surface(garage,details=True)
         manifest=json.loads(Path(f'build/lookdev/traffic-{seed}.json').read_text());p=json.loads(Path(f'build/lookdev/look-{seed}.json').read_text())

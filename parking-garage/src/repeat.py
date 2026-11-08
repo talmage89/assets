@@ -25,7 +25,7 @@ def main():
     env=dict(os.environ,TMPDIR=str(ASSET/'build/tmp'));Path(env['TMPDIR']).mkdir(parents=True,exist_ok=True)
     with (ASSET/'build/repeat.log').open('w') as log:
         subprocess.run([str(folder/'src/blender.sh'),'-b','--factory-startup','--python-exit-code','1','--python','src/repeat_worker.py'],cwd=folder,env=env,stdout=log,stderr=subprocess.STDOUT,check=True)
-    wanted=[p for p in (ASSET/'export').rglob('*') if p.is_file() and p.suffix in ('.gltf','.bin') and not any(k in ('form','lookdev') for k in p.relative_to(ASSET/'export').parts)]
+    wanted=[p for p in (ASSET/'export').rglob('*') if p.is_file() and p.suffix in ('.gltf','.bin') and not any(k in ('form','lookdev','final') for k in p.relative_to(ASSET/'export').parts)]
     wanted += list((ASSET/'textures/checkpoint').rglob('*.png'))
     wanted += [ASSET/'build'/n for n in ('manifest.json','modules.json','garage-101.json','garage-202.json','actors-101.json','actors-202.json','sites.json')]
     rows=[]

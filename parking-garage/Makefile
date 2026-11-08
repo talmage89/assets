@@ -40,3 +40,4 @@ clean-family:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('export','textures/checkpoint')]"
 
 include src/lookdev_rules.mk
+include src/delivery_rules.mk

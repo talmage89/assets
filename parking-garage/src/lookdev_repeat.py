@@ -18,7 +18,7 @@ def main():
     fields={p.name:digest(p) for p in source.glob('*.png')}
     assert all(digest(repeat/n)==h for n,h in fields.items())
     assert Path('build/lookdev/atlas-layout.json').read_bytes()==Path('build/lookdev/repeat-layout.json').read_bytes()
-    roots=('export/form','export/lookdev','textures/lookdev')
+    roots=('export/form','export/lookdev','export/final','build/final-glb','textures/lookdev')
     files=[p for root in roots for p in Path(root).rglob('*') if p.is_file()]
     before={str(p):digest(p) for p in files}
     # Exact rebuilds must not invalidate the already reviewed render inputs.
@@ -31,6 +31,7 @@ def main():
     with Path('build/lookdev/repeat-build.log').open('w') as log:
         for script in ('form_build','comparison_build','lookdev_build'):
             subprocess.run(['blender','-b','-t','2','--factory-startup','--python-exit-code','1','--python',f'src/{script}.py','--'],stdout=log,stderr=subprocess.STDOUT,check=True)
+        subprocess.run(['python3','src/delivery_package.py'],stdout=log,stderr=subprocess.STDOUT,check=True)
     changed=[p for p,h in before.items() if digest(p)!=h]
     if changed:
         Path('build/lookdev/repeat-failure.json').write_text(json.dumps(changed,indent=2)+'\n')

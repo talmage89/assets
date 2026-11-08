@@ -14,6 +14,7 @@ def verify_receipt(r):
     path=Path(r['source']);assert digest(path)==r['source_sha256']
     for uri,value in {**r.get('source_buffer_sha256',{}),**r.get('images',{})}.items():assert digest(path.parent/uri)==value
     for uri,value in r.get('source_finish_images',{}).items():assert digest(uri)==value
+    if 'imported_glb' in r:assert digest(r['imported_glb'])==r['imported_glb_sha256']
     if 'calibration_sha256' in r:assert digest('build/lookdev/matches/calibration.json')==r['calibration_sha256']
 
 

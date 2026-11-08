@@ -15,7 +15,9 @@ def main():
         bpy.ops.wm.read_factory_settings(use_empty=True);path=Path(fit['source_form'])
         if a.stage=='lookdev':
             path=Path(f'export/lookdev/comparison-{name}.gltf') if name!='pleasant' else Path('export/lookdev/sites/ParkingGarageLookSite-101.gltf')
-        bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
+        if a.stage=='final':path=Path(f'export/final/comparison-{name}.gltf') if name!='pleasant' else Path('export/final/sites/ParkingGarageSite-101.gltf')
+        imported=Path('build/final-glb')/path.relative_to('export/final').with_suffix('.glb') if a.stage=='final' else path
+        bpy.ops.import_scene.gltf(filepath=str(imported.resolve()));bpy.context.view_layer.update()
         from mathutils import Vector
         eye=Vector(fit['shot']['location']);hidden=[]
         for root in list(bpy.context.scene.objects):
@@ -51,6 +53,7 @@ def main():
         r['calibration_sha256']=digest(calibration)
         if a.source_finish:r['source_finish_images']={str(p):digest(p) for p in Path('build/lookdev/atlas-source').glob('*.png')}
         r.update(name=name,stage=a.stage,source_finish=a.source_finish,native_rms_px=fit['residual_rms_pixels'],camera_clearance_hidden_context_cars=hidden);receipts.append(r)
+        if a.stage=='final':r.update(imported_glb=str(imported),imported_glb_sha256=digest(imported))
         (a.out/'views.json').write_text(json.dumps(receipts,indent=2)+'\n')
     photo_match.compose(calibration,a.out,a.out)
     from kit.contact import review_sheet

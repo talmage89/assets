@@ -15,8 +15,8 @@ def resource(path,triangles):
 
 
 def main():
-    modules={name:resource(Path('export/lookdev/modules')/(name+'.gltf'),row['triangles']) for name,row in json.loads(Path('build/lookdev/modules.json').read_text()).items()}
-    garages={str(seed):resource(f'export/lookdev/ParkingGarageLook-{seed}.gltf',json.loads(Path(f'build/lookdev/look-{seed}.json').read_text())['garage_triangles']) for seed in (101,202)}
+    modules={name:resource(Path('export/final/modules')/(name+'.gltf'),row['triangles']) for name,row in json.loads(Path('build/lookdev/modules.json').read_text()).items()}
+    garages={str(seed):resource(f'export/final/ParkingGarage-{seed}.gltf',json.loads(Path(f'build/lookdev/look-{seed}.json').read_text())['garage_triangles']) for seed in (101,202)}
     report=dict(modules=modules,garages=garages,memory_basis='8bpp per map with full 4/3 mip chain. Shared image references are charged once per package; they are not incremental per module instance.')
     Path('build/delivery-metrics.json').write_text(json.dumps(report,indent=2)+'\n')
     lines=['| Module | Triangles | glTF + BIN bytes | Materials | Referenced image MiB |','| --- | ---: | ---: | ---: | ---: |']

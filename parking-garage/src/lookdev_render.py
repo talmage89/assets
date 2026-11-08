@@ -12,9 +12,10 @@ def main():
     for seed in map(int,args.seeds.split(',')):
         p=json.loads(Path(f'build/lookdev/garage-{seed}.json').read_text())
         bpy.ops.wm.read_factory_settings(use_empty=True)
-        prefix='ParkingGarageFormSite' if args.stage=='form' else 'ParkingGarageLookSite'
+        prefix={'form':'ParkingGarageFormSite','lookdev':'ParkingGarageLookSite','final':'ParkingGarageSite'}.get(args.stage,'ParkingGarageLookSite')
         path=Path(f'export/{args.stage}/sites/{prefix}-{seed}.gltf') if args.stage!='baseline' else Path(f'export/sites/ParkingGarageSite-{seed}.gltf')
-        bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
+        imported=Path('build/final-glb')/path.relative_to('export/final').with_suffix('.glb') if args.stage=='final' else path
+        bpy.ops.import_scene.gltf(filepath=str(imported.resolve()));bpy.context.view_layer.update()
         if args.source_finish:
             from atlas_binding import source_finish
             source_finish()
@@ -23,12 +24,25 @@ def main():
         for name in args.shots.split(','):
             if name=='plan_path' and seed!=101:continue
             shot=shotdefs[name];bpy.ops.wm.open_mainfile(filepath=str(cache))
+            if shot.get('garage_only'):
+                garage=next(o for o in bpy.context.scene.objects if o.name.startswith('Garage_') and o.get('system')==p['system'])
+                keep={garage,*garage.children_recursive}
+                for ob in list(bpy.context.scene.objects):
+                    if ob not in keep:bpy.data.objects.remove(ob,do_unlink=True)
+                import geometry as G
+                G.M['StudioGround']=G.material('Turnaround neutral floor',(.13,.13,.12),.9)
+                floor=G.Mesh('Turnaround ground');floor.box((0,0,-.25),(350,350,.1),'StudioGround');floor.finish()
             if shot.get('paths'):overlays(p)
             if args.stage=='baseline':
                 from render import lighting as old_lighting
                 old_lighting(interior=shot.get('interior',False))
                 shot['max_bounces']=7
             else:lighting(interior=shot.get('interior',False))
+            if shot.get('human'):
+                from kit import studio
+                from mathutils import Vector
+                at=Vector(shot['human_at'])
+                for ob in studio.human():ob.location+=at+Vector((1.03,-.24,0))
             presented=[]
             if shot.get('open_lift'):
                 for pv in bpy.context.scene.objects:
@@ -39,6 +53,7 @@ def main():
             from hashlib import sha256
             d=json.loads(path.read_text());r['images']={im['uri']:sha256((path.parent/im['uri']).read_bytes()).hexdigest() for im in d.get('images',[])}
             r.update(seed=seed,name=name,stage=args.stage,source_finish=args.source_finish,presented_pivots=presented)
+            if args.stage=='final':r.update(imported_glb=str(imported),imported_glb_sha256=sha256(imported.read_bytes()).hexdigest())
             receipts.append(r);(args.out/'views.json').write_text(json.dumps(receipts,indent=2)+'\n')
     print('EXPORTED REVIEW COMPLETE',args.out,len(receipts),flush=True)
 
