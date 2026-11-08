@@ -34,7 +34,9 @@ def context(plan):
             put(ground,'Public residential street',pos,90 if axis==0 else 0,'Road_Straight_'+history,category='street')
     street(0,-D/2-3.65,-260,260)
     if old:street(0,D/2+3.65,-260,260)
-    for side in (-1,1):street(1,side*(W/2+42),-D/2-4,D/2+110)
+    # Continue beyond the aerial cameras; a public road does not terminate
+    # as a rectangular slab in the field immediately behind the tree line.
+    for side in (-1,1):street(1,side*(W/2+42),-D/2-4,900)
     # Typical small ranch parcels, roughly 62–75ft frontage. Their rear yards
     # face the old park boundary, with a real fence, sheds and irregular trees.
     for side in (-1,1):

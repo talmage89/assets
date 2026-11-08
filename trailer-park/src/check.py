@@ -72,7 +72,7 @@ def canopy_bearing(stem,spec):
 def check():
     rows={};construction={};images={}
     for path in sorted(Path('export').glob('*.gltf')):
-        stem=path.stem;g=raw(path);d=g.json;meta=json.loads(path.with_suffix('.json').read_text());triangles=0;collapsed=0;uv_bad=0;maxnormal=0
+        stem=path.stem;g=raw(path);d=g.json;meta=json.loads(path.with_suffix('.json').read_text());triangles=0;collapsed=0;uv_bad=0;maxnormal=0;top_triangles=0
         for node in d['nodes']:
             if 'mesh' not in node:continue
             for pr in d['meshes'][node['mesh']]['primitives']:
@@ -80,6 +80,9 @@ def check():
                 cross=np.cross(v[tri[:,1]]-v[tri[:,0]],v[tri[:,2]]-v[tri[:,0]])
                 collapsed+=int(np.sum(np.linalg.norm(cross,axis=1)<1e-12))
                 normal=g.accessor(a['NORMAL']);maxnormal=max(maxnormal,float(np.max(abs(np.linalg.norm(normal,axis=1)-1))))
+                if node.get('extras',{}).get('top_surface'):
+                    assert np.all(cross[:,1]>0) and np.all(normal[:,1]>.05),(stem,node['name'],'Downward ground skin / invisible decal')
+                    top_triangles+=len(tri)
                 assert np.all(np.isfinite(v)) and np.all(np.isfinite(normal))
                 assert 'TEXCOORD_0' in a,(stem,'Missing UV')
                 uv=g.accessor(a['TEXCOORD_0']);assert np.all(np.isfinite(uv))
@@ -196,7 +199,7 @@ def check():
             # only neighbors sharing a lane and side.
             assert not separations or min(separations)>3.0,(stem,'home separation',separations)
             construction[stem]=dict(road_width_mesh_m=road_width,home_separation_mesh_m=separations,minimum_car_socket_spacing_m=car_spacing,static_assembly_pairs_checked=placement_pairs,deck_carport_mesh_checks=addon_clearance,net_lot_area_m2=p['lot_frontage']*p['lot_depth'],home_count=len(p['lots']),road_graph=p['roads'])
-        rows[stem]=dict(triangles=triangles,geometry_bytes=meta['geometry_bytes'],materials=len(d['materials']),collapsed_triangles=collapsed,collapsed_diagnostic_uv_triangles=uv_bad,max_normal_length_error=maxnormal,mesh_size_m=size.tolist(),fresh_import=True)
+        rows[stem]=dict(triangles=triangles,geometry_bytes=meta['geometry_bytes'],materials=len(d['materials']),collapsed_triangles=collapsed,collapsed_diagnostic_uv_triangles=uv_bad,max_normal_length_error=maxnormal,mesh_size_m=size.tolist(),fresh_import=True,upward_surface_triangles=top_triangles)
         print('CHECK',stem,triangles,'UV diagnostics',uv_bad,flush=True)
     baseline=Path('build/preserved-all.json');preserved=0
     if baseline.exists():

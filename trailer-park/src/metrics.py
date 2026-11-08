@@ -73,4 +73,4 @@ def report(folder):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--renders',type=Path,default=Path('renders/checkpoint/look4'));a=p.parse_args();report(a.renders)
+    p=argparse.ArgumentParser();p.add_argument('--renders',type=Path,default=Path('renders/checkpoint/look5'));a=p.parse_args();report(a.renders)

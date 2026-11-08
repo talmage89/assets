@@ -1,12 +1,15 @@
 """Ground's turf/trim images with irregular edges and seed-owned use marks."""
 import math,random
 import bpy
-from kit import model as G
 from kit.tiling import world_uv
 
 
 def mesh(parent,name,vs,fs,mat,coverage=3.048):
-    ob=G.mesh(name,vs,fs,mat);ob.parent=parent;world_uv(ob,coverage)
+    # Open ground skins have authored upward winding. A volume-oriented
+    # normal recalculation can reverse isolated cards according to position.
+    data=bpy.data.meshes.new(name);data.from_pydata(vs,[],fs);data.materials.append(mat);data.update()
+    ob=bpy.data.objects.new(name,data);bpy.context.collection.objects.link(ob)
+    ob.parent=parent;ob['top_surface']=True;world_uv(ob,coverage)
     for layer in {n.layer_name or 'Color' for n in mat.node_tree.nodes if n.type=='VERTEX_COLOR'}:
         col=ob.data.color_attributes.new(name=layer,type='FLOAT_COLOR',domain='POINT');ob.data.color_attributes.active_color=col
         for row in col.data:row.color=(1,1,1,1)

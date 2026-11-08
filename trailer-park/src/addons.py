@@ -225,9 +225,9 @@ def room(name='AddedRoom',width=3.2,depth=2.4,seed=1):
 def dressing(name='Household',seed=1):
     a=Assembly(name);m=a.mesh('PotsToy',component='household');r=random.Random(seed)
     for x in (-.5,.45):
-        m.tube([(x,0,.02),(x,0,.24)],.13,'Veneer',(.32,.15,.075),10)
+        m.tube([(x,0,.02),(x,0,.24)],.13,'Trim',(.32,.15,.075),10)
         for j in range(6):
-            t=j*math.tau/6;m.beam((x,0,.22),(x+.16*math.cos(t),.16*math.sin(t),.43+r.random()*.12),.015,.025,'Siding',(.055,.12,.025),r=0)
+            t=j*math.tau/6;m.beam((x,0,.22),(x+.16*math.cos(t),.16*math.sin(t),.43+r.random()*.12),.015,.025,'Trim',(.055,.12,.025),r=0)
     if seed%2:
         # Small ride-on toy: colored seat, four actual wheels, steering loop.
         m.box((.1,-.65,.24),(.36,.56,.17),'Trim',(.41,.025,.015),r=.03)

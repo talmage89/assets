@@ -428,7 +428,8 @@ reveals a cause: some isolated pavement cards face downward after the
 generic volume-normal recalculation. The first settlement-crack card has
 glTF normal (0,−1,0), while a repair card faces (0,+1,0). Unit-length checks
 passed despite this construction error; one-sided culling hides the crack.
-Preserve authored upward winding for these open terrain skins and add a
+The summer-turf mesh also has downward normals. Of 176 older-park wear
+cards, 29 face downward. Preserve authored upward winding for these open terrain skins and add a
 positive-up normal/winding audit. No triangle or texture increase is needed.
 
 Still CG: planar turf away from its edge tufts, coarse leaf-card silhouettes,
