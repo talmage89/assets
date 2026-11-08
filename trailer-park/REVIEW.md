@@ -990,7 +990,22 @@ sibling files also pass. These prove their stated data/construction scopes,
 not photographic realism. All four source-manufacture frames and their
 four pairs are now completed and opened; their field/GLB hashes verify.
 `build/visual-review.json` lists the 37 final and four source frames opened.
-Repeat proofs remain to be recorded before the gallery commit.
+Final verification completed: `make`, `make check`, `make repeat`,
+`make check-texture-repeat` and `python3 ../kit/repo_check.py` all pass.
+Repeat compared 74 regenerated files with zero byte differences. The source
+weather fields and coverage repeat exactly; the GPU rebake differs by at
+most one byte at both 4096 and shipping resolution, inside the kit's
+two-byte / 0.02-byte RMSE limits. Shipping ORM RMSE is 0.001437 bytes;
+shipping base color and normal repeat exactly. These are separate proofs.
+
+The clean rebuild removed this family's exports, textures, generated scenes
+and reports before rebuilding. It retained immutable native-family inputs
+and cached native adapters; it is not proof of a cold rebuild of all native
+families. `build/clean-delivery.json` records that scope. Five final gallery
+JPGs were opened and checked: maximum width 1600 px, each under 200,000 bytes.
+All 1,217 protected sibling files remain byte-identical. Interrupted render
+processes were reaped and the final serial batch completed; no detached
+render or GPU lease remains at delivery. No kit changes were required.
 
 The other CG tells are regular house/lot rhythm, schematic small dressing,
 the very smooth concrete apron beside the used-home photograph, dark rear
@@ -1010,4 +1025,4 @@ brief: deliver the complete family even when a fix remains partial. The
 README names all three residual misses. This is final visual review with
 known flaws, not a claim that the earlier visual gate has passed.
 
-Delivery gate: REVIEWED WITH KNOWN FLAWS
+Delivery gate: DELIVERED WITH KNOWN FLAWS

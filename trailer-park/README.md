@@ -296,6 +296,17 @@ make check-preservation
 Alternate seeds rebuild the grammar. The photo-calibrated cameras and
 published comparisons target the supplied 101/202 examples.
 
+Final verification: `make`, `make check`, `make repeat` and
+`make check-texture-repeat` pass, as does
+`python3 ../kit/repo_check.py`. Package repeat compares 74 files with no byte
+differences. The independent GPU texture repeat stays within one byte;
+shipping base color and normal repeat exactly, and ORM RMSE is 0.001437
+bytes. Checks cover 21 exports, 1,000 plans, 936 hinge poses, 1,365 static
+pairs and 1,217 byte-identical protected sibling files. The 37 final views,
+four source views, eight photo pairs and five bounded gallery JPGs were
+opened at their native size. Completion passes 5 and 6 in `REVIEW.md`
+record the visual limits separately from these passing checks.
+
 Historical before/after evidence uses the supplied earlier checkpoint cache:
 `make baseline` freezes its six packages before `make repeat` replaces that
 cache. When present, `build/baseline/export/` enables the additional renders
