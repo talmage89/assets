@@ -251,9 +251,9 @@ def build(p):
         xx,yy,*_=row['lot'];old=p['kind']=='old'
         # Mature crowns are staggered at rear/side yards; newer planted trees
         # are the same native species scaled once, with explicit age inference.
-        if old or j%2==0:
+        if (old and j%3!=1) or (not old and j%2==0):
             tx=rng.uniform(-.7,.7)
-            tx=row['origin'][0]+tx*(1 if row['yaw']==0 else -1)
+            tx=row['origin'][0]+tx*(1 if row['yaw']==0 else -1)+(row['side']*row['home']['length']*.22 if old else 0)
             a.socket('Tree_'+str(j),(tx,yy+p['lot_frontage']/2-.4,0),'tree',species='oak' if j%3==0 else 'maple',plant_scale=rng.uniform(.92,1.12) if old else rng.uniform(.44,.64))
         if j%2==0:a.socket('Shrub_'+str(j),(row['origin'][0]+row['side']*4,yy-3,0),'shrub')
     for i,x in enumerate((-p['loop_x'],p['loop_x']) if p['kind']=='old' else (0,)):

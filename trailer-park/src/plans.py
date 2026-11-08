@@ -41,12 +41,17 @@ def park(seed=101, kind=None, rows=9):
     for lane in (-loop_x,loop_x):
       for side in (-1,1):
         for j in range(rows):
-            hs=seed*100+len(lots)+1;variant=(j*5+len(lots)//rows*3)%8
+            hs=seed*100+len(lots)+1;profile_j=j
+            # The old entrance has a later infill home; swap existing profiles
+            # rather than adding a special body or opening up the dense row.
+            if old and lane<0 and side<0 and j in (0,2):profile_j=2-j
+            variant=(profile_j*5+len(lots)//rows*3)%8
             era=('1972' if variant%3!=2 else '1984') if old else ('1984' if variant==7 else '1996')
             vs=seed*100+variant+1
             spec=home(vs,era,width_ft=(16 if era=='1984' else 12 if variant%4==3 else 14) if old else (16 if era=='1984' else (24,28,28,24)[variant%4]),
                       length_ft=(52,60,64,70)[variant%4] if old else (52,56,60,64)[variant%4])
             spec.update(variant_id=f'{kind}-{variant}',occupant_seed=hs)
+            if old and lane<0 and side<0 and j==0:spec['carport']=False
             yy=(j-(rows-1)/2)*pitch
             # Both street-facing end walls have a 6 m drive approach. Side
             # entries, decks and carports stay inside the lot's own frontage.

@@ -53,6 +53,22 @@ def mesh_tree(objects):
     return BVHTree.FromPolygons(points,triangles,all_triangles=True)
 
 
+def canopy_bearing(stem,spec):
+    """Compare the imported canopy feet with the independent deck surface."""
+    body=mesh_tree([bpy.data.objects[stem+'__Mesh']])
+    deck=mesh_tree([bpy.data.objects[stem+'_Deck__Mesh']]);rows=[]
+    for side in (-1,1):
+        x=-spec['length']*.035+side*1.28;y=-spec['width']/2-1.85
+        origin=Vector((x,y,spec['floor']+.4));down=Vector((0,0,-1))
+        foot=body.ray_cast(origin,down,1)[0];surface=deck.ray_cast(origin,down,1)[0]
+        assert foot is not None and surface is not None,(stem,'canopy or deck absent at bearing')
+        engagement=surface.z-foot.z
+        assert 0<=engagement<=.020,(stem,'unsupported canopy foot / excessive penetration',engagement)
+        rows.append(dict(position_xy=[x,y],post_bottom_ray_m=foot.z,deck_top_ray_m=surface.z,
+                         engagement_m=engagement))
+    return rows
+
+
 def check():
     rows={};construction={};images={}
     for path in sorted(Path('export').glob('*.gltf')):
@@ -99,6 +115,7 @@ def check():
             actual_width=right[1]-left[1];assert abs(actual_width-spec['width'])<.03,(stem,'skin width',actual_width,spec['width'])
             cap=35000 if stem.startswith('Single') else 50000;assert triangles<=cap
             construction[stem]=dict(wall_width_ray_m=actual_width,footprint_socket_span_m=delta.tolist(),mesh_envelope_m=size.tolist(),triangle_cap=cap)
+            if spec['era']=='1996':construction[stem]['entry_canopy_bearing']=canopy_bearing(stem,spec)
             seam_x=-spec['length']/2+spec['length']/math.ceil(spec['length']/.4064)
             skirt_hit,_=probe(stem,(seam_x,-spec['width'],.25),(0,1,0))
             assert abs(skirt_hit[1]+spec['width']/2)<.04,(stem,'open skirt seam',skirt_hit)

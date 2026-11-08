@@ -28,7 +28,10 @@ def exterior(a,p):
         x=-L*.035;front=-W/2-1.85;back=-W/2+.12
         for sx in (-1,1):
             xx=x+sx*1.28
-            m.box((xx,front,F+1.10),(.0889,.0889,2.20),'Trim')
+            # Deck boards sit below the door threshold; allow 8mm bearing
+            # into their cupped top rather than leaving the post at F.
+            bottom=F-.033;top=F+2.20
+            m.box((xx,front,(bottom+top)/2),(.0889,.0889,top-bottom),'Trim')
             m.beam((xx,front,F+1.75),(xx-sx*.28,front,F+2.20),.055,.055,'Trim',r=0)
         for sy in (front,back):
             m.box((x,sy,F+2.18),(2.70,.09,.14),'Trim')
@@ -48,6 +51,7 @@ def window(a,p,face,h,xf):
         m.box((uu,.065,z+ht/2),(.028,.035,ht+.024),'Trim',(.43,.45,.43),xf=xf)
     for zz in (z-.008,z+ht+.008):
         m.box((u,.065,zz),(w+.04,.035,.028),'Trim',(.43,.45,.43),xf=xf)
+    m.box((u,.065,z+ht/2),(w-.04,.035,.027),'Trim',(.43,.45,.43),xf=xf)
     m.box((u,.09,z-.035),(w+.13,.18,.035),'Trim',xf=xf)
     if face in ('left','right') and not p['double']:
         for uu in (u-w/6,u+w/6):m.box((uu,.042,z+ht/2),(.035,.052,ht),'Trim',(.43,.45,.43),xf=xf)

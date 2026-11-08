@@ -68,14 +68,16 @@ def pavement(a,p,lib,library_material):
 
 
 def road_edge(parent,p,mat):
-    # Ragged 0.1–0.28 m asphalt fragments stop the private lane reading as a
-    # saw-cut slab. Centerline width remains the accepted 20/24 ft.
+    # A continuous irregular 15–75mm fringe, not regularly spaced teeth.
+    # Centerline width remains the accepted 20/24 ft.
     w=p['street_width'];vs=[];fs=[];r=random.Random(p['seed']+512)
     for x in (-p['loop_x'],p['loop_x']):
         for side in (-1,1):
-            for j in range(math.ceil(p['span']/.8)):
-                y=-p['span']/2+j*.8;depth=r.uniform(.04,.20);k=len(vs)
-                vs.extend([(x+side*(w/2-.015),y,.016),(x+side*(w/2+depth),y+r.uniform(.1,.4),.007),
-                           (x+side*(w/2+r.uniform(.03,.13)),y+.8,.007),(x+side*(w/2-.015),y+.8,.016)])
-                fs.append((k,k+1,k+2,k+3) if side>0 else (k+3,k+2,k+1,k))
+            n=math.ceil(p['span']/.8);stations=[-p['span']/2]+[-p['span']/2+j*p['span']/n+r.uniform(-.22,.22) for j in range(1,n)]+[p['span']/2]
+            depth=r.uniform(.015,.075)
+            for y,ynext in zip(stations,stations[1:]):
+                nextdepth=r.uniform(.015,.075);k=len(vs)
+                vs.extend([(x+side*(w/2-.015),y,.016),(x+side*(w/2+depth),y,.007),
+                           (x+side*(w/2+nextdepth),ynext,.007),(x+side*(w/2-.015),ynext,.016)])
+                fs.append((k,k+1,k+2,k+3) if side>0 else (k+3,k+2,k+1,k));depth=nextdepth
     return mesh(parent,'Broken curbless asphalt edges',vs,fs,mat,6.096)

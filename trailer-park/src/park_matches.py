@@ -16,7 +16,7 @@ def transform(row,point,offset=(0,0,0)):
 
 
 def solve():
-    plan=park(101,'old');lot=next(q for q in plan['lots'] if q['number']==3);p=lot['home']
+    plan=park(101,'old');lot=next(q for q in plan['lots'] if q['number']==1);p=lot['home']
     L,W,E,F=p['length'],p['width'],p['eave'],p['floor'];s=3888/1920
     corners=[((-L/2,-W/2,E),(326,446)),((L/2,-W/2,E),(1350,280)),
              ((L/2,-W/2,F),(1348,615)),((L/2,W/2,E),(1750,317)),((L/2,W/2,F),(1744,616))]
@@ -25,7 +25,7 @@ def solve():
         location=transform(lot,(L*.85,-L*.7,1.0)),target=transform(lot,(0,0,1.8)),lens=38,lens_bounds_mm=[20,90],
         neutral='White storm-door frame, shaded daylight; geometry fit uses five visible wall-line corners; obscured rear floor and old erroneous ridge anchor excluded',
         neutral_rect=[1804,990,1844,1100],landmarks=[dict(world=transform(lot,w),pixel=[x*s,y*s]) for w,(x,y) in corners])}
-    lot=next(q for q in plan['lots'] if q['number']==5);h=lot['home'];off=(-h['length']*.32,-h['width']/2-1.20,0)
+    lot=next(q for q in plan['lots'] if q['number']==18);h=lot['home'];off=(-h['length']*.32,-h['width']/2-1.20,0)
     pts=[((-1.6,-1.2,2.95),(479,454)),((1.6,-1.2,2.95),(651,456)),
          ((-1.6,-1.2,.80),(488,674)),((1.6,-1.2,.80),(651,670)),
          ((1.6,1.2,3.20),(787,457)),((1.6,1.2,.80),(785,668))]
@@ -33,7 +33,7 @@ def solve():
       location=transform(lot,(7,-9,2.0),off),target=transform(lot,(0,0,1.7),off),lens=28,lens_bounds_mm=[12,80],
       neutral='White porch fascia around yellow addition; full photograph, not the earlier isolated addition crop',neutral_rect=[482,449,650,459],
       landmarks=[dict(world=transform(lot,w,off),pixel=p) for w,p in pts])
-    lot=next(q for q in plan['lots'] if q['number']==2);h=lot['home'];off=(h['length']/2-2.9,-h['width']/2-1.82,0)
+    lot=next(q for q in plan['lots'] if q['number']==6);h=lot['home'];off=(h['length']/2-2.9,-h['width']/2-1.82,0)
     pts=[((-3.3528,1.6764,2.68),(1337,1201)),((3.3528,1.6764,2.68),(1509,1223)),
          ((-3.3528,-1.6764,2.42),(1328,1270)),((3.3528,-1.6764,2.42),(1473,1291)),
          ((-3.2228,-1.5964,.07),(1329,1292)),((3.2228,-1.5964,.07),(1461,1318))]
@@ -41,7 +41,7 @@ def solve():
       location=transform(lot,(3,-10,14),off),target=transform(lot,(0,0,1.6),off),lens=42,lens_bounds_mm=[16,100],
       neutral='Sunlit bare aluminum pan assumed neutral; original lens unavailable; ten anchors on two adjacent carports; fictional park is a density/type comparison',neutral_rect=[1350,1240,1460,1260],
       landmarks=[dict(world=transform(lot,w,off),pixel=p) for w,p in pts])
-    neighbor=next(q for q in plan['lots'] if q['number']==3);h=neighbor['home'];off2=(h['length']/2-2.9,-h['width']/2-1.82,0)
+    neighbor=next(q for q in plan['lots'] if q['number']==7);h=neighbor['home'];off2=(h['length']/2-2.9,-h['width']/2-1.82,0)
     for world,pixel in [((-3.3528,1.6764,2.68),(1455,1104)),((3.3528,1.6764,2.68),(1610,1120)),
                         ((-3.3528,-1.6764,2.42),(1410,1165)),((3.3528,-1.6764,2.42),(1562,1191))]:
         definitions['aerial-2015']['landmarks'].append(dict(world=transform(neighbor,world,off2),pixel=pixel))

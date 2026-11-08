@@ -83,7 +83,9 @@ def cut(ob,p):
 
 def age(q,n,c,role,component,p,seed):
     x,y,z=q;E=p.get('eave',3.35);F=p.get('floor',.91)
-    old=p.get('era','1972')!='1996';severity=(.38,.78,1.)[seed%3] if old else (.16,.28,.40)[seed%3]
+    old=p.get('era','1972')!='1996'
+    upkeep=p.get('upkeep',('patched','kept','faded')[seed%3])
+    severity=({'patched':1.,'kept':.32,'faded':.78} if old else {'patched':.40,'kept':.13,'faded':.28})[upkeep]
     north=max(0,n.y*(1 if p.get('site_yaw',0)==0 else -1));sunny=max(0,-n.y*(1 if p.get('site_yaw',0)==0 else -1))
     color=Vector(c[:3]);ripple=.5+.3*math.sin(x*6.3+y*3.1+seed)+.2*math.sin(x*17-y*11)
     if role=='Shingles':color/= .105
@@ -113,7 +115,7 @@ def age(q,n,c,role,component,p,seed):
         color=color.lerp(Vector((.22,.065,.018)),rust)
     if role=='Veneer':
         # Seasoned exposed timber: gray fibers, darker protected underside.
-        if component=='deck':color=color.lerp(Vector((.30,.285,.24)),.68 if old else .40)
+        if component=='deck':color=color.lerp(Vector((.22,.21,.18)),.40+.28*severity if old else .20+.50*severity)
         if z<.20:color*=.62+.38*max(0,z)/.20
     return tuple(max(.004,min(.95,v)) for v in color)
 
@@ -174,8 +176,11 @@ def finish(ob):
                 uu,vv=[max(0,min(1,t)) for t in fractions]
                 uv.data[li].uv=(u0+guard+uu*(u1-u0-2*guard),v0+guard+vv*(v1-v0-2*guard))
             elif family in ('Wood','Glass'):
-                lo=min(q[axes[1]] for q in points);hi=max(q[axes[1]] for q in points)
-                uv.data[li].uv=(q[axes[0]]/4,(strip+.05+.90*(q[axes[1]]-lo)/max(hi-lo,.01))/8)
+                # Native timber fibers run along V; U varies across grain.
+                # Keep real cross-member scale, stretch only along the fiber.
+                cross,long=(axes[1],axes[0]) if family=='Wood' else (axes[0],axes[1])
+                lo=min(q[long] for q in points);hi=max(q[long] for q in points)
+                uv.data[li].uv=(q[cross]/4.8768,(strip+.05+.90*(q[long]-lo)/max(hi-lo,.01))/8)
             else:
                 cov=4.8768 if family=='Shingles' else 2.4384
                 uv.data[li].uv=(q[axes[0]]/cov,q[axes[1]]/cov)

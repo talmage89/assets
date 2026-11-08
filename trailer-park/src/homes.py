@@ -144,13 +144,14 @@ def wall(a,p,face):
             era_details.window(a,p,face,h,xf)
             # Recessed dark room, glass, two offset aluminum sashes and storm.
             tr.box((u,-.27,z+ht/2),(w-.025,.018,ht-.025),'Trim',(.025,.026,.022),xf=xf)
-            tr.box((u,-.008,z+ht/2),(w-.03,.005,ht-.03),'Glass',xf=xf)
+            tr.box((u,.046,z+ht/2),(w-.03,.005,ht-.03),'Glass',xf=xf)
             for uu in (u-w/2+.020,u+w/2-.020):tr.box((uu,.006,z+ht/2),(.025,.024,ht),'Trim',ZINC,xf=xf)
             for zz in (z+.020,z+ht/2,z+ht-.020):tr.box((u,.008,zz),(w,.024,.026),'Trim',ZINC,xf=xf)
             for uu in (u-w/2+.047,u+w/2-.047):tr.box((uu,.026,z+ht/2),(.014,.012,ht-.04),'Trim',(.50,.52,.49),xf=xf)
             # Varied blind slats in an actual cavity, not a white window card.
+            blind_step=.032+.005*((p['seed']+round(u*100)+sum(map(ord,face)))%5)
             for j in range(6+p['seed']%7):
-                zz=z+ht-.045-j*.045
+                zz=z+ht-.045-j*blind_step
                 tr.box((u,-.05,zz),(w-.075,.024,.016),'Trim',(.48,.46,.39),xf=xf)
     m.finish();tr.finish()
 

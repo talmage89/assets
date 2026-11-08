@@ -38,8 +38,10 @@ def context(plan):
     # face the old park boundary, with a real fence, sheds and irregular trees.
     for side in (-1,1):
         for j in range(-4,5):
-            y=j*22.0+rng.uniform(-1,1)
-            if abs(y)>D/2+12:continue
+            y=(j+(.5 if old else 0))*22.0+rng.uniform(-1,1)
+            # Reserve the cross-street corners. A full ranch envelope is
+            # about 20m along this frontage, and must clear the road itself.
+            if abs(y)>D/2-16:continue
             seed=(11,12,13,14,15,16)[(j+side)%6]
             put(f'houses/export/HearthfieldRanch-{seed}.gltf','Backyard ranch',(side*(W/2+21),y,0),90 if side>0 else -90)
             if old:
@@ -52,8 +54,11 @@ def context(plan):
                 if sy<0 and abs(j)>2:continue
                 seed=(11,13,14,16)[j%4]
                 put(f'houses/export/HearthfieldRanch-{seed}.gltf','Cross-street ranch',(j*23+5,sy*(D/2+23),0),180 if sy<0 else 0)
-        put('commercial/export/CommercialGas-101.gltf','Neighborhood corner gas',(-W/2-33,-D/2-34,0),180)
-        put('trailer-park/build/native/strip-201.glb','Entrance shops',(W/2+55,-D/2-46,0),180)
+        road_south=D/2+4.15+3.6576
+        # Native lots are 45.72m and 60.96m deep; their front throats meet
+        # the 7.3152m public asphalt edge rather than stopping in the grass.
+        put('commercial/export/CommercialGas-101.gltf','Neighborhood corner gas',(-W/2-33,-road_south-22.86,0),180)
+        put('trailer-park/build/native/strip-201.glb','Entrance shops',(W/2+55,-road_south-30.48,0),180)
     # A crop/field edge and multiple uneven tree ranks close the newer horizon.
     for j in range(-12,13):
         for rank in range(2 if old else 3):
