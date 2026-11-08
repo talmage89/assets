@@ -1219,3 +1219,18 @@ The four historical garage-owned site glTF/BIN files are the authorized
 exception; they regenerate from the current recipe. Re-import/buffer checks
 prove serialization; contact rays and motion sweeps measure actual exported
 surface relationships, subject to their documented sampling limits.
+
+The first new `make repeat` stopped in the mixed-site comparator: independently
+16-bit primitive index arrays overflowed when a joined car's vertex offset
+exceeded 65,535. This was a comparison-code error, not failed geometry or an
+admitted outlier. Promoting indices to signed 64-bit before adding offsets
+fixes it. A focused regression joins a 70,003-vertex fixture correctly and
+all six actual form/look/final site comparisons pass after the fix.
+The failure evidence is retained in `../build/garage-ruling/repeat-index-failure/`.
+
+All 189 rebuilt canonical payloads were already byte-identical before their
+backup copies and timestamps were restored. Repeat cleanup now uses `finally`
+so any comparison exception restores reviewed inputs too; a deliberate failed
+audit fixture verifies both original bytes and timestamps and leaves no pass
+receipt. Successful tolerant repeats also restore the originally rendered
+copies. These guards change no render, geometry, material or tolerance limit.

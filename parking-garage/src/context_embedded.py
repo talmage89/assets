@@ -1,5 +1,6 @@
 """Exact garage/town payloads, tolerant native-car surfaces in mixed sites."""
 import copy,hashlib,json
+import numpy as np
 from pathlib import Path
 from context_geometry import Document,capture,compare,digest
 
@@ -54,10 +55,14 @@ def check(before,after):
         node=left.json['nodes'][i];name=node['name'];other=right.json['nodes'][rn[name]]
         assert ('mesh' in node)==('mesh' in other),(name,'Car object type')
         if 'mesh' not in node:continue
-        original+=sum(left.json['accessors'][p['indices']]['count']//3 for p in left.json['meshes'][node['mesh']]['primitives'])
-        total+=sum(right.json['accessors'][p['indices']]['count']//3 for p in right.json['meshes'][other['mesh']]['primitives'])
+        old_count=sum(left.json['accessors'][p['indices']]['count']//3 for p in left.json['meshes'][node['mesh']]['primitives'])
+        new_count=sum(right.json['accessors'][p['indices']]['count']//3 for p in right.json['meshes'][other['mesh']]['primitives'])
+        assert abs(old_count-new_count)<=max(old_count,1)*.001,(name,'Car triangle delta')
+        original+=old_count;total+=new_count
         pair=(node['mesh'],other['mesh'])
-        if pair in seen:continue
+        # Shared geometry can skip a repeated placement only if its pose also
+        # agrees exactly. A changed placement must pass its own surface test.
+        if pair in seen and np.array_equal(left.world(i),right.world(rn[name])):continue
         seen.add(pair);lv,lf,lm=surface(left,i);v,f,m=surface(right,rn[name])
         assert m==lm,(name,'Car material assignment')
         # Bidirectional, deterministic surface points include six extrema.

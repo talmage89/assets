@@ -29,7 +29,9 @@ def surface(doc,index):
     for primitive in mesh['primitives']:
         offset=len(vertices);v=doc.accessor(primitive['attributes']['POSITION'])
         vertices.extend((np.c_[v,np.ones(len(v))]@xf.T)[:,:3].tolist())
-        faces.extend((doc.accessor(primitive['indices']).reshape(-1,3)+offset).tolist())
+        # glTF primitives can use uint16 independently even when their joined
+        # mesh exceeds 65k vertices. Promote before applying the join offset.
+        faces.extend((doc.accessor(primitive['indices']).astype(np.int64).reshape(-1,3)+offset).tolist())
         materials.append(doc.json['materials'][primitive['material']]['name'])
     return vertices,faces,materials
 

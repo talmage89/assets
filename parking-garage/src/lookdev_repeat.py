@@ -32,6 +32,21 @@ def main():
     backup=Path('build/lookdev/repeat-original')
     for p in files:
         target=backup/p;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(p,target)
+    Path('build/lookdev/repeat-times.json').write_text(json.dumps(times,indent=2)+'\n')
+    try:
+        embedded=rebuild_and_compare(files,before,backup)
+    finally:
+        # A failed surface audit must restore reviewed inputs too. Even a
+        # passing tolerant repeat retains the exact originally rendered copy.
+        for p in files:shutil.copy2(backup/p,p)
+        for p,stamp in times.items():os.utime(p,ns=stamp)
+    report=dict(passed=True,exact_source_fields=len(fields),exact_export_and_manifest_files=len(before)-len(embedded),embedded_context_files=len(embedded),export_and_manifest_bytes=sum(Path(p).stat().st_size for p in before),
+        source_scripts_sha256={str(p):digest(p) for p in sorted(Path('src').glob('*.py'))},
+        texture_policy='Canonical 4096 GPU bake / 2048 maps unchanged. Repeats form construction, private comparison variants, town instancing, age, UV and export from accepted source blends. A fresh GPU bake is tested separately.')
+    Path('build/lookdev/repeat.json').write_text(json.dumps(report,indent=2)+'\n');print('LOOK-DEV REPEAT PASS',report,flush=True)
+
+
+def rebuild_and_compare(files,before,backup):
     with Path('build/lookdev/repeat-build.log').open('w') as log:
         for script in ('form_build','comparison_build','lookdev_build'):
             subprocess.run(['blender','-b','-t','2','--factory-startup','--python-exit-code','1','--python',f'src/{script}.py','--'],stdout=log,stderr=subprocess.STDOUT,check=True)
@@ -65,14 +80,8 @@ def main():
     changed=[p for p in changed if p not in embedded]
     if changed:
         Path('build/lookdev/repeat-failure.json').write_text(json.dumps(changed,indent=2)+'\n')
-        # Failed verification must not silently invalidate reviewed exports.
-        for p in files:shutil.copy2(backup/p,p)
     assert not changed,changed
-    for p,stamp in times.items():os.utime(p,ns=stamp)
-    report=dict(passed=True,exact_source_fields=len(fields),exact_export_and_manifest_files=len(before)-len(embedded),embedded_context_files=len(embedded),export_and_manifest_bytes=sum(Path(p).stat().st_size for p in before),
-        source_scripts_sha256={str(p):digest(p) for p in sorted(Path('src').glob('*.py'))},
-        texture_policy='Canonical 4096 GPU bake / 2048 maps unchanged. Repeats form construction, private comparison variants, town instancing, age, UV and export from accepted source blends. A fresh GPU bake is tested separately.')
-    Path('build/lookdev/repeat.json').write_text(json.dumps(report,indent=2)+'\n');print('LOOK-DEV REPEAT PASS',report,flush=True)
+    return embedded
 
 
 if __name__=='__main__':main()
