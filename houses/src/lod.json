@@ -8,7 +8,8 @@
       "target_triangles": 32027,
       "image_limits": {
         "patch_mean_max": 0.11
-      }
+      },
+      "surface_pixels": 0.125
     },
     {
       "ratio": 0.15,

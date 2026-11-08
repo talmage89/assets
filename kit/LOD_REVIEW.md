@@ -2383,3 +2383,43 @@ The joint command returns zero, peak child RSS 1361920 KiB. Its official source,
 donor, script and tool receipts are in `fence-joints/receipt.json`. The paused
 post-adoption supervisor has been removed after both joint proof and four
 original checks completed; no duplicate validation was scheduled.
+
+## Pass 63 — close the colonial near seams and review the canonical pickup/maple
+
+Opened all three .125-pixel colonial near control strips at native size. The
+long window-to-wall dark seams are gone; siding, trim, garage panels and roof
+retain the source values. Counts are 28698/58232 (49.28%), inside 55%.
+Mean RGB is .00139/.00139/.00107; local .05850/.04853/.01430 and coverage
+pass the existing limits. Public geometry/re-import and independent UV/normal
+audits return zero. Adopted `surface_pixels: .125` for LOD1. A same-setting
+middle control is building before the full canonical house is rebuilt. The
+cheaper 24949/13218 seam baseline remains reproducible in
+`build/lod-v4/house-seam-baseline/`; no original bytes or tool source changed.
+
+Opened all nine fresh canonical pickup strips, four construction views and
+contact. LOD1's grille surround and rear red insert agree closely with LOD0;
+all six near numeric comparisons pass. The middle front view still changes
+the grille-band reflection, and the close view exposes front-joint/A-pillar
+gaps and coarse wheels. This is not described as an exact shading match.
+An existing-policy control applies LOD1's .2-pixel reflective bound to the
+middle level too: 25448 triangles, native review pending. Count alone does
+not approve it. The current 23530 mesh and all its images are archived in
+`build/lod-v4/car-middle-baseline/` before any replacement.
+
+The canonical far pickup still visibly fails all three views: mean
+.02956/.01901/.02258, p95 .13227/.08311/.10980, local
+.17560/.21085/.15801. Coverage passes. The complete `make check-lod` returns
+2 solely for image differences; the separately captured geometry check returns
+zero and the current independent UV/frame audit passes. The full failed check
+is preserved. No far color gate changes. Current resident estimate is
+28.527 MiB versus 21.140 MiB for LOD0: only 2.334 MiB proxy maps and 5.053 MiB
+extra meshes are added. Near maps remain the exact original image content.
+
+Opened all twelve fresh maple strips (including its camera-facing alternative),
+five construction images and contact. Native crown values and mass remain
+consistent at 8%, 3.2% and 1.5%; larger leaf cards are obvious closer, while
+the fixed impostor exposes its four planes in the elevated construction view.
+The accepted chain remains 11840/4736/8, with the separate two-triangle
+alternative. All image comparisons and the captured `make check-lod` pass.
+Default-chain residency is 21.204 MiB versus LOD0's 18.550 MiB. No maple
+policy, count or switch changed.
