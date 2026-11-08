@@ -329,3 +329,35 @@ The stale exploratory failure marker is removed; earlier failed logs remain.
 Stop here for the requested form/construction checkpoint. The next work is
 look-dev and cause-driven service age, followed by the real bake/export review;
 this checkpoint is not the completed game-ready/material delivery.
+
+## Revision form pass 1 — towers, daylight and the loose pairs
+
+Color/value first: opened all eight 1000px exports in `renders/form-pass1/`.
+The .65 procedural sky / 3.0 sun ratio is too blue and too diffuse outside;
+reject it for the low-sun hero. The soffit is substantially more legible
+than the baseline, but the view straight across the stems suppresses depth.
+Keep that camera as `retained_aisle`, add an angled aisle/tee view, reduce
+sky to .22, restore the 4.5 sun, and keep seven diffuse bounces plus actual
+downward fixture pools and unoccluded upward practical light. The section
+remains the accepted 24in tee, 4in flange and 6ft stem centers; no clearance
+is sacrificed to exaggerate a shadow.
+
+The glazed return, panel joints, lift slot and machine-room hood break the
+core prism. Flights still disappear in reflection in the dark core: add
+fixtures at exported stair sockets. Name/level plaques are blank because
+their backing projects 2mm ahead of the print: recess it. The commercial
+trial camera makes the building smaller and adds more foreground; reject
+it and retain the accepted location. Far-walk meters do not read at this
+angle. Add a native tree and meters at the actual crossing, with a soil well.
+
+Re-measured Harmon from its original 4000x3000 photo. The previous anchors
+at x1565/3280 did not identify the same floors. The new crop identifies
+four successive ceiling/column stations on each of two adjacent columns.
+A five-level specimen from the existing generator fits at 13.22 native px
+RMS; the accepted three-level town garage is unchanged. The precast photo
+has a deeper lower haunch apex; the specimen lowers that apex to 1.48988m
+while retaining the beam seats and tee section. Its four shaft/haunch
+anchors fit at 15.81 native px. Pleasant Hill remains 14.9px. These are
+comparison variants, not changes to the accepted town plans. The precast
+neutral is now bare column concrete left of the sign, rather than paper.
+Source pixels enter only local white-balanced comparison images.
