@@ -17,7 +17,7 @@ def field():
  rgb=srgb_to_linear(np.asarray(Image.open(source).convert('RGB'),np.float32)/255)
  # This derivative changes the original scripted lawn's seasonal pigment,
  # retaining the original fine blade/grain pattern. It contains no macro age.
- median=np.median(rgb.reshape(-1,3),axis=0);rgb=np.clip(rgb/median*np.array([.125,.155,.055]),0,1)
+ median=np.median(rgb.reshape(-1,3),axis=0);rgb=np.clip(rgb/median*np.array([.155,.155,.055]),0,1)
  path.parent.mkdir(parents=True,exist_ok=True);write_png(path,linear_to_srgb(rgb),bits=8)
  receipt.write_text(json.dumps(dict(inputs=sig,output_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),scope='Seasonal derivative of original Ground manufacture; same canonical normal/ORM and 2048 allocation'),indent=2));return path
 
@@ -33,12 +33,16 @@ def lawn_tint(x,y,kind='verge',seed=0,height=0):
  # Changes are slow in station, and connected to dry high shoulders or yard
  # irrigation/root competition. Texture grain supplies the small variation.
  phase=.5+.26*math.sin(y*.061+math.sin(x*.11)+seed)+.17*math.sin(y*.19+x*.087)
- dry=max(0,min(1,.20+.64*phase if kind=='verge' else .06+.36*phase))
- if kind=='verge':dry=min(1,dry+.16*max(0,min(1,height/7)))
+ dry=max(0,min(1,.06+.36*phase if kind=='yard' else .20+.64*phase))
+ if kind in ('verge','unmown'):dry=min(1,dry+.16*max(0,min(1,height/7)))
  if kind=='ditch':dry*=.15
  if kind=='unmown':dry=max(.50,dry)
  rootshade=.94+.04*math.sin(x*.18+math.sin(y*.16))+.02*math.sin(y*.73+x*.31)
- return ((.80+.18*dry)*rootshade,(.93-.26*dry)*rootshade,(.94-.37*dry)*rootshade,1)
+ # Put straw pigment in the image so the desired red multiplier stays <=1.
+ # glTF's normalized color attributes clamp a >1 tint during serialization.
+ red_scale=.125/.155
+ if kind=='yard':return ((.80+.18*dry)*red_scale*rootshade,(.93-.26*dry)*rootshade,(.94-.37*dry)*rootshade,1)
+ return ((.78+.45*dry)*red_scale*rootshade,(.98-.26*dry)*rootshade,(.96-.48*dry)*rootshade,1)
 
 def verges(p,parent):
  """Small rooted blades/seed stems in the separately counted context package."""
@@ -77,8 +81,13 @@ def verges(p,parent):
    tint=lawn_tint(x,y,'unmown' if tall else 'verge',p.seed)
    for k in range(14):
     angle=rng.uniform(0,math.tau);h=rng.uniform(.28,.72) if tall else rng.uniform(.05,.18);w=rng.uniform(.006,.014)
-    center=q+Vector((rng.uniform(-.16,.16),rng.uniform(-.12,.12),0));d=Vector((math.cos(angle),math.sin(angle),0));tip=center+d*h*.30+Vector((0,0,h))
-    b.face([center-d*w,center+d*w,tip], 'Lawn',tint=tint)
+    center=q+Vector((rng.uniform(-.16,.16),rng.uniform(-.12,.12),0))
+    ground=soil.ray_cast(Vector((center.x,center.y,30)),Vector((0,0,-1)),60)[0]
+    if ground is None:continue
+    center.z=ground.z+.005;d=Vector((math.cos(angle),math.sin(angle),0));lean=Vector((-d.y,d.x,0))
+    middle=center+lean*h*.05+Vector((0,0,h*.55));tip=center+lean*h*.30+Vector((0,0,h*.90))
+    b.face([center-d*w,center+d*w,middle+d*w*.55,middle-d*w*.55],'Lawn',tint=tint)
+    b.face([middle-d*w*.55,middle+d*w*.55,tip],'Lawn',tint=tint)
     if tall and k%4==0:
      # A few genuine seed heads, not a wire curtain along the mowing line.
      b.face([tip-d*.018,tip+d*.018,tip+Vector((0,0,.09))],'Lawn',tint=(.88,.69,.37,1))

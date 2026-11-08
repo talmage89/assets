@@ -176,7 +176,10 @@ def terrain(p):
                     from landscape import lawn_tint
                     for index in range(start,len(b.colors)):
                         x,y,z=b.v[index]
-                        b.colors[index]=lawn_tint(x,y,'ditch' if j<2 else 'verge',p.seed,z)
+                        lateral=p.radius-math.hypot(p.radius-x,y) if p.radius else x
+                        limit=(43 if p.kind=='diamond' else 28)+.8*math.sin(a/41)
+                        kind='ditch' if j<2 else 'unmown' if abs(lateral)>limit else 'verge'
+                        b.colors[index]=lawn_tint(x,y,kind,p.seed,z)
     # End extensions use the same grade and width. They create real horizon
     # continuity in the two eye-height heroes, rather than a backdrop at fence.
     for begin,end in [(-half-1800,-half),(half,half+1800)]:

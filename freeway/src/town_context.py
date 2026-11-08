@@ -180,8 +180,13 @@ def town(p):
    trees.append((side*((109 if p.kind=='diamond' else 43)+rng.uniform(0,5)),s+rng.uniform(-5,5),rng.uniform(.68,1.12) if p.kind=='diamond' else rng.uniform(.55,.95),'ROW'))
  native=[load('build/context/TreeOak.glb'),load('build/context/TreeMaple.glb')]
  for j,(u,s,scale,kind) in enumerate(trees):
-  pt=point(u,s);ob=clone(native[rng.randrange(2)],f'{kind}_tree_{j:04d}',pt,rng.uniform(0,360),rt);ob.scale=(scale,)*3
-  rows.append(dict(kind='tree',cause=kind,point=pt,scale=scale))
+  mature=p.kind=='diamond' or abs(u)>90
+  if mature and kind in ('yard','apartment'):scale*=1.4
+  if mature and kind=='street':scale*=1.2
+  species=(1 if rng.random()<.72 else 0) if mature else rng.randrange(2)
+  yaw=rng.uniform(0,360);pt=point(u,s)
+  ob=clone(native[species],f'{kind}_tree_{j:04d}',pt,yaw,rt);ob.scale=(scale,)*3
+  rows.append(dict(kind='tree',cause=kind,point=pt,scale=scale,species=('PinOak','RedMaple')[species],yaw=yaw))
  for lib in native:delete(lib)
  # School's broad color stations: dry root zones and shaded lawn. The grain
  # and blade normal are the shared Ground lawn; no photo pixels are used.

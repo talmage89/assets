@@ -112,7 +112,7 @@ def construction(root):
             for i in face.vertices:
                 v=ob.data.vertices[i].co
                 station=v.y+root.location.y
-                low=math.exp(-max(0,v.z)/.34)*(.35+.10*math.sin(station*.067)+.06*math.sin(station*.71)) if root.get('module_kind') in ('barrier','soundwall') else 0
+                low=math.exp(-max(0,v.z)/.34)*(.52+.10*math.sin(station*.067)+.08*math.sin(station*.71)) if root.get('module_kind') in ('barrier','soundwall') else 0
                 value=1-low
                 if ma==Q.M['Steel'] and root.get('module_kind')=='guardrail':
                     value=1.0 if ob.get('maintenance') else .86
@@ -129,7 +129,8 @@ def construction(root):
                 if root.get('module_kind')=='bridge' and v.z>=7.18 and abs(v.y)>8.3:
                     value-=.28*math.exp(-max(0,v.z-7.18236)/.27)
                 # Damp deposits retain their brown/olive soil spectrum.
-                ca.data[i].color=(value,value*(1-(1-value)*.08),value*(1-(1-value)*.22),1)
+                concrete=ma in (Q.M['Bridge'],Q.M['Barrier'])
+                ca.data[i].color=(value,value*(1-(1-value)*.08)*(.985 if concrete else 1),value*(1-(1-value)*.22)*(.94 if concrete else 1),1)
     if root.get('module_kind')!='bridge':return
     b=Q.Batch('Joint bearing and scupper deposits',root)
     # Outer girder faces face the freeway shoulder. Runoff is top-connected,
@@ -149,7 +150,7 @@ def construction(root):
                 uv=[(u0,va),(u1,va),(u1,vc),(u0,vc)]
                 if math.sin(x)>0:uv=[(u1,va),(u0,va),(u0,vc),(u1,vc)]
                 if side>0:pts.reverse();uv.reverse()
-                b.face(pts,'Maintenance',uv=uv,tint=(1,1,1,.22+.08*math.sin(x*.7+side)))
+                b.face(pts,'Maintenance',uv=uv,tint=(1,1,1,.30+.10*math.sin(x*.7+side)))
         for x in (-23.0,-16,-.6,.6,16,23.):
             kind='salts' if abs(x)==16 else 'runoff';width=.67 if kind=='salts' else 1.12
             u0,v0,u1,v1=rect(kind)
@@ -166,16 +167,18 @@ def construction(root):
         for index,y in enumerate((-9.144,-6.096,-3.048,0,3.048,6.096,9.144)):
             y+=rng.uniform(-.12,.12)
             u0,v0,u1,v1=rect('runoff')
-            width=rng.uniform(.34,.86);bottom=rng.uniform(4.34,4.78)
-            alpha=rng.uniform(.50,.78)
+            width=rng.uniform(.62,1.52);bottom=rng.uniform(4.34,4.78)
+            alpha=rng.uniform(.78,1.0)
+            left=max(-9.899,y-width);right=min(9.899,y+width)
+            ul=u0+(left-y+width)/(2*width)*(u1-u0);ur=u0+(right-y+width)/(2*width)*(u1-u0)
+            if index%2:ul,ur=u1-(ul-u0),u1-(ur-u0)
             levels=[bottom,*[z for z in (4.3884,5.3884) if bottom<z<5.435],5.435]
             for a,c in zip(levels,levels[1:]):
                 # Follow the real cap's 50 mm chamfers; a flat decal would
                 # float across them even if its main vertical face is seated.
                 xa=side*(1.152-max(0,4.3884-a,a-5.3884));xc=side*(1.152-max(0,4.3884-c,c-5.3884))
                 va=v0+(a-bottom)/(5.435-bottom)*(v1-v0);vc=v0+(c-bottom)/(5.435-bottom)*(v1-v0)
-                pts=[(xa,y-width,a),(xa,y+width,a),(xc,y+width,c),(xc,y-width,c)];uv=[(u0,va),(u1,va),(u1,vc),(u0,vc)]
-                if index%2:uv=[(u1,va),(u0,va),(u0,vc),(u1,vc)]
+                pts=[(xa,left,a),(xa,right,a),(xc,right,c),(xc,left,c)];uv=[(ul,va),(ur,va),(ur,vc),(ul,vc)]
                 if side<0:pts.reverse();uv.reverse()
                 b.face(pts,'Maintenance',uv=uv,tint=(1,1,1,alpha))
     # Fresh formed repairs use the same concrete manufacture, without a tar
