@@ -1,11 +1,52 @@
 """Serial local native builds, plus immutable delivery snapshot."""
 from pathlib import Path
-import subprocess,hashlib,json,os
+import subprocess,hashlib,json,os,io,tarfile
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];ASSET=HERE.parent
+
+
+def canonical_inputs():
+    """Missing native deliveries rebuild in an isolated source archive.
+
+    A cold clone may spend time on the original families' GPU bakes. Warm
+    accepted deliveries are never regenerated or opened for writing.
+    """
+    jobs=[('ground/export/Ground.glb','ground',[],['export/Ground.glb']),
+          ('houses/export/Hearthfield-2.gltf','houses',['SEEDS=2,27'],['export']),
+          ('houses/export/Hearthfield-27.gltf','houses',['SEEDS=2,27'],['export']),
+          ('trees/export/RedMaple.glb','trees',[],['export/RedMaple.glb']),
+          ('trees/export/PinOak.glb','trees',['SPECIES=oak'],['export/PinOak.glb']),
+          ('shrubs/export/Shrubs.glb','shrubs',[],['export/Shrubs.glb']),
+          ('fences/export/WoodPrivacy.glb','fences',[],['export/WoodPrivacy.glb']),
+          ('fences/chain-link/export/ChainLink.glb','fences/chain-link',[],['export/ChainLink.glb']),
+          ('mailbox/export/Mailbox.glb','mailbox',[],['export/Mailbox.glb']),
+          ('trash-cart/export/TrashCart.glb','trash-cart',[],['export/TrashCart.glb']),
+          ('patio-set/export/PatioSet.glb','patio-set',[],['export/PatioSet.glb']),
+          ('gas-grill/export/GasGrill.glb','gas-grill',[],['export/GasGrill.glb']),
+          ('cars/export/AlderC150.glb','cars',['BODY=pickup'],['export/AlderC150.glb']),
+          ('cars/export/AlderX220.glb','cars',['BODY=suv'],['export/AlderX220.glb']),
+          ('cars/export/AlderH120.glb','cars',['BODY=hatch'],['export/AlderH120.glb'])]
+    stage=ASSET/'build/library';missing=[j for j in jobs if not (ROOT/j[0]).is_file()]
+    if missing and not (stage/'kit').exists():
+        stage.mkdir(parents=True,exist_ok=True)
+        families=sorted({'kit',*[j[1].split('/')[0] for j in jobs]})
+        data=subprocess.check_output(['git','archive','HEAD',*families],cwd=ROOT)
+        with tarfile.open(fileobj=io.BytesIO(data)) as archive:archive.extractall(stage,filter='data')
+    used={}
+    for path,family,params,targets in jobs:
+        selected=ROOT/path
+        if not selected.exists():
+            selected=stage/path
+            if not selected.exists():
+                with (stage/(family.replace('/','-')+'-export.log')).open('w') as log:
+                    subprocess.run(['make','-j1',*params,*targets],cwd=stage/family,stdout=log,stderr=subprocess.STDOUT,check=True)
+            if not selected.exists():raise FileNotFoundError(selected)
+        used[path]=dict(resolved=str(selected.relative_to(ROOT)),sha256=hashlib.sha256(selected.read_bytes()).hexdigest())
+    (ASSET/'build/library-inputs.json').write_text(json.dumps(used,indent=2))
 
 
 def main():
     out=ASSET/'build/native';out.mkdir(parents=True,exist_ok=True)
+    canonical_inputs()
     for kind in ('shed','utility','playground'):
         path=out/(kind+'.gltf')
         deps=list((ROOT/kind/'src').glob('*.py'))+[HERE/'native_build.py']

@@ -48,6 +48,8 @@ def publish(stem,root,plan=None):
     for family in ('ground','fences','mailbox','trash-cart','patio-set','gas-grill','houses','trees','shrubs'):
         for q in (ROOT/family).rglob('*.png'):
             if 'ship' in q.parts:known[hashlib.sha256(q.read_bytes()).hexdigest()]=q
+    for q in Path('build/library').rglob('*.png'):
+        if 'ship' in q.parts:known[hashlib.sha256(q.read_bytes()).hexdigest()]=q.resolve()
     known[hashlib.sha256(Path('textures/checkpoint/T_ManufacturedForm.png').read_bytes()).hexdigest()]=Path('textures/checkpoint/T_ManufacturedForm.png').resolve()
     for im in doc.get('images',[]):
         q=path.parent/im['uri'];digest=hashlib.sha256(q.read_bytes()).hexdigest()
@@ -93,6 +95,8 @@ def main():
         reset();sheet=Assembly('ManufacturedModules')
         for j,(stem,fn) in enumerate(list(factories.items())[:-1]):
             obj=fn();place(obj.root,((j%5-2)*8,(j//5)*9,0),0,sheet.root)
+            from geometry import label
+            label(sheet,stem,((j%5-2)*8,(j//5)*9-3.0,.10),.40,(.6,.6,.5))
         report['Modules']=publish('Modules',sheet.root)
     for seed,kind in ((a.old_seed,'old'),(a.new_seed,'new')):
         stem='Park-'+str(seed)

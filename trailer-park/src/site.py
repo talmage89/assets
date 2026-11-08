@@ -17,6 +17,12 @@ def library_material(lib,prefix):
 
 def ground_box(parent,name,p,size,mat,coverage,tint=(1,1,1)):
     ob=G.box(name,p,size,mat,0);ob.parent=parent;world_uv(ob,coverage)
+    uv=ob.data.uv_layers.active
+    for poly in ob.data.polygons:
+        if abs(poly.normal.z)>.5:continue
+        axes=sorted(range(3),key=lambda k:abs(poly.normal[k]))[:2]
+        for li in poly.loop_indices:
+            v=ob.matrix_world@ob.data.vertices[ob.data.loops[li].vertex_index].co;uv.data[li].uv=(v[axes[0]]/coverage,v[axes[1]]/coverage)
     # Ground's tint is authored as linear multiplier; preserve its PBR images.
     names={n.layer_name or 'Color' for n in mat.node_tree.nodes if n.type=='VERTEX_COLOR'}
     for name in names:
@@ -42,7 +48,14 @@ def road(parent,p,lib):
             mesh=bpy.data.meshes.new('Private circular return');mesh.from_pydata(vs,[],fs);mesh.materials.append(asphalt);mesh.update()
             ob=bpy.data.objects.new('Private circular return',mesh);bpy.context.collection.objects.link(ob);ob.parent=a.root;world_uv(ob,6.096)
     for k,path in enumerate(p['roads']):
-        for j,point in enumerate(path):a.socket(f'DrivePath_{k}_{j}',[point[0],point[1],.015],'drive_path',next_index=j+1 if j+1<len(path) else 0,path_id=k,speed_mph=10)
+        closed=math.dist(path[0],path[-1])<1e-7
+        for j,point in enumerate(path):
+            next_index=j+1 if j+1<len(path) else (1 if closed else -1)
+            q=path[next_index] if next_index>=0 else [point[i]+point[i]-path[j-1][i] for i in range(3)]
+            yaw=math.degrees(math.atan2(q[0]-point[0],-(q[1]-point[1])))
+            extras=dict(next_index=next_index,path_id=k,speed_mph=10,width_m=w,closed_path=closed)
+            if not old and k==1 and next_index==-1:extras.update(connects_path=0,join_segment=len(p['roads'][0])-2,join_fraction=.5)
+            a.socket(f'DrivePath_{k}_{j}',[point[0],point[1],.015],'drive_path',yaw=yaw,**extras)
     m=a.mesh('BumpsSigns',component='traffic')
     for x,y in ([(0,-span*.23),(0,span*.28)] if old else [(-xx,0),(xx,0)]):
         # 3.7 m wide, 0.3 m travel depth bolt-down rubber speed bump.
@@ -82,7 +95,9 @@ def lot(p,record,lib,parent):
         m=a.mesh('BlueTarp',component='tarp');vs=[];fs=[]
         for j in range(7):
             for i in range(9):
-                x=-L*.32+(i/8-.5)*3.0;y=(j/6-.5)*W*.80;z=spec['eave']+.24+.026*math.sin(i*2.6+j*.8)
+                x=-L*.32+(i/8-.5)*3.0;y=(j/6-.5)*W*.80
+                roof=spec['eave']+.10+.13*(1-(y/(W/2+.12))**2)
+                z=roof+.006+.026*math.sin(i*2.6+j*.8)**2
                 vs.append((x,y,z))
         for j in range(6):
             for i in range(8):k=j*9+i;fs.append((k,k+1,k+10,k+9))
@@ -90,8 +105,8 @@ def lot(p,record,lib,parent):
     # Existing household assets retain their own geometry, pivots and atlases.
     for path,name,pos,yaw,select in [
         ('trailer-park/build/native/shed.gltf','Shed',(-L/2+1.7,W/2+1.60,0),90,None),
-        ('trash-cart/export/TrashCart.glb','Cart',(L/2+.8,-W/2-.5,0),90,None),
-        ('mailbox/export/Mailbox.glb','Mailbox',(L/2+3.2,1.7,0),-90,None),
+        ('trash-cart/export/TrashCart.glb','Cart',(L/2+.8,-W/2-.5,.015),90,None),
+        ('mailbox/export/Mailbox.glb','Mailbox',(L/2+3.2,1.7,.015),-90,None),
         ('patio-set/export/PatioSet.glb','LawnChair',(-L*.035+.75,-W/2-1.05,spec['floor']-.025),0,'Chair'),
     ]:
         if name=='Shed' and seed%3==0:continue
@@ -103,8 +118,8 @@ def lot(p,record,lib,parent):
         for j in range(2):native(lib,path,a.root.name+'_Fence'+str(j),(-L/2+.5+j*3.048,-W/2-3.55,0),0,'Chain_Section',a.root)
         for j in range(3):native(lib,path,a.root.name+'_Post'+str(j),(-L/2-1.024+j*3.048,-W/2-3.55,0),0,'Chain_Terminal' if j in (0,2) else 'Chain_Line',a.root)
         native(lib,path,a.root.name+'_Gate',(-L/2+5.60,-W/2-3.55,0),0,'Chain_GateBay',a.root)
-    a.socket('Car',(L/2+3.1,-1.1,0),'car',yaw=90,vehicle_index=seed%3,paint_index=seed%5)
-    a.socket('CarportCar',(L/2-3.2,-W/2-1.8,0),'car',yaw=90,vehicle_index=(seed+1)%3,paint_index=(seed+2)%5)
+    a.socket('Car',(L/2+3.1,-1.1,.015),'car',yaw=90,vehicle_index=2 if p['kind']=='old' and record['number']==1 else seed%3,paint_index=seed%5)
+    a.socket('CarportCar',(L/2-3.2,-W/2-1.8,.015),'car',yaw=90,vehicle_index=(seed+1)%3,paint_index=(seed+2)%5)
     a.socket('Mailbox',(L/2+3.2,1.7,0),'mailbox')
     # Real paving between uncurbed private lane and the home end.
     concrete=library_material(lib,'Concrete');gravel=seed%3==0
@@ -187,16 +202,17 @@ def common(p,lib,parent):
 def build(p):
     a=Assembly('Park_'+str(p['seed']));a.root['park_plan']=json.dumps(p,sort_keys=True);lib=Library()
     turf=library_material(lib,'Lawn');W,D=p['size']
-    ground_box(a.root,'Community ground',(0,0,-.08),(W,D,.14),turf,3.048,(.87,.86,.74))
+    ground_box(a.root,'Community ground',(0,0,-.07),(W,D,.14),turf,3.048,(.87,.86,.74))
     road(a.root,p,lib)
     for row in p['lots']:lot(p,row,lib,a.root)
     common(p,lib,a.root)
     # Native poles carry supported luminaires; overhead conductors sag between
     # native neutral sockets. Newer lots reserve buried drops at pedestals.
     poles=[]
+    rows=len([r for r in p['lots'] if r['side']==-1]);boundaries=(0,round(rows/3),round(rows*2/3),rows)
     for j in range(4):
-        y=-p['span']/2+j*p['span']/3
-        pole=native(lib,'trailer-park/build/native/utility.gltf','ParkPole_'+str(j),(4.1 if p['kind']=='old' else -p['loop_x']-4.7,y,0),0,parent=a.root);poles.append(pole)
+        y=-p['span']/2+boundaries[j]*p['lot_frontage']
+        pole=native(lib,'trailer-park/build/native/utility.gltf','ParkPole_'+str(j),(5.5 if p['kind']=='old' else -p['loop_x']-4.7,y,0),0,parent=a.root);poles.append(pole)
     bpy.context.view_layer.update();m=a.mesh('OverheadConductors',component='conductors')
     for left,right in zip(poles,poles[1:]):
         for suffix in ('Neutral','Service','CommDrop'):
