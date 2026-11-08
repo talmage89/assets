@@ -18,6 +18,10 @@ Manufacturer documents supply dimensions only; the front, body maker and distric
 | service-side.jpg | https://upload.wikimedia.org/wikipedia/commons/5/5b/IC_Bus_CE_sideview.jpg | H. Michael Miley, 2011 / CC BY-SA 2.0 | US district service bus, window rhythm, chassis proportions, rails and mirror brackets |
 | service-front.jpg | https://upload.wikimedia.org/wikipedia/commons/d/d8/2011_IC_CE_Bus%2C_North_Syracuse_School%2C_Central_New_York.jpg | Nsyrbus / CC0 1.0 | US district conventional, front cap, warning system, hood/fender relationships. Commons says March 2011, EXIF says 2007; exact capture date uncertain |
 | service-rear.jpg | https://upload.wikimedia.org/wikipedia/commons/2/23/2010_International_CE_3000_School_Bus_in_School_Bus_Yellow%2C_Rear_Right%2C_09-16-2022.jpg | Elise240SX / CC BY-SA 4.0 | 2010 conventional in service photographed 2022, rear door and corner construction; older wear than target |
+| vision-service.jpg | https://upload.wikimedia.org/wikipedia/commons/2/2b/Blue_Bird_Vision.jpg | Per-Olof Forsberg, 2011 / CC BY 2.0 | Second maker's front: hood slope, compound fender molding and recessed optical seats; comparison only, no copied contour |
+| seat-detail.jpg | https://upload.wikimedia.org/wikipedia/commons/8/8f/School_bus_interior_detail.jpg | Daniel Schwen, April 2008 / CC BY-SA 4.0 | Light interior panels, rivets and emergency equipment values; does not show the bench construction |
+| seat-close.jpg | https://upload.wikimedia.org/wikipedia/commons/7/7d/Schoolbusseats.jpg | Giovanni Spina, September 2008 / CC BY-SA 2.0 | Vinyl cushion crown, welts, rounded padded backs and steel supports |
+| interior-2012.jpg | https://upload.wikimedia.org/wikipedia/commons/2/2f/Thomas_C2_interior_seats.jpg | Bill McChesney, June 2012 / CC BY 2.0 | Daylight aisle, pale wall/ceiling values, high-back bench proportions and rubber runner |
 
 Photo descriptions/licenses: [side](https://commons.wikimedia.org/wiki/File:IC_Bus_CE_sideview.jpg),
 [front](https://commons.wikimedia.org/wiki/File:2011_IC_CE_Bus,_North_Syracuse_School,_Central_New_York.jpg),
