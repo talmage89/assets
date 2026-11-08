@@ -44,7 +44,7 @@ def generate(folder,size=4096):
             # Zucchini has pointed palmate lobes, rather than a rounded
             # pumpkin-like scallop. Fine teeth remain in alpha, not geometry.
             delta=(angle-math.pi/2+math.pi/5)%(2*math.pi/5)-math.pi/5
-            radius=(.62+.33*(1-abs(delta)/(math.pi/5))**.65)*(.975+.025*np.sin(angle*39))
+            radius=(.50+.46*(1-abs(delta)/(math.pi/5))**1.4)*(.965+.035*np.sin(angle*39))
             mask=(np.hypot(x,dy)<radius)&(y>.025)&(y<.975);mask|=(abs(x)<.019)&(y>.025)&(y<.34)
             vein=np.zeros_like(x)
             for a in np.linspace(-math.pi*.3,math.pi*1.3,5):

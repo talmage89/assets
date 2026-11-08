@@ -147,7 +147,9 @@ def planted(plot,bed,site):
                 if w>2 and sp!='corn':xs=[x for x in xs if abs(x)>.22]
             for x in xs:
                 for y in ys:
-                    if plot['state']=='weedy' and rng.random()<.20:continue
+                    # Neglected midsummer beds gain weeds; they do not lose a
+                    # random half of a two-plant squash planting.
+                    if plot['state']=='weedy':rng.random()
                     add(sp,x,y)
         # Straw stays concentrated beneath vegetables, never a whole-site wash.
         for i in range(24 if w<2 else 50):
@@ -176,7 +178,10 @@ def planted(plot,bed,site):
                 ridge=.014*(1+math.sin((v.y/1.05 if sp=='bean' else v.x/.70)*math.tau)) if w>2 else .012*math.sin(v.y*7+v.x*3)
                 v.z+=ridge-.014*math.exp(-(distance/.16)**2)
         for f in ob.data.polygons:
-            if ob.data.materials[f.material_index]==Q.M['Soil'] and plot['state'] in ('tidy','lush'):f.material_index=list(ob.data.materials).index(Q.M['WetSoil']) if Q.M['WetSoil'] in list(ob.data.materials) else f.material_index
+            if ob.data.materials[f.material_index]==Q.M['Soil'] and plot['state'] in ('tidy','lush'):
+                x,y=f.center.x,f.center.y
+                watered=any(math.hypot(x-r[0],y-r[1])<.30*(1+.12*math.sin(x*13+y*7)) for r in roots)
+                if watered:f.material_index=list(ob.data.materials).index(Q.M['WetSoil'])
         Q.finish_uv(ob,{'Soil','WetSoil'})
     # The roots remain embedded after dishing, and correspond to the real mesh.
     from mathutils.bvhtree import BVHTree

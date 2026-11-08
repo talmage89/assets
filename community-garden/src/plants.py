@@ -70,10 +70,13 @@ class Plant:
         # into that margin, so retained alpha begins on the stalk surface.
         for j in range(rows):
             t=j/(rows-1);row=[]
+            twist=roll*1.4*t if self.sp=='corn' else 0
+            across=side*math.cos(twist)+normal*math.sin(twist)
+            facing=normal*math.cos(twist)-side*math.sin(twist)
             for k in range(cols):
                 x=k/(cols-1)*2-1
                 corr=.012*math.sin(t*31+x*4) if self.sp in ('kale','lettuce') else 0
-                p=base+axis*(length*t)+side*(x*width/2)+normal*(length*cup*x*x*math.sin(math.pi*t)+corr)
+                p=base+axis*(length*t)+across*(x*width/2)+facing*(length*cup*x*x*math.sin(math.pi*t)+corr)
                 p.z-=length*droop*t*t
                 row.append(p)
             grid.append(row)
@@ -108,20 +111,25 @@ class Plant:
             for k in range(4):
                 tt=.16+k*.21;node=along(rachis,tt)
                 for sign in (-1,1):
-                    v=(out*.4+side*sign+Vector((0,0,self.rng.uniform(-.10,.9)))).normalized()
+                    v=(out*.4+side*sign+Vector((0,0,self.rng.uniform(-.35,.55)))).normalized()
                     end=node;# Leaflet petiole is the connected base of the blade.
-                    self.leaf(end,v,(.19-.018*k)*s,.095*s,droop=.48,rows=3)
+                    self.leaf(end,v,(.19-.018*k)*s,.095*s,droop=.62 if s>.7 else .35,rows=3)
             self.leaf(tip,out,.20*s,.095*s,droop=.42,rows=3)
             if s>.7 and j%2==0:
                 # Supplemental daughter compound: nine original atlas leaflets
                 # overlap the modeled compound and screen the leader's interior.
-                az2=az+.8;v=Vector((math.cos(az2),math.sin(az2),.12));side2=Vector((-v.y,v.x,0))
+                az2=az+.8;v=Vector((math.cos(az2),math.sin(az2),self.rng.uniform(-.12,.32)))
+                side2=Vector((-v.y,v.x,self.rng.uniform(-.4,.4)))
                 base2=base;rows=3 if self.field else 4;cols=2 if self.field else 3;grid=[]
+                # Lower compounds cannot droop through the receiving soil.
+                # Keep their lowest rolled edge above grade; upper branches
+                # retain the full gravity curve.
+                drop=min(.30*s,max(.025*s,base2.z+v.z*.52*s-.15*s))
                 for jj in range(rows):
                     tt=jj/(rows-1);row=[]
                     for kk in range(cols):
                         u=kk/(cols-1)*2-1
-                        p=base2+v*(.52*s*tt)+side2*(u*.58*s/2)+Vector((0,0,-.16*s*tt*tt+.02*s*u*u*math.sin(math.pi*tt)))
+                        p=base2+v*(.52*s*tt)+side2*(u*.58*s/2)+Vector((0,0,-drop*tt*tt+.02*s*u*u*math.sin(math.pi*tt)))
                         row.append(p)
                     grid.append(row)
                 self.cards.add_grid(grid,(.753,.503,.997,.747),(.5,.8,self.rng.random(),.8))
@@ -162,8 +170,12 @@ class Plant:
         if s>.7:
             for j in range(2):
                 a=j*2.4;p=Vector((math.cos(a)*.16,math.sin(a)*.16,.06))*s
+                crown=Vector((.03*s,.01*s,.05*s))
+                self.stem([crown,crown.lerp(p,.5)+Vector((0,0,.025*s)),p],.007*s,5)
                 Q.sphere('Zucchini beneath crown',p,.043*s,self.root,'Green',scale=(2.8,1,.8),segments=9,rings=5)
-                self.bloom(Vector((p.x-.10*s,p.y,.16*s)),.055*s,5,'Yellow')
+                flower=Vector((p.x-.10*s,p.y,.16*s))
+                self.stem([crown,flower],.005*s,5)
+                self.bloom(flower,.055*s,5,'Yellow')
         self.root['architecture']='short basal crown; hollow long radial petioles; large lobed palmate blades; low fruit'
 
     def bean(self):
@@ -229,7 +241,12 @@ class Plant:
         self.stem([(0,0,0),(0,0,.08*s)],.005*s,5)
         for k in range(max(2,round(6*s))):
             a=k*2.4;base=Vector((0,0,.025*s));tip=Vector((math.cos(a)*.13*s,math.sin(a)*.13*s,.40*s))
-            self.stem([base,tip],.003*s,5)
+            if self.field:
+                # Preserve true stem width and every leaf; a tapered ribbon
+                # saves hidden circumference inside repeated herb canopies.
+                side=Vector((-math.sin(a),math.cos(a),0))*.003*s
+                Q.mesh('Fine herb axis ribbon',[base-side,base+side,tip+side*.3,tip-side*.3],[(0,1,2,3)],self.root,'Stem')
+            else:self.stem([base,tip],.003*s,5)
             nodes=max(2,round(6*s))
             for j in range(nodes):
                 p=base.lerp(tip,.2+j*.66/max(1,nodes-1))
@@ -238,7 +255,9 @@ class Plant:
 
     def bloom(self,center,r,n=9,mat='Flower'):
         if self.field or self.sp=='marigold':
-            grid=[[center+Vector(((i-1)*r,(j-1)*r,.004*(1-((i-1)**2+(j-1)**2)/2))) for i in range(3)] for j in range(3)]
+            # The highest central vertex is the stalk attachment; the rim
+            # falls away from it. Raising the whole cap left it floating.
+            grid=[[center+Vector(((i-1)*r,(j-1)*r,-r*.65*((i-1)**2+(j-1)**2)/2)) for i in range(3)] for j in range(3)]
             self.cards.add_grid(grid,flower_rect(mat),(.4,.8,self.rng.random(),.8))
             return
         Q.sphere('Flower receptacle',center,r*.37,self.root,'Spent',scale=(1,1,.55),segments=7,rings=2)
@@ -264,14 +283,18 @@ class Plant:
         else:
             for b in range(max(2,round(9*s))):
                 a=b*2.399;base=along(axis,.08);tip=Vector((math.cos(a)*.14*s,math.sin(a)*.14*s,h*self.rng.uniform(.7,1.15)))
-                branch=self.stem([base,base.lerp(tip,.65),tip],.0025*s,4)
+                head_top=tip+Vector((0,0,.010*s if s>.55 else 0))
+                branch=self.stem([base,base.lerp(tip,.65),head_top],.0025*s,4)
                 for j in range(4 if self.field else 6):
                     node=along(branch,.12+j*(.69/(3 if self.field else 5)))
                     for sign in (-1,1):self.stalk_leaf(node,a+sign*1.3,.016*s,.35,.11*s,.065*s,rows=3)
                 if s>.55:
                     self.bloom(tip,.037*s,10,'Flower' if b%4 else 'Yellow')
                     self.bloom(tip+Vector((0,0,.010*s)),.022*s,8,'Yellow' if b%4 else 'Flower')
-            if s>.7:self.bloom(Vector((-.06*s,.04*s,h*.55)),.016*s,7,'Spent')
+            if s>.7:
+                spent=Vector((-.06*s,.04*s,h*.55))
+                self.stem([along(axis,.55),spent],.0015*s,3)
+                self.bloom(spent,.016*s,7,'Spent')
         self.root['architecture']='alternate broad leaves and drooping sunflower head' if sun else 'compact seven-branch mound; pinnate foliage; double flowering heads and one spent flower'
 
     def weed(self):
