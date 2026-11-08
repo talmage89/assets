@@ -537,3 +537,50 @@ The two city abutment controls from across the river show the enclosing
 riverwalk but hide the stem behind its bank. Prefer the bank inspection
 after correcting the bench itself. Controls remain in
 `renders/pass12-controls/`. None is final checkpoint evidence.
+
+## Pass 13 — corrected construction and stronger exported flow
+
+Color/value first: opened all twelve 960px crossing controls, the three
+fresh pairs and their contact at native size. Concrete stays neutral/warm;
+the wet body now contributes olive/brown between blue sky reflections.
+The riffle has visible broken white coverage and the bar's edge transmits
+bed detail. Pools still look smoother and darker than Riverside's wind-
+roughened autumn reference. The quarry stones are too chalky, particularly
+beside wet silt. Reduce their dry value and darken them continuously with
+height above water; keep the new bed's restrained angular clasts.
+
+The keeper correction works: nuts and washers are visible outside the
+upright, with the laminated pad and sole plate behind. The urban pier-seat
+and rural abutment-seat cameras resolve them. Lowering the under-deck bank
+exposes the retaining stem; the rural view shows its wingwall and armored
+toe in context. Large quarry facets and broad cap repairs remain obvious
+checkpoint simplifications. The abutments are no longer floating boxes.
+
+The new native town is fuller and its one-, two- and three-storey rear
+elevations vary. Its long frontage is assembled through downtown's validated
+JSON-plan API and unchanged factory. Native checks rejected overly ornate
+three-storey end corners; the retained end corners have two storeys while
+interior three-storey elevations remain. All 160 new buildings passed their
+native per-building caps. Rear parking clears the additions. Remaining lots
+continue the crossing street; canonical distinct buildings continue the reach.
+
+The bank shrubs are lower, wider clumps rather than tall topiary cones.
+The farm rows follow the actual terrain now, but green slices persist at the
+far side. Their second cause is the coarse lateral background skin overlapping
+the core heightfield. Move its start to the actual sampled outer boundary,
+with matching edge stations, rather than covering the crop with more planes.
+
+The regraded soil exposed a real contact failure: imported rail feet were
+up to 23.7mm above soil. Only their buried tips now follow the actual terrain,
+with a `_GROUND_TIP` semantic. Fresh import measures all **672** tagged tips
+per crossing: **−5.018 to −4.987mm**, inside soil, with the native profile and
+404-triangle module unchanged. Bearing/plinth, walkway, camera and preservation
+checks also passed. This proves sampled construction contacts; it does not
+certify every contextual house or vehicle contact.
+
+One render process received SIGTERM without a Blender diagnostic after four
+valid controls. The remaining eleven were resumed serially under one GPU lock
+and completed. No partial or stale frame is treated as final. Frames and pairs
+are retained at `renders/pass13/` and `build/pass13-matches/`. The final full-size
+set must show the last ground-overlap and stone-value corrections before this
+checkpoint is reported.

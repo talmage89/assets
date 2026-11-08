@@ -90,13 +90,20 @@ def add(p,parent):
                 for j in range(2):
                     vs=[(ba[j],a,p.bed(ba[j],a)),(ba[j+1],a,p.bed(ba[j+1],a)),(bc[j+1],c,p.bed(bc[j+1],c)),(bc[j],c,p.bed(bc[j],c))]
                     ground.geom(vs,[(0,1,2,3)],'grass',(.56,.62,.44,1),smooth=True,up=True)
-    # Lateral continuation is below the native bank skins at their boundary.
+    # Start at the actual outer terrain edge. Overlapping coarse skins can
+    # rise through a fine heightfield and cut triangular gaps in crop rows.
+    bed=next(o for o in parent.children_recursive if o.name=='BedBanksFloodplain')
+    boundary={}
+    for v in bed.data.vertices:boundary.setdefault(round(v.co.y,5),[]).append(v.co.copy())
+    stations=sorted(boundary);offsets=(0,20,60,130,330)
     for side in (-1,1):
-        xs=[side*x for x in (125,145,155,170,190,210,230,300,500)]
-        ys=[-150,-22,-15,-7,0,7,15,22,150]
-        for x0,x1 in zip(xs,xs[1:]):
-            for y0,y1 in zip(ys,ys[1:]):
-                points=[(x,y,p.bed(x,y)-.02) for x,y in ((x0,y0),(x1,y0),(x1,y1),(x0,y1))]
+        for y0,y1 in zip(stations,stations[1:]):
+            a=max(boundary[y0],key=lambda v:side*v.x);c=max(boundary[y1],key=lambda v:side*v.x)
+            for d0,d1 in zip(offsets,offsets[1:]):
+                points=[]
+                for edge,d in ((a,d0),(a,d1),(c,d1),(c,d0)):
+                    x=edge.x+side*d;z=edge.z if d==0 else p.bed(x,edge.y)-.02
+                    points.append((x,edge.y,z))
                 ground.geom(points,[(0,1,2,3)],'grass',(.53,.60,.42,1),up=True)
     roads=G.Batch('RoadContinuation',rt,'context')
     for side in (-1,1):
@@ -132,7 +139,7 @@ def add(p,parent):
     rng=__import__('random').Random(p.seed+818)
     for i in range(64):
         side=(-1,1)[i%2];y=side*rng.uniform(156,300 if i<32 else 650);x=p.center(y)+(-1 if i%3 else 1)*rng.uniform(p.width*.65,100)
-        if p.kind=='downtown' and abs(abs(x)-front)<22:continue
+        if p.kind=='downtown' and min(abs(x-(p.center(y)+s*(p.halfwidth(y)+front+6.5))) for s in (-1,1))<7:continue
         context.instance(context.REPO/'trees/export/RedMaple.glb','Distant floodplain maple '+str(i),
                          (x,y,seat(x,y)-.04),rt,rng.uniform(0,360),rng.uniform(.75,1.15),category='vegetation')
     for end in (-1,1):

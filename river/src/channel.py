@@ -27,7 +27,7 @@ def surface_z(p,x,y):
     return p.bed(x,y)
 
 
-def stone(b,x,y,z,r,rng,role='riprap'):
+def stone(b,x,y,z,r,rng,role='riprap',water_z=0):
     # Low-silhouette angular riprap, individual seating determined by terrain.
     n=5 if r<.22 else 6;phase=rng.random()*6.28;sx=rng.uniform(.8,1.3);sy=rng.uniform(.7,1.2)
     base=[(x+sx*r*math.cos(i*math.tau/n+phase),y+sy*r*math.sin(i*math.tau/n+phase),z-r*.22) for i in range(n)]
@@ -41,7 +41,9 @@ def stone(b,x,y,z,r,rng,role='riprap'):
             if hit is None or abs(hit.z-(z-.04))>r*1.05:return
             seated.append((vx,vy,min(vz,hit.z-.025) if hit is not None else vz))
         base=seated
-    v=rng.uniform(.60,1.05);color=(v,v,v*.96,1)
+    v=rng.uniform(.48,.82)
+    v*=.50+.50*min(1,max(0,z-water_z)/.55)
+    color=(v*.96,v*.92,v*.82,1)
     b.loft([base,top],role,color,caps=False);b.geom(top,[tuple(range(n))],role,color,up=True)
 
 
@@ -85,7 +87,7 @@ def terrain(p,parent):
     for i in range(1150):
         y=rng.uniform(p.bar_y-26,p.bar_y+27);x=p.center(y)+p.outside*p.halfwidth(y)*rng.uniform(-1.04,-.49)
         z=surface_z(p,x,y)
-        if z>p.water_z(y)-.32:stone(rocks,x,y,z,rng.uniform(.035,.14),rng)
+        if z>p.water_z(y)-.32:stone(rocks,x,y,z,rng.uniform(.035,.14),rng,water_z=p.water_z(y))
     # Armored, keyed slope and toe at both abutments and each pier.
     for side in (-1,1):
         for i in range(580):
@@ -96,12 +98,12 @@ def terrain(p,parent):
                 x=side*rng.uniform(p.length/2-7,p.length/2-2)
                 y=rng.uniform(-p.deck_width/2,p.deck_width/2)
             if abs(x)>p.length/2-.8 and abs(y)<6.8:continue
-            z=surface_z(p,x,y);stone(rocks,x,y,z+.04,rng.uniform(.16,.39),rng)
+            z=surface_z(p,x,y);stone(rocks,x,y,z+.04,rng.uniform(.16,.39),rng,water_z=p.water_z(y))
     for j in range(1,p.spans):
         xx=-p.length/2+j*p.span
         for i in range(170):
             x=xx+rng.uniform(-2.0,2.0);y=rng.uniform(-p.deck_width*.48,p.deck_width*.48)
-            z=surface_z(p,x,y);stone(rocks,x,y,z+.06,rng.uniform(.15,.33),rng)
+            z=surface_z(p,x,y);stone(rocks,x,y,z+.06,rng.uniform(.15,.33),rng,water_z=p.water_z(y))
     rocks.finish()
     # Cutbank roots and flood debris are dead wood, not new tree species.
     debris=G.Batch('CutbankExposedRootsAndDrift',rt,'reach')
