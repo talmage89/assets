@@ -34,6 +34,45 @@ soft fasteners and repeated seat geometry. No final docs are authorized
 by this visual pass. The complete before-export, source and gallery are
 archived under the ignored `build/bus-round3/before/` for held-camera pairs.
 
+## Round 3 — pass 2, source cabin retained; header and optical placement rejected
+
+Color/value first: opened all three `renders/round3-source/` views, both
+reflection-line images and all four raw service matches and their pairs.
+The ceiling now reads light neutral gray and the vinyl reads brown, with
+dark rubber in the aisle. The old cyan cast is gone. Welts now sit on the
+padded faces and clearly describe their upper rolls and side seams. Retain
+this cabin balance; source close-ups remain sharper than the eventual atlas.
+The top-roll corner sampling and repeated benches remain CG tells.
+
+The enamel's increased green is a move toward saturated yellow, but the
+first front still has too much peach in the broad reflection. The second
+maker's comparison is closer in hue. The first photo is balanced on snow;
+the second on its near-white parking stripe. Their unlettered paint fields
+measure 249/195/89 and 178/130/59 displayed RGB respectively, under different
+light. These are appearance values, not recovered albedos. The source's
+unlettered side fields remain darker than the first photo; do not confuse
+that lighting difference with a change in paint reflectance.
+
+The new crown and shoulder stripes are substantially cleaner than the old
+export. They run continuously across the broad mold, with remaining local
+breaks at the nose, lower cut and reflected mirror/bracket assemblies.
+Add isolated mold views to distinguish actual curvature from those reflected
+parts, then judge the delivered normal map in the same stripes. No triangle
+or material-count increase is needed.
+
+Reject the remaining pale header band. The first underside diagnosis was
+incomplete: actual image rays at (450,210) and (540,220) hit the front cap at
+Z=2.6165/2.6114m, below its intended 2.70m header. Its dipped shoulder crosses
+the straight lower edge; triangulation fills an unwanted strip across the
+windshield. Trim the profile to the header rather than hiding the band.
+
+The black optical faces also still look too empty. Measured source bounds
+found the amber insert at Y=−5.778…−5.706m, deep behind the bucket front.
+The bow operation was reading a stale pre-parenting box transform, applying
+the center twice. Flush the dependency graph before deforming those rebased
+vertices. Recheck actual bulb/signal seating and crossings, and open the
+dedicated lamp camera. Do not proceed to docs on this pass.
+
 This is the requested stop before look development. Quick surfaces are baked
 and judged on the export later in this log; this is not final game-ready acceptance.
 

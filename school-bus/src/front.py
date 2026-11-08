@@ -5,6 +5,8 @@ and finite laminate gauge follow subdivision. No photographic contour enters it.
 """
 import math
 import bpy
+from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 from kit import model as G
 from kit.vehicle import panel
 import spec as S
@@ -38,6 +40,10 @@ def section(row):
 
 def optical_bow(ob,center_x):
     """Seat every cassette layer behind the same bowed cover mold."""
+    # attach() has just rebased box vertices into the bus root. Flush its
+    # identity transform before bending: a stale box-location matrix applies
+    # the center twice and pushes the small bulbs/signals into the bucket back.
+    bpy.context.view_layer.update()
     world=ob.matrix_world.copy();inverse=world.inverted()
     for vertex in ob.data.vertices:
         p=world@vertex.co;p.y+=.09*((p.x/1.1)**2-(center_x/1.1)**2)
@@ -105,6 +111,11 @@ def sculpt(b):
         b.tube('Recessed grille cross web '+str(j),points,.008,'frame',sides=6)
     for x in [-.40,-.20,0,.20,.40]:
         b.box('Grille vertical web '+str(x),(x,-5.831,1.117),(.008,.025,.427),'black',r=.002)
+    # Locate the real game mold before routing either lamp. The upper outside
+    # corners sweep back into the fender; a constant-Y trim ring floats there.
+    bpy.context.view_layer.update();ob.data.calc_loop_triangles()
+    skin=BVHTree.FromPolygons([ob.matrix_world@v.co for v in ob.data.vertices],
+        [tuple(t.vertices) for t in ob.data.loop_triangles],all_triangles=True)
     # Each lamp is a bonded cassette inside a real cut in the common molding.
     for sign in [-1,1]:
         x=sign*.882;z=1.070
@@ -120,10 +131,22 @@ def sculpt(b):
         G.boolean(ob,cut)
         # A lapped, molded yellow return hides the cassette wall: the housing
         # is behind the fender skin, with only its thin seal exposed.
-        contours=[(.400,.310,.040,0),(.383,.296,.032,.010),(.375,.290,.028,.019)]
-        reveal=[[(x+xx,-5.964+.055*((x+xx)/1.1)**2+depth,1.035+zz)
-                 for xx,zz in G.rounded_rectangle(w,h,r,4)] for w,h,r,depth in contours]
-        b.add(G.ring_loft('Headlamp molded reveal '+str(sign),reveal,b.m['yellow']))
+        contours=[(.405,.315,.040,0),(.389,.303,.033,.35),(.375,.290,.028,1)]
+        reveal=[]
+        for w,h,r,blend in contours:
+            ring=[]
+            for xx,zz in G.rounded_rectangle(w,h,r,4):
+                px,pz=x+xx,1.035+zz
+                hit=skin.ray_cast(Vector((px,-6.5,pz)),Vector((0,1,0)),3)[0]
+                if hit is None:raise ValueError('Optical surround misses the actual mold')
+                cassette=face_y+.09*((px/1.1)**2-(x/1.1)**2)+.010
+                ring.append((px,hit.y+.001+(cassette-hit.y)*blend,pz))
+            reveal.append(ring)
+        flange=G.ring_loft('Headlamp molded reveal '+str(sign),reveal,b.m['yellow'])
+        # Set smoothing boundaries on the actual triangles of this small,
+        # twisted return, rather than on non-planar quads before tessellation.
+        tri=flange.modifiers.new('Mold return triangles','TRIANGULATE');tri.quad_method='BEAUTY'
+        G.apply(flange);G.smooth(flange,35);b.add(flange)
         bucket=b.box('Headlamp closed bucket '+str(sign),(x,face_y+.050,1.035),(.374,.104,.294),'black',r=.027)
         G.boolean(bucket,G.box('Optical bucket interior',(x,face_y+.020,1.035),(.364,.160,.274),None,.022,4))
         optical_bow(bucket,x)

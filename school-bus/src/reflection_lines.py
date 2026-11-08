@@ -8,7 +8,7 @@ sys.path[:0]=[str(HERE),str(HERE.parents[1])]
 from kit import gpu
 from render import digest
 
-def render(source,out,width=1200,samples=32):
+def render(source,out,width=1200,samples=32,part=None):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     if source.suffix=='.blend':bpy.ops.wm.open_mainfile(filepath=str(source.resolve()))
     else:bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
@@ -23,8 +23,24 @@ def render(source,out,width=1200,samples=32):
     step=nt.nodes.new('ShaderNodeMath');step.operation='GREATER_THAN';step.inputs[1].default_value=.25
     nt.links.new(sine.outputs[0],step.inputs[0]);nt.links.new(step.outputs[0],nt.nodes['Background'].inputs['Color'])
     nt.nodes['Background'].inputs['Strength'].default_value=1
+    transparent=bpy.data.materials.new('Hidden diagnostic context');transparent.use_nodes=True
+    tn=transparent.node_tree;tn.nodes.clear();tb=tn.nodes.new('ShaderNodeBsdfTransparent')
+    tn.links.new(tb.outputs[0],tn.nodes.new('ShaderNodeOutputMaterial').inputs['Surface'])
+    sc.cycles.transparent_max_bounces=32
     for ob in sc.objects:
         if ob.get('bake_only'):ob.hide_render=True
+        if part and ob.type=='MESH':
+            if source.suffix=='.blend':
+                ob.hide_render=ob.name!=('Dense front mold' if part=='dense' else 'Compound hood shell')
+            else:
+                # Keep original delivered corner normals/UVs untouched. Other
+                # faces become transparent, rather than re-meshing the GLTF.
+                slot=len(ob.data.materials);ob.data.materials.append(transparent)
+                for face in ob.data.polygons:
+                    points=[ob.matrix_world@ob.data.vertices[i].co for i in face.vertices]
+                    keep=('Paint' in ob.data.materials[face.material_index].name and
+                          max(p.y for p in points)<-3.985 and min(p.z for p in points)>.80)
+                    if not keep:face.material_index=slot
     # Keep the delivered normal binding, while suppressing albedo and wear's
     # roughness. This is a shape/normal diagnostic, never a product photograph.
     for mat in bpy.data.materials:
@@ -46,10 +62,12 @@ def render(source,out,width=1200,samples=32):
         cam.location=loc;cam.rotation_euler=(Vector(target)-cam.location).to_track_quat('-Z','Y').to_euler()
         sc.render.filepath=str((out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
         rows[name]=dict(source=str(source),sha256=digest(source),location=loc,target=target,
-                        width=width,normal_map_retained=True)
+                        width=width,normal_map_retained=True,part=part,
+                        isolation='Original exported Paint faces ahead of cowl and above 0.8m, unchanged normals/UVs' if part and source.suffix!='.blend' else None)
     (out/'provenance.json').write_text(json.dumps(rows,indent=2))
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True)
     p.add_argument('--out',type=Path,required=True)
-    a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);render(a.source,a.out)
+    p.add_argument('--part',choices=['hood','dense'])
+    a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);render(a.source,a.out,part=a.part)

@@ -23,7 +23,7 @@ def main():
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     bpy.ops.wm.open_mainfile(filepath=str(Path(a.source).resolve()))
     prefixes=('Compound hood','Dense front mold','Front wheelhouse liner','Seated grille','Grille radiator','Recessed grille',
-              'Grille vertical','Headlamp closed','Headlamp silver','Headlamp formed','Lamp front lowbeam',
+              'Grille vertical','Headlamp closed','Headlamp silver','Headlamp formed','Headlamp molded','Lamp front lowbeam',
               'Glass sealed headlamp','Bonded headlamp','Front amber','Hood cowl','Hood rubber')
     for ob in list(bpy.context.scene.objects):
         if ob.type=='MESH' and ob.name.startswith(prefixes):bpy.data.objects.remove(ob,do_unlink=True)

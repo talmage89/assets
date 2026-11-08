@@ -45,7 +45,11 @@ def roof_section(y,frontcap=0):
     # Multi-radius formed roof: vertical side, round shoulder, mildly crowned center.
     # End caps contract longitudinally, preserving the structural eave height.
     half=S.WIDTH/2
-    return [(x,y,z-frontcap) for x,z in [(-half,2.710),(-1.205,2.800),(-1.155,2.905),(-1.070,3.020),(-.950,3.110),(-.790,3.165),(-.54,3.190),(-.27,3.198),(0,S.HEIGHT),(.27,3.198),(.54,3.190),(.790,3.165),(.950,3.110),(1.070,3.020),(1.155,2.905),(1.205,2.800),(half,2.710)]]
+    def cap_drop(z):
+        # The front draw lowers the crown, ending at the fixed eave/header.
+        # Lowering the eave too folded the end-cap outline across its baseline.
+        return frontcap*(z-S.EAVE)/(S.HEIGHT-S.EAVE) if y< -3.3 else frontcap
+    return [(x,y,z-cap_drop(z)) for x,z in [(-half,2.710),(-1.205,2.800),(-1.155,2.905),(-1.070,3.020),(-.950,3.110),(-.790,3.165),(-.54,3.190),(-.27,3.198),(0,S.HEIGHT),(.27,3.198),(.54,3.190),(.790,3.165),(.950,3.110),(1.070,3.020),(1.155,2.905),(1.205,2.800),(half,2.710)]]
 
 def body(b):
     # Continuous formed roof with a finite inner skin; open front/rear boundaries seat in caps.
@@ -164,6 +168,10 @@ def body(b):
     for front,y in [(True,-3.92),(False,6.006)]:
         section=roof_section(y,.20 if front else .115)
         poly=[(-S.WIDTH/2,2.70)]+[(x,z) for x,_,z in section[1:-1]]+[(S.WIDTH/2,2.70)]
+        if front:
+            # The lowered cap shoulder used to cross its straight lower edge.
+            # Keep the cap above the actual 2.70m header.
+            poly=[(x,max(2.70,z)) for x,z in poly]
         b.add(G.profile(('Front' if front else 'Rear')+' roof cap',poly,y-.012,y+.012,b.m['yellow'],axis='Y'))
         outward=-1 if front else 1;yy=y+outward*.023
         b.box(('Front' if front else 'Rear')+' destination black surround',(0,yy,2.868),(1.245,.016,.276),'black',r=.025)

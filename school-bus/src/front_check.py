@@ -13,6 +13,25 @@ def triangles(ob):
     ob.data.calc_loop_triangles()
     return [ob.matrix_world@v.co for v in ob.data.vertices],[tuple(t.vertices) for t in ob.data.loop_triangles]
 
+def optical_seating(covers):
+    """Measure cover setback against the independent, un-routed dense mold."""
+    mold=bpy.data.objects.get('Dense front mold')
+    if mold is None:return None
+    ps,fs=triangles(mold);body=BVHTree.FromPolygons(ps,fs,all_triangles=True)
+    rows={}
+    for cover in covers:
+        ps,fs=triangles(cover);glass=BVHTree.FromPolygons(ps,fs,all_triangles=True)
+        center=sum(p.x for p in ps)/len(ps);samples=[]
+        for dx in [-.12,0,.12]:
+            start=Vector((center+dx,-6.5,1.070));direction=Vector((0,1,0))
+            a=body.ray_cast(start,direction,1)[0];c=glass.ray_cast(start,direction,1)[0]
+            samples.append(dict(x_m=center+dx,z_m=1.070,
+                uncut_mold_hit_m=list(a) if a is not None else None,
+                cover_hit_m=list(c) if c is not None else None,
+                setback_m=c.y-a.y if a is not None and c is not None else None))
+        rows[cover.name]=samples
+    return dict(samples=rows,scope='Actual front rays on independently generated uncut dense mold and finite game cover; positive Y difference is recessed. Does not substitute for visual judging of the molded surround.')
+
 def imported_parts(source,delivery):
     # The unchanged car helper supplies exact imported triangles and normals.
     # Its sedan-specific name filter is adapted in an ignored source copy;
@@ -61,6 +80,7 @@ def main():
         crossing[cover.name]=hits
         if hits:errors.append(cover.name+' optical/body crossings')
     result=dict(passed=not errors,errors=errors,parts=rows,lens_crossings=crossing,
+                optical_seating=optical_seating([o for o in selected if o.name.startswith('Glass sealed headlamp')]) if not a.delivery else None,
                 optical_rear_roof_probes=roof_probes,
                 stage='fresh imported glTF triangles' if a.delivery else 'source construction',
                 correspondence=correspondence,source=str(source),delivery=a.delivery,
