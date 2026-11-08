@@ -225,9 +225,16 @@ def scene(seed):
     # Traffic is checked against physical driving skins, including ramps/deck.
     paving=[o for o in bpy.context.scene.objects if o.type=='MESH' and not any(k in o.name for k in ('Wheel','Tire')) and any(m and m.name.split('.')[0] in {'Asphalt','Concrete','Freeway Wheel polish / Ground Concrete'} for m in o.data.materials)]
     roadtree=bvh(paving,{'Asphalt','Concrete','Freeway Wheel polish / Ground Concrete'})
-    contacts=[]
-    for ob in bpy.context.scene.objects:
-        if ob.type!='MESH' or not ('Tire_' in ob.name or '__Wheel_' in ob.name):continue
+    contacts=[];tire_meshes=[]
+    for actor in actors:
+        parts=meshes(actor)
+        # SUV rubber has its own tiled meshes; its atlas wheel meshes contain
+        # rims and sidewall markings. Other bodies merge tires into WheelMesh.
+        explicit=[ob for ob in parts if 'Tire_' in ob.name]
+        selected=explicit or [ob for ob in parts if '__Wheel_' in ob.name]
+        assert len(selected)==4,('Four actual tires required',actor.name,[ob.name for ob in selected])
+        tire_meshes.extend(selected)
+    for ob in tire_meshes:
         pts=[ob.matrix_world@v.co for v in ob.data.vertices]
         # Inspect the lower part of each actual delivered tire, not its hub
         # transform or a claimed nominal radius.

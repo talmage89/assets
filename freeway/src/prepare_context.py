@@ -52,11 +52,7 @@ def native(name,path,target):
         # Preserve alpha cards in trees. House silhouettes and vehicle wheels
         # keep their topology at this modest distance-preview reduction.
         alpha=any(m and (m.surface_render_method=='DITHERED') and any(n.type=='TEX_IMAGE' and n.image and n.image.channels==4 for n in m.node_tree.nodes) for m in ob.data.materials if m.use_nodes)
-        # Generic collapse loses the SUV tire's outer rubber annulus, leaving
-        # only its smaller rim. Keep these native wheels intact: grounding a
-        # shrunken wheel would sink the rest of the car and hide the real fault.
-        native_wheel=name=='SUV' and '__Wheel_' in ob.name
-        if target and total>target and not (name.startswith('Tree') and alpha) and not native_wheel:
+        if target and total>target and not (name.startswith('Tree') and alpha):
             # Delivered weather/atlas boundaries duplicate vertices. Collapse
             # on that triangle soup deletes isolated roof patches. Weld the
             # coincident geometry first; loop UV seams remain independent.

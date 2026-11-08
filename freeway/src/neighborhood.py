@@ -63,6 +63,25 @@ def traffic(p):
     rt=Q.root('Traffic',module_kind='traffic');rng=random.Random(p.seed*37);placements=[]
     bodies=[load('build/context/'+n+'.glb') for n in ('Hatch','SUV','Crossover')];full=[load('build/context/'+n+'.glb') for n in ('HeroHatch','HeroSUV','HeroCrossover')];hero=full[0]
     variants=[factory_variants(t) for t in [*bodies,*full]];mesh_variants={};lamp_off={}
+    # Flat parking/neighborhood surfaces are measured, not assigned a nominal
+    # clearance above grade. Preserve all native inputs and adjust actor roots.
+    from mathutils.bvhtree import BVHTree
+    bpy.context.view_layer.update();floors=[]
+    for template in [*bodies,*full]:
+        parts=[o for o in template.children_recursive if o.type=='MESH']
+        tires=[o for o in parts if 'Tire_' in o.name] or [o for o in parts if '__Wheel_' in o.name]
+        inverse=template.matrix_world.inverted()
+        floors.append(min((inverse@o.matrix_world@v.co).z for o in tires for v in o.data.vertices))
+    vs=[];fs=[]
+    for ob in bpy.data.objects['TownContext'].children_recursive:
+        if ob.type!='MESH':continue
+        if not any(m and m.name.split('.')[0] in ('Asphalt','Concrete') for m in ob.data.materials):continue
+        offset=len(vs);vs.extend(ob.matrix_world@v.co for v in ob.data.vertices)
+        ob.data.calc_loop_triangles()
+        for face in ob.data.loop_triangles:
+            if ob.data.materials[face.material_index].name.split('.')[0] in ('Asphalt','Concrete'):
+                fs.append(tuple(offset+i for i in face.vertices))
+    town_paving=BVHTree.FromPolygons(vs,fs,all_triangles=True)
     # Stock close-up cameras also need native bodies nearby. The town origin
     # alone is not a distance test for a 1.6km excerpt. This changes actor LOD,
     # never the civil plan, actor positions, speeds, spacing or seeded colors.
@@ -106,6 +125,10 @@ def traffic(p):
         from context_colors import FLEET,WEIGHTS
         color=rng.choices(FLEET,WEIGHTS)[0]
         if nearest:color=FLEET[(p.seed//101+4)%len(FLEET)]
+        if where in ('commercial_parked','neighborhood'):
+            hit=town_paving.ray_cast(Vector((pos[0],pos[1],pos[2]+.35)),Vector((0,0,-1)),1.5)[0]
+            assert hit is not None,('Missing flat traffic paving',where,pos)
+            pos=list(pos);pos[2]=hit.z-floors[kind]+.001
         ob=clone(full[kind-3] if kind>=3 else bodies[kind],f'Car_{i:03d}',pos,yaw,rt);ob.rotation_euler.y=roll;ob.rotation_euler.x=pitch;colorize(ob,kind,color,lights=speed<.5 and 'queue' in where)
         ob['speed_mps']=speed;ob['traffic_role']=where
         placements.append(dict(name=ob.name,body=('Hatch','SUV','Crossover','HeroHatch','HeroSUV','HeroCrossover')[kind],color=color,location=list(pos),yaw=yaw,speed_mps=speed,role=where))
