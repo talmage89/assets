@@ -59,6 +59,11 @@ def park(seed=101, kind=None, rows=9):
             xx=lane+side*(street/2+6.096+spec['length']/2)
             lots.append(dict(number=len(lots)+1,home=spec,origin=[xx,yy+(1.40 if old else 1.15),0],yaw=0 if side<0 else 180,
                              lot=[lane+side*(street/2+depth/2),yy,depth,pitch],side=side,lane=lane))
+    if old:
+        # One emergency roof repair among the near older lots, independent of
+        # body instancing. Other roofs retain kept/faded coating differences.
+        candidate=next(q for q in lots if q['home']['era']=='1972' and q['home']['upkeep']!='kept' and (q['number']-1)%rows<3)
+        for q in lots:q['home']['tarp']=q['number']==candidate['number']
     if not old:
         # Three residential-size reservations for clubhouse, play and laundry.
         lots=[q for q in lots if not (q['lane']*q['side']<0 and

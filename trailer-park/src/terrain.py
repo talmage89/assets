@@ -108,14 +108,20 @@ def road_edge(parent,p,mat,tint=(1,1,1)):
     # A continuous irregular 15–75mm fringe, not regularly spaced teeth.
     # Centerline width remains the accepted 20/24 ft.
     w=p['street_width'];vs=[];fs=[];r=random.Random(p['seed']+512)
-    for x in (-p['loop_x'],p['loop_x']):
+    for lane_index,x in enumerate((-p['loop_x'],p['loop_x'])):
+        core=next(ob for ob in parent.children if ob.name.startswith('Private asphalt '+str(lane_index)))
+        top=max(v.co.z for v in core.data.vertices);half=max(abs(v.co.x) for v in core.data.vertices)
         for side in (-1,1):
-            n=math.ceil(p['span']/.8);stations=[-p['span']/2]+[-p['span']/2+j*p['span']/n+r.uniform(-.22,.22) for j in range(1,n)]+[p['span']/2]
-            depth=r.uniform(.015,.075)
-            for y,ynext in zip(stations,stations[1:]):
-                nextdepth=r.uniform(.015,.075);k=len(vs)
-                vs.extend([(x+side*(w/2-.015),y,.016),(x+side*(w/2+depth),y,.007),
-                           (x+side*(w/2+nextdepth),ynext,.007),(x+side*(w/2-.015),ynext,.016)])
+            # Trace the actual receded asphalt boundary. The old independent
+            # nominal-width fringe left floating black/yellow triangles.
+            points=sorted({(round((core.matrix_basis@v.co).y,6),round((core.matrix_basis@v.co).x,6)) for v in core.data.vertices
+                           if v.co.z>top-1e-5 and side*v.co.x>half-.18})
+            points=[(y,xx) for y,xx in points if -p['span']/2-.7<=y<=p['span']/2+.7]
+            depth=r.uniform(.015,.055)
+            for (y,xx),(ynext,nextx) in zip(points,points[1:]):
+                nextdepth=r.uniform(.015,.055);k=len(vs)
+                vs.extend([(xx-side*.015,y,.016),(xx+side*depth,y,.007),
+                           (nextx+side*nextdepth,ynext,.007),(nextx-side*.015,ynext,.016)])
                 fs.append((k,k+1,k+2,k+3) if side>0 else (k+3,k+2,k+1,k));depth=nextdepth
     ob=mesh(parent,'Broken curbless asphalt edges',vs,fs,mat,6.096)
     for v in ob.data.color_attributes.active_color.data:v.color=(*tint,1)

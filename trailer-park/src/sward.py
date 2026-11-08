@@ -17,13 +17,13 @@ def add(parent,plan,lib):
             x=row['origin'][0]+cs*u-sn*v;y=row['origin'][1]+sn*u+cs*v
             return Vector((x,y,sward_height(x,y)-.003))
         def tuft(u,v,height=None):
-            center=world(u,v);width=r.uniform(.14,.23);height=height or r.uniform(.027,.052);az=r.uniform(0,math.tau)
+            center=world(u,v);width=r.uniform(.14,.23);height=height or r.uniform(.024,.045);az=r.uniform(0,math.tau)
             for k in range(2):
                 a=az+k*1.15;axis=Vector((math.cos(a),math.sin(a),0));bend=Vector((-axis.y,axis.x,0));grid=[]
                 for t in (0,.5,1):
                     point=center+Vector((0,0,height*t))+bend*(.012*t*t)
                     grid.append([point+axis*(s*width/2) for s in (-1,1)])
-                cell=r.randrange(4);band=r.randrange(2)
+                cell=r.randrange(2);band=r.randrange(2)
                 cards.add_grid(grid,(u0+cell*cw+pad,v0+band*ch+pad,u0+(cell+1)*cw-pad,v0+(band+1)*ch-pad),(.02,.1,r.random(),0))
         # Mown street-end lawn; absent on pads and compacted approaches.
         for j in range(640):
@@ -57,6 +57,11 @@ def add(parent,plan,lib):
     material=fringe.data.materials[0].copy();material.name='ManufacturedGrassBlades';material['tiling_vertex_tint']=True
     ns,ls=material.node_tree.nodes,material.node_tree.links
     bs=next(n for n in ns if n.type=='BSDF_PRINCIPLED');original=bs.inputs['Base Color'].links[0].from_socket
+    # Garden's copied tufts use neutral normals and a very rough leaf field;
+    # the Ground trim normal must not turn fine mown blades into hard lumps.
+    for link in list(bs.inputs['Normal'].links):ls.remove(link)
+    for link in list(bs.inputs['Roughness'].links):ls.remove(link)
+    bs.inputs['Roughness'].default_value=.94
     tint_node=ns.new('ShaderNodeVertexColor');tint_node.layer_name='Tint'
     multiply=ns.new('ShaderNodeMixRGB');multiply.blend_type='MULTIPLY';multiply.inputs[0].default_value=1
     ls.new(original,multiply.inputs[1]);ls.new(tint_node.outputs['Color'],multiply.inputs[2]);ls.new(multiply.outputs[0],bs.inputs['Base Color'])
@@ -67,6 +72,6 @@ def add(parent,plan,lib):
     tint=ob.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT');ob.data.color_attributes.active_color=tint
     for row,vertex in zip(tint.data,ob.data.vertices):
         x,y=vertex.co[:2];dry=.5+.5*math.sin(x*.37-y*.24)
-        row.color=(.66,.76-dry*.28,.40-dry*.17,1)
+        row.color=(.96,1-dry*.32,.60-dry*.20,1)
     ob['cause']='garden July method; 27–52mm clipped blades, 80–180mm shaded skirt margins'
     return ob

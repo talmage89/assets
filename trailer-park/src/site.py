@@ -108,7 +108,7 @@ def lot(p,record,lib,parent,instances):
     if spec['propane']:part('propane','Propane',A.propane,(L*.13,W/2+.55,0))
     ac_front=spec['ac']=='window' and spec['seed']%2==0
     part(('ac',spec['ac']),'AC',lambda n:A.conditioner(n,spec['ac']),
-         (L*.35,-W/2-.17,1.87) if ac_front else (L*.12,W/2+.17,1.80) if spec['ac']=='window' else (-L*.24,W/2+.73,0),0 if ac_front else 180 if spec['ac']=='window' else 0)
+         (L*.35,-W/2-.17,spec['floor']+1.14) if ac_front else (L*.13,W/2+.17,spec['floor']+1.14) if spec['ac']=='window' else (-L*.24,W/2+.73,0),0 if ac_front else 180 if spec['ac']=='window' else 0)
     utility_y=3.25 if p['kind']=='old' else W/2+.55
     part('utility','Utility',A.utility,(-L/2-1.0,utility_y,0))
     connections=a.mesh('ServiceConnections',component='service_connections')
@@ -122,17 +122,19 @@ def lot(p,record,lib,parent,instances):
     add(a,spec,seed)
     if spec['tarp']:
         m=a.mesh('BlueTarp',component='tarp');vs=[];fs=[]
+        cx=L/2-1.1;us=(-1.4,-1,-.6,-.2,.2,.55,.86,1.18,1.26,1.45,1.65);nx=len(us)
         for j in range(7):
-            for i in range(9):
-                x=-L*.32+(i/8-.5)*3.0;y=(j/6-.5)*W*.80
+            for i,u in enumerate(us):
+                x=cx+u;y=-W*.20+(j/6-.5)*W*.65
                 roof=spec['eave']+.10+.13*(1-(y/(W/2+.12))**2)
-                z=roof+.006+.026*math.sin(i*2.6+j*.8)**2
+                drop=1.25*max(0,x-L/2-.16)+1.2*max(0,abs(y)-W/2-.12)
+                z=roof+.008+.023*math.sin(i*2.6+j*.8)**2-drop
                 vs.append((x,y,z))
         for j in range(6):
-            for i in range(8):k=j*9+i;fs.append((k,k+1,k+10,k+9))
+            for i in range(nx-1):k=j*nx+i;fs.append((k,k+1,k+nx+1,k+nx))
         m.geom(vs,fs,'Trim',(.015,.085,.24))
-        for dx,dy in ((-1.30,-.34*W),(1.30,-.34*W),(-1.30,.34*W),(1.30,.34*W)):
-            xx=-L*.32+dx;zz=spec['eave']+.10+.13*(1-(dy/(W/2+.12))**2)
+        for dx,dy in ((-.9,-.37*W),(.65,-.37*W),(-.9,.05*W),(.65,.05*W)):
+            xx=cx+dx;zz=spec['eave']+.10+.13*(1-(dy/(W/2+.12))**2)
             m.box((xx,dy,zz+.055),(.29,.19,.085),'Trim',(.20,.17,.105),r=.025)
         m.finish()
     # Existing household assets retain their own geometry, pivots and atlases.
