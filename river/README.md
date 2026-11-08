@@ -154,7 +154,7 @@ Both crossings share 41 unique image payloads, estimated **168.67 MiB** at 8bpp 
 ```sh
 make                         # native inputs, refs, sources, glTF, check, Cycles, pairs/contact
 make check                   # raw attributes, fresh import, actual bearing contacts, preservation
-make repeat                  # exact CPU fields / geometry / manifests; excludes blend containers
+make repeat                  # exact geometry/manifests and image identity; excludes blend containers
 make render WIDTH=1280 SAMPLES=32
 make clean && make           # remove only this family's generated products and rebuild
 ```
@@ -171,6 +171,8 @@ and reach measurements. Tiling UV reuse is intentional;
 finite UVs and density are measured, not a unique lightmap/atlas certification.
 `build/preservation.json` fingerprints every pre-existing delivery input.
 `build/repeat.json` records the exact deterministic rebuild comparison.
+The five original CPU images were also regenerated separately with identical
+SHA-256 hashes; that receipt is `build/texture-repeat.json`.
 The critique log is [REVIEW.md](REVIEW.md). No kit or top-level index change.
 
 All trees are native red maples and pin oaks; no new willow species is made.

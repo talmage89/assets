@@ -335,3 +335,66 @@ now sit **4.9996–5.0004mm into soil**. The corrected body retains its 75mm top
 allocation. Break up the evenly spaced drift branches; their former comb is
 visibly artificial. These controls are at
 `build/river-review-archive/pass7-pre-skirts/`.
+
+## Pass 8 — current exported checkpoint, 1280px / 32 samples
+
+Opened **all 24 current frame receipts**: twenty crossing inspections, the
+module sheet and three calibrated reference views. Also opened all three
+composed photo pairs and both contact sheets. All rendering was serial Cycles
+GPU through the shared lock, from the external-image glTF imports.
+
+Color/value first: sunlit bridge concrete reads gray, with deep cavities and
+unclipped highlights. Hero display-luma percentiles (1 / 50 / 99) are
+**0 / .362 / .849** downtown and **0 / .429 / .873** rural. These describe the
+rendered tonal range, not measured surface albedo. Compared with the balanced
+photographs, water remains too blue/smooth at grazing angles and the repeated
+ripple pattern is conspicuous. Shade and the bar edge show a darker body and
+submerged pebbles, but the riffle does not yet sell broken moving water.
+
+- The two places have distinct channel/spans/pier/land-use plans, actual
+  traffic, native trees and town/field continuation. The aerial water join is
+  continuous, without the former internal-face dam. Periphery is still a
+  sparse, repeated presentation neighborhood, not a finished town layout.
+- Under views show the Type III rhythm, diaphragms, bearing shelves, open
+  outlets and conduit. The rural abutment view shows its seat, wingwall and
+  riprap. The city abutment view remains over-dominated by the foreground
+  floodwall; it is a weak inspection composition, not a hidden success.
+- Bank silhouettes remain too regular. Local slump lobes, overhangs and sod
+  breaks need more specificity; changing roughness cannot fix that form.
+  Grass/card colonies and the pebble/riprap texture are visibly provisional.
+  Runoff triangles, algae bands and repeated patch shapes are coarse causal
+  placement markers, not acceptable final weathering.
+- The balanced Raisin pair exposes the different setback/shore arrangement
+  as well as the simpler parapet/bridge silhouette. Huron's steel underside
+  differs in class and width, and our paired roof is too dark to judge its
+  surface response. The separate raking underside inspection is clearer.
+  The 2008 bank pair has a different landing, season and channel shape, plus
+  an unsurveyed **56.11px** fit residual. None is a replica or a completed
+  appearance match. Final fitted RMS is **12.69 / 20.97 / 56.11px** for
+  urban / under / bank. Assumed neutrals and gains are retained in the receipt.
+
+Current proof, all passing:
+
+```sh
+make model check BLENDER='blender -t 1'
+make repeat BLENDER='blender -t 1'
+make BLENDER='blender -t 1' WIDTH=1280 SAMPLES=32
+blender -t 1 -b --factory-startup --python-exit-code 1 --python ../kit/photo_match.py -- verify --calibration build/photo-calibration.json
+```
+
+The complete make exited zero. The independent projection check agrees within
+.00368px; it proves optics implementation only. All 24 export bundle hashes,
+camera receipts and visibility histograms pass. The deterministic geometry/
+manifest/image comparison repeats **41 files**; all **five CPU images** were
+also independently regenerated and compared by SHA-256. Fresh import counts,
+finite tiling UV/density, unit normals, closed positive water shell and actual
+construction contacts pass. Atlas overlap/bake fidelity are not certified at
+this quick-material checkpoint. **519 original / 628 current** pre-existing
+delivery files remain unchanged. Repository rules pass; no kit/index changes.
+
+The README contains measured modules, category totals, material/draw counts,
+bytes and shared-image memory. Presentation vegetation/context are expensive
+and unbatched; no final engine performance claim is made. Stop here before
+look-dev, as briefed. Nothing is needed from the lead to reproduce the checkpoint.
+A future shared bridge-factory API with section, cap and bearing parameters
+would replace the local compatibility adapter without duplicating factories.
