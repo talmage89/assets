@@ -20,6 +20,7 @@ def geometry(path):
   for prim in mesh['primitives']:
    mat=doc['materials'][prim['material']]['name']
    if mat.startswith('FreewayMaintenance'):continue
+   if mesh['name'].startswith('Repairs sealants ghosts tire contacts') and mat in ('Concrete','Freeway_Form_Joint'):continue
    if mesh['name'].startswith(('Cut slopes and drainage','WideMedian')) and 'summer turf' in mat.lower():continue
    attr=prim['attributes'];idx=read(prim['indices']).ravel()
    values=np.concatenate([read(attr[k]).astype('<f4') for k in ('POSITION','NORMAL','TEXCOORD_0')],axis=1)[idx].reshape(-1,3,8)
@@ -51,7 +52,7 @@ def main():
    assert current.keys()==old.keys(),(name,'Civil mesh list changed')
    assert all(n.startswith(allowed) for n in changed),(name,changed)
    if changed:jobs.append(dict(old=str(baseline/(name+'.gltf')),new=str(path),names=changed))
-   rows[name]=dict(meshes=len(current),unchanged_meshes=len(current)-len(changed),retessellated_meshes=changed,omitted='Maintenance decals, revised turf shading/color stations, obsolete large mowing skins; all drains/flumes retained',exception='ROW fence opened at arterial; comparison excludes only fence triangles within 24.5 m of station zero' if name=='Freeway-101' else None)
+   rows[name]=dict(meshes=len(current),unchanged_meshes=len(current)-len(changed),retessellated_meshes=changed,omitted='Maintenance decals, replacement-slab skins and sealant spread, revised turf shading/color stations, obsolete large mowing skins; all supporting paving, drains and flumes retained',exception='ROW fence opened at arterial; comparison excludes only fence triangles within 24.5 m of station zero' if name=='Freeway-101' else None)
   else:rows[name]=dict(meshes=len(current),scope='Handoff snapshot absent; independent construction audits apply')
  if jobs:
   source=Path('build/retessellation-jobs.json');source.write_text(json.dumps(jobs,indent=2))
