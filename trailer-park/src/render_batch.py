@@ -1,7 +1,16 @@
 """One GPU lease, fresh serial Blender processes, resumable scene receipts."""
-import argparse,hashlib,json,os,shutil,subprocess,sys
+import argparse,hashlib,json,os,shutil,signal,subprocess,sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
+CHILD=None
+
+
+def stop(signum,frame):
+    if CHILD is not None and CHILD.poll() is None:
+        CHILD.terminate()
+        try:CHILD.wait(timeout=30)
+        except subprocess.TimeoutExpired:CHILD.kill();CHILD.wait()
+    raise SystemExit(128+signum)
 
 
 def digest(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -14,6 +23,7 @@ def merge(folder,rows):
 
 
 def run_job(name,args,outputs,exports=Path('export'),camera=None):
+    global CHILD
     source=[]
     for stem in sorted({stem for stem,shot in outputs}):
         path=exports/(stem+'.gltf');doc=json.loads(path.read_text())
@@ -28,7 +38,9 @@ def run_job(name,args,outputs,exports=Path('export'),camera=None):
         if old['key']==key and all(Path(p).is_file() and digest(p)==sha for p,sha in old['files'].items()):
             print('REUSE',name,flush=True);merge(old['folder'],old['rows']);return
     command=[os.environ.get('BLENDER','blender'),'-b','-t','2','--factory-startup','--python-exit-code','1','--python','src/render.py','--',*args,'--exports',str(exports)]
-    print('RENDER JOB',name,flush=True);subprocess.run(command,check=True)
+    print('RENDER JOB',name,flush=True)
+    CHILD=subprocess.Popen(command,pass_fds=(9,));code=CHILD.wait();CHILD=None
+    if code:raise subprocess.CalledProcessError(code,command)
     folder=Path(args[args.index('--out')+1]);rows=[];files={}
     for stem,shot in outputs:
         p=folder/stem/(shot+'.png')
@@ -63,6 +75,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=32)
     p.add_argument('--cameras',type=Path,default=Path('build/cameras.json'));p.add_argument('--delivery',action='store_true');p.add_argument('--source');p.add_argument('--eevee',action='store_true');a=p.parse_args()
     assert os.environ.get('ASSETS_GPU_HELD')=='1';os.environ['PYTHONDONTWRITEBYTECODE']='1'
+    signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
     base=['--out',str(a.out),'--width',str(a.width),'--samples',str(a.samples)]
     jobs=[('Park-101',['hero','row']),('Park-202',['hero'])]
     if a.delivery:
