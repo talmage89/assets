@@ -29,6 +29,9 @@ def measure(path):
         row['mesh_indices'].add(mi)
         row['materials'].update(pr['material'] for pr in d['meshes'][mi]['primitives'])
     for row in categories.values():
+        accessors={ai for mi in row['mesh_indices'] for pr in d['meshes'][mi]['primitives'] for ai in [pr['indices'],*pr['attributes'].values()]}
+        buffers={d['accessors'][ai]['bufferView'] for ai in accessors}
+        row['geometry_buffer_bytes']=sum(d['bufferViews'][i]['byteLength'] for i in buffers)
         ids=set().union(*(textures(d['materials'][mi]) for mi in row['materials']))
         for ti in ids:
             image=d['images'][d['textures'][ti]['source']];file=path.parent/image['uri']
