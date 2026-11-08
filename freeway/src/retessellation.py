@@ -5,11 +5,18 @@ on columns/barriers/lanes; this audits shape instead of triangle-list identity.
 The explicitly revised turf is outside this construction comparison.
 """
 import json,sys
+import hashlib
 from pathlib import Path
 import numpy as np
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 sys.path.insert(0,str(Path(__file__).resolve().parent))
+
+def corners(triangles):
+ # Exact oriented corner-data equality is stronger than a nearest query and
+ # avoids ill-conditioned float32 BVH projections onto millimeter joint strips.
+ rows=[min(np.roll(tri,j,axis=0).astype('<f4').tobytes() for j in range(3)) for tri in triangles]
+ return hashlib.sha256(b''.join(sorted(rows))).hexdigest()
 
 def fields(path):
  d=json.loads(path.read_text());buffers=[(path.parent/b['uri']).read_bytes() for b in d['buffers']]
@@ -66,6 +73,9 @@ def main():
     # Keep the pavement, paint and raised joint layers separate. Nearest
     # geometry alone can select a neighboring layer's unrelated UV chart.
     o=old[name][key];n=new[name][key]
+    if corners(o['triangles'])==corners(n['triangles']):
+     groups[key]=dict(exact_oriented_corner_data_identical=True,triangles=len(o['triangles']))
+     continue
     a=compare(o['triangles'],n['triangles'],o['textured']);b=compare(n['triangles'],o['triangles'],o['textured'])
     for r in (a,b):
      assert r['max_surface_distance_m']<.001,(name,key,r)
