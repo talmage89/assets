@@ -8,46 +8,57 @@ ZINC=(.43,.45,.43)
 
 def chassis(a,p):
     L,W=p['length'],p['width'];m=a.mesh('Chassis',component='chassis');rails=[]
+    # 19.05 mm deck over actual 2x6 floor joists, bearing on 254 mm I rails.
+    joist_top=p['floor']-.01905;rail_top=joist_top-.1397;rail_bottom=rail_top-.254
     for section in range(2 if p['double'] else 1):
         cy=(section-.5)*W/2 if p['double'] else 0
         for y in (cy-.94,cy+.94):
             rails.append(y)
             # 254 mm rolled I section: two flanges and a real web.
-            for z in (.600,.842):m.box((0,y,z),(L-.30,.115,.012),'Trim',STEEL)
-            m.box((0,y,.721),(L-.30,.006,.230),'Trim',STEEL)
+            for z in (rail_bottom+.006,rail_top-.006):m.box((0,y,z),(L-.30,.115,.012),'Trim',STEEL)
+            m.box((0,y,(rail_bottom+rail_top)/2),(L-.30,.006,.230),'Trim',STEEL)
         for j in range(math.ceil((L-.6)/2.4)+1):
             x=-L/2+.3+j*(L-.6)/math.ceil((L-.6)/2.4)
-            m.box((x,cy,.78),(.055,W/(2 if p['double'] else 1)-.16,.09),'Trim',STEEL)
+            m.box((x,cy,rail_top-.055),(.055,W/(2 if p['double'] else 1)-.16,.09),'Trim',STEEL)
     # Piers bear on visible concrete pads; nominal 8x8x16 CMU with vertical
     # open cells, closed by the cap. Rails run X; blocks' long direction Y.
     n=math.ceil((L-1.0)/2.4384)
     for y in rails:
         for j in range(n+1):
             x=-L/2+.5+j*(L-1)/n
-            m.box((x,y,.05),(.61,.61,.10),'Concrete',(.25,.24,.21))
-            for z in (.197,.391):
+            # Six-inch pad, 102.4 mm buried: its top is 50 mm above grade.
+            m.box((x,y,-.0262),(.61,.61,.1524),'Concrete',(.25,.24,.21))
+            for z in (.147,.341):
                 # Two side webs, three transverse webs; no solid fake cubes.
                 for dx in (-.082,.082):m.box((x+dx,y,z),(.031,.390,.194),'Concrete')
                 for dy in (-.178,0,.178):m.box((x,y+dy,z),(.133,.034,.194),'Concrete')
-            m.box((x,y,.528),(.2032,.4064,.08),'Concrete',(.30,.29,.26))
-            m.box((x,y,.581),(.14,.25,.026),'Veneer',(.27,.21,.12))
+            # Nominal 2 in hardwood cap (38.1 mm actual) and opposed wedges.
+            m.box((x,y,.45705),(.2032,.4064,.0381),'Veneer',(.27,.21,.12))
+            low=.4761;high=rail_bottom;mid0=low+.001;mid1=high-.001
+            for poly in ([(-.07,low),(.07,low),(.07,mid1),(-.07,mid0)],
+                         [(-.07,mid0),(.07,mid1),(.07,high),(-.07,high)]):
+                m.prism([(x+xx,y-.125,z) for xx,z in poly],(0,1,0),.25,'Veneer',(.27,.21,.12))
     # Floor joists and the black underbelly sit above the main chassis.
-    m.box((0,0,.872),(L,W,.044),'Trim',(.055,.052,.044))
-    m.box((0,0,.904),(L,W,.020),'Veneer',(.24,.19,.12))
+    count=math.ceil((L-.15)/.4064)
+    for j in range(count+1):
+        x=-L/2+.075+j*(L-.15)/count
+        m.box((x,0,(joist_top+rail_top)/2),(.0381,W-.02,.1397),'Veneer',(.24,.19,.12))
+    m.box((0,0,rail_top-.001),(L,W,.002),'Trim',(.055,.052,.044))
+    m.box((0,0,p['floor']-.01905/2),(L,W,.01905),'Veneer',(.24,.19,.12))
     # 1-1/4 in straps terminate at exposed tensioning heads just above grade.
     for sx in (-1,1):
         for x in (-L/2+1,L/2-1):
             y=sx*(W/2-.16);q=(x,sx*(W/2+.20),.09)
-            m.beam((x,y,.77),q,.03175,.0009,'Trim',ZINC,r=0)
+            m.beam((x,y,rail_top-.03),q,.03175,.0009,'Trim',ZINC,r=0)
             m.tube([(q[0],q[1],.02),(q[0],q[1],.14)],.014,'Trim',STEEL,8)
             m.box((q[0],q[1],.115),(.09,.055,.028),'Trim',ZINC)
     if p['double']:
         # Marriage-line supports at end walls and the large central opening.
         for x in (-L/2+.30,-2.2,2.2,L/2-.30):
-            m.box((x,0,.05),(.61,.61,.1),'Concrete')
-            for z in (.20,.40):m.box((x,0,z),(.39,.20,.20),'Concrete')
-            m.box((x,0,.55),(.4064,.2032,.10),'Concrete')
-            m.box((x,0,.73),(.13,.20,.26),'Veneer',(.25,.20,.13))
+            m.box((x,0,-.0262),(.61,.61,.1524),'Concrete')
+            for z in (.147,.341,.535):m.box((x,0,z),(.39,.20,.194),'Concrete')
+            m.box((x,0,.6828),(.4064,.2032,.1016),'Concrete')
+            m.box((x,0,(.7336+rail_top)/2),(.25,.14,rail_top-.7336),'Veneer',(.25,.20,.13))
     return m.finish()
 
 
@@ -146,7 +157,12 @@ def roof(a,p):
         trim.box((0,sy*(half+.023),height(half)-.012),(L+.25,.055,.027),'Trim',ZINC)
     for sx in (-1,1):
         for y0,y1 in zip(stations,stations[1:]):trim.beam((sx*lx,y0,height(y0)-.04),(sx*lx,y1,height(y1)-.04),.027,.09,'Trim',r=0)
-        if p['era']!='1972':
+        if p['era']=='1972':
+            ys=[-W/2+i*W/12 for i in range(13)]
+            poly=[(sx*(L/2+.002),-W/2,E),(sx*(L/2+.002),W/2,E)]
+            poly.extend((sx*(L/2+.002),y,height(y)-.03) for y in reversed(ys))
+            trim.prism(poly,(-sx,0,0),.06,'Siding')
+        else:
             trim.prism([(sx*(L/2+.002),-W/2,E),(sx*(L/2+.002),W/2,E),(sx*(L/2+.002),0,height(0)-.03)],(-sx,0,0),.06,'Siding')
     # Vented plumbing boots and furnace flue, at measured roof surface.
     for x,y,r,h in ((L*.27,.43,.045,.30),(-L*.28,.38,.075,.42)):
@@ -172,6 +188,9 @@ def skirting(a,p):
             if p['missing_skirt'] and face==0 and j==count//2+3:continue
             vent=j%7==2 and along;z=.045+height/2
             xf=lambda v,along=along,sign=sign:(v[0],sign*(W/2+.005+v[1]),v[2]) if along else (sign*(L/2+.005+v[1]),v[0],v[2])
+            if face==1 and j in (count//2-1,count//2):
+                m.box((u,0,.160),(w,.012,.230),'Trim',(.34,.33,.28),xf=xf)
+                continue
             if vent:
                 m.box((u,0,.31),(w,.012,.53),'Trim',(.34,.33,.28),xf=xf)
                 m.box((u,0,.80),(w,.012,.18),'Trim',(.34,.33,.28),xf=xf)
@@ -180,9 +199,15 @@ def skirting(a,p):
             else:m.box((u,0,z),(w,.012,height),'Trim',(.34,.33,.28) if p['era']=='1972' else (.43,.43,.37),xf=xf)
             for du in (-w*.36,0,w*.36):m.box((u+du,.010,z),(.012,.014,height),'Trim',(.39,.38,.32),xf=xf)
         for zz in (.042,.878):m.box((0,.012,zz),(length+.04,.035,.035),'Trim',xf=xf)
-    # 18x24 inch access opening is cut into back skirt by removing two panels.
-    # The overlapping lift-out frame is a removable diagnostic piece, not hinged.
+    # Lift-out access covers a real 0.61 m high opening, wider than 18 in.
+    # Its separate ownership allows a game to remove it for utility access.
     m.finish()
+    count=math.ceil(L/.4064);cx=-L/2+(count//2)*L/count;cw=2*L/count
+    access=Assembly(a.root.name+'__SkirtAccess');access.root.parent=sk.root;access.root['export_part']='lift_out_access'
+    leaf=access.mesh('LiftOutPanel',component='skirt_access')
+    leaf.box((cx,W/2+.028,.580),(cw+.024,.016,.610),'Trim',(.39,.39,.33))
+    for xx in (cx-cw/2,cx+cw/2):leaf.box((xx,W/2+.045,.580),(.026,.020,.65),'Trim')
+    leaf.box((cx,W/2+.055,.66),(.09,.035,.022),'Trim',ZINC);leaf.finish()
     return sk
 
 

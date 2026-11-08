@@ -157,12 +157,17 @@ def dish(name='SatelliteDish'):
 def room(name='AddedRoom',width=3.2,depth=2.4):
     a=Assembly(name);m=a.mesh('IndependentRoom',component='added_room')
     for x in (-width/2+.2,width/2-.2):
-        for y in (-depth/2+.2,depth/2-.2):m.box((x,y,.35),(.25,.25,.70),'Concrete')
+        for y in (-depth/2+.2,depth/2-.2):
+            m.box((x,y,.35),(.25,.25,.70),'Concrete')
+            m.box((x,y,.705),(.26,.26,.01),'Veneer',WOOD)
     m.box((0,0,.80),(width,depth,.18),'Veneer',WOOD)
     # Infill window opening is split, not painted over a solid wall.
-    for x in (-width/2,width/2):m.box((x,0,1.85),(.10,depth,2.1),'Siding',(.34,.36,.28))
+    for sign in (-1,1):
+        x=sign*width/2
+        m.prism([(x,-depth/2,.80),(x,depth/2,.80),(x,depth/2,3.20),(x,-depth/2,2.95)],(-sign,0,0),.10,'Siding',(.34,.36,.28))
     for xx in (-width*.355,width*.355):m.box((xx,-depth/2,1.85),(width*.29,.10,2.1),'Siding',(.34,.36,.28))
     m.box((0,-depth/2,1.12),(width*.42,.10,.64),'Siding',(.34,.36,.28));m.box((0,-depth/2,2.73),(width*.42,.10,.34),'Siding',(.34,.36,.28))
+    m.box((0,-depth/2,2.925),(width,.10,.05),'Siding',(.34,.36,.28))
     m.box((0,-depth/2,2.05),(width*.42,.01,1.2),'Glass');m.box((0,-depth/2-.018,2.05),(.032,.04,1.20),'Trim')
     m.prism([(-width/2-.10,-depth/2-.15,2.95),(width/2+.1,-depth/2-.15,2.95),(width/2+.1,depth/2,3.20),(-width/2-.1,depth/2,3.20)],(0,0,-1),.10,'Trim',(.47,.47,.41))
     m.finish();return a

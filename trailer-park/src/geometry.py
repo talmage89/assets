@@ -85,7 +85,7 @@ def label(a,text,p,size=.18,color=(.63,.61,.51),yaw=0):
     uv=ob.data.uv_layers.new(name='UVMap')
     for f in ob.data.polygons:
         for li in f.loop_indices:
-            v=ob.data.vertices[ob.data.loops[li].vertex_index].co;uv.data[li].uv=(v.x,v.z)
+            v=ob.data.vertices[ob.data.loops[li].vertex_index].co;uv.data[li].uv=(v.x,v.y)
     return ob
 
 

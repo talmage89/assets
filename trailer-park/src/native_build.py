@@ -27,6 +27,16 @@ if args.kind=='shed':
             for link in list(bs.inputs[key].links):ma.node_tree.links.remove(link)
         name=ma.name.lower();color=(.21,.27,.21) if 'sage' in name else (.55,.53,.45) if 'white' in name else (.055,.055,.048) if 'shingle' in name or 'felt' in name else (.20,.16,.09)
         bs.inputs['Base Color'].default_value=(*color,1);bs.inputs['Roughness'].default_value=.78
+    # Equal quick finishes share one material rather than preserving hundreds
+    # of timber source shader identities in the local checkpoint export.
+    palette={}
+    for ob in bpy.context.scene.objects:
+        if ob.type!='MESH':continue
+        for i,ma in enumerate(list(ob.data.materials)):
+            bs=next((n for n in ma.node_tree.nodes if n.type=='BSDF_PRINCIPLED'),None)
+            key=tuple(bs.inputs['Base Color'].default_value) if bs else ma.name
+            if key not in palette:palette[key]=ma
+            ob.data.materials[i]=palette[key]
 elif args.kind=='utility':
     import surfaces
     surfaces.material=lambda:None
@@ -55,4 +65,10 @@ for ob in list(bpy.context.scene.objects):
             axes=sorted(range(3),key=lambda k:abs(f.normal[k]))[:2]
             for li in f.loop_indices:
                 v=ob.data.vertices[ob.data.loops[li].vertex_index].co;uv.data[li].uv=(v[axes[0]],v[axes[1]])
+for parent in sorted([o for o in bpy.context.scene.objects if o.type=='EMPTY'],key=lambda o:o.name):
+    obs=[o for o in parent.children if o.type=='MESH']
+    if len(obs)<2:continue
+    bpy.ops.object.select_all(action='DESELECT')
+    for ob in obs:ob.select_set(True)
+    bpy.context.view_layer.objects.active=obs[0];bpy.ops.object.join();bpy.context.object.name=parent.name+'__NativeMesh'
 bpy.ops.export_scene.gltf(filepath=str((target/(args.kind+'.gltf')).resolve()),export_format='GLTF_SEPARATE',export_texture_dir='images',export_extras=True,export_animations=False,export_tangents=False)

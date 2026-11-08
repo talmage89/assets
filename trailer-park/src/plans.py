@@ -3,7 +3,7 @@
 Long home axis is X, entry face -Y. Lot frontage runs along the street.
 Transport nominal sizes are distinct from the authored wall-line body sizes.
 """
-import random
+import random,math
 
 FT = .3048
 PALETTES = ((.46,.43,.32),(.25,.36,.34),(.47,.46,.39),(.33,.39,.43),(.50,.40,.26),(.38,.42,.28))
@@ -49,9 +49,22 @@ def park(seed=101, kind=None, rows=5):
             spec['lot_number']=len(lots)+1
             lots.append(dict(number=len(lots)+1,home=spec,origin=[xx,yy+1.15,0],yaw=0 if side<0 else 180,
                              lot=[side*(edge+depth/2),yy,depth,pitch],side=side))
+    if not old:
+        # Two shorter infill lots use the loop's middle block. Amenities keep
+        # their own connected reservations rather than filling a vacant island.
+        inner=2*loop_x-street
+        for yy in (-5.8,24.5):
+            hs=seed*100+len(lots)+1;spec=home(hs,'1996',24,52);spec['lot_number']=len(lots)+1
+            xx=loop_x-street/2-6.096-spec['length']/2
+            lots.append(dict(number=len(lots)+1,home=spec,origin=[xx,yy,0],yaw=0,
+                             lot=[0,yy,inner,pitch],side=0,central=True))
+    roads=[[[0,-span/2-21,0],[0,span/2+21,0]]]
+    if not old:
+        top=span/2+9;radius=7.0;loop=[]
+        for cx,cy,start in ((loop_x-radius,-top+radius,270),(loop_x-radius,top-radius,0),(-loop_x+radius,top-radius,90),(-loop_x+radius,-top+radius,180)):
+            loop.extend([[cx+radius*math.cos(math.radians(start+i*90/12)),cy+radius*math.sin(math.radians(start+i*90/12)),0] for i in range(13)])
+        loop.append(loop[0]);roads=[loop,[[0,-span/2-21,0],[0,-span/2-9,0]]]
     return dict(seed=seed,kind=kind,name='Alder Court' if old else 'Meadow Bend',year=1968 if old else 1994,
                 street_width=street,lot_frontage=pitch,lot_depth=depth,span=span,loop_x=loop_x,
                 size=[2*(street/2+depth+3+(0 if old else loop_x)),span+42],lots=lots,
-                roads=([[[0,-span/2-21,0],[0,span/2+21,0]]] if old else
-                       [[[-loop_x,-span/2-9,0],[-loop_x,span/2+9,0],[loop_x,span/2+9,0],[loop_x,-span/2-9,0],[-loop_x,-span/2-9,0]],
-                        [[0,-span/2-21,0],[0,-span/2-9,0]]]))
+                roads=roads)
