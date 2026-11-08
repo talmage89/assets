@@ -13,7 +13,7 @@ CHECKPOINT_DEPS := $(addprefix src/,build.py plans.py geometry.py homes.py era_d
 CHECKPOINT_CHECK = $(BP) --python src/check.py && $(BP) --python src/check_motion.py && $(BP) --python src/look_check.py
 CHECKPOINT_OUT := renders/checkpoint/$(PASS)
 CHECKPOINT_RENDER_ARGS := --cameras build/cameras.json
-CHECKPOINT_REVIEW = $(PYTHON) src/matches.py compose $(CHECKPOINT_OUT) && $(PYTHON) src/review.py --renders $(CHECKPOINT_OUT)
+CHECKPOINT_REVIEW = $(PYTHON) src/matches.py compose $(CHECKPOINT_OUT) && $(PYTHON) src/review.py --renders $(CHECKPOINT_OUT) && $(PYTHON) src/metrics.py --renders $(CHECKPOINT_OUT)
 include ../kit/checkpoint_rules.mk
 BP += -t 2
 export BLENDER

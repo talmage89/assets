@@ -1,4 +1,4 @@
-"""Ignored, labeled review contacts; no final docs at this form gate."""
+"""Ignored, labeled look-dev contacts; never creates final docs images."""
 import argparse,json,hashlib
 from pathlib import Path
 from PIL import Image,ImageOps,ImageDraw,ImageFont
@@ -40,7 +40,7 @@ def main():
         rgb=np.array(Image.open(p).convert('RGB'));v=rgb.max(2)/255
         stats[str(p.relative_to(root))]=dict(size=Image.open(p).size,dark_fraction=float((v<.10).mean()),near_clip_fraction=float((v>.985).mean()),p5=float(np.percentile(v,5)),p95=float(np.percentile(v,95)))
     (root/'tonal-report.json').write_text(json.dumps(stats,indent=2))
-    (root/'source-verification.json').write_text(json.dumps(dict(passed=True,render_receipts=len(receipts),scope='Current glTF and referenced external image SHA-256 identities'),indent=2))
+    (root/'source-verification.json').write_text(json.dumps(dict(passed=True,render_receipts=len(receipts),scope='Archived embedded GLB and referenced external image SHA-256 identities'),indent=2))
     print('CONTACT',root/'contact.jpg',len(paths),'frames',len(pairs),'photo pairs; source identities verified')
 
 if __name__=='__main__':main()
