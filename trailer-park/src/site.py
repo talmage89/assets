@@ -122,20 +122,23 @@ def lot(p,record,lib,parent,instances):
     add(a,spec,seed)
     if spec['tarp']:
         m=a.mesh('BlueTarp',component='tarp');vs=[];fs=[]
-        cx=L/2-1.1;us=(-1.4,-1,-.6,-.2,.2,.55,.86,1.18,1.26,1.45,1.65);nx=len(us)
-        for j in range(7):
+        cx=L/2-1.1;us=(-1.4,-1,-.9,-.6,-.2,.2,.55,.65,.86,1.18,1.26,1.45,1.65);nx=len(us)
+        ys=tuple(v*W for v in (-.525,-.4167,-.37,-.3083,-.20,-.0917,.0167,.05,.125))
+        weights=((- .9,-.37*W),(.65,-.37*W),(-.9,.05*W),(.65,.05*W))
+        for j,y in enumerate(ys):
             for i,u in enumerate(us):
-                x=cx+u;y=-W*.20+(j/6-.5)*W*.65
+                x=cx+u
                 roof=spec['eave']+.10+.13*(1-(y/(W/2+.12))**2)
                 drop=1.25*max(0,x-L/2-.16)+1.2*max(0,abs(y)-W/2-.12)
-                z=roof+.008+.023*math.sin(i*2.6+j*.8)**2-drop
+                freedom=1-max(math.exp(-((u-dx)/.20)**2-((y-dy)/.13)**2) for dx,dy in weights)
+                z=roof+.008+.023*math.sin(i*2.6+j*.8)**2*freedom-drop
                 vs.append((x,y,z))
-        for j in range(6):
+        for j in range(len(ys)-1):
             for i in range(nx-1):k=j*nx+i;fs.append((k,k+1,k+nx+1,k+nx))
         m.geom(vs,fs,'Trim',(.015,.085,.24))
-        for dx,dy in ((-.9,-.37*W),(.65,-.37*W),(-.9,.05*W),(.65,.05*W)):
+        for dx,dy in weights:
             xx=cx+dx;zz=spec['eave']+.10+.13*(1-(dy/(W/2+.12))**2)
-            m.box((xx,dy,zz+.055),(.29,.19,.085),'Trim',(.20,.17,.105),r=.025)
+            m.box((xx,dy,zz+.0505),(.29,.19,.085),'Trim',(.20,.17,.105),r=.025)
         m.finish()
     # Existing household assets retain their own geometry, pivots and atlases.
     for path,name,pos,yaw,select in [

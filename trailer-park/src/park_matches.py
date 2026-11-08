@@ -119,12 +119,12 @@ def solve():
     Path('build/cameras.json').write_text(json.dumps(results,indent=2))
 
 
-def compose(folder):
+def compose(folder,calibration='build/cameras.json'):
     from PIL import Image,ImageOps,ImageDraw,ImageFont
     import numpy as np
     from kit.photo_match import compose as pairs
     from kit.image_io import srgb_to_linear,linear_to_srgb
-    cams=json.loads(Path('build/cameras.json').read_text());folder=Path(folder);dest=folder/'matches';dest.mkdir(parents=True,exist_ok=True);balanced={}
+    cams=json.loads(Path(calibration).read_text());folder=Path(folder);dest=folder/'matches';dest.mkdir(parents=True,exist_ok=True);balanced={}
     for name,row in cams.items():
         im=ImageOps.exif_transpose(Image.open(row['photo'])).convert('RGB');rgb=np.asarray(im).astype(float)/255
         linear=srgb_to_linear(rgb);x0,y0,x1,y1=row['neutral_rect'];neutral=linear[y0:y1,x0:x1].mean(axis=(0,1));gains=neutral.mean()/neutral
@@ -138,6 +138,7 @@ def compose(folder):
     font=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),23)
     small=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),18)
     for name in ('street-2007','newer-row-2024'):
+        if name not in cams:continue
         path=dest/(name+'-pair.jpg');im=Image.open(path).convert('RGB');draw=ImageDraw.Draw(im)
         draw.rectangle((im.width//2,0,im.width,68),fill=(238,239,236))
         draw.text((im.width//2+18,12),'Reference photograph / inferred lane framing',font=font,fill=(22,38,29))
