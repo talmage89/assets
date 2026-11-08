@@ -1,6 +1,36 @@
 """Rebuild the numerical checkpoint report; never writes gallery images."""
 import argparse,json
 from pathlib import Path
+from PIL import Image
+
+
+def resources(path,node_name):
+    """Referenced buffer-view allocation and content-deduplicated subtree maps.
+
+    A lot is instanced within the park; these are referenced geometry bytes,
+    not a fictitious standalone lot file or incremental park allocation.
+    """
+    import hashlib
+    d=json.loads(path.read_text());root=next(i for i,n in enumerate(d['nodes']) if n.get('name')==node_name);nodes=[]
+    def visit(i):
+        nodes.append(i)
+        for child in d['nodes'][i].get('children',[]):visit(child)
+    visit(root);meshes={d['nodes'][i]['mesh'] for i in nodes if 'mesh' in d['nodes'][i]};views=set();materials=set();textures=set()
+    for i in meshes:
+        for pr in d['meshes'][i]['primitives']:
+            materials.add(pr['material'])
+            for index in [pr['indices'],*pr['attributes'].values()]:views.add(d['accessors'][index]['bufferView'])
+    def bound(value):
+        if isinstance(value,dict):
+            for k,v in value.items():
+                if k.endswith('Texture') and isinstance(v,dict) and 'index' in v:textures.add(v['index'])
+                else:bound(v)
+    for i in materials:bound(d['materials'][i])
+    images={}
+    for i in textures:
+        row=d['images'][d['textures'][i]['source']];q=path.parent/row['uri'];w,h=Image.open(q).size;sha=hashlib.sha256(q.read_bytes()).hexdigest()
+        images[sha]=dict(bytes=q.stat().st_size,gpu_mib=w*h*4/3/1048576)
+    return dict(geometry_buffer_bytes=sum(d['bufferViews'][i]['byteLength'] for i in views),png_bytes=sum(v['bytes'] for v in images.values()),gpu_mib=sum(v['gpu_mib'] for v in images.values()))
 
 
 def table(headers,rows):
@@ -27,8 +57,10 @@ def report(folder):
                       d['materials'],r['unbatched_primitives'],f'{d["geometry_bytes"]:,}',f'{r["gpu_mib"]:.4f}'])
         for lot in p['lots']:
             number=lot['number'];h=lot['home'];body=d['assemblies'][f'Lot_{number:02}_Home'];all_=d['assemblies'][f'Lot_{number:02}']
+            resource=resources(Path('export')/(stem+'.gltf'),f'Lot_{number:02}')
             lots.append([stem,number,h['variant_id'],h['occupant_seed'],h['era'],' × '.join(map(str,h['nominal_ft'])),
-                         f'{body["triangles"]:,}',f'{all_["triangles"]:,}',f'{all_["unique_triangles"]:,}'])
+                         f'{body["triangles"]:,}',f'{all_["triangles"]:,}',f'{all_["unique_triangles"]:,}',
+                         f'{resource["geometry_buffer_bytes"]:,}',f'{resource["png_bytes"]:,}',f'{resource["gpu_mib"]:.4f}'])
         row=next((q for q in provenance if q['stem']==stem and q['shot']=='hero'),None)
         if row:
             for category,n in row['context']['triangles'].items():
@@ -44,7 +76,7 @@ def report(folder):
              'Cars, large trees/shrubs and surrounding town are outside these exports. Unique triangles count '
              'distinct exported meshes; placed totals count every node instance. Per-lot unique totals '
              'are local to that lot, not incremental allocations to add across the whole park.\n',
-             table(['Park','Lot','Template','Occupant seed','Era','Body ft','Home triangles','Lot placed triangles','Lot unique triangles'],lots)]
+             table(['Park','Lot','Template','Occupant seed','Era','Body ft','Home triangles','Lot placed triangles','Lot unique triangles','Referenced geometry buffer bytes','Shared PNG bytes','Shared GPU MiB'],lots)]
     if context:text += [table(['Presentation park','Category','Placed triangles','Unique triangles'],context)]
     if presentation_memory:
         text += [table(['Complete presentation','Unique images','Shared GPU MiB'],presentation_memory),
