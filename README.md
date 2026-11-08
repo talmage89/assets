@@ -74,6 +74,8 @@ Houses
   - [Split-level](houses/README.md#fourth-type-split-level): five side-splits and a raised ranch.
 - [Apartments and townhouses](apartments/README.md): four garden-apartment complexes of 1967–1986, with stair halls,
   exterior galleries and mansards, and four townhouse rows, on parking courts with plantings and lit entries.
+- [Manufactured home communities](trailer-park/README.md): single- and double-wide homes of the 1970s to 2000s
+  with skirting, decks, carports and additions, in an older through-lane park and a 1990s loop with a clubhouse.
 
 Commercial
 - [Commercial buildings](commercial/README.md): seeded roadside commercial buildings, 1985–2010, on shared tiled sets
