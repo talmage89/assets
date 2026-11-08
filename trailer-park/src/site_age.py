@@ -27,6 +27,33 @@ def road(a,p,lib,material):
             if j:
                 k=(j-1)*3;fs.extend([(k,k+3,k+4,k+1),(k+1,k+4,k+5,k+2)])
         m.geom(vs,fs,'Trim');m.col[-len(colors):]=colors
+    def fatigue(cx,cy):
+        # Irregular load-failure cells: clipped nearest-seed regions give
+        # shared junctions without the repeated chevron/ladder construction.
+        rx,ry=seal_rng.uniform(.22,.37),seal_rng.uniform(.55,.92)
+        sites=[(seal_rng.uniform(-rx,rx),seal_rng.uniform(-ry,ry)) for _ in range(22)]
+        seen=set()
+        for x,y in sites:
+            poly=[(-rx,-ry),(rx,-ry),(rx,ry),(-rx,ry)]
+            for bx,by in sites:
+                if (x,y)==(bx,by):continue
+                nx,ny=bx-x,by-y;limit=(bx*bx+by*by-x*x-y*y)/2;clipped=[]
+                for p0,p1 in zip(poly,poly[1:]+poly[:1]):
+                    d0=p0[0]*nx+p0[1]*ny-limit;d1=p1[0]*nx+p1[1]*ny-limit
+                    if d0<=0:clipped.append(p0)
+                    if (d0<0)!=(d1<0):
+                        t=d0/(d0-d1);clipped.append((p0[0]+t*(p1[0]-p0[0]),p0[1]+t*(p1[1]-p0[1])))
+                poly=clipped
+                if not poly:break
+            for p0,p1 in zip(poly,poly[1:]+poly[:1]):
+                # Outer clipping rectangle is not a crack in the pavement.
+                if any(abs(abs(p0[k])-bound)<1e-6 and abs(abs(p1[k])-bound)<1e-6 for k,bound in ((0,rx),(1,ry))):continue
+                key=tuple(sorted(tuple(round(q,5) for q in p) for p in (p0,p1)))
+                if key in seen:continue
+                seen.add(key)
+                if math.dist(p0,p1)<.035:continue
+                mid=((p0[0]+p1[0])/2+seal_rng.uniform(-.018,.018),(p0[1]+p1[1])/2+seal_rng.uniform(-.018,.018))
+                seal([(cx+p[0],cy+p[1]) for p in (p0,mid,p1)],seal_rng.uniform(.002,.005))
     for lane in (-p['loop_x'],p['loop_x']):
         # Longitudinal fatigue seal; offset from the centerline oil drips.
         points=[(lane-.85+r.uniform(-.32,.32),-span/2+1+j*1.5) for j in range(math.floor((span-2)/1.5)+1)]
@@ -49,11 +76,8 @@ def road(a,p,lib,material):
             if old:
                 # Connected irregular cells near loaded, unsupported margins.
                 for station in range(math.ceil(span/8)):
-                    cy=-span/2+3+station*8;cx=lane+side*(w/2-.45)
-                    for cell in range(5):
-                        yy=cy+cell*.24;dx=seal_rng.uniform(-.10,.10)
-                        seal([(cx-.20+dx,yy),(cx+.02,yy+.07),(cx+.20+dx,yy+.29)],.004)
-                        seal([(cx+.02,yy+.07),(cx-.05,yy+.28)],.003)
+                    cy=-span/2+3+station*8+seal_rng.uniform(-1.7,1.7);cx=lane+side*(w/2-.45)
+                    fatigue(cx,cy)
             for j in range(math.ceil(span/3.3)):
                 y=-span/2+(j+.5)*3.3
                 decal(a.root,'Raveled asphalt shoulder',(lane+side*(w/2-.12),y),(.38,3.5),trim,(0,.5,.5,.75),0 if side>0 else 180,p['seed'],z=.0205)
