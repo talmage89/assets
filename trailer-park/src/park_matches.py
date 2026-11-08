@@ -45,9 +45,21 @@ def solve():
     for world,pixel in [((-3.3528,1.6764,2.68),(1455,1104)),((3.3528,1.6764,2.68),(1610,1120)),
                         ((-3.3528,-1.6764,2.42),(1410,1165)),((3.3528,-1.6764,2.42),(1562,1191))]:
         definitions['aerial-2015']['landmarks'].append(dict(world=transform(neighbor,world,off2),pixel=pixel))
+    newer=park(202,'new');x=-newer['loop_x'];w=newer['street_width'];y=-newer['span']/2
+    # Supplement the home/addition/pan fits with the newer occupied lane.
+    # Longitudinal stations are inferred from our plan, not surveyed photo
+    # dimensions. Four coplanar edges constrain this perspective comparison.
+    anchors=[((x-w/2,y+17,.016),(477,745)),((x+w/2,y+17,.016),(826,741)),
+             ((x-w/2,-y-15,.016),(617,654)),((x+w/2,-y-15,.016),(666,654))]
+    definitions['newer-row-2024']=dict(asset='Park-202',photo='refs/newer-row-2024.jpg',crop=[0,0,1280,873],
+      title='Newer occupied lane / planted fronts and summer turf',location=[x,y-3,1.68],target=[x,y+45,14],
+      lens=24,lens_bounds_mm=[23.5,24.5],camera_height_m=[1.68,.15],
+      neutral='Sunlit white entrance fence; four lane-edge anchors, longitudinal stations inferred from our fictional plan; does not fit individual houses or establish surveyed depth',
+      neutral_rect=[200,687,250,692],landmarks=[dict(world=q,pixel=pix) for q,pix in anchors])
     results={}
     for name,d in definitions.items():
         result=calibrate(d);result.update(asset=d['asset'],neutral=d['neutral'],neutral_rect=d['neutral_rect'])
+        if name=='newer-row-2024':result['lens_status']='24mm full-frame EXIF; bounded 23.5–24.5mm lane fit; inferred longitudinal stations'
         results[name]=result;print(name,round(result['residual_rms_pixels'],2),'px',round(result['shot']['lens'],1),'mm',flush=True)
         assert result['residual_rms_pixels']<=20,(name,result['residual_rms_pixels'])
     Path('build/cameras.json').write_text(json.dumps(results,indent=2))
