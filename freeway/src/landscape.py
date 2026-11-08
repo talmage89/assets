@@ -49,7 +49,8 @@ def lawn_tint(x,y,kind='verge',seed=0,height=0,lateral=None):
  # Put straw pigment in the image so the desired red multiplier stays <=1.
  # glTF's normalized color attributes clamp a >1 tint during serialization.
  red_scale=.155/.175
- if kind=='yard':return ((.80+.18*dry)*red_scale*rootshade,(.93-.26*dry)*rootshade,(.94-.37*dry)*rootshade,1)
+ # Keep the accepted irrigated-yard mean when changing the ROW's pigment.
+ if kind=='yard':return ((.80+.18*dry)*(.125/.175)*rootshade,(.93-.26*dry)*(.155/.190)*rootshade,(.94-.37*dry)*(.055/.060)*rootshade,1)
  stripe=1 if kind=='unmown' else .95+.05*math.cos((x if lateral is None else lateral)*math.pi/1.8)
  return ((.84+.20*dry)*red_scale*rootshade*stripe,(.98-.16*dry)*rootshade*stripe,(.96-.27*dry)*rootshade*stripe,1)
 
