@@ -82,6 +82,8 @@ Commercial
     different parcels, with tenants' signs and dressed windows, fitted rooms, rear services and a worn parking lot.
 - [Main Street](downtown/README.md): 28 brick commercial buildings of about 1880–1930 in four seeded block faces, with
   cast-iron storefronts, bracketed cornices, a stone corner bank, upper apartments, fire escapes and service alleys.
+- [Coffee shops](coffee-shop/README.md): three seeded neighborhood cafés with outdoor seating, in a Main Street
+  storefront, a strip-center end cap and a converted bank pad, with fitted rooms, daily use and a walk-up window.
 
 Schools
 - [Elementary schools](school/README.md): three neighborhood public schools of 1956, 1964 and 1976 on their own
