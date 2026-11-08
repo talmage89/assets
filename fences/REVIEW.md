@@ -440,3 +440,16 @@ errors are identical in source/reduced assemblies, maximum 1.13297e-7 m.
 These are measured placement frames plus rendered joins, not a new exhaustive
 bearing-contact or swept-motion certificate. The command returns zero and its
 receipt captures the actual exported source and donor dependencies.
+
+Repeated every adopted kind under the final written recipe freeze `30228e8`,
+with all 103 literal source/recipe hashes unchanged. Opened all nine fresh
+native strips, six module construction views and three contacts again. Values,
+coverage, grain and hardware remain consistent at the switches; squared tops,
+stronger seams and simplified hinge bevels remain close-view losses. Fresh
+family mesh/render/check-lod and all three post-build original checks return
+zero. Counts stay 248/248/230 and the family remains 16.2639 MiB with no new
+maps. Exact exported source/donor/tool/script bytes revalidate the already
+reviewed nine assembly/joint images in `fence-joints-current-proof.json`.
+The measured socket frames remain identical; no new swept-contact claim is
+made. The final combined report/contact are under `../build/lod-adoptions/`.
+No tool or recipe edit occurs during this proof.

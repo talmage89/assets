@@ -133,3 +133,11 @@ original `make check` both return zero. The chain retains 1656/3180 triangles,
 three materials and three draws per level, 4.348 MiB resident and no new images.
 Every literal source/recipe hash and all 15 recorded evidence hashes match.
 Current combined report: `../build/lod-adoptions/report.md`.
+
+Repeated the final written recipe under freeze `30228e8`, with all 103 literal
+source/recipe hashes unchanged. Opened the three fresh native strips, both
+construction views and contact again: values, shaft width, arm and fixture
+coverage remain consistent. Fresh mesh/render/check-lod and the post-build
+original check return zero. Counts and resident costs remain 1656/3180 and
+4.348 MiB; no intermediate image is added. The final combined report/contact
+are under `../build/lod-adoptions/`. No tool or recipe edit occurs in this proof.

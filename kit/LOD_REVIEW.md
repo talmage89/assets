@@ -2570,3 +2570,86 @@ final mesh manifests. Exact frozen-input commands and results are in
 `build/lod-v4/original-checks.json`; batch peak child RSS is 1358048 KiB.
 A subsequent preservation audit finds all 501 original delivery/docs files
 byte-identical. No source or tool edit occurred during this validation.
+
+## Pass 68 — final literal recipe proof and checkpoint audit
+
+Repeated both adoptions under the final literal recipe freeze `30228e8`.
+All 102 kit sources and `kit/LOD.md` match their 103 recorded hashes before
+and after the proof. Every fresh street-light and three-kind fence mesh,
+render and `make check-lod` stage returns zero. Opened all twelve new native
+strips, eight construction views and four contacts, then the rebuilt combined
+adoption contact sheet. Color/value, lamp/shaft coverage, wood grain, gate
+hardware and module silhouettes remain consistent at their actual switches.
+Close views still expose squared fence tops, stronger seams and simpler hinge
+bevels; these are not described as close-view equivalence.
+
+Street-light keeps one 1656/3180 (52.08%) level at 25% / 27.56 m, three
+materials/draws and 4.348 MiB resident versus 4.225 MiB for LOD0. Fence A/B
+each keep 248/664 (37.35%) at 9% / 17.62 m; the gate keeps 230/712
+(32.30%) at 18.09 m. Their active draws are 1/1/3, with one canonical
+material. The 20-triangle posts remain LOD0-only. The whole privacy family is
+2826 stored triangles, one material resource, thirteen stored primitive
+placements, 19649439 physical payload bytes and 16.2639 MiB resident versus
+16.1873 MiB for its original container. Its original three 2048 maps allocate
+16.0001 MiB once; every additional module mesh adds .0766 MiB and no image.
+
+All four post-build original street-light/privacy/picket/chain-link checks
+return zero. The exact original and three fence donor dependencies, tool and
+joint-script bytes are also unchanged: `fence-joints-current-proof.json`
+revalidates the already opened nine assembly/joint images against this final
+export. No obsolete donor is substituted. The measured six socket-origin
+errors remain identical, maximum 1.13297e-7 m; this is not an exhaustive
+bearing-contact or swept-clearance certificate.
+
+Following the recipe literally required documenting one useful standard-prop
+level instead of an extra shaft-fading level; omitting marginal modular levels
+and already minimal posts; shared image pools, distinct module output/README
+keys and serial `LOD_CONFIGS` hooks; complete source-container/family costs;
+nonincreasing ratio requests even for proxies; and exact frozen-input original
+checks. The final correction explicitly requires native seam/gloss/coverage
+review and preserves failed config/payload/image witnesses before overwrite.
+A metric or unchanged-source phase control cannot approve a visible fault.
+The two final adoptions use that corrected text without changing the tool or
+recipe. Generated README diagnostic placeholders are resolved to their actual
+module paths; no source change is made for that formatting.
+
+Final commands/evidence:
+
+- All 34 `kit/test_*.py` files pass in fresh fixture folders, with Blender for
+  `bpy` fixtures and the GPU wrapper for six baking/shading fixtures. Both
+  source snapshots still match the final tool. Full results are in
+  `build/lod-v4/regressions/results.json`.
+- All six pilots and four adopted kinds have fresh mesh/render/check receipts,
+  current manifests and independently audited original UV/frames. Five pilot
+  `make check-lod` commands and both adopter commands pass; the pickup returns
+  2 for its three proxy color views. Its separate geometry check passes and
+  the full failed check is preserved. No image failure is waived.
+- All six pilot and four adopter original `make check` commands return zero,
+  after final mesh manifests. Exact accepted-input arguments are captured in
+  `original-checks.json` and `adopter-original-checks.json`.
+- `python3 build/lod-v4/final-proof.py` verifies all test/source/config/recipe/
+  original/render hashes and whole-chain accounting. It reports
+  `all_chain_checks_passed: false` and `all_near_caps_met: false` honestly.
+  `python3 kit/repo_check.py` reports 2134 source files, zero errors;
+  preservation reports 501 original files, zero changed; `git diff --check`
+  passes. LOD/test/check peak child RSS is 2978852 KiB. The earlier required
+  original fence-source bakes peaked separately at 7030268 KiB. Work is serial.
+
+The rebuilt six-pilot tables/contact are `build/lod-pilots/report.md` and
+`contact.jpg`; the four adopted-kind tables/contact are under
+`build/lod-adoptions/`. Both reports include per-level and whole-chain costs,
+with stored placements separated from active draws. All individual native
+strips, differences and construction views are in each family's `renders/lod/`.
+The six-pilot report intentionally uses `--allow-failed`; the adoption report
+does not. Both combined sheets are opened after final generation.
+
+Still open: pickup proxy color at every native azimuth, and the 25% LOD2 caps
+for pickup (42.53%), colonial (31.64%) and grill (30.86%). Their cheaper
+grille/skin-tear, wall-seam and missing-panel witnesses remain preserved.
+All four requested LOD1 caps pass; the station LOD2 cap passes. The accepted
+cone 436, grill proxy 1796 and maple chain remain. Close-view geometry loss,
+rest-pose proxies and frozen foliage lighting/wind retain their documented
+limits; no engine benchmark or continuous motion proof is claimed. Nothing
+needs installing or input from the lead. Future kit work should focus on
+powered proxy optical transfer and source-layer ordering before attempting
+further reductions of those failed controls. The checkpoint stops here.
