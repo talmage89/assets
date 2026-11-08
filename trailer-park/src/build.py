@@ -66,7 +66,7 @@ def publish(stem,root,plan=None):
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',export_texture_dir='shared',use_selection=True,
         export_yup=True,export_extras=True,export_animations=False,export_tangents=False,export_attributes=True,
-        export_all_vertex_colors=False,export_image_format='AUTO')
+        export_vertex_color='ACTIVE',export_all_vertex_colors=False,export_image_format='AUTO')
     doc=json.loads(path.read_text());known=canonical_images()
     # Opaque and blended users share one canonical RGBA BaseColor. Blender
     # may otherwise serialize a redundant RGB copy for the opaque subset.

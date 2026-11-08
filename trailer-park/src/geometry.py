@@ -134,6 +134,8 @@ def consolidate(root=None):
         # Imported mesh normals/leaf cards remain exactly as delivered.
         if ob.get('asset_set')=='Manufactured':
             bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free();ob.data.update()
+            tint=ob.data.color_attributes.get('Tint')
+            if tint:ob.data.color_attributes.render_color_index=ob.data.color_attributes.find('Tint')
 
 
 class Instances:
