@@ -55,7 +55,7 @@ def main():
     subprocess.run(blender+['--python',str(HERE/'match.py'),'--','--calibrate-only'],check=True)
     match_recipe=hashlib.sha256((HERE/'match.py').read_bytes()+(HERE/'photo_matches.py').read_bytes()).hexdigest()
     needed=False
-    for name,seed in [('wise_bed',117),('cityhall_mature',341),('martin_place',229)]:
+    for name,seed in [('wise_bed',117),('cityhall_mature',117),('martin_place',229)]:
         path=out/'matches'/(name+'.png');meta=path.with_suffix('.json')
         needed|=not current(path,Path(f'export/final/Site_{seed}.gltf'),a.samples) or not meta.exists() or json.loads(meta.read_text()).get('match_recipe_sha256')!=match_recipe
     if needed:subprocess.run(lock+blender+['--python',str(HERE/'match.py'),'--','--prepared','--render-only','--out',str(out/'matches'),'--width',str(a.width),'--samples',str(a.samples)],check=True)

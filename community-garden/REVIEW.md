@@ -743,3 +743,38 @@ Garden gate/shed sweeps, actual surface contacts, UVs, budgets, fresh imports,
 all three color-transfer audits and the 479 protected deliveries now pass.
 These checks prove construction/serialization, not photographic realism.
 The fifth correction set is pending; no gallery images have been generated.
+
+## Delivery pass 12 — native correction crops accepted for final rendering
+
+Color and value first: all 15 pass-5 native PNGs, all three complete garden
+pairs, and all thirteen native before/after crop comparisons were opened at
+original size. Photo balance still uses Wise's gray stucco, Martin's pale
+siding and City Hall's weathered gray board cap as assumed neutrals. The
+exported park lawn now carries the lighter yellow-green blade grain, mowing
+variation, worn shoulders and localized brown dry patch. Dark leaf interiors
+and the shed eaves stay deep; sunlit boards retain tone and grain. All three
+heroes use the same clear low sun, and the city edge blob is absent. Native
+full-quality finals remain to be judged for foliage noise.
+
+The park's cut-earth plots, real hilled rows, municipal hall, rear houses and
+canopies close the view. Leafy heads vary in size, stage, hue and rotation,
+with failures rather than a uniform filled grid. The tomato closes into an
+overflowing canopy. Corn ears rise from leaf joints with husk leaves and
+curved brown silk. The accessible court has angular grain, steel edging,
+loose shoulder stones and compressed sole/wheel marks. Accepted tray and
+house construction, city composition and shared texture allocations remain.
+
+Wise and Martin now show neighboring beds, paths and populated surroundings.
+The City Hall comparison's first interior accessible-site fit still exposed
+too much open lawn. Its final fit uses the actual city plot-10 cage from the
+clear central path, with foreground corn, neighboring herbs, beds, wood chips
+and apartments. Only camera/landmark placement changes; no plants or cage
+move for the comparison. The circular cage permits a free azimuth phase; the
+measured reprojection RMS is 3.53 px. These are inferred landmark matches,
+not a claim that either fictional site duplicates the photographed garden.
+
+Still CG: repeated analytic leaflet serrations/veins, regular vine tiers,
+smooth fruit and husks, sparse angular silk, cool squash leaves, star-like
+marigold florets, shallow graphic chips, even aggregate and repeated native
+tree crowns. All requested corrections show in their crops; proceed to the
+clean final build. No docs images have been generated or approved.

@@ -59,7 +59,7 @@ MATCHES['cityhall_mature'].update(location=(.76,-4.5,1.65),target=(.76,0,.75),
 # Express the original local bed/cage observations in the actual delivered
 # site's frame. The camera fits against those world landmarks inside a garden;
 # surrounding plots, circulation and neighborhood remain in the export.
-for name,offset in [('wise_bed',(-1.3716,.6096,0)),('cityhall_mature',(-3.6536,-.3048,0))]:
+for name,offset in [('wise_bed',(-1.3716,.6096,0))]:
     definition=MATCHES[name]
     for key in ('location','target'):
         definition[key]=[a+b for a,b in zip(definition[key],offset)]
@@ -70,11 +70,14 @@ for name,offset in [('wise_bed',(-1.3716,.6096,0)),('cityhall_mature',(-3.6536,-
 # initial camera and observed world points undergo the same rigid transform.
 from plan import plan
 entry=plan(229,'park');angle=math.radians(entry['sign_yaw_degrees'])
-old=(3.4,-entry['size'][1]/2+.24,0)
-new=(entry['sign_x'],-entry['size'][1]/2+entry['sign_inset'],0)
-def placed(point):
-    x,y,z=[a-b for a,b in zip(point,old)]
-    return [new[0]+x*math.cos(angle)-y*math.sin(angle),new[1]+x*math.sin(angle)+y*math.cos(angle),new[2]+z]
-definition=MATCHES['martin_place']
-for key in ('location','target'):definition[key]=placed(definition[key])
-for landmark in definition['landmarks']:landmark['world']=placed(landmark['world'])
+def place_definition(definition,old,new,angle):
+    def placed(point):
+        x,y,z=[a-b for a,b in zip(point,old)]
+        return [new[0]+x*math.cos(angle)-y*math.sin(angle),new[1]+x*math.sin(angle)+y*math.cos(angle),new[2]+z]
+    for key in ('location','target'):definition[key]=placed(definition[key])
+    for landmark in definition['landmarks']:landmark['world']=placed(landmark['world'])
+place_definition(MATCHES['martin_place'],(3.4,-entry['size'][1]/2+.24,0),(entry['sign_x'],-entry['size'][1]/2+entry['sign_inset'],0),angle)
+# The circular hoop has no fixed azimuth. Choose its observed diameter phases
+# from the city lot's clear central path, with adjacent corn/herbs in view.
+# No bed, plant or cage is moved to stage the photographic comparison.
+place_definition(MATCHES['cityhall_mature'],(.76,0,1.40375),(-1.3716,-.1504,1.40375),math.radians(45))

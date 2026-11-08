@@ -27,7 +27,7 @@ def references():
 
 def fixture(name):
     """Fresh full exported site; no isolated bed or invented empty lawn."""
-    seed={'wise_bed':117,'cityhall_mature':341,'martin_place':229}[name]
+    seed={'wise_bed':117,'cityhall_mature':117,'martin_place':229}[name]
     source=Path(f'export/final/Site_{seed}.gltf')
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
@@ -44,14 +44,15 @@ def main():
         if name=='oliver_construction':continue
         v=dict(row['shot']);v['engine']='CYCLES';v['aspect']=1024/1365 if name=='cityhall_mature' else 1024/768
         if name in ('wise_bed','cityhall_mature'):v.update(sun_energy=3.0,sun_angle=20.0,sky_strength=.55,exposure=.05,overcast=True)
-        if name=='cityhall_mature':v.update(overcast=False,sun_energy=7.5,sun_angle=2,sky_strength=.22,sun_direction=(-.6,.5,-.75),exposure=.10)
+        if name=='cityhall_mature':v.update(overcast=False,sun_energy=7.5,sun_angle=2,sky_strength=.22,sun_direction=(-.15,.9,-.75),exposure=.10)
         if name=='martin_place':v.update(sky_strength=.22,exposure=.05)
         source=fixture(name);cam=setup(a.samples);shot(cam,v,out/(name+'.png'),a.width)
         (out/(name+'.json')).write_text(json.dumps(dict(source=str(source),bundle_sha256=bundle(source),render_script_sha256=RECIPE_SHA256,match_recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()+(HERE/'photo_matches.py').read_bytes()).hexdigest(),camera=v,engine='CYCLES',samples=a.samples,comparison='entire delivered garden and neighborhood; photo landmarks on actual bed/cage or entry sign; no isolated staging'),indent=2))
     if not a.render_only:photo_match.compose(cal,out,out)
     notes=dict(bed_corners='WiseWords far-left/back corner is vegetation-occluded and weighted down; 4x8 dimensions are inferred, not surveyed. Compare the complete delivered city garden around tomato Plot10 with a mature mixed-crop garden: crop identities and surrounding architecture differ.',
                construction='Oliver has people obscuring corners; along-edge phases are inferred and weighted down. This is a weaker construction/framing comparison, not a precision survey.',
-               entrance='Martin sign/post rectangular corners are directly visible. Fictional sign text and site composition intentionally differ.')
+               entrance='Martin sign/post rectangular corners are directly visible. Fictional sign text and site composition intentionally differ.',
+               cityhall='The crowded City Hall photograph is compared inside the denser city lot, from its main path beside the actual Plot10 cage; neighboring corn/herbs and beds stay in frame. Cage hoop phase and scale are inferred; architecture and crop mixtures differ.')
     (out/'limitations.json').write_text(json.dumps(notes,indent=2))
 
 
