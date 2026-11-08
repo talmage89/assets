@@ -10,6 +10,35 @@ from plans import park
 from kit.photo_match import calibrate
 
 
+def level_fit(result):
+    """Refit six optics/pose variables with exactly zero camera roll."""
+    import numpy as np
+    from kit.photo_match import project
+    shot=result['shot'];origin=np.array(shot['location']);delta=np.array(shot['target'])-origin
+    parameters=np.array([math.atan2(delta[1],delta[0]),math.atan2(delta[2],np.linalg.norm(delta[:2])),*origin,math.log(shot['lens']),0.])
+    points=np.array(result['landmarks_world_m']);target=np.array(result['measured_pixels'])
+    width=result['crop'][2]-result['crop'][0];height=result['crop'][3]-result['crop'][1];initial=parameters.copy()
+    def residual(p):
+        uv,depth,_=project(p,points,width,height)
+        return np.r_[((uv-target)/width).ravel(),(p[4]-1.46)/.30,(p[5]-initial[5])*.012,np.minimum(depth-.02,0)*10]
+    damping=.001
+    for iteration in range(160):
+        error=residual(parameters);columns=[]
+        for k in range(6):
+            step=1e-5*max(1,abs(parameters[k]));candidate=parameters.copy();candidate[k]+=step
+            columns.append((residual(candidate)-error)/step)
+        jac=np.stack(columns,axis=1);matrix=jac.T@jac
+        change=np.linalg.solve(matrix+damping*np.diag(np.maximum(np.diag(matrix),1e-5)),-jac.T@error)
+        candidate=parameters.copy();candidate[:6]+=change;candidate[5]=np.clip(candidate[5],math.log(20),math.log(45))
+        if np.linalg.norm(residual(candidate))<np.linalg.norm(error):parameters=candidate;damping=max(1e-9,damping*.4)
+        else:damping=min(1e8,damping*5)
+    uv,depth,forward=project(parameters,points,width,height);errors=np.linalg.norm(uv-target,axis=1)
+    assert np.all(depth>0)
+    result.update(projected_pixels=uv.tolist(),residuals_pixels=errors.tolist(),residual_rms_pixels=float(np.sqrt(np.mean(errors**2))),roll_constraint_degrees=0)
+    shot.update(location=parameters[2:5].tolist(),target=(parameters[2:5]+forward).tolist(),lens=math.exp(parameters[5]),roll=0.)
+    return result
+
+
 def transform(row,point,offset=(0,0,0)):
     t=math.radians(row['yaw']);x,y,z=[point[i]+offset[i] for i in range(3)]
     return [row['origin'][0]+x*math.cos(t)-y*math.sin(t),row['origin'][1]+x*math.sin(t)+y*math.cos(t),z]
@@ -40,13 +69,17 @@ def solve():
     # lane context explicitly. Longitudinal road stations are inferred;
     # this is a type/framing comparison, not a reconstruction of the site.
     lane=-plan['loop_x'];y=-plan['span']/2;half=plan['street_width']/2
-    anchors=[((lane-half,y+7,.015),(255,900)),((lane+half,y+7,.015),(1220,900)),
-             ((lane-half,y+16,.015),(338,712)),((lane+half,y+16,.015),(777,712))]
-    definitions['street-2007']=dict(asset='Park-101',photo='refs/street-2007.jpg',crop=[0,0,1241,906],
-      title='Older park lane / occupied neighbors, driveways and planted fronts',
-      location=[lane,y+1,1.46],target=[lane+1,y+25,1.9],lens=25.93,lens_bounds_mm=[20,45],camera_height_m=[1.46,.30],
-      neutral='White addition fascia; four inferred lane-edge stations fit street framing, not individual home construction; replaces the isolated room camera',
-      neutral_rect=[482,449,650,459],landmarks=[dict(world=q,pixel=pix) for q,pix in anchors])
+    # The 2007 photo's curved open apron cannot constrain our straight lane
+    # with zero roll below 20px (28.19px). Replace that comparison with the
+    # registered straight-lane photo. Modern photo, older type comparator;
+    # the 2007 photograph remains an age/construction reference.
+    anchors=[((lane-half,y+17,.016),(477,745)),((lane+half,y+17,.016),(826,741)),
+             ((lane-half,-y-15,.016),(617,654)),((lane+half,-y-15,.016),(666,654))]
+    definitions['street-2007']=dict(asset='Park-101',photo='refs/newer-row-2024.jpg',crop=[0,0,1280,873],
+      title='Older occupied lane / level straight-lane type comparison',
+      location=[lane,y-3,1.46],target=[lane,y+45,14],lens=24,lens_bounds_mm=[20,45],camera_height_m=[1.46,.30],
+      neutral='White PVC fence post; replacement 2024 straight-lane photograph, four inferred road-edge stations, not surveyed home construction',
+      neutral_rect=[265,683,269,717],landmarks=[dict(world=q,pixel=pix) for q,pix in anchors])
     lot=next(q for q in plan['lots'] if q['number']==6);h=lot['home'];off=(h['length']/2-2.9,-h['width']/2-1.82,0)
     pts=[((-3.3528,1.6764,2.68),(1337,1201)),((3.3528,1.6764,2.68),(1509,1223)),
          ((-3.3528,-1.6764,2.42),(1328,1270)),((3.3528,-1.6764,2.42),(1473,1291)),
@@ -76,7 +109,9 @@ def solve():
     for name,d in definitions.items():
         nodes={n.get('name') for n in json.loads(Path('export',d['asset']+'.gltf').read_text())['nodes']}
         assert set(subjects[name])<=nodes,(name,'Declared comparison subject absent from export',subjects[name])
-        result=calibrate(d);result.update(asset=d['asset'],neutral=d['neutral'],neutral_rect=d['neutral_rect'],subject_nodes=subjects[name])
+        result=calibrate(d)
+        if name=='street-2007':result=level_fit(result)
+        result.update(asset=d['asset'],neutral=d['neutral'],neutral_rect=d['neutral_rect'],subject_nodes=subjects[name])
         result['shot']['require_visible_landmarks']=True
         if name=='newer-row-2024':result['lens_status']='24mm full-frame EXIF; bounded 23.5–24.5mm lane fit; inferred longitudinal stations'
         results[name]=result;print(name,round(result['residual_rms_pixels'],2),'px',round(result['shot']['lens'],1),'mm',flush=True)
