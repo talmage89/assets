@@ -36,9 +36,9 @@ def main():
                 if not old or old['sha256']!=digest or not frame.exists() or old['camera_parameters']!=current['camera_parameters']:continue
                 delta=max(abs(x-y) for p,q in zip(old['camera_matrix_world'],current['camera_matrix_world']) for x,y in zip(p,q))
                 keys=('direction','sun_energy','sky_strength','exposure','angle_degrees','sky_saturation','camera_sky_strength','camera_sky_saturation')
-                if delta>1e-6 or any(old['light'][k]!=current['light'][k] for k in keys):continue
+                if delta>1e-6 or any(json.dumps(old['light'][k])!=json.dumps(current['light'][k]) for k in keys):continue
                 target=out/stem/(shot+'.png');target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(frame,target)
-                prior.append(dict(old,reused_verified_frame=str(frame)));del views[shot]
+                prior.append(dict(old,delivery=str(path),images=meta['images'],reused_verified_frame=str(frame)));del views[shot]
             if views:prior+=R.render(stem,path,meta,views,out,a.width,a.samples)
         (out/'provenance.json').write_text(json.dumps(prior,indent=2))
 
