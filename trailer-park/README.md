@@ -384,6 +384,8 @@ comparison evidence, never in shipped maps or committed gallery images.
   dumpster are schematic, and native shed/pole/playground adapters use
   simpler finishes. The aerial is a construction overview with brighter
   exposure than the lane heroes. There are no interiors or collision meshes.
+- Eevee glazing is pale and flatter than Cycles. Rear inspection elevations
+  are dark, and the single-wide scale figure is partly hidden by the steps.
 
 There are no interiors. This delivery does not claim structural/civil
 certification, unique lightmap packing, full-site motion clearance or final
