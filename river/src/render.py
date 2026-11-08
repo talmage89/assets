@@ -44,7 +44,7 @@ def setup(width,samples):
 
 def restore_water():
     # glTF cannot carry a node volume closure. Its documented material extras
-    # contain only the river's original uniform absorption color and density.
+    # contain the original absorption/scattering coefficients and flow ranges.
     from materials import volume_from_extras
     for ob in bpy.context.scene.objects:
         if ob.type=='MESH' and ob.name=='WaterSurface':
@@ -106,9 +106,22 @@ def baseline(seed,width,samples):
     old=importlib.util.module_from_spec(spec);spec.loader.exec_module(old)
     bpy.ops.wm.read_factory_settings(use_empty=True);source=folder/'export'/f'RiverCrossing-{seed}.gltf'
     bpy.ops.import_scene.gltf(filepath=str(source.resolve()));restore_water();sc,cam=old.setup(width,samples)
-    definitions=views(seed)
-    for name in ('under','bearings','abutment','riffle','bar'):
+    definitions=views(seed);source_hash=bundle(source)
+    for name in definitions:
         path=Path('renders/fixes/before')/str(seed)/(name+'.png')
+        if path.exists() and path.with_suffix('.json').exists():
+            cached=json.loads(path.with_suffix('.json').read_text())
+            if (cached.get('accepted_revision')=='9b1c8bc' and cached['source']==str(source)
+                and cached['bundle_sha256']==source_hash and cached['camera']==json.loads(json.dumps(definitions[name]))
+                and cached['width']==width and cached['samples']==samples):continue
+        original=Path('build/round2-before/renders/checkpoint')/str(seed)/(name+'.png')
+        if original.exists():
+            meta=json.loads(original.with_suffix('.json').read_text())
+            if meta['camera']==json.loads(json.dumps(definitions[name])) and meta['width']==width and meta['samples']==samples:
+                import shutil
+                path.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(original,path)
+                meta.update(accepted_revision='9b1c8bc',comparison='original handoff frame, identical revised camera')
+                path.with_suffix('.json').write_text(json.dumps(meta,indent=2)+'\n');continue
         old.shot(sc,cam,definitions[name],path,source,width,samples)
         meta=json.loads(path.with_suffix('.json').read_text());meta.update(accepted_revision='9b1c8bc',comparison='accepted exported asset and light, regenerated with revised camera')
         path.with_suffix('.json').write_text(json.dumps(meta,indent=2)+'\n')
@@ -140,7 +153,7 @@ def main():
             bpy.ops.wm.read_factory_settings(use_empty=True);source=Path('export')/f'RiverCrossing-{row["seed"]}.gltf'
             bpy.ops.import_scene.gltf(filepath=str(source.resolve()));restore_water();restore_native_leaves();sc,cam=setup(a.width,a.samples)
             # Match view direction/shape; daylight differs by photographic view.
-            # Huron is deep under-deck shade; bank and river photos are in sun.
+            # The FHWA concrete underside is exposed for its deep shade.
             definition=row['shot'];definition['aspect']=(row['crop'][2]-row['crop'][0])/(row['crop'][3]-row['crop'][1])
             shot(sc,cam,definition,Path('renders/checkpoint-matches')/(name+'.png'),source,a.width,a.samples)
     if a.comparison_cameras:

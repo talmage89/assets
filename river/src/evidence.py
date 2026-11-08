@@ -17,12 +17,10 @@ def main():
     font=ImageFont.truetype(find_font('DejaVu Sans','Book'),21)
     for seed in (101,202):
         for name in ('hero','above','under','bearings','pier','abutment','riffle','bar','driver','scale'):
-            before=Path('build/round2-before/renders/checkpoint')/str(seed)/(name+'.png')
+            before=folder/'before'/str(seed)/(name+'.png')
             current=Path('renders/checkpoint')/str(seed)/(name+'.png')
             old=json.loads(before.with_suffix('.json').read_text());now=json.loads(current.with_suffix('.json').read_text())
             after=current
-            if old['camera']!=now['camera']:
-                before=folder/'before'/str(seed)/(name+'.png');old=json.loads(before.with_suffix('.json').read_text())
             assert old['camera']==now['camera'],('Comparison camera changed',seed,name)
             assert now['bundle_sha256']==bundle(now['source']),('Stale comparison',after)
             a=Image.open(before).convert('RGB');b=Image.open(after).convert('RGB')
