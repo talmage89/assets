@@ -261,6 +261,50 @@ interior and tiny filtered markings are the weakest close-range areas.
 The shared atlas averages microscopic flakes and limits sidewall-type detail.
 The script source and shader behavior are available for engine integration.
 
+<!-- LOD checkpoint: begin -->
+### Additional LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 59,838 / — | 4 / 30 | 5,428,105 | 6,102,615 | 11,530,720 | 16.000 + 5.1402 | near |
+| LOD1 | 32,612 / 32,910 | 4 / 30 | 2,953,434 | 6,102,615 | 9,056,049 | 16.000 + 2.7824 | 25.0% / 6.79 m |
+| LOD2 | 25,448 / 14,959 | 4 / 30 | 2,394,679 | 6,102,615 | 8,497,294 | 16.000 + 2.2495 | 10.0% / 16.98 m |
+| LOD3 | 2,800 / 2,800 | 1 / 1 | 174,261 | 509,823 | 684,084 | 2.334 + 0.1563 | 4.0% / 42.45 m |
+
+Chain check: False; image check: False; normal check: True.
+
+
+Whole-chain resident GPU estimate: **28.662 MiB**, versus LOD0 alone **21.140 MiB**. Unique textures 18.334 MiB = 16.000 MiB original + 2.334 MiB proxy/impostor; all meshes 10.3284 MiB. Increase over LOD0 7.522 MiB = 2.334 MiB far maps + 5.1882 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. The final proxy merges all moving geometry in its rest pose: its retained transform names are placement/socket metadata, and cannot animate that shell. Keep an animatable level while an interaction pose differs from rest. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/check.json` and `export/lod/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/AlderC150/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048; LOD2: 3 × 2048×2048; LOD3: 7 × 512×512.
+
+LOD1 separate moving meshes: `Door_FLMesh`, `Mirror_LMesh`, `Door_FRMesh`, `Mirror_RMesh`, `Door_RLMesh`, `Door_RRMesh`, `Fuel_DoorMesh`, `HoodMesh`, `Steer_FLMesh`, `Wheel_FLMesh`, `Steer_FRMesh`, `Wheel_FRMesh`, `TailgateMesh`, `Wheel_RLMesh`, `Wheel_RRMesh`, `Wiper_0Mesh`, `Wiper_1Mesh`.
+
+LOD1 retains original geometry for `HoodMesh`: 792 triangles instead of 408 reduced triangles (measured grazing-layer exception; original frame, materials and maps).
+
+LOD2 separate moving meshes: `Door_FLMesh`, `Mirror_LMesh`, `Door_FRMesh`, `Mirror_RMesh`, `Door_RLMesh`, `Door_RRMesh`, `Fuel_DoorMesh`, `HoodMesh`, `Steer_FLMesh`, `Wheel_FLMesh`, `Steer_FRMesh`, `Wheel_FRMesh`, `TailgateMesh`, `Wheel_RLMesh`, `Wheel_RRMesh`, `Wiper_0Mesh`, `Wiper_1Mesh`.
+
+LOD2 retains original geometry for `HoodMesh`: 792 triangles instead of 482 reduced triangles (measured grazing-layer exception; original frame, materials and maps).
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 120,698 | 5 | 91 | 23,665,532 | 28.6620 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 30 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint: end -->
 
 ## Alder X220 — compact crossover
 

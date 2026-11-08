@@ -1,0 +1,46 @@
+{
+  "kind": "C150 pickup",
+  "source": "export/AlderC150.glb",
+  "levels": [
+    {
+      "ratio": 0.12,
+      "screen_height": 0.25,
+      "target_triangles": 32910,
+      "reflective_surface_pixels": 0.2
+    },
+    {
+      "ratio": 0.02,
+      "screen_height": 0.1,
+      "target_triangles": 14959,
+      "reflective_surface_pixels": 0.2
+    },
+    {
+      "ratio": 0.01,
+      "screen_height": 0.04,
+      "texture_size": 512,
+      "rebake": true,
+      "proxy": true,
+      "target_triangles": 2800,
+      "proxy_remesh": {
+        "voxel_pixels": 0.5,
+        "inflation_pixels": 0.3
+      },
+      "bake_supersample": 4,
+      "atlas_sampling": {
+        "surface_texels_per_pixel": 1,
+        "graphic_texels_per_pixel": 4,
+        "include_transmission": true
+      }
+    }
+  ],
+  "drop_subpixel": true,
+  "readme_before": "\n## Alder X220",
+  "readme_level": 3,
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 512,
+  "source_geometry_nodes": [
+    "HoodMesh"
+  ],
+  "powered_protection": "local"
+}

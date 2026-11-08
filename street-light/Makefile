@@ -25,3 +25,6 @@ endif
 .PHONY: check-optics
 check-optics: export/$(ASSET).glb
 	$(PYTHON) src/check_emission.py --source $< --out build/optics-check.json
+
+# Opt-in reductions use the immutable shipped delivery and its original maps.
+include ../kit/lod_rules.mk

@@ -79,4 +79,6 @@ check: protected
 RENDER_DEPS := $(addprefix src/,render.py siteworks.py context.py ground_adapter.py photo_matches.py presentation.py paving.py) ../houses/src/render.py
 $(CHECKPOINT_RENDER_OUTPUTS) renders/final-eevee/hero.png: $(RENDER_DEPS)
 
+# Additional LODs never enter the existing default/check delivery graph.
+include ../kit/lod_rules.mk
 include src/strip_rules.mk
