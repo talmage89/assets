@@ -18,7 +18,7 @@ def main():
     plans=[json.loads(p.read_text())['plan'] for p in Path('export').glob('Park-*.json')]
     old=next(p for p in plans if p['kind']=='old');new=next(p for p in plans if p['kind']=='new')
     with Path('build/repeat.log').open('w') as log:
-        subprocess.run([os.environ.get('BLENDER','blender'),'-b','-t','2','--factory-startup','--python-exit-code','1','--python','src/build.py','--','--old-seed',str(old['seed']),'--new-seed',str(new['seed']),'--rows',str(len([r for r in old['lots'] if r['side']==-1])),'--out','build/family.blend'],stdout=log,stderr=subprocess.STDOUT,check=True)
+        subprocess.run([os.environ.get('BLENDER','blender'),'-b','-t','2','--factory-startup','--python-exit-code','1','--python','src/build.py','--','--old-seed',str(old['seed']),'--new-seed',str(new['seed']),'--rows',str(round(old['span']/old['lot_frontage'])),'--out','build/family.blend'],stdout=log,stderr=subprocess.STDOUT,check=True)
     differences=[name for name,expected in baseline.items() if not Path(name).exists() or digest(Path(name))!=expected]
     result=dict(passed=not differences,compared_files=len(baseline),differences=differences,scope='glTF / BIN / sidecar JSON / local external PNG byte identity; cached native inputs, no GPU bake')
     Path('build/repeat.json').write_text(json.dumps(result,indent=2));assert not differences,result

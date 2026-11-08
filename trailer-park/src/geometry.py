@@ -64,7 +64,11 @@ class Mesh(H.Mesh):
     def box(self,p,s,role='Trim',color=None,r=0,xf=None):return super().box(p,s,role,color,r,xf)
     def finish(self):
         ob=super().finish()
-        if ob:ob['asset_set']='Manufactured';ob['component']=self.props.get('component',self.name.split('__')[-1])
+        if ob:
+            ob['asset_set']='Manufactured';ob['component']=self.props.get('component',self.name.split('__')[-1])
+            if Path('textures/ship/T_Manufactured_Normal.png').exists():
+                from surfaces import finish
+                finish(ob)
         return ob
 
 
@@ -99,6 +103,9 @@ def label(a,text,p,size=.18,color=(.63,.61,.51),yaw=0):
     for f in ob.data.polygons:
         for li in f.loop_indices:
             v=ob.data.vertices[ob.data.loops[li].vertex_index].co;uv.data[li].uv=(v.x,v.y)
+    if Path('textures/ship/T_Manufactured_Normal.png').exists():
+        from surfaces import finish
+        finish(ob)
     return ob
 
 
@@ -116,7 +123,8 @@ def consolidate(root=None):
         bpy.ops.object.select_all(action='DESELECT')
         for ob in obs:ob.select_set(True)
         bpy.context.view_layer.objects.active=obs[0]
-        if len(obs)>1:bpy.ops.object.join()
+        if len(obs)>1:
+            bpy.ops.object.join();bpy.context.object['component']='fixed_assembly'
         ob=bpy.context.object;ob.name=parent.name+'__Mesh';ob.data.transform(ob.matrix_basis);ob.matrix_basis=Matrix.Identity(4);ob['consolidated']=True
     seen=set()
     for ob in list(root.children_recursive) if root else bpy.context.scene.objects:

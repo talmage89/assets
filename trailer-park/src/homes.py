@@ -170,10 +170,10 @@ def roof(a,p):
     else:
         m.box((0,0,height(0)+.018),(L+.22,.15,.045),'Shingles')
     for sy in (-1,1):
-        trim.box((0,sy*half,height(half)-.048),(L+.22,.032,.120),'Trim')
+        trim.box((0,sy*half,height(half)-.048),(L+2*over,.032,.120),'Trim',p['accent'] if p['era']=='1984' else None)
         trim.box((0,sy*(half+.023),height(half)-.012),(L+.25,.055,.027),'Trim',ZINC)
     for sx in (-1,1):
-        for y0,y1 in zip(stations,stations[1:]):trim.beam((sx*lx,y0,height(y0)-.04),(sx*lx,y1,height(y1)-.04),.027,.09,'Trim',r=0)
+        for y0,y1 in zip(stations,stations[1:]):trim.beam((sx*lx,y0,height(y0)-.04),(sx*lx,y1,height(y1)-.04),.027,.09,'Trim',p['accent'] if p['era']=='1984' else None,r=0)
         if p['era']=='1972':
             ys=[-W/2+i*W/12 for i in range(13)]
             poly=[(sx*(L/2+.002),-W/2,E),(sx*(L/2+.002),W/2,E)]
@@ -212,6 +212,8 @@ def skirting(a,p):
             if p['missing_skirt'] and face==0 and j==count//2+3:continue
             vent=j%7==2 and along;z=.045+height/2
             xf=lambda v,along=along,sign=sign:(v[0],sign*(W/2+.005+v[1]),v[2]) if along else (sign*(L/2+.005+v[1]),v[0],v[2])
+            if p['era']=='1972' and p['seed']%4==0 and face==0 and j==count//3:
+                base=xf;xf=lambda v,base=base:base((v[0],v[1]+.055*max(0,1-v[2]/.9),v[2]))
             if face==1 and j in (count//2-1,count//2):
                 m.box((u,0,.160),(w,.012,.230),'Trim',(.34,.33,.28),xf=xf)
                 continue
@@ -220,6 +222,12 @@ def skirting(a,p):
                 m.box((u,0,.80),(w,.012,.18),'Trim',(.34,.33,.28),xf=xf)
                 m.box((u,-.012,.624),(w-.04,.009,.17),'Trim',(.030,.036,.027),xf=xf)
                 for zz in (.57,.61,.65,.69):m.box((u,.008,zz),(w-.03,.022,.013),'Trim',xf=xf)
+            elif p['era']=='1972' and p['seed']%2==0 and face==0 and j==count//4:
+                # A brittle lower panel splits upward from a kicked/splashed
+                # bottom edge. The opening exposes the real dark underfloor.
+                poly=[(u-w/2,.045),(u-.04,.045),(u+.01,.31),(u+.02,.045),
+                      (u+w/2,.045),(u+w/2,.885),(u-w/2,.885)]
+                m.prism([xf((uu,0,zz)) for uu,zz in poly],(0,-sign,0) if along else (-sign,0,0),.012,'Trim',(.43,.43,.37))
             else:m.box((u,0,z),(w,.012,height),'Trim',(.34,.33,.28) if p['era']=='1972' else (.43,.43,.37),xf=xf)
             # Fluted panel relief is in the shared normal sheet.
         for zz in (.042,.878):m.box((0,.012,zz),(length+.04,.035,.035),'Trim',xf=xf)

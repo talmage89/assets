@@ -12,10 +12,10 @@ def exterior(a,p):
             door=-L*.035 if sy<0 else L*.26
             dw=.9144 if p['double'] else .813
             for x0,x1 in ((-L/2,door-dw/2-.07),(door+dw/2+.07,L/2)):
-                m.box(((x0+x1)/2,sy*(W/2+.009),F+.37),(x1-x0,.018,.68),'Siding',p['accent'])
+                m.box(((x0+x1)/2,sy*(W/2+.00045),F+.37),(x1-x0,.0009,.68),'Siding',p['accent'])
                 m.box(((x0+x1)/2,sy*(W/2+.021),F+.73),(x1-x0,.028,.035),'Trim')
         for sx in (-1,1):
-            m.box((sx*(L/2+.012),0,F+.37),(.024,W,.68),'Siding',p['accent'])
+            m.box((sx*(L/2+.00045),0,F+.37),(.0009,W,.68),'Siding',p['accent'])
             m.box((sx*(L/2+.024),0,F+.73),(.025,W,.035),'Trim')
     # Porch lights have a wall back, downward hood and opaque warm diffuser.
     for sy,u in ((-1,-L*.035),(1,L*.26)):
@@ -49,13 +49,16 @@ def window(a,p,face,h,xf):
     for zz in (z-.008,z+ht+.008):
         m.box((u,.065,zz),(w+.04,.035,.028),'Trim',(.43,.45,.43),xf=xf)
     m.box((u,.09,z-.035),(w+.13,.18,.035),'Trim',xf=xf)
+    if face in ('left','right') and not p['double']:
+        for uu in (u-w/6,u+w/6):m.box((uu,.042,z+ht/2),(.035,.052,ht),'Trim',(.43,.45,.43),xf=xf)
     if p['era']=='1972':
         # Folded aluminum hood, hems and side cheeks. Supported at the wall.
         yy=.62;top=z+ht+.18
         m.prism([xf((u-w/2-.12,0,top)),xf((u+w/2+.12,0,top)),
-                 xf((u+w/2+.12,yy,top-.19)),xf((u-w/2-.12,yy,top-.19))],(0,0,-1),.012,'Trim',p['accent'])
+                 xf((u+w/2+.12,yy,top-.19)),xf((u-w/2-.12,yy,top-.19))],(0,0,-1),.0009,'Trim',p['accent'])
         for uu in (u-w/2-.12,u+w/2+.12):
-            m.prism([xf((uu,0,top)),xf((uu,yy,top-.19)),xf((uu,0,top-.40))],(0,0,-1),.012,'Trim',p['accent'])
+            axis=(1,0,0) if face in ('front','back') else (0,1,0)
+            m.prism([xf((uu,0,top)),xf((uu,yy,top-.19)),xf((uu,0,top-.40))],axis,.0009,'Trim',p['accent'])
         for j in range(5):
             d=(j+.5)*yy/5;m.box((u,d,top-.19*d/yy+.006),(w+.25,.018,.016),'Trim',xf=xf)
     elif p['era']=='1996':
@@ -72,7 +75,7 @@ def steps(a,p):
     from addons import deck
     from geometry import place
     L,W=p['length'],p['width']
-    d=deck(a.root.name+'_Deck',p['deck_width'],height=p['floor']-.025,seed=p['seed'])
+    d=deck(a.root.name+'_Deck',p['deck_width'],height=p['floor']-.025,seed=p['seed'],context=p)
     place(d.root,(-L*.035,-W/2-1.11,0),parent=a.root)
-    b=deck(a.root.name+'_BackSteps',1.22,1.0,p['floor']-.025,p['seed']+1)
-    place(b.root,(L*.26,W/2+.55,0),180,parent=a.root)
+    b=deck(a.root.name+'_BackSteps',1.22,.9144,p['floor']-.025,p['seed']+1,flight='right',context=p)
+    place(b.root,(L*.26,W/2+.50,0),180,parent=a.root)

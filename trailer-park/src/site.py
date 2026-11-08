@@ -37,6 +37,8 @@ def road(parent,p,lib):
     radius=5.0
     ranges=[(x,0,w,span+20) for x in (-xx,xx)] if old else [(-xx,0,w,span),(xx,0,w,span),(0,-span/2-5,2*xx-2*radius,w),(0,span/2+5,2*xx-2*radius,w),(0,-span/2-9,w,8)]
     for i,(x,y,sx,sy) in enumerate(ranges):ground_box(a.root,'Private asphalt '+str(i),(x,y,-.035),(sx,sy,.10),asphalt,6.096)
+    from terrain import road_edge
+    road_edge(a.root,p,asphalt)
     if not old:
         top=span/2+5
         for cx,cy,start in ((xx-radius,-top+radius,270),(xx-radius,top-radius,0),(-xx+radius,top-radius,90),(-xx+radius,-top+radius,180)):
@@ -72,10 +74,13 @@ def road(parent,p,lib):
 
 def lot(p,record,lib,parent,instances):
     spec=record['home'];seed=spec['occupant_seed'];a=Assembly(f'Lot_{record["number"]:02}');L,W=spec['length'],spec['width']
-    hn=a.root.name+'_Home'
-    h=instances.get(('home',spec['variant_id']),hn,lambda:make_home(spec,hn));place(h,parent=a.root)
+    spec=dict(spec,site_yaw=record['yaw']);hn=a.root.name+'_Home'
+    h=instances.get(('home',spec['variant_id'],record['yaw']),hn,lambda:make_home(spec,hn));place(h,parent=a.root)
     h['home_spec']=json.dumps(spec,sort_keys=True)
     label(a,str(record['number']),(-L*.035+.69,-W/2-.092,2.30),.11,spec['accent'])
+    def part(key,suffix,factory,pos,yaw=0):
+        name=a.root.name+'_'+suffix;rt=instances.get(key,name,lambda:factory(name))
+        return place(rt,pos,yaw,parent=a.root)
     cp_x=L/2-2.9
     if spec['carport']:
         cp=instances.get(('carport',spec['awning_sag']),a.root.name+'_Carport',lambda:A.carport(a.root.name+'_Carport',sag=spec['awning_sag']))
@@ -83,18 +88,19 @@ def lot(p,record,lib,parent,instances):
         marker=next(o for o in cp.children if o.get('socket_kind')=='car')
         marker.name=a.root.name+'__CarportCar';marker['vehicle_index']=(seed+1)%3
         marker['paint_index']=(seed+2)%5;marker['occupied']=seed%5!=0
-    if spec['room']:place(A.room(a.root.name+'_AddedRoom').root,(-L*.32,-W/2-1.20,0),parent=a.root)
-    if spec['propane']:place(A.propane(a.root.name+'_Propane').root,(L*.13,W/2+.55,0),parent=a.root)
-    ac=A.conditioner(a.root.name+'_AC',spec['ac'])
-    place(ac.root,(L*.12,W/2+.17,1.80) if spec['ac']=='window' else (-L*.13,W/2+.73,0),180 if spec['ac']=='window' else 0,parent=a.root)
-    place(A.utility(a.root.name+'_Utility').root,(-L/2-1.0,W/2+.55,0),parent=a.root)
+    if spec['room']:part(('room',seed%3),'AddedRoom',lambda n:A.room(n,seed=seed%3),(-L*.32,-W/2-1.20,0))
+    if spec['propane']:part('propane','Propane',A.propane,(L*.13,W/2+.55,0))
+    part(('ac',spec['ac']),'AC',lambda n:A.conditioner(n,spec['ac']),
+         (L*.12,W/2+.17,1.80) if spec['ac']=='window' else (-L*.24,W/2+.73,0),180 if spec['ac']=='window' else 0)
+    utility_y=3.25 if p['kind']=='old' else W/2+.55
+    part('utility','Utility',A.utility,(-L/2-1.0,utility_y,0))
     connections=a.mesh('ServiceConnections',component='service_connections')
     for offset,radius,color in ((.10,.020,(.19,.21,.18)),(.36,.016,(.27,.29,.25)),(.85,.051,(.47,.46,.38))):
-        x=-L/2-1+offset;y=W/2+.60
+        x=-L/2-1+offset;y=utility_y+.05
         connections.tube([(x,y,.08),(x+.10,y,.03),(x+.30,y-.05,-.08),(x+.75,W/2-.25,-.08),(x+.75,W/2-.25,.48)],radius,'Trim',color,8)
     connections.finish()
-    if spec['dish']:place(A.dish(a.root.name+'_Dish').root,(L*.32,W/2+.10,1.42),180,parent=a.root)
-    place(A.dressing(a.root.name+'_PotsToy',seed).root,(-L*.035,-W/2-2.75,0),parent=a.root)
+    if spec['dish']:part('dish','Dish',A.dish,(L*.32,W/2+.10,1.42),180)
+    part(('pots',seed%6),'PotsToy',lambda n:A.dressing(n,seed%6),(-L*.035,-W/2-2.75,0))
     from lot_dressing import add
     add(a,spec,seed)
     if spec['tarp']:
@@ -110,12 +116,12 @@ def lot(p,record,lib,parent,instances):
         m.geom(vs,fs,'Trim',(.015,.085,.24));m.finish()
     # Existing household assets retain their own geometry, pivots and atlases.
     for path,name,pos,yaw,select in [
-        ('trailer-park/build/native/shed.gltf','Shed',(-L/2+1.7,W/2+1.60,0),90,None),
+        ('trailer-park/build/native/shed.gltf','Shed',(-L/2-(2.5 if p['kind']=='old' else 1.9),1.6 if p['kind']=='old' else 2.3,0),90 if p['kind']=='old' else 0,None),
         ('trash-cart/export/TrashCart.glb','Cart',(L/2+.8,-W/2-.5,.015),90,None),
         ('mailbox/export/Mailbox.glb','Mailbox',(L/2+3.2,1.7,.015),-90,None),
         ('patio-set/export/PatioSet.glb','LawnChair',(-L*.035+.75,-W/2-1.05,spec['floor']-.025),0,'Chair'),
     ]:
-        if name=='Shed' and seed%3==0:continue
+        if name=='Shed' and (seed%3==0 or p['kind']=='new' and L>18.5):continue
         rt=native(lib,path,a.root.name+'_'+name,pos,yaw,select,parent=a.root)
     if seed%3==1:native(lib,'gas-grill/export/GasGrill.glb',a.root.name+'_Grill',(-L*.035+2.9,-W/2-1.8,0),180,parent=a.root)
     # Short property edge: native 4 ft chain-link with a working native gate.
@@ -147,8 +153,10 @@ def lot(p,record,lib,parent,instances):
     ground_box(a.root,'Resident walk',((x0+x1)/2,wy,-.008),(x1-x0,.80,.045),concrete,3.048,(.78,.77,.70))
     ground_box(a.root,'Resident walk return',(x1,(wy-2.7)/2,-.008),(.80,-2.7-wy,.045),concrete,3.048,(.78,.77,.70))
     from ground_edges import edges
-    edges(a.root,[[(L/2,-3.4,.005),(L/2+6.0,-3.4,.005)],[(L/2+6.0,2.2,.005),(L/2,2.2,.005)],
+    edges(a.root,[[(L/2,-2.55,.005),(L/2+5.4,-2.55,.005)],[(L/2+5.4,.40,.005),(L/2,.40,.005)],
                   [(x0,wy-.44,.005),(x1,wy-.44,.005)]],seed+314,lib)
+    from terrain import pavement
+    pavement(a,spec,lib,library_material)
     # Sparse pad dressing is geometry now; oil and causal weather remain look-dev.
     place(a.root,record['origin'],record['yaw'],parent);a.root['lot_record']=json.dumps(record,sort_keys=True)
     return a
@@ -216,7 +224,8 @@ def common(p,lib,parent):
 def build(p):
     a=Assembly('Park_'+str(p['seed']));a.root['park_plan']=json.dumps(p,sort_keys=True);lib=Library()
     turf=library_material(lib,'Lawn');W,D=p['size']
-    ground_box(a.root,'Community ground',(0,0,-.07),(W,D,.14),turf,3.048,(.87,.86,.74))
+    from terrain import turf as summer_turf
+    summer_turf(a.root,p,turf)
     road(a.root,p,lib);instances=Instances()
     for row in p['lots']:lot(p,row,lib,a.root,instances)
     common(p,lib,a.root)
@@ -242,7 +251,10 @@ def build(p):
         xx,yy,*_=row['lot'];old=p['kind']=='old'
         # Mature crowns are staggered at rear/side yards; newer planted trees
         # are the same native species scaled once, with explicit age inference.
-        if old or j%2==0:a.socket('Tree_'+str(j),(row['origin'][0]+rng.uniform(-3,3),yy+p['lot_frontage']/2-.4,0),'tree',species='oak' if j%3==0 else 'maple',plant_scale=rng.uniform(.92,1.12) if old else rng.uniform(.44,.64))
+        if old or j%2==0:
+            tx=rng.uniform(-.7,.7)
+            tx=row['origin'][0]+tx*(1 if row['yaw']==0 else -1)
+            a.socket('Tree_'+str(j),(tx,yy+p['lot_frontage']/2-.4,0),'tree',species='oak' if j%3==0 else 'maple',plant_scale=rng.uniform(.92,1.12) if old else rng.uniform(.44,.64))
         if j%2==0:a.socket('Shrub_'+str(j),(row['origin'][0]+row['side']*4,yy-3,0),'shrub')
     for i,x in enumerate((-p['loop_x'],p['loop_x']) if p['kind']=='old' else (0,)):
         a.socket('TownEntry_'+str(i),(x,-D/2,.015),'street_connection',yaw=180)

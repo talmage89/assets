@@ -12,11 +12,13 @@ def context(plan):
     parent=bpy.data.objects.new('TownContext',None);bpy.context.collection.objects.link(parent)
     counts=dict(cars=0,vegetation=0,town_architecture=0,street=0);unique={k:set() for k in counts};placements=[]
     def count(rt,category,path=None):
-        n=0
+        n=0;by_category={}
         for ob in rt.children_recursive:
-            if ob.type=='MESH':ob.data.calc_loop_triangles();n+=len(ob.data.loop_triangles);unique[category].add(ob.data)
-        counts[category]+=n
-        if path:placements.append(dict(kind=category,source=str(path),triangles=n,position=list(rt.location)))
+            if ob.type!='MESH':continue
+            ob.data.calc_loop_triangles();cost=len(ob.data.loop_triangles);n+=cost;kind=category
+            if category=='town_architecture' and any(any(t in ma.name.lower() for t in ('shrubs','maple','oak','foliage','leaves')) for ma in ob.data.materials if ma):kind='vegetation'
+            counts[kind]+=cost;unique[kind].add(ob.data);by_category[kind]=by_category.get(kind,0)+cost
+        if path:placements.append(dict(kind=category,source=str(path),triangles=n,category_triangles=by_category,position=list(rt.location)))
         return rt
     def put(path,name,pos,yaw=0,select=None,scale=1,category='town_architecture'):
         rt=lib.place(ROOT/path,name,pos,yaw,select=select,scale=(scale,scale,scale));rt.parent=parent
@@ -42,6 +44,7 @@ def context(plan):
             put(f'houses/export/HearthfieldRanch-{seed}.gltf','Backyard ranch',(side*(W/2+21),y,0),90 if side>0 else -90)
             if old:
                 for k in range(8):put('fences/export/WoodPrivacy.glb','Backyard privacy line',(side*(W/2+1.0),y+(k-3.5)*2.4384,0),90,'Section_'+('AB'[k%2]))
+                for k in range(9):put('fences/export/WoodPrivacy.glb','Backyard fence posts',(side*(W/2+1.0),y+(k-4)*2.4384,0),90,'Post_Line' if 0<k<8 else 'Post_End')
             if j%2==0:put('trees/export/PinOak.glb','Neighbor yard oak',(side*(W/2+9),y+6,0),j*47,scale=.85,category='vegetation')
     if old:
         for sy in (-1,1):

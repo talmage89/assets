@@ -1,0 +1,81 @@
+"""Ground's turf/trim images with irregular edges and seed-owned use marks."""
+import math,random
+import bpy
+from kit import model as G
+from kit.tiling import world_uv
+
+
+def mesh(parent,name,vs,fs,mat,coverage=3.048):
+    ob=G.mesh(name,vs,fs,mat);ob.parent=parent;world_uv(ob,coverage)
+    for layer in {n.layer_name or 'Color' for n in mat.node_tree.nodes if n.type=='VERTEX_COLOR'}:
+        col=ob.data.color_attributes.new(name=layer,type='FLOAT_COLOR',domain='POINT');ob.data.color_attributes.active_color=col
+        for row in col.data:row.color=(1,1,1,1)
+    ob['reused_surface']='ground';return ob
+
+
+def turf(parent,plan,mat):
+    W,D=plan['size'];nx=math.ceil(W/1.25);ny=math.ceil(D/1.25);vs=[];fs=[]
+    for j in range(ny+1):
+        for i in range(nx+1):vs.append((-W/2+i*W/nx,-D/2+j*D/ny,-.003))
+    for j in range(ny):
+        for i in range(nx):k=j*(nx+1)+i;fs.append((k,k+1,k+nx+2,k+nx+1))
+    ob=mesh(parent,'Summer turf / worn routes and shaded edges',vs,fs,mat)
+    col=ob.data.color_attributes.active_color;old=plan['kind']=='old'
+    for index,(x,y,z) in enumerate(vs):
+        # Solar moisture differences at the parcel scale, with no noise wash.
+        dry=.5+.25*math.sin(x*.19+y*.12+plan['seed'])+.25*math.sin(x*.37-y*.24)
+        wear=0.;shade=0.
+        for lot in plan['lots']:
+            px,py,_=lot['origin'];h=lot['home'];yaw=lot['yaw']
+            u=(x-px)*(1 if yaw==0 else -1);v=(y-py)*(1 if yaw==0 else -1)
+            # Shortcut between the parking end and the stair toe; narrow soil
+            # cores widen where people turn, rather than a rectangular band.
+            walk_y=-h['width']/2-3.0
+            if -h['length']*.20<u<h['length']/2+1.5:
+                wear=max(wear,math.exp(-((v-walk_y)/(.22+.08*math.sin(u*1.7)))**4)*(.55 if old else .32))
+            edge=min(abs(v-h['width']/2),abs(v+h['width']/2))
+            if abs(u)<h['length']/2:shade=max(shade,math.exp(-(edge/.70)**2)*(.4+.3*math.sin(u*.7)**2))
+            if lot['home']['occupant_seed']%3==0 and abs(u-h['length']/2)<5:
+                dry=max(dry,.68+.18*math.sin(v*1.9+u*.6))
+        c=(.94+.06*dry,.91-.16*dry,.71-.30*dry)
+        soil=(.65,.49,.26);c=tuple(c[k]*(1-wear)+soil[k]*wear for k in range(3))
+        c=tuple(c[k]*(1-shade*.22) for k in range(3));col.data[index].color=(*c,1)
+    return ob
+
+
+def decal(parent,name,center,size,mat,rect,yaw=0,seed=0,z=.020):
+    x,y=center;w,h=size;r=math.radians(yaw);cs,sn=math.cos(r),math.sin(r)
+    points=[(x+cs*u-sn*v,y+sn*u+cs*v,z) for u,v in ((-w/2,-h/2),(w/2,-h/2),(w/2,h/2),(-w/2,h/2))]
+    ob=mesh(parent,name,points,[(0,1,2,3)],mat);uv=ob.data.uv_layers.active
+    u0,v0,u1,v1=rect;pad=3/2048
+    for li,(u,v) in enumerate(((u0+pad,v0+pad),(u1-pad,v0+pad),(u1-pad,v1-pad),(u0+pad,v1-pad))):uv.data[li].uv=(u,v)
+    ob['placement_seed']=seed;return ob
+
+
+def pavement(a,p,lib,library_material):
+    # Reuse the canonical alpha ravel/crack/oil manufacture. Unique placement,
+    # rotation and extents prevent the row from repeating the same history.
+    trim=library_material(lib,'GroundTrim');seed=p['occupant_seed'];r=random.Random(seed+148)
+    L,W=p['length'],p['width']
+    if seed%3==0:
+        for j in range(3):decal(a.root,'Loose gravel on dirt apron',(L/2+.9+j*1.8,-1.075),(1.8,2.95),trim,(0,.5,.5,.75),180*(j%2),seed,z=.019)
+    if p['era']!='1996' or seed%4==0:
+        decal(a.root,'Trampled stair toe',(-L*.035-p['deck_width']/2+.475,-W/2-3.56),(1.2,.76),trim,(.5,.25,1,.5),r.uniform(-14,14),seed,z=.006)
+    if seed%4!=1:decal(a.root,'Engine sump stain',(L/2+2.5,-1.1),(.60+r.random()*.6,.8+r.random()*.9),trim,(.5,.5,.75,.75),r.uniform(-180,180),seed)
+    if seed%3!=1:
+        for j in range(2 if p['era']!='1996' else 1):
+            decal(a.root,'Pad settlement crack',(L/2+1.1+j*1.8,-1.1+r.uniform(-.6,.6)),(.16,1.6+r.random()),trim,(.5,0,.625,.25),r.uniform(-60,60),seed)
+
+
+def road_edge(parent,p,mat):
+    # Ragged 0.1–0.28 m asphalt fragments stop the private lane reading as a
+    # saw-cut slab. Centerline width remains the accepted 20/24 ft.
+    w=p['street_width'];vs=[];fs=[];r=random.Random(p['seed']+512)
+    for x in (-p['loop_x'],p['loop_x']):
+        for side in (-1,1):
+            for j in range(math.ceil(p['span']/.8)):
+                y=-p['span']/2+j*.8;depth=r.uniform(.04,.20);k=len(vs)
+                vs.extend([(x+side*(w/2-.015),y,.016),(x+side*(w/2+depth),y+r.uniform(.1,.4),.007),
+                           (x+side*(w/2+r.uniform(.03,.13)),y+.8,.007),(x+side*(w/2-.015),y+.8,.016)])
+                fs.append((k,k+1,k+2,k+3) if side>0 else (k+3,k+2,k+1,k))
+    return mesh(parent,'Broken curbless asphalt edges',vs,fs,mat,6.096)

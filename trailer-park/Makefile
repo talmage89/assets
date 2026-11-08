@@ -1,4 +1,4 @@
-# Form and construction gate only. No bake, final docs or game-ready claim.
+# Dense communities and baked look-dev gate; no docs generation.
 OLD_SEED ?= 101
 NEW_SEED ?= 202
 ROWS ?= 9
@@ -9,8 +9,8 @@ CHECKPOINT_BLEND := build/family.blend
 STEMS := SingleWide-120 SingleWide-147 SingleWide-168 DoubleWide-245 DoubleWide-228 DoubleWide-326 Deck Carport UtilityService PropaneBottles Condenser WindowAC SatelliteDish AddedRoom Household EntranceSign SupportFrame Modules HomeForms Park-$(OLD_SEED) Park-$(NEW_SEED)
 CHECKPOINT_OUTPUTS := build/family.blend build/family.json $(foreach s,$(STEMS),export/$(s).gltf export/$(s).bin export/$(s).json)
 CHECKPOINT_ARGS := --old-seed $(OLD_SEED) --new-seed $(NEW_SEED) --rows $(ROWS)
-CHECKPOINT_DEPS := $(wildcard src/*.py) build/native.stamp build/preserved.json
-CHECKPOINT_CHECK = $(BP) --python src/check.py && $(BP) --python src/check_motion.py
+CHECKPOINT_DEPS := $(addprefix src/,build.py plans.py geometry.py homes.py era_details.py addons.py site.py ground_edges.py lot_dressing.py surfaces.py terrain.py textures.py) build/native.stamp build/preserved.json textures/ship/.stamp
+CHECKPOINT_CHECK = $(BP) --python src/check.py && $(BP) --python src/check_motion.py && $(BP) --python src/look_check.py
 CHECKPOINT_OUT := renders/checkpoint/$(PASS)
 CHECKPOINT_RENDER_ARGS := --cameras build/cameras.json
 CHECKPOINT_REVIEW = $(PYTHON) src/matches.py compose $(CHECKPOINT_OUT) && $(PYTHON) src/review.py --renders $(CHECKPOINT_OUT)
@@ -27,7 +27,19 @@ build/native.stamp: src/native_build.py src/dependencies.py $(wildcard ../shed/s
 build/preserved.json: src/preservation.py
 	$(PYTHON) src/preservation.py check
 
-build/cameras.json: src/matches.py src/plans.py
+textures/source/.stamp: src/textures.py
+	$(PYTHON) src/textures.py
+	@touch $@
+textures/4k/.stamp: textures/source/.stamp
+	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/flat_bake.py -- --source textures/source --out textures/4k --name Manufactured --coverage 4.8768 --height-distance .012 --size 4096 --samples 8
+	@touch $@
+textures/ship/.stamp: textures/4k/.stamp
+	$(PYTHON) $(KIT)/downsample.py --source textures/4k --out textures/ship --asset Manufactured --size 2048
+	@touch $@
+.PHONY: bake
+bake: textures/ship/.stamp
+
+build/cameras.json: src/matches.py src/park_matches.py src/plans.py
 	@mkdir -p build
 	$(PYTHON) src/matches.py
 $(CHECKPOINT_RENDER_OUTPUTS): build/cameras.json

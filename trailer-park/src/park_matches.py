@@ -57,11 +57,12 @@ def compose(folder):
     from PIL import Image,ImageOps
     import numpy as np
     from kit.photo_match import compose as pairs
+    from kit.image_io import srgb_to_linear,linear_to_srgb
     cams=json.loads(Path('build/cameras.json').read_text());folder=Path(folder);dest=folder/'matches';dest.mkdir(parents=True,exist_ok=True);balanced={}
     for name,row in cams.items():
         im=ImageOps.exif_transpose(Image.open(row['photo'])).convert('RGB');rgb=np.asarray(im).astype(float)/255
-        x0,y0,x1,y1=row['neutral_rect'];neutral=rgb[y0:y1,x0:x1].mean(axis=(0,1));gains=neutral.mean()/neutral
-        path=dest/(name+'-balanced.jpg');Image.fromarray(np.round(np.clip(rgb*gains,0,1)*255).astype('uint8')).save(path,quality=96)
-        copied=dict(row,photo=str(path),rgb_neutral_gain=gains.tolist());balanced[name]=copied
+        linear=srgb_to_linear(rgb);x0,y0,x1,y1=row['neutral_rect'];neutral=linear[y0:y1,x0:x1].mean(axis=(0,1));gains=neutral.mean()/neutral
+        path=dest/(name+'-balanced.jpg');Image.fromarray(np.round(np.clip(linear_to_srgb(linear*gains),0,1)*255).astype('uint8')).save(path,quality=96)
+        copied=dict(row,photo=str(path),linear_neutral_gain=gains.tolist());balanced[name]=copied
         (dest/(name+'.png')).write_bytes((dest/row['asset']/(name+'.png')).read_bytes())
     calibration=dest/'comparison-cameras.json';calibration.write_text(json.dumps(balanced,indent=2));pairs(calibration,dest,dest)

@@ -1,13 +1,15 @@
 """Site-made timber and aluminum additions, utilities and household dressing."""
-import math,random
+import math,random,json
 from geometry import Assembly,label
 from homes import STEEL,ZINC
 
 WOOD=(.22,.195,.14)
 
 
-def deck(name='Deck',width=3.6576,depth=2.1336,height=.885,seed=1):
-    a=Assembly(name);m=a.mesh('Timber',component='deck');r=random.Random(seed)
+def deck(name='Deck',width=3.6576,depth=2.1336,height=.885,seed=1,flight='front',context=None):
+    a=Assembly(name)
+    if context:a.root['weather_spec']=json.dumps(context,sort_keys=True)
+    m=a.mesh('Timber',component='deck',look_seed=seed);r=random.Random(seed)
     # Footings, 4x4 posts, beams, 2x8 rim/joists and 5/4 deck boards.
     joist_top=height-.0254;joist_bottom=joist_top-.1842
     beam_top=joist_bottom;beam_bottom=beam_top-.1842
@@ -27,20 +29,30 @@ def deck(name='Deck',width=3.6576,depth=2.1336,height=.885,seed=1):
         y=-depth/2+(j+.5)*depth/n;c=tuple(v*r.uniform(.92,1.08) for v in WOOD)
         # Gentle cup is authored as a three-station top with a genuine gauge.
         z=height-.003*r.random()
-        m.prism([(-width/2,y-depth/n/2+.003,z+.001),(width/2,y-depth/n/2+.003,z+.001),
-                 (width/2,y+depth/n/2-.003,z),(-width/2,y+depth/n/2-.003,z)],(0,0,-1),.0254,'Veneer',c)
-    stairs(a,width,depth,height,m)
+        top=[(xx,yy,zz) for xx in (-width/2,width/2) for yy,zz in
+             ((y-depth/n/2+.003,z+.001),(y,z-.0015),(y+depth/n/2-.003,z))]
+        faces=[(0,3,4,1),(1,4,5,2),(7,10,9,6),(8,11,10,7)]
+        for aa,bb in ((0,3),(3,4),(4,5),(5,2),(2,1),(1,0)):faces.append((bb,aa,aa+6,bb+6))
+        m.geom(top+[(xx,yy,zz-.0254) for xx,yy,zz in top],faces,'Veneer',c)
+    if flight=='front':stairs(a,width,depth,height,m)
+    elif flight=='right':
+        sm=a.mesh('SideFlight',component='deck',look_seed=seed)
+        stairs(a,width,depth,height,sm)
+        anchor=-width/2+.475;y0=-depth/2
+        sm.v=[(width/2-(y-y0),x-anchor,z) for x,y,z in sm.v];sm.finish()
+    else:raise ValueError('flight front/right')
     # Front opening aligns to stair flight; home side remains open at the door.
     gap=.98;left=-width/2;right=width/2
     rail_post_top=height+.925
-    for x in (left,left+.95,right):m.box((x,-depth/2,(rail_post_top+joist_bottom)/2),(.0889,.0889,rail_post_top-joist_bottom),'Veneer',WOOD)
-    for x0,x1 in ((left+.99,right),):
+    for x in ((left,left+.95,right) if flight=='front' else (left,right)):m.box((x,-depth/2,(rail_post_top+joist_bottom)/2),(.0889,.0889,rail_post_top-joist_bottom),'Veneer',WOOD)
+    for x0,x1 in (((left+.99,right),) if flight=='front' else ((left,right),)):
         for z in (height+.12,height+.86):m.box(((x0+x1)/2,-depth/2,z),(x1-x0,.0381,.0889),'Veneer',WOOD)
         m.box(((x0+x1)/2,-depth/2,height+.935),(x1-x0+.09,.1397,.032),'Veneer',WOOD)
         n=math.ceil((x1-x0)/.125)
         for j in range(n):m.box((x0+(j+.5)*(x1-x0)/n,-depth/2,height+.46),(.0381,.0381,.64),'Veneer',WOOD)
     for x in (left,right):
         m.box((x,depth/2,(rail_post_top+joist_bottom)/2),(.0889,.0889,rail_post_top-joist_bottom),'Veneer',WOOD)
+        if flight=='right' and x==right:continue
         for z in (height+.12,height+.86):m.box((x,0,z),(.0381,depth,.0889),'Veneer',WOOD)
         m.box((x,0,height+.935),(.1397,depth+.09,.032),'Veneer',WOOD)
         for j in range(math.ceil(depth/.125)):
@@ -172,8 +184,9 @@ def dish(name='SatelliteDish'):
     m.box((0,-.49,.46),(.075,.095,.065),'Trim',(.12,.14,.13));m.finish();return a
 
 
-def room(name='AddedRoom',width=3.2,depth=2.4):
-    a=Assembly(name);m=a.mesh('IndependentRoom',component='added_room')
+def room(name='AddedRoom',width=3.2,depth=2.4,seed=1):
+    a=Assembly(name);m=a.mesh('IndependentRoom',component='added_room',look_seed=seed)
+    color=((.31,.36,.34),(.50,.40,.22),(.45,.46,.39))[seed%3]
     for x in (-width/2+.2,width/2-.2):
         for y in (-depth/2+.2,depth/2-.2):
             m.box((x,y,.35),(.25,.25,.70),'Concrete')
@@ -182,10 +195,10 @@ def room(name='AddedRoom',width=3.2,depth=2.4):
     # Infill window opening is split, not painted over a solid wall.
     for sign in (-1,1):
         x=sign*width/2
-        m.prism([(x,-depth/2,.80),(x,depth/2,.80),(x,depth/2,3.20),(x,-depth/2,2.95)],(-sign,0,0),.10,'Siding',(.34,.36,.28))
-    for xx in (-width*.355,width*.355):m.box((xx,-depth/2,1.85),(width*.29,.10,2.1),'Siding',(.34,.36,.28))
-    m.box((0,-depth/2,1.12),(width*.42,.10,.64),'Siding',(.34,.36,.28));m.box((0,-depth/2,2.73),(width*.42,.10,.34),'Siding',(.34,.36,.28))
-    m.box((0,-depth/2,2.925),(width,.10,.05),'Siding',(.34,.36,.28))
+        m.prism([(x,-depth/2,.80),(x,depth/2,.80),(x,depth/2,3.20),(x,-depth/2,2.95)],(-sign,0,0),.10,'Siding',color)
+    for xx in (-width*.355,width*.355):m.box((xx,-depth/2,1.85),(width*.29,.10,2.1),'Siding',color)
+    m.box((0,-depth/2,1.12),(width*.42,.10,.64),'Siding',color);m.box((0,-depth/2,2.73),(width*.42,.10,.34),'Siding',color)
+    m.box((0,-depth/2,2.925),(width,.10,.05),'Siding',color)
     # Two hung aluminum sashes: recessed backing, perimeter returns, meeting
     # rails and a projecting sill. The room is independently supported, with
     # removable skirt panels hiding its piers as on an occupied addition.

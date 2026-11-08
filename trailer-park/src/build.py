@@ -8,6 +8,7 @@ HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE),str(HERE.parents[1]
 from geometry import Assembly,place,consolidate,ROOT
 from plans import home,park
 import homes,addons,site as _builtin_site
+_IMAGE_CACHE=None
 # Python's startup site module owns this name; load the local site explicitly.
 import importlib.util
 spec=importlib.util.spec_from_file_location('manufactured_site',HERE/'site.py');SITE=importlib.util.module_from_spec(spec);spec.loader.exec_module(SITE)
@@ -31,8 +32,21 @@ def reset():
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.context.scene.unit_settings.system='METRIC'
 
 
+def canonical_images():
+    global _IMAGE_CACHE
+    if _IMAGE_CACHE is not None:return _IMAGE_CACHE
+    known={}
+    for family in ('ground','fences','mailbox','trash-cart','patio-set','gas-grill','houses','trees','shrubs','trailer-park'):
+        for q in (ROOT/family).rglob('*.png'):
+            if 'ship' in q.parts:known[hashlib.sha256(q.read_bytes()).hexdigest()]=q
+    for q in Path('build/library').rglob('*.png'):
+        if 'ship' in q.parts:known[hashlib.sha256(q.read_bytes()).hexdigest()]=q.resolve()
+    q=Path('textures/checkpoint/T_ManufacturedForm.png');known[hashlib.sha256(q.read_bytes()).hexdigest()]=q.resolve()
+    _IMAGE_CACHE=known;return known
+
+
 def publish(stem,root,plan=None):
-    report=counts(list(bpy.context.scene.objects));report['stage']='form and construction checkpoint / quick home materials / no family bake'
+    report=counts(list(bpy.context.scene.objects));report['stage']='look-dev checkpoint / baked shared manufacture and causal mesh colors / no final docs'
     report['plan']=plan;report['root']=root.name
     report['assemblies']={o.name:counts([o,*o.children_recursive]) for o in bpy.context.scene.objects if o.type=='EMPTY' and ('home_spec' in o or o.get('lot_record'))}
     report['components']={o.name:counts([o,*o.children_recursive]) for o in root.children if o.type=='EMPTY' and o.get('asset_set')=='Manufactured'}
@@ -43,15 +57,9 @@ def publish(stem,root,plan=None):
     bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',export_texture_dir='shared',use_selection=True,
         export_yup=True,export_extras=True,export_animations=False,export_tangents=False,export_attributes=True,
         export_all_vertex_colors=False,export_image_format='AUTO')
-    doc=json.loads(path.read_text());known={}
+    doc=json.loads(path.read_text());known=canonical_images()
     # Hash-identify original image files; preserve one canonical URI per image
     # across the entire town. No inherited delivery file is opened for writing.
-    for family in ('ground','fences','mailbox','trash-cart','patio-set','gas-grill','houses','trees','shrubs'):
-        for q in (ROOT/family).rglob('*.png'):
-            if 'ship' in q.parts:known[hashlib.sha256(q.read_bytes()).hexdigest()]=q
-    for q in Path('build/library').rglob('*.png'):
-        if 'ship' in q.parts:known[hashlib.sha256(q.read_bytes()).hexdigest()]=q.resolve()
-    known[hashlib.sha256(Path('textures/checkpoint/T_ManufacturedForm.png').read_bytes()).hexdigest()]=Path('textures/checkpoint/T_ManufacturedForm.png').resolve()
     for im in doc.get('images',[]):
         q=path.parent/im['uri'];digest=hashlib.sha256(q.read_bytes()).hexdigest()
         if digest in known:im['uri']=Path(os.path.relpath(known[digest],path.parent)).as_posix()
@@ -70,6 +78,8 @@ def publish(stem,root,plan=None):
     report['images']=[dict(uri=im['uri'],bytes=(path.parent/im['uri']).stat().st_size,sha256=hashlib.sha256((path.parent/im['uri']).read_bytes()).hexdigest()) for im in doc.get('images',[])]
     report['pivots']=[dict(name=n['name'],**n['extras']) for n in doc['nodes'] if 'pivot_axis' in n.get('extras',{})]
     report['sockets']=sum('socket_kind' in n.get('extras',{}) for n in doc['nodes'])
+    from inspection import mirror
+    embedded=mirror(path);report['inspection_glb']=str(embedded);report['inspection_glb_bytes']=embedded.stat().st_size
     path.with_suffix('.json').write_text(json.dumps(report,indent=2))
     print('PUBLISHED',stem,report['triangles'],report['geometry_bytes'],flush=True);return report
 

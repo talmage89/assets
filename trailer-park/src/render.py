@@ -15,12 +15,12 @@ def setup(width,samples):
     sc.world=bpy.data.worlds.new('Clear afternoon');sc.world.use_nodes=True
     ns,ls=sc.world.node_tree.nodes,sc.world.node_tree.links
     sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(18);sky.sun_rotation=math.radians(235);sky.sun_disc=False;sky.aerosol_density=.45
-    bg=ns.get('Background');bg.inputs['Strength'].default_value=.12;ls.new(sky.outputs[0],bg.inputs[0])
+    bg=ns.get('Background');bg.inputs['Strength'].default_value=.24;ls.new(sky.outputs[0],bg.inputs[0])
     ld=bpy.data.lights.new('Low raking sun','SUN');ld.energy=3.3;ld.angle=math.radians(.65);ld.color=(1,.94,.83)
     sun=bpy.data.objects.new(ld.name,ld);sc.collection.objects.link(sun);sun.rotation_euler=Vector((.75,.61,-.316)).to_track_quat('-Z','Y').to_euler()
     cam=bpy.data.objects.new('CheckpointCamera',bpy.data.cameras.new('CheckpointCamera'));sc.collection.objects.link(cam);sc.camera=cam
     cam.data.sensor_width=36;cam.data.sensor_fit='HORIZONTAL';cam.data.clip_start=.03;cam.data.clip_end=2000
-    sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.5
+    sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.25
     sc.render.resolution_percentage=100;sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGB'
     return cam
 
@@ -36,7 +36,7 @@ def shot_views(stem,meta):
         span=p['span'];sx,sy=p['size'];old=p['kind']=='old'
         xx=p['loop_x']
         return dict(hero=dict(location=(-xx-1.50,-span/2+2,1.68),target=(-xx-.3,-span/2+31,1.83),lens=40),
-                    above=dict(location=(sx*1.02,-sy*1.05,max(sx,sy)*.95),target=(0,0,0),lens=43,aspect=1.45),
+                    above=dict(location=(sx*1.02,-sy*1.05,max(sx,sy)*.95),target=(0,0,0),lens=43,aspect=1.45,light=dict(exposure=0,sky_strength=.28)),
                     entrance=dict(location=(-xx+11,-span/2-19,1.68),target=(-xx+6,-span/2-7,1.4),lens=48,aspect=1.5),
                     row=dict(location=(-xx+2.3,-span/2+15,1.68),target=(-xx-12,-span/2+23,1.8),lens=40))
     if stem.startswith(('Single','Double')):
@@ -63,6 +63,11 @@ def shot_views(stem,meta):
 
 
 def render(stem,path,meta,views,out,width,samples,dress=True):
+    from inspection import mirror
+    delivery=path;packed=mirror(path);archive=(out.parent if out.name=='matches' else out)/'sources'/(stem+'.glb')
+    archive.parent.mkdir(parents=True,exist_ok=True)
+    if not archive.exists() or archive.read_bytes()!=packed.read_bytes():archive.write_bytes(packed.read_bytes())
+    path=archive
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()))
     bpy.context.view_layer.update()
     # Imported custom bone-display helpers never appear in product evidence.
@@ -81,8 +86,8 @@ def render(stem,path,meta,views,out,width,samples,dress=True):
         light=v.get('light',{})
         sun=bpy.data.objects['Low raking sun'];sun.data.energy=light.get('sun_energy',3.3);sun.data.angle=math.radians(light.get('angle_degrees',.65))
         sun.rotation_euler=Vector(light.get('direction',(.75,.61,-.316))).to_track_quat('-Z','Y').to_euler()
-        sc.world.node_tree.nodes.get('Background').inputs['Strength'].default_value=light.get('sky_strength',.12)
-        sc.view_settings.exposure=light.get('exposure',-.5)
+        sc.world.node_tree.nodes.get('Background').inputs['Strength'].default_value=light.get('sky_strength',.24)
+        sc.view_settings.exposure=light.get('exposure',-.25)
         if name=='scale':
             from kit.studio import human
             humans=human()
@@ -107,8 +112,8 @@ def render(stem,path,meta,views,out,width,samples,dress=True):
                 else:cam.location=center+(cam.location-center)*1.06
             v=dict(v,location=list(cam.location),ortho=cam.data.ortho_scale) if cam.data.type=='ORTHO' else dict(v,location=list(cam.location))
         bpy.ops.render.render(write_still=True)
-        provenance.append(dict(stem=stem,shot=name,camera=v,source=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),images=meta['images'],context=ctx,
-                               light={**dict(sun_elevation_degrees=18,sun_energy=3.3,sky_strength=.12,exposure=-.5),**light},engine='CYCLES',width=width,samples=samples))
+        provenance.append(dict(stem=stem,shot=name,camera=v,source=str(path),delivery=str(delivery),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),images=meta['images'],context=ctx,
+                               light={**dict(sky_sun_elevation_degrees=18,sun_elevation_degrees=math.degrees(math.asin(-Vector(light.get('direction',(.75,.61,-.316))).normalized().z)),sun_energy=3.3,sky_strength=.24,exposure=-.25),**light},engine='CYCLES',width=width,samples=samples))
         for root in temporary:
             for o in [*root.children_recursive,root]:bpy.data.objects.remove(o,do_unlink=True)
         for pivot,rest in posed.items():pivot.matrix_basis=rest
@@ -125,7 +130,16 @@ def main():
         if a.before_cameras and a.before_cameras.exists():
             for row in json.loads(a.before_cameras.read_text()):
                 if row['stem']==stem and row['shot'] in ('hero','above'):
-                    views['before_'+row['shot']]=dict(row['camera'],fixed_camera=True)
+                    oldlight={k:v for k,v in row['light'].items() if k in ('sun_energy','sky_strength','exposure','direction','angle_degrees')}
+                    views['before_'+row['shot']]=dict(row['camera'],fixed_camera=True,light=oldlight)
+                if stem=='Park-101' and row['shot'] in ('single-2009','addition-2007','carport-2015'):
+                    from park_matches import transform
+                    number={'single-2009':3,'addition-2007':5,'carport-2015':2}[row['shot']]
+                    lot=next(q for q in meta['plan']['lots'] if q['number']==number);h=lot['home']
+                    offset=(0,0,0) if row['shot']=='single-2009' else (-h['length']*.32,-h['width']/2-1.2,0) if row['shot']=='addition-2007' else (h['length']/2-2.9,-h['width']/2-1.82,0)
+                    camera=dict(row['camera']);camera.update(location=transform(lot,camera['location'],offset),target=transform(lot,camera['target'],offset),
+                        fixed_camera=True,light=row['camera'].get('light',{}),baseline_reference=dict(stem=row['stem'],shot=row['shot'],camera=row['camera'],module_frame=True))
+                    views['before_'+row['shot']]=camera
         if views:receipts+=render(stem,path,meta,views,a.out,a.width,a.samples,not a.no_context)
     if a.cameras and a.cameras.exists():
         from kit.photo_match import verify
@@ -134,7 +148,7 @@ def main():
             stem=row['asset'];meta=json.loads(Path('export',stem+'.json').read_text())
             v=row['shot'];v['aspect']=(row['crop'][2]-row['crop'][0])/(row['crop'][3]-row['crop'][1])
             v['light']=(dict(sun_energy=.55,sky_strength=.36,angle_degrees=12,direction=(.3,.3,-1),exposure=-.40) if name=='single-2009' else
-                        dict(sun_energy=1.5,sky_strength=.26,angle_degrees=5,direction=(.6,.6,-1),exposure=-.5) if name=='addition-2007' else
+                        dict(sun_energy=1.5,sky_strength=.26,angle_degrees=5,direction=(.6,.6,-1),exposure=-.5) if name=='street-2007' else
                         dict(sun_energy=3.3,sky_strength=.16,angle_degrees=.65,direction=(.5,.5,-1),exposure=-.5))
             receipts+=render(stem,Path('export',stem+'.gltf'),meta,{name:v},a.out/'matches',a.width,a.samples,True)
     a.out.mkdir(parents=True,exist_ok=True);(a.out/'provenance.json').write_text(json.dumps(receipts,indent=2));print('RENDERED',len(receipts),flush=True)

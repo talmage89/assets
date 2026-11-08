@@ -22,8 +22,9 @@ def main():
     for row in receipts:
         source=Path(row['source'])
         assert hashlib.sha256(source.read_bytes()).hexdigest()==row['sha256'],('Stale export render',row['stem'],row['shot'])
+        delivery=Path(row.get('delivery',row['source']))
         for im in row['images']:
-            assert hashlib.sha256((source.parent/im['uri']).read_bytes()).hexdigest()==im['sha256'],('Changed image input',im['uri'])
+            assert hashlib.sha256((delivery.parent/im['uri']).read_bytes()).hexdigest()==im['sha256'],('Changed image input',im['uri'])
         relative=Path(row['stem'])/(row['shot']+'.png')
         assert (root/relative).is_file() or (root/'matches'/relative).is_file(),('Missing rendered frame',relative)
     paths=[p for p in sorted(root.glob('*/*.png')) if p.parent.name!='matches'];assert paths,'No exported review frames'

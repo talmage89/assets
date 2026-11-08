@@ -51,7 +51,7 @@ def park(seed=101, kind=None, rows=9):
             # Both street-facing end walls have a 6 m drive approach. Side
             # entries, decks and carports stay inside the lot's own frontage.
             xx=lane+side*(street/2+6.096+spec['length']/2)
-            lots.append(dict(number=len(lots)+1,home=spec,origin=[xx,yy+1.15,0],yaw=0 if side<0 else 180,
+            lots.append(dict(number=len(lots)+1,home=spec,origin=[xx,yy+(1.40 if old else 1.15),0],yaw=0 if side<0 else 180,
                              lot=[lane+side*(street/2+depth/2),yy,depth,pitch],side=side,lane=lane))
     if not old:
         # Three residential-size reservations for clubhouse, play and laundry.

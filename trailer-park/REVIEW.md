@@ -236,3 +236,35 @@ deterministic plans, raw mesh/UV/normal checks and all clearance probes.
 with cached native inputs. All 492 pre-existing delivery/image hashes are
 unchanged. There are no kit changes and no committed render images.
 Stop here for the owner's construction/layout review.
+
+## Look-dev restart — inspect the rejection before changing the scene
+
+Inspected both pass-4 park heroes and obliques, SingleWide-120 and
+DoubleWide-228 heroes, and the matched contact at native resolution.
+
+**Color and value first.** The old clear-sky images are cool and too dark
+across the lawns and shaded end walls. Dark cavities are useful, but a whole
+dark lawn is not photographic contrast. The reference neutrals remain the
+white 2009 storm-door frame, 2007 addition fascia and 2015 aluminum pan.
+Their balancing assumptions must accompany the complete-park comparisons.
+
+The sparse plots, broad continuous pads, missing inspection-home steps and
+empty end elevations fail before material detail. The first revision uses
+four rows and linked seeded home/add-on meshes. Tightening the older frontage
+to 32 ft at 110 ft depth gives 3520 sqft lots and 36 homes / 9.053 homes per
+acre. HUD's 2000 guide, Appendix D pp. 63–66, reports 3500 sqft in some
+surveyed communities, frontage down to 20 ft and 10–20 ft separations. This
+is the wider survey range, not the earlier modal 40–50 ft comparator or an
+assertion that a fictional 1968 park was approved under a later ordinance.
+The newer 56 × 95 ft lots give 33 homes / 5.764 homes per acre.
+
+The revised calibration uses five visible 2009 wall corners rather than an
+obscured floor corner and a misidentified ridge point. The complete older
+street uses the addition's six construction corners. The aerial uses ten
+pan/post anchors on two adjacent lots. The camera estimates are 9.59 / 17.00 /
+16.56 native pixels RMS. These fit the named anchors, not every home in the
+photographs; the aerial reaches its 100mm crop-lens bound. The used-lot fit
+infers a low camera, without a height prior; it is not an eye-height hero.
+
+This entry records the rejected baseline and source decisions. The three
+new exported-material image critiques follow after the shared GPU bake.

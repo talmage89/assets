@@ -134,7 +134,7 @@ def check():
                 assert h['triangles']<=cap,(stem,lot['number'],'seeded home budget',h['triangles'],cap)
                 if lot['home']['carport']:
                     def tree(suffix):
-                        ob=next(o for o in bpy.context.scene.objects if o.name==f'Lot_{lot["number"]:02}_{suffix}__Mesh')
+                        ob=next(o for o in bpy.context.scene.objects if o.name==f'Lot_{lot["number"]:02}_{"Home_" if suffix=="Deck" else ""}{suffix}__Mesh')
                         ob.data.calc_loop_triangles()
                         return BVHTree.FromPolygons([ob.matrix_world@v.co for v in ob.data.vertices],[list(t.vertices) for t in ob.data.loop_triangles],all_triangles=True)
                     overlaps=tree('Deck').overlap(tree('Carport'))
@@ -166,18 +166,20 @@ def check():
             private=next(o for o in bpy.context.scene.objects if o.type=='MESH' and o.name.startswith('Private asphalt 0'))
             xyz=np.array([private.matrix_world@v.co for v in private.data.vertices]);road_width=float(np.ptp(xyz[:,0]));assert abs(road_width-p['street_width'])<2e-5
             separations=[]
-            for side in (-1,1):
-                lots=sorted([r for r in p['lots'] if r['side']==side],key=lambda r:r['origin'][1])
+            for lane,side in sorted({(r['lane'],r['side']) for r in p['lots']}):
+                lots=sorted([r for r in p['lots'] if r['side']==side and r['lane']==lane],key=lambda r:r['origin'][1])
                 for aa,bb in zip(lots,lots[1:]):
                     # Independent raw mesh groups include attached porch/shed;
                     # home-only roots are selected by their serialized names.
                     av=vertices(g,f'Lot_{aa["number"]:02}_Home__Mesh');bv=vertices(g,f'Lot_{bb["number"]:02}_Home__Mesh')
                     if len(av) and len(bv):separations.append(float(bv[:,1].min()-av[:,1].max()))
+            # Rows on different lanes are separate neighborhoods; measure
+            # only neighbors sharing a lane and side.
             assert not separations or min(separations)>3.0,(stem,'home separation',separations)
             construction[stem]=dict(road_width_mesh_m=road_width,home_separation_mesh_m=separations,minimum_car_socket_spacing_m=car_spacing,static_assembly_pairs_checked=placement_pairs,deck_carport_mesh_checks=addon_clearance,net_lot_area_m2=p['lot_frontage']*p['lot_depth'],home_count=len(p['lots']),road_graph=p['roads'])
         rows[stem]=dict(triangles=triangles,geometry_bytes=meta['geometry_bytes'],materials=len(d['materials']),collapsed_triangles=collapsed,collapsed_diagnostic_uv_triangles=uv_bad,max_normal_length_error=maxnormal,mesh_size_m=size.tolist(),fresh_import=True)
         print('CHECK',stem,triangles,'UV diagnostics',uv_bad,flush=True)
-    baseline=Path('build/preserved.json');preserved=0
+    baseline=Path('build/preserved-all.json');preserved=0
     if baseline.exists():
         for name,digest in json.loads(baseline.read_text()).items():
             p=HERE.parents[1]/name;assert p.exists() and hashlib.sha256(p.read_bytes()).hexdigest()==digest,('Changed pre-existing delivery',name);preserved+=1
@@ -189,7 +191,7 @@ def check():
             h=row['home'];assert h['length']+6.096<=p['lot_depth'];assert h['width']+3.6<p['lot_frontage']
         sweep.append(p['kind'])
     assert park(101,'old')['roads']!=park(202,'new')['roads']
-    report=dict(passed=True,scope='form / raw serialization / sampled geometry; quick UV diagnostics, not bake approval',exports=rows,construction=construction,plan_sweep_count=1000,preserved_delivery_files=preserved,external_image_identities=len(images))
+    report=dict(passed=True,scope='raw serialization / sampled construction; look-dev UV and resource checks reported separately',exports=rows,construction=construction,plan_sweep_count=1000,preserved_delivery_files=preserved,external_image_identities=len(images))
     Path('build/check.json').write_text(json.dumps(report,indent=2));print('PASS',len(rows),'exports;',preserved,'preserved files',flush=True)
 
 if __name__=='__main__':check()
