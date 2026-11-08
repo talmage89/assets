@@ -28,7 +28,10 @@ def field():
   a=np.pad(a,2,mode='wrap');im=Image.fromarray(a).resize((size+4*size//n,)*2,Image.Resampling.BICUBIC)
   return np.asarray(im,np.float32)[2*size//n:2*size//n+size,2*size//n:2*size//n+size]-.5
  clump=.42*noise(11)+.35*noise(31)+.21*noise(79)
- value=fine*(1+clump*.65)
+ # A 1.524m mowing swath remains in the textured base when blades are below
+ # a pixel. Near cards carry the corresponding alternating orientation.
+ stripe=1+.035*np.sin(np.arange(size,dtype=np.float32)*math.tau/size)
+ value=fine*(1+clump*.65)*stripe[None,:]
  rgb=np.clip(value[:,:,None]*np.array([.145,.170,.055]),0,1)
  path.parent.mkdir(parents=True,exist_ok=True);write_png(path,linear_to_srgb(rgb),bits=8)
  receipt.write_text(json.dumps(dict(inputs=sig,output_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),scope='Seasonal derivative of original Ground manufacture; same canonical normal/ORM and 2048 allocation'),indent=2));return path
@@ -57,7 +60,9 @@ def lawn_tint(x,y,kind='verge',seed=0,height=0,lateral=None):
  if kind=='yard':return ((.80+.18*dry)*(.125/.145)*rootshade,(.93-.26*dry)*(.155/.170)*rootshade,(.94-.37*dry)*rootshade,1)
  # Mowing contrast belongs to the dense card tiles. Sampling its short
  # period on the sparse earth corners would alias into large triangles.
- return ((.84+.20*dry)*red_scale*rootshade,(.98-.16*dry)*rootshade,(.96-.27*dry)*rootshade,1)
+ # Aggregate short turf includes under-blade shadow. Matching that value
+ # reduces the near-card/distant-base discontinuity in the exported asset.
+ return tuple(v*.78 for v in ((.84+.20*dry)*red_scale*rootshade,(.98-.16*dry)*rootshade,(.96-.27*dry)*rootshade))+(1,)
 
 def verges(p,parent):
  """Exported instanced clumps share a guarded chart in the existing atlas."""
@@ -71,11 +76,14 @@ def surface(b,p,points):
  and moved seats/flumes. Manufacture grain and instanced cards provide local
  detail without adding a dense terrain grid or altering those supports.
  """
- start=len(b.colors);b.surface(points,'Lawn')
+ start=len(b.colors);b.surface(points,'Lawn');uv=[]
  for k in range(start,len(b.colors)):
   x,y,z=b.v[k];u=p.radius-math.hypot(p.radius-x,y) if p.radius else x
   kind='unmown' if abs(u)>(43 if p.kind=='diamond' else 28) else 'verge'
   b.colors[k]=lawn_tint(x,y,kind,p.seed,z,lateral=u)
+  station=math.atan2(y,p.radius-x)*p.radius if p.radius else y
+  uv.append((u/3.048,station/3.048))
+ b.uv[-1]=uv
 
 def smooth(ob):
  """Average matching earth corners; retain the physical ditch/crest shape."""

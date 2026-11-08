@@ -18,15 +18,22 @@ belong to the optional context budget. Eight linked tile meshes carry the
 near-field parallax; density falls toward the textured base at distance. Tiles
 follow actual earth normals and reject paved footprints. Mown cards are short;
 unmown drifts past the maintenance line are taller. The card material is stock
-double-sided glTF MASK and allocates no extra image. Each linked tile has 64
-clumps, two crossed quads per clump and 256 triangles. Stratified roots and
+double-sided glTF MASK and allocates no extra image. Each linked tile has 16
+clumps, two crossed quads per clump and 64 triangles, on a .65m placement pitch.
+The smaller footprint fits terrain creases with less whole-patch burial.
+Stratified roots and
 upward blade normals keep the sward continuous. The atlas fan has 90
 thin blades and two seed heads. Alternating shoulder strips select subtly
 lighter/darker card patterns; unmown tiles vary height in drifts. Grass-card
 normal strength is .10 so the atlas's shared repair relief does not make
 individual blades look corrugated. Source-height comparisons apply that same
 strength. The base retains the native baked blade normal at its own scale.
-Two narrow linked tile rows taper the curved median's sward toward paving.
+Four narrow linked tile rows taper the curved median's sward toward paving.
+Placement density and blade height both fade toward the distant base. Its
+aggregate under-blade value and faint 1.524m mowing swaths keep distant turf
+from becoming a lighter blank sheet. ROW UVs follow station/lateral meters,
+including the curved alignment. Additional near-detail zones cover guides
+and rails; all cards and their scales are present in the actual export.
 Bare soil/gravel reuses the native Asphalt mineral grain with brown vertex
 pigment; its image bytes stay canonical. The irregular median-edge skin is
 sampled against the actual terrain, retaining the original supporting mesh.

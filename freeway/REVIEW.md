@@ -865,3 +865,28 @@ The requested fix gate passes; the remaining final views may render under
 the current GPU lease. Gallery approval still requires every final, photo
 pair and contact sheet to be inspected, and the complete checks/repeats.
 
+## Round 4, pass 4 extension: aerial gate fails
+
+Color and value: the three new high views expose a larger card/base value
+discontinuity than the ground panels. Around the ends of the detailed region,
+full-height tiles leave dark rectangular clusters against a lighter base.
+The 101 aerial makes their checker rhythm obvious. The terminal's foreground
+also exposes the coarse patch footprint, while the rail/sign inspections
+outside that original region still have near turf with too little volume.
+I opened all 15 completed raw views at native size, including the three
+aerials, terminal, cut view, alignment, rail and both guide views. The ground
+fix panels passed; this broader final review rejects the grass presentation.
+The running final set was stopped and its approval marker removed. No docs.
+
+Corrections for the fifth pass: halve the patch footprint to .65m and use
+16 clumps / 64 triangles per shared mesh, keeping nominal triangle density
+while fitting smaller terrain creases. Fade blade height with density squared
+as well as thinning placements. Blend the mowing-height boundary, shorten
+the tallest stand, and match the distant sward's under-blade shadow value.
+Faint 1.524m mowing swaths remain in the base with meter-scaled UVs following
+the curved alignment. Additional low-density detail zones cover the rail and
+guide inspections. These are exported geometry and pigment changes; no
+render-only hiding is used. The aerials must pass before final continuation.
+This retains the successful framing, lane and barrier age and continuous
+column flow; the stronger ground test did not certify the full set.
+

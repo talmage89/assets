@@ -40,28 +40,35 @@ def plant(p,parent):
  templates=[]
  for pattern in range(8):
   b=Q.Batch('Grass clump tile %02d'%pattern)
-  for j in range(64):
+  for j in range(16):
    # Stratified roots and restrained tile jitter avoid bare islands between
    # opaque fan silhouettes. Density belongs to the sward, not each fan.
-   x=(j%8-3.5)*.16+rng.uniform(-.045,.045)
-   y=(j//8-3.5)*.16+rng.uniform(-.045,.045);h=rng.uniform(.12,.22)
+   x=(j%4-1.5)*.32+rng.uniform(-.04,.04)
+   y=(j//4-1.5)*.32+rng.uniform(-.04,.04);h=rng.uniform(.12,.22)
    shade=1 if pattern<4 else .93
    tint=tuple(rng.uniform(.91,1)*shade for _ in range(3))+(1,)
    for angle in (rng.uniform(0,math.pi),rng.uniform(math.pi,math.tau)):
-    d=Vector((math.cos(angle),math.sin(angle),0))*.14;v=Vector((x,y,0))
+    d=Vector((math.cos(angle),math.sin(angle),0))*.18;v=Vector((x,y,0))
     pts=[v-d,v+d,v+d+Vector((.035,0,h)),v-d+Vector((.035,0,h))]
     u0,v0,u1,v1=rect('weed')
     b.face(pts,'GrassCard',uv=[(u0,v0),(u1,v0),(u1,v1),(u0,v1)],tint=tint,normals=[(0,0,1)]*4)
   ob=b.finish();templates.append(ob)
  # A high-density inspected area fades over 120m into the textured base.
  # No geometry is spent in distant lots or beyond the principal corridor.
- for sindex in range(-140,161):
-  s=sindex*1.30+rng.uniform(-.18,.18)
-  for uindex in range(-65,66):
-   u=uindex*1.30+rng.uniform(-.18,.18)
+ pitch=.65
+ for sindex in range(math.floor(-p.length/2/pitch),math.ceil(p.length/2/pitch)+1):
+  s=sindex*pitch+rng.uniform(-.08,.08)
+  for uindex in range(-130,131):
+   u=uindex*pitch+rng.uniform(-.08,.08)
    if p.kind=='diamond' and abs(u)<p.edge+.5:continue
    if p.kind=='soundwall' and not (abs(u)<p.median/2-.35 or p.edge+.5<abs(u)<30):continue
    dist=abs(s+35);density=max(0,min(1,(190-dist)/90))
+   if p.kind=='diamond':
+    # These additional maintained roadside zones include the guide and rail
+    # examples. Fine roots must exist there too, not only near the bridge.
+    for station,lateral in ((-405,6),(-291,10),(-249,29),(405,-6)):
+     distance=math.hypot(s-station,u-lateral)
+     density=max(density,.65*max(0,min(1,(65-distance)/30)))
    if rng.random()>density:continue
    x,y,_=p.xyz(s,u);q,normal,_,_=soil.ray_cast(Vector((x,y,30)),Vector((0,0,-1)),60)
    if q is None:continue
@@ -71,16 +78,20 @@ def plant(p,parent):
    tall=abs(u)>limit
    # Height follows the mowing boundary, with unmown seed drifts rather
    # than a dotted row of isolated stems. Mown median stays close-cropped.
-   h=(1.7+.8*math.sin(s*.19+u*.43)**2) if tall else .52+.28*rng.random()
-   if tall and math.sin(s*.23+u*.39)<-.6:h*=.5
-   pattern=rng.randrange(8) if tall else (4*(math.floor(abs(u)/1.8)%2)+rng.randrange(4))
+   mown=.52+.28*rng.random();long=1.55+.35*math.sin(s*.19+u*.43)**2
+   if math.sin(s*.23+u*.39)<-.6:long*=.7
+   blend=max(0,min(1,(abs(u)-limit+1.5)/3));blend=blend*blend*(3-2*blend)
+   # Shrinking blades, as well as thinning them, avoids dark square islands
+   # when all of the distance transition is visible from an aerial camera.
+   h=(mown*(1-blend)+long*blend)*max(.005,density*density)
+   pattern=rng.randrange(8) if tall else (4*(math.floor(u/1.524)%2)+rng.randrange(4))
    ob=templates[pattern].copy();bpy.context.collection.objects.link(ob)
    ob.name='ROW turf tile %05d'%count;ob.parent=parent;ob.location=q+Vector((0,0,-.025))
-   ob.rotation_mode='QUATERNION';ob.rotation_quaternion=normal.to_track_quat('Z','Y')@Quaternion(Vector((0,0,1)),rng.uniform(0,math.tau));ob.scale=(1,1,h)
+   ob.rotation_mode='QUATERNION';ob.rotation_quaternion=normal.to_track_quat('Z','Y')@Quaternion(Vector((0,0,1)),rng.uniform(0,math.tau));ob.scale=(.5,.5,h)
    # A linked tile is planar at its roots. At a ditch/crest crease, lower it
    # onto the measured earth rather than leaving its downhill edge floating.
    gaps=[]
-   for dx,dy in ((-.75,-.75),(-.75,.75),(.75,-.75),(.75,.75)):
+   for dx,dy in ((-.4,-.4),(-.4,.4),(.4,-.4),(.4,.4)):
     v=ob.location+ob.rotation_quaternion@Vector((dx,dy,0))
     hit=soil.ray_cast(Vector((v.x,v.y,30)),Vector((0,0,-1)),60)[0]
     if hit is not None:gaps.append(v.z-hit.z)
