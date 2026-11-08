@@ -38,9 +38,18 @@ def add(r,levels,H):
         b.box((2.77,0,z+.005),(.10,1.78,.12),'Steel')
         for yy in (-.85,.85):b.box((2.77,yy,z+1.5),(.10,.065,3.0),'Steel')
         # Landing call panel and a conventional recessed door surround.
-        b.box((2.09,2.855,z+1.10),(.12,.025,.25),'Steel')
-        for zz in (1.06,1.15):b.box((2.09,2.8715,z+zz),(.035,.008,.035),'White')
+        b.box((2.20,2.902,z+1.10),(.12,.025,.25),'Steel')
+        for zz in (1.06,1.15):b.box((2.20,2.9185,z+zz),(.035,.008,.035),'White')
         for xx in (.51,2.09):b.box((xx,2.825,z+1.1),(.065,.035,2.2),'Steel')
+        # Formed sheet pockets conceal the full landing/inner-panel travel.
+        # Their inner side is an open mouth; a return there would block the
+        # sliding leaf. Closed 2mm skins give the solid-motion sampler real
+        # thickness; concrete closes the rear of each assembled pocket.
+        for lo,hi,outer in ((-.20,.55,-.20),(2.05,2.80,2.80)):
+            y0,y1=2.701,2.88;bottom,top=z+.006,z+2.17
+            b.box(((lo+hi)/2,y1-.001,(bottom+top)/2),(hi-lo,.002,top-bottom),'Stainless')
+            b.box((outer+(.001 if outer==lo else -.001),(y0+y1)/2,(bottom+top)/2),(.002,y1-y0,top-bottom),'Stainless')
+            for zz in (bottom+.001,top-.001):b.box(((lo+hi)/2,(y0+y1)/2,zz),(hi-lo,y1-y0,.002),'Stainless')
     # Elevator overrun and separate machine-room hood, vent and folded coping.
     b.box((1.48,0,H+.51),(2.42,5.37,.84))
     b.box((1.48,0,H+.98),(2.60,5.55,.10),'Steel')

@@ -214,9 +214,9 @@ def tower(r,levels=4,elevator=True,refined=False):
                 b.prism([(xx-.65,yy,zz) for yy,zz in section],(1.30,0,0))
                 a=(xx,start,base+rise+.90);c=(xx,end,base+10*rise+.90)
                 for side in (-1,1):
-                    aa=(a[0]+side*.59,a[1],a[2]);cc=(c[0]+side*.59,c[1],c[2]);b.tube([aa,cc],.019,'Steel')
+                    aa=(a[0]+side*.59,a[1],a[2]);cc=(c[0]+side*.59,c[1],c[2]);b.tube([aa,cc],.019,'Steel',n=6 if refined else 8)
                     for j in (0,3,6,9):
-                        t=j/9;pt=Vector(aa).lerp(Vector(cc),t);b.tube([(pt.x,pt.y,base+(j+1)*rise-.025),pt],.015,'Steel')
+                        t=j/9;pt=Vector(aa).lerp(Vector(cc),t);b.tube([(pt.x,pt.y,base+(j+1)*rise-.025),pt],.015,'Steel',n=6 if refined else 8)
         # Stair door at actual back-wall jamb. Outward swing into clear end bay.
         pv=root(f'{r.name}__StairDoor_L{lev+1}',(-2.00,2.715,z),r,pivot_axis='Z',range_degrees=[0.,95.])
         d=Mesh(pv.name+'__Leaf',pv)
