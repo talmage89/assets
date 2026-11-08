@@ -58,3 +58,11 @@ all geometry and maps; distant context bodies retain the prior coherent local
 LOD normals and omit the high-mesh normal bake. Brake emission is retained for
 queues and disabled for flowing daytime traffic. These static scene actors do
 not replace the working native vehicle deliveries.
+
+`context_colors.py` decodes the canonical GLB's embedded PNG explicitly from
+sRGB, applies the native factory-reference delta through its coverage alpha,
+filters in linear light and encodes once. Twelve 1024 RGB variants serve four
+additional colors on three bodies; Atlantic reuses the native reference map.
+The inverse audit follows actual exported material bindings and recovers the
+filtered native reference within 8-bit quantization on unclipped pixels. This
+guards against the pale-fleet conversion error rejected in review pass 4.
