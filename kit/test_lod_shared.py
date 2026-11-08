@@ -82,6 +82,13 @@ def refinement_fixtures():
     sample_attrs['TEXCOORD_0'][:]=[.25,.25]
     with shells.refinement_policy(.2,.75,32,source=MaterialSource(transform=dict(offset=[.5,0])),reflective_surface_pixels=.125):
         assert shells._reflective_surface(sample_attrs,sample_face,shells._REFINEMENT.get()) is None
+    class FactorSource:
+        def __init__(self,metallic,roughness):
+            self.data=dict(materials=[dict(pbrMetallicRoughness=dict(metallicFactor=metallic,roughnessFactor=roughness))])
+    for metallic,roughness,expected in [(1.,.32,True),(1.,.35,False),(1.,.4,False),(.74,.1,False)]:
+        with shells.refinement_policy(.2,.75,32,source=FactorSource(metallic,roughness),reflective_surface_pixels=.125):
+            response=shells._reflective_surface(sample_attrs,sample_face,shells._REFINEMENT.get())
+            assert bool(response)==expected,(metallic,roughness,response)
     with shells.refinement_policy(.2,.75,32):
         outer=shells._REFINEMENT.get()
         with shells.refinement_policy(.2,.75,32,enabled=False):

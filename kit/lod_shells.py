@@ -37,7 +37,7 @@ def refinement_policy(ratio,surface_pixels,texture_size,*,source=None,reflective
     """Refine failed skins before restoring a whole source construction.
 
     Optional reflective caps allocate finer geometry to source components with
-    median metallic >= .75 and roughness < .3. This is a sampling-priority rule;
+    median metallic >= .75 and roughness < .35. This is a sampling-priority rule;
     native image checks still decide whether the result is adequate.
     """
     import math
@@ -92,7 +92,7 @@ def _reflective_surface(attrs,faces,policy):
         values=sample(image,uv)
         metal.extend(values[:,2]*mf);rough.extend(values[:,1]*rf)
     metallic=float(np.median(metal));roughness=float(np.median(rough))
-    if metallic<.75 or roughness>=.3:return None
+    if metallic<.75 or roughness>=.35:return None
     return dict(metallic_median=metallic,roughness_median=roughness,
                 surface_pixels=min(policy['surface_pixels'],policy['reflective_surface_pixels']))
 

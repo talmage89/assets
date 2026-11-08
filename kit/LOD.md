@@ -309,7 +309,7 @@ on exceptions. Reports record the level's choice in its assembly receipt.
 
 A level may set `reflective_surface_pixels` to a positive cap no larger than its
 base `surface_pixels`. This recooks source components whose median metallic is
-at least .75 and median roughness is below .30 at their original corners. The
+at least .75 and median roughness is below .35 at their original corners. The
 source metallic/roughness factors, texture coordinates, texture transform and
 sampler wraps/filter are evaluated from the immutable delivery; ORM stays linear.
 The existing texture sampler is reused. Other constructions keep the base
