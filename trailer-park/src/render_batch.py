@@ -77,6 +77,10 @@ def before_frames(after,width):
         assert max(abs(x-y) for p,q in zip(old['camera_matrix_world'],new['camera_matrix_world']) for x,y in zip(p,q))<1e-6
         assert all(old['light'][k]==new['light'][k] for k in keys)
         path=out/stem/(shot+'.png');path.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(old_folder/stem/(shot+'.png'),path)
+        # The historical bytes are unchanged, but their camera/light have
+        # just been validated for this build. Do not inherit a stale mtime
+        # that schedules another GPU batch on every subsequent make.
+        path.touch()
         meta=json.loads((frozen/'export'/(stem+'.json')).read_text())
         row=dict(old,delivery=str(frozen/'export'/(stem+'.gltf')),images=meta['images'],reused_verified_frame=str(old_folder/stem/(shot+'.png')),image_sha256=digest(path))
         path.with_suffix('.receipt.json').write_text(json.dumps(row,indent=2));rows.append(row)
