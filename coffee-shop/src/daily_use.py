@@ -79,10 +79,20 @@ def bicycle(parent,x,y,z):
         b.tube([(-.07,0,.29),(-.07+s*.13,s*.075,.29)],.010,'steel',6)
         b.box((-.07+s*.13,s*.10,.29),(.08,.065,.022),'black')
     b.tube([(-.13,-.037,.30),(-.53,-.037,.37),(-.50,-.037,.32),(-.13,-.037,.25),(-.13,-.037,.30)],.003,'black',5)
-    # Slack cable and U-lock; both are physically routed around frame/rack.
+    # A slack brake cable, plus a closed 14mm U-bow around frame and rack.
     b.tube([(.26,-.26,1.02),(.35,-.09,.95),(.38,-.05,.77),(.44,-.06,.64)],.0024,'black',5)
-    b.tube([(-.29,.02,.73),(-.32,-.27,.66),(-.17,-.27,.62),(-.08,.02,.73)],.007,'black',7)
-    b.tube([(-.29,.02,.73),(-.08,.02,.73)],.010,'black',7)
+    # The bow lies in an oblique plane: the leaned bicycle and vertical rack
+    # have different heights at the two enclosed sections. check_use.py checks
+    # both sections and actual triangle clearance after glTF re-import.
+    lock_center=Vector((-.215,.0242,.73));lock_radius=.065
+    lock_axis=Vector((0,-.3542,-.07)).normalized()
+    bow=[lock_center+Vector((-lock_radius,0,0))]
+    for k in range(9):
+        theta=math.pi-k*math.pi/8
+        bow.append(lock_center+Vector((lock_radius*math.cos(theta),0,0))+lock_axis*(.295+lock_radius*math.sin(theta)))
+    bow.append(lock_center+Vector((lock_radius,0,0)))
+    b.tube(bow,.007,'black',5)
+    b.tube([bow[0],bow[-1]],.010,'black',7)
     ob=b.finish();r.rotation_euler.x=math.radians(7)
     low=min((r.rotation_euler.to_matrix()@v.co).z for v in ob.data.vertices)
     r.location.z-=low;return r

@@ -265,7 +265,7 @@ def outside(p,front):
     for i,key in enumerate(('Litter','Recycling')):add_piece(key,'Outdoor_'+key,(xx+i*.85,yy,z),r)
     add_piece('BikeRack','Outdoor_BikeRack',(-p['width']/2-1.0,-3.75,z),r,90)
     from daily_use import bicycle,bowl
-    bike=bicycle(r,-p['width']/2-1.35,-3.75,z);bike.rotation_euler.z=math.radians(90)
+    bike=bicycle(r,-p['width']/2-1.35,-3.898,z);bike.rotation_euler.z=math.radians(90)
     bowl(r,p['entry'][0]+1.06,-.13,z)
     return r
 

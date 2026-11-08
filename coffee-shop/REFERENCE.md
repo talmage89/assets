@@ -113,7 +113,12 @@ screen emission reuse BaseColor through a second UV channel; no image is added.
 The original commuter bicycle uses 674 mm tire diameter, 35 mm tire gauge,
 1.06 m wheelbase and 28 mm frame tubes, with rims, spokes, crank, chain,
 slack brake cable and a closed U-lock around the rack/frame. Its dimensions
-are authored common commuter proportions. The spun dog bowl is 250 mm across
+are authored common commuter proportions. The 14 mm U-bow has a 130 mm
+centerline width, a rounded end and 360 mm reach; the crossbar is 20 mm.
+Its oblique plane spans the leaned seat tube and the vertical rack leg.
+The independent fresh-export check fits that plane to the actual lock mesh,
+requires closed frame and rack sections inside the bow, rejects triangle
+crossings and records the sampled support gap. The spun dog bowl is 250 mm across
 and 75 mm high. Neither is adapted from a downloaded product or mesh.
 Seeded chair yaw/pull-out stays in the accepted furniture bays; actual route
 checks include the bag, bicycle and bowl. The original table positions,
