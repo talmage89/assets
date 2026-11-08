@@ -46,12 +46,16 @@ def exterior(a,p):
 def window(a,p,face,h,xf):
     u,w,z,ht=h['u'],h['w'],h['z'],h['h']
     m=a.mesh('WindowDetails_'+face,component='window_detail')
+    replacement=p['era']!='1996' and p['upkeep']=='patched' and face=='front' and abs(u-p['length']*.13)<.01
+    frame=(.70,.70,.64) if replacement else (.43,.45,.43)
     # Outside storm frame stands 65mm proud of siding, with a deep sill.
     for uu in (u-w/2+.014,u+w/2-.014):
-        m.box((uu,.065,z+ht/2),(.028,.035,ht+.024),'Trim',(.43,.45,.43),xf=xf)
+        m.box((uu,.065,z+ht/2),(.052 if replacement else .028,.035,ht+.024),'Trim',frame,xf=xf)
     for zz in (z-.008,z+ht+.008):
-        m.box((u,.065,zz),(w+.04,.035,.028),'Trim',(.43,.45,.43),xf=xf)
-    m.box((u,.065,z+ht/2),(w-.04,.035,.027),'Trim',(.43,.45,.43),xf=xf)
+        m.box((u,.065,zz),(w+.04,.035,.052 if replacement else .028),'Trim',frame,xf=xf)
+    if replacement:
+        m.box((u,.075,z+ht/2),(.052,.040,ht),'Trim',frame,xf=xf)
+    else:m.box((u,.065,z+ht/2),(w-.04,.035,.027),'Trim',frame,xf=xf)
     m.box((u,.09,z-.035),(w+.13,.18,.035),'Trim',xf=xf)
     if face in ('left','right') and not p['double']:
         for uu in (u-w/6,u+w/6):m.box((uu,.042,z+ht/2),(.035,.052,ht),'Trim',(.43,.45,.43),xf=xf)

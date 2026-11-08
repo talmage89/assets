@@ -19,32 +19,41 @@ def runoff(a,p):
         length=L if along else W;holes=openings(p,face)
         normal=Vector((0,sign,0) if along else (sign,0,0))
         def xf(u,z):return (u,sign*(W/2+.0008),z) if along else (sign*(L/2+.0008),u,z)
-        count=math.ceil(length/.9144);used=[]
+        count=math.ceil(length/.9144);sources=[]
         for j in range(1,count):
-            if r.random()>.35+.60*severity:continue
-            u=-length/2+j*length/count;drop=r.uniform(.65,1.75)*(.65+severity)
-            # A hood diverts runoff to its ends; do not truncate every
-            # seam above the awnings and hide the entire age treatment.
-            for h in holes:
-                if abs(u-h['u'])<h['w']/2+.14:u=h['u']+(1 if u>=h['u'] else -1)*(h['w']/2+.17)
-            if abs(u)>length/2-.14 or any(abs(u-v)<.43 for v in used):continue
-            used.append(u)
-            bottom=max(F+.78,E-drop)
-            for h in holes:
-                if abs(u-h['u'])<h['w']/2+.08:bottom=max(bottom,h['z']+h['h']+.075)
-            if bottom>E-.06:continue
-            width=r.uniform(.035,.115)*(.6+severity);levels=[bottom+(E-bottom)*v for v in (0,.16,.42,.72,1)]
+            if r.random()>.12+.17*severity:continue
+            u=-length/2+j*length/count
+            if any(abs(u-h['u'])<h['w']/2+.15 for h in holes):continue
+            sources.append((u,E-.025,r.uniform(.13,.72),r.uniform(.018,.055),r.uniform(.22,.65)))
+        for h in holes:
+            if h['kind']!='window':continue
+            for side in (-1,1):
+                if r.random()>.35+.3*severity:continue
+                # Corroded sill ends and awning screws bleed independently.
+                u=h['u']+side*(h['w']/2+.07)
+                sources.append((u,h['z']-.045,r.uniform(.09,.36),r.uniform(.018,.040),r.uniform(.20,.56)))
+                if p['era']=='1972' and r.random()<.45:
+                    sources.append((u+side*.07,min(E-.03,h['z']+h['h']+.16),r.uniform(.12,.35),.025,.48))
+        for j,(u,top,drop,width,opacity) in enumerate(sources):
+            bottom=max(F+.08,top-drop)
+            if bottom>=top:continue
+            levels=[top-(top-bottom)*v for v in (0,.12,.35,.67,1)]
             vs=[];colors=[]
             for k,z in enumerate(levels):
-                strength=(k/4)**.4*severity*r.uniform(.66,.98)
-                drift=.008*math.sin(k*1.7+j);spread=width*(.35+.65*(k/4))
+                t=k/4;strength=(1-t)**1.45*severity*opacity
+                drift=.004*math.sin(k*1.7+j);spread=width*(1-.85*t)
                 for t in (-1,0,1):
-                    q=xf(u+drift+spread*t,z);base=Vector(age(q,normal,p['color'],'Siding','wall',p,p['seed']))
-                    c=base.lerp(Vector((.16,.050,.012)),strength if t==0 else 0)
+                    q=xf(u+drift+spread*t,z)
+                    color=p['accent'] if p['era']=='1972' and z<F+.71 else p['color']
+                    base=Vector(age(q,normal,color,'Siding','wall',p,p['seed']))
+                    c=base.lerp(Vector((.12,.041,.011)),strength if t==0 else 0)
                     vs.append(q);colors.append((*c,1))
             fs=[(k*3+t,k*3+t+1,(k+1)*3+t+1,(k+1)*3+t) for k in range(4) for t in range(2)]
             if (along and sign>0) or (not along and sign<0):fs=[tuple(reversed(f)) for f in fs]
             m.geom(vs,fs,'Siding');m.col[-len(colors):]=colors
+            if top>E-.06:
+                # A real source head sits in the drip rail above its stain.
+                m.box(xf(u,top+.012),(.012,.012,.012),'Trim',(.12,.07,.035))
     if m.v:
         ob=m.finish()
         # These are open skins. A closed-volume normal pass is ambiguous.

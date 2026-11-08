@@ -52,7 +52,7 @@ def cut(ob,p):
         if component in ('carport','carport_posts') and axis!=2:continue
         if component=='roof' and axis==2:continue
         if axis==2:
-            levels=[F+.25,E-.4,E-.10,F+2.4384]
+            levels=[F+.12,F+.28,F+.50,E-.40,E-.18,E-.06,F+2.4384]
             if component=='skirting':levels=[.12,.25,.43,.67] if p.get('era')!='1996' else [.28]
             if component in ('carport','carport_posts'):levels=[.10,.20,.32,.45]
         else:
@@ -62,9 +62,6 @@ def cut(ob,p):
                 levels += [lo[axis]+j*1.2192 for j in range(1,math.ceil((hi[axis]-lo[axis])/1.2192))]
                 if axis==0 and p.get('era')!='1996':
                     L=p.get('length',18)
-                    stride=L/math.ceil(L/.9144)
-                    step=max(1,math.ceil(math.ceil(L/.9144)/4))
-                    levels += [-L/2+j*stride+off for j in range(0,math.ceil(L/.9144),step) for off in (-.045,0,.045)]
                     levels += [L*station+off for station in (-.27,.19) for off in (-.35,0,.35)]
                 if axis==1 and p.get('era')!='1996':
                     levels += [p.get('width',4.2)*station+off for station in (-.37,.37) for off in (-.15,0,.15)]
@@ -94,17 +91,15 @@ def age(q,n,c,role,component,p,seed):
     if role=='Siding' and component in ('wall','roof_trim','era_details','added_room'):
         # UV-scale manufacture supplies ribs; these broad masks follow exposure.
         exposure=max(sunny,.65*abs(n.x))
-        fade=severity*exposure*.43*max(0,min(1,(z-F)/1.4))
-        color=color.lerp(Vector((.53,.51,.43)),fade)
-        wet=severity*(north*.60+(.17 if old else 0))*math.exp(-((z-(E-.22))/.38)**2)*(.22+.78*ripple)
-        color*=1-wet;color.y*=1+wet*.17;color.z*=1-wet*.14
-        # Roof lap runoff follows real 914.4mm seams, fades down under gravity.
-        L=p.get('length',18);stride=L/math.ceil(L/.9144)
-        step=max(1,math.ceil(math.ceil(L/.9144)/4))
-        seam=min(abs(x-(-L/2+j*stride)) for j in range(0,math.ceil(L/.9144),step))
-        if abs(n.x)>.5:seam=min(abs(y-p.get('width',4.2)*station) for station in (-.37,.37))
-        rust=severity*.85*math.exp(-(seam/.115)**2)*math.exp(-max(0,E-z)/.95)
-        if old and max(abs(n.x),abs(n.y))>.5:color=color.lerp(Vector((.18,.058,.016)),rust)
+        fade=severity*exposure*.60*max(0,min(1,(z-F)/1.4))
+        color=color.lerp(Vector((.64,.62,.53)),fade)
+        # Protected damp gathers below the eaves and beside the lower trim;
+        # exposure dries the sunny face. Corrosion is separately sourced by
+        # actual selected fasteners, never a periodic seam-color function.
+        mottled=.28+.72*(.5+.5*math.sin(x*2.1+y*3.3+seed)*math.cos(x*.77-y*.9))
+        wet=severity*(north*.78+(.25 if old else .02))*mottled
+        damp=wet*(math.exp(-max(0,E-z)/.21)+.86*math.exp(-max(0,z-F)/.28))
+        color=color.lerp(Vector((.045,.065,.033)),min(.82,damp))
     if component=='roof' and old and p.get('roof')!='shingle' and max(c[:3])<.30:
         L=p.get('length',18);stride=L/math.ceil(L/.9144)
         seam=abs((x+L/2+stride/2)%stride-stride/2)
@@ -113,12 +108,16 @@ def age(q,n,c,role,component,p,seed):
     if component in ('skirting','skirt_access'):
         color=Vector((.62,.61,.55)).lerp(Vector((.40,.39,.32)),severity*.36)
         splash=.20+.18*(.5+.5*math.sin(x*2.1+y*2.8+seed))**2
-        soil=severity*.94*math.exp(-max(0,z-.04)/splash)*(.35+.65*ripple)
+        soil=severity*.96*math.exp(-max(0,z-.04)/splash)*(.35+.65*ripple)
         color=color.lerp(Vector((.075,.067,.033)),soil)
         damp=severity*north*.44*(.5+.5*math.sin(x*1.9+seed))**2
         color=color.lerp(Vector((.09,.12,.055)),damp)
     if component=='window_detail' and old and max(c[:3])-min(c[:3])>.04:
         color=color.lerp(Vector((.37,.37,.29)),severity*.48)
+    if component=='window_detail' and old:
+        # Oxidized awning pans trap damp at the wall, screw rails and hems.
+        deposit=severity*(.20+.50*north)*(.35+.65*ripple)
+        color=color.lerp(Vector((.045,.065,.035)),deposit*.55)
     if component=='carport_posts' and z<.43:
         rust=severity*.93*math.exp(-max(0,z-.08)/.20)*(.65+.35*ripple)
         color=color.lerp(Vector((.22,.065,.018)),rust)
