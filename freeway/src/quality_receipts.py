@@ -26,8 +26,8 @@ def tones(folder):
   p=Path(folder)/str(seed)/'hero.png';a=np.asarray(Image.open(p).convert('RGB'),float)/255;y=a@np.array([.2126,.7152,.0722]);h,w=y.shape
   # Hero-specific object samples exclude the sky; they are display values,
   # deliberately not claims about spectral albedo or calibrated photometry.
-  regions=({'pavement':[.15,.62,.55,.66],'shade':[.84,.41,.90,.47]} if seed==101 else
-           {'pavement':[.45,.72,.80,.97],'shade':[.90,.50,.98,.55]})
+  regions=({'pavement':[.10,.87,.36,.90],'shade':[.85,.56,.89,.62]} if seed==101 else
+           {'pavement':[.82,.83,.94,.94],'shade':[.90,.50,.98,.55]})
   samples={}
   for name,(x0,y0,x1,y1) in regions.items():
    box=y[round(h*y0):round(h*y1),round(w*x0):round(w*x1)];samples[name]=np.quantile(box,[.05,.5,.95]).tolist()
