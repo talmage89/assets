@@ -201,10 +201,11 @@ def check():
             construction[stem]=dict(road_width_mesh_m=road_width,home_separation_mesh_m=separations,minimum_car_socket_spacing_m=car_spacing,static_assembly_pairs_checked=placement_pairs,deck_carport_mesh_checks=addon_clearance,net_lot_area_m2=p['lot_frontage']*p['lot_depth'],home_count=len(p['lots']),road_graph=p['roads'])
         rows[stem]=dict(triangles=triangles,geometry_bytes=meta['geometry_bytes'],materials=len(d['materials']),collapsed_triangles=collapsed,collapsed_diagnostic_uv_triangles=uv_bad,max_normal_length_error=maxnormal,mesh_size_m=size.tolist(),fresh_import=True,upward_surface_triangles=top_triangles)
         print('CHECK',stem,triangles,'UV diagnostics',uv_bad,flush=True)
-    baseline=Path('build/preserved-all.json');preserved=0
-    if baseline.exists():
-        for name,digest in json.loads(baseline.read_text()).items():
-            p=HERE.parents[1]/name;assert p.exists() and hashlib.sha256(p.read_bytes()).hexdigest()==digest,('Changed pre-existing delivery',name);preserved+=1
+    immutable={}
+    for baseline in sorted(Path('build').glob('preserved*.json')):immutable.update(json.loads(baseline.read_text()))
+    for name,digest in immutable.items():
+        p=HERE.parents[1]/name;assert p.exists() and hashlib.sha256(p.read_bytes()).hexdigest()==digest,('Changed pre-existing delivery',name)
+    preserved=len(immutable)
     # Determinism and distinct road graphs over the declared bounded grammar.
     sweep=[]
     for seed in range(1000):

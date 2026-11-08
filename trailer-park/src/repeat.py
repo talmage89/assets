@@ -15,6 +15,7 @@ def main():
     deterministic=[Path('build/family.json'),Path('build/cameras.json')]
     baseline.update({str(p):digest(p) for p in deterministic if p.is_file()})
     baseline.update({str(p):digest(p) for p in Path('textures/source').glob('*') if p.is_file() and not p.name.startswith('.')})
+    baseline.update({str(p):digest(p) for p in Path('textures/ship').glob('T_GardenLawn_*.png')})
     saved=Path('build/repeat-before');saved.mkdir(parents=True,exist_ok=True)
     for name in baseline:
         p=Path(name);q=saved/p;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(p.read_bytes())
@@ -24,6 +25,7 @@ def main():
         subprocess.run([os.environ.get('BLENDER','blender'),'-b','-t','2','--factory-startup','--python-exit-code','1','--python','src/build.py','--','--old-seed',str(old['seed']),'--new-seed',str(new['seed']),'--rows',str(round(old['span']/old['lot_frontage'])),'--out','build/family.blend'],stdout=log,stderr=subprocess.STDOUT,check=True)
         subprocess.run(['python3','src/matches.py'],stdout=log,stderr=subprocess.STDOUT,check=True)
         subprocess.run(['python3','src/textures.py'],stdout=log,stderr=subprocess.STDOUT,check=True)
+        subprocess.run(['python3','src/lawn_maps.py'],stdout=log,stderr=subprocess.STDOUT,check=True)
     differences=[name for name,expected in baseline.items() if not Path(name).exists() or digest(Path(name))!=expected]
     result=dict(passed=not differences,compared_files=len(baseline),differences=differences,scope='glTF / BIN / sidecar JSON / local external PNG byte identity; cached native inputs, no GPU bake')
     Path('build/repeat.json').write_text(json.dumps(result,indent=2));assert not differences,result

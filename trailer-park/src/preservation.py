@@ -29,6 +29,11 @@ def main():
     for name,digest in json.loads(complete.read_text()).items():
         p=ROOT/name;assert p.is_file() and hashlib.sha256(p.read_bytes()).hexdigest()==digest,('Changed existing delivery',name)
     all_files={**old,**json.loads(expanded.read_text()),**json.loads(complete.read_text())}
+    round4=Path('build/preserved-round4.json')
+    if round4.exists():
+        for name,digest in json.loads(round4.read_text()).items():
+            assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==digest,('Changed delivery after main merge',name)
+            all_files[name]=digest
     print('PRESERVED',len(all_files),'existing files;',len(old),'from the original checkpoint')
 
 if __name__=='__main__':main()
