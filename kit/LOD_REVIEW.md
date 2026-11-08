@@ -2150,3 +2150,42 @@ pixel-averaged direction comparisons including correspondence and remaining
 edges, not proof of a unique baker defect. A tighter .25/.15 voxel/inflation
 proxy measures 2794 triangles and is queued for native review, alongside a
 source-point material-field control. No far color limit has been changed.
+
+## Pass 56 — fresh fixed-vertex inventory and accepted cone retained
+
+Recomputed the same-source pin inventory with the public local/contact policy
+and the actual separately retained hood. Counts below overlap: a fixed vertex
+can be on a UV seam and a hard-normal edge. Moving means fixed vertices in a
+moving mesh, not a rule that freezes every moving vertex. The full JSON also
+keeps source constraint membership distinct from persistent pins and initially
+unavailable collapse offers.
+
+| Cause | Pickup handoff | Pickup L1 | Pickup L2 | Colonial handoff | Colonial L1/L2 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| UV seam | 3425 | 2005 | 2099 | 1335 | 551 |
+| Hard normal | 3226 | 1743 | 1831 | 1380 | 552 |
+| Material border | 48 | 30 | 30 | 0 | 0 |
+| Part border | 64 | 0 | 0 | 1122 | 0 |
+| Moving part | 380 | 394 | 394 | 32 | 8 |
+| Unique fixed vertices | 4086 | 2257 | 2363 | 1674 | 552 |
+
+Receipt: `build/lod-v4/pin-comparison-final.json` and `.md`. This inventory is
+before pruning/reduction, not a sum of repeated trial records. Source-hood
+restoration is a separate measured cost: 792 source triangles replace 408/482
+reduced triangles (384/310 additional triangles). Later source-skin refinements
+are also separate: for example, pickup middle static geometry goes from
+13540 to 16086 under the sampled visibility guard. These costs are not hidden
+inside the seam-pin counts.
+
+The frozen-source clean CPU suite completes: 28/28 test files pass, all source
+hashes match, fresh completion follows the recorded start, peak child RSS
+2883864 KiB. Six GPU files remain pending. The recipe freeze covers all 102
+kit source files and the literal recipe; fresh adopter outputs are separate
+from their archived previous runs.
+
+Opened all six fresh canonical cone native strips, its three construction
+views and contact sheet. Color/value, broad stripe placement and ground contact
+remain consistent with LOD0. LOD2's faceting is visible in the deliberately
+closer construction view but does not pop at its unchanged 9% switch. Counts
+remain the accepted 626/436; all native image gates pass. Its independent final
+check is queued, not inferred from its renderer result.
