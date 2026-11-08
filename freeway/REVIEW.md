@@ -950,3 +950,16 @@ These are original places, not photographic reconstructions. The requested
 fixes pass the complete visual gate. Gallery assembly may proceed; its final
 commit still waits for the default build and both repeat targets.
 
+Delivery verification: `make`, the separate `make check`, `make repeat`,
+`make check-texture-repeat` and repository check all pass. Exact repeat is
+183 files: 69 independent CPU field/calibration products, 73 native caches,
+exports and manifests, and 41 presentation products. Twelve fresh 4096 GPU
+rebakes have maximum one-byte delta, worst RMS .002474 byte and exact authored
+alpha. The repository check reports 2,162 files and zero errors. A final hash
+comparison preserves all 1,099 other-delivery files. The 85 selected delivery
+images, including every raw final and the five bounded gallery JPGs, still
+match their manually inspected versions after all regeneration. This is an
+image-change guard, not an automated appearance certificate. Gallery sizes
+are 186,866–197,165 bytes at widths no greater than 1600px. The six visual
+passes above and all before/after evidence remain part of the review record.
+

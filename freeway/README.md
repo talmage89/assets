@@ -258,6 +258,23 @@ byte-identical; both Traffic glTF/BIN packages exactly match the handoff.
 Blend containers and stochastic raw renders are outside the byte-repeat
 claim. Current export/image/camera provenance is checked separately.
 
+The final `make`, separate `make check`, `make repeat`,
+`make check-texture-repeat` and repository check pass. Exact repeat covers
+183 files: 69 independently generated CPU fields/calibration products,
+73 fresh native-cache/export/manifest files and 41 CPU presentation products.
+All twelve independent 4096 GPU rebakes compare within one byte maximum and
+.002474 byte worst RMS difference after delivery filtering; authored alpha
+coverage is byte-exact. The final repository check reports 2,162 files and
+zero errors. The final preservation comparison still covers all 1,099 files.
+
+All 51 raw inspection frames, including four source-field views, were opened
+at native size. The final byte guard confirms that these and the sheet,
+comparisons, contacts and gallery remain identical to the 85 manually reviewed
+delivery images. This guards against stale or changed images; appearance is
+judged in `REVIEW.md`. The five gallery JPGs are 186,866–197,165 bytes and at
+most 1600 pixels wide. Across both scenes, referenced PNG files are 3,355,817
+bytes smaller than the handoff, with unchanged compressed image allocation.
+
 `renders/final/` contains both heroes, aerials with/without driving overlays,
 all close-ups, 17 individually framed modules, the labeled sheet, human/car
 scale and `contact.jpg`. `renders/final-eevee/101/hero.png` is the Eevee view.
@@ -308,7 +325,7 @@ Small native vehicle details simplify at distance; the supplied snapshot is
 not a traffic simulation. Context consumes far more expanded triangles and
 texture memory than the civil family and needs engine culling/LOD work.
 The source-field pairs show the main wear surviving delivery reduction, while
-fine manufacture grain softens. Photo fits compare original types: lane counts,
+fine manufacture response changes. Photo fits compare original types: lane counts,
 bridge construction, season and cities differ; they are not reconstructions.
 
 Native context comes from the original [houses](../houses/README.md),
