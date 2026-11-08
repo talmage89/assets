@@ -10,7 +10,7 @@ def context(plan):
     spec=importlib.util.spec_from_file_location('_town_terrain',Path(__file__).with_name('site.py'));S=importlib.util.module_from_spec(spec);spec.loader.exec_module(S)
     lib=Library();W,D=plan['size'];old=plan['kind']=='old';rng=random.Random(plan['seed']+231)
     parent=bpy.data.objects.new('TownContext',None);bpy.context.collection.objects.link(parent)
-    counts=dict(cars=0,vegetation=0,town_architecture=0,street=0);unique={k:set() for k in counts};placements=[]
+    counts=dict(cars=0,vegetation=0,town_architecture=0,street=0);unique={k:set() for k in counts};placements=[];fleet=[]
     def count(rt,category,path=None):
         n=0;by_category={}
         for ob in rt.children_recursive:
@@ -82,22 +82,32 @@ def context(plan):
             y=D/2+(11,35.5,110)[rank]+rng.uniform(-1.2,1.2) if old else D/2+10+rank*14+rng.uniform(-3,3)
             put('trees/export/'+('PinOak.glb' if (j+rank)%3 else 'RedMaple.glb'),'Distant tree line',(x,y,0),rng.uniform(0,360),scale=rng.uniform(.78,1.22),category='vegetation')
     cars=['cars/export/'+f for f in ('AlderC150.glb','AlderX220.glb','AlderH120.glb')]
+    from traffic import selection,paint
     bpy.context.view_layer.update()
     markers=sorted([o for o in bpy.context.scene.objects if o.get('socket_kind') in ('car','tree','shrub') and not o.name.startswith('Library')],key=lambda o:o.name)
     for j,o in enumerate(markers):
         kind=o['socket_kind'];xf=o.matrix_world;pos=xf.translation;yaw=math.degrees(xf.to_euler().z)
         if kind=='car':
             if not o.get('occupied',True):continue
-            rt=put(cars[int(o.get('vehicle_index',j%3))],'Resident car',pos,yaw,category='cars');lib.factory(rt,(3,4,0,1,2)[j%5])
+            import re
+            lot=re.search(r'Lot_(\d+)',o.name);number=int(lot.group(1)) if lot else 100+j
+            model,color=selection(plan['seed'],number,int('Carport' in o.name))
+            if lot and number==1 and old:model=2
+            rt=put(cars[model],'Resident car',pos,yaw,category='cars');paint(lib,rt,color)
+            fleet.append(dict(socket=o.name,lot=number,model=cars[model],color=color,position=list(pos)))
         elif kind=='tree':
-            put('trees/export/'+('PinOak.glb' if o.get('species')=='oak' else 'RedMaple.glb'),'Mature lot canopy' if old else 'Young lot tree',pos,j*47,scale=float(o.get('plant_scale',1)),category='vegetation')
+            tr=random.Random(plan['seed']*997+j*83);scale=float(o.get('plant_scale',1))*tr.uniform(.88,1.12)
+            rt=put('trees/export/'+('PinOak.glb' if o.get('species')=='oak' else 'RedMaple.glb'),'Mature lot canopy' if old else 'Young lot tree',pos,tr.uniform(0,360),scale=scale,category='vegetation')
+            rt.scale.x*=tr.uniform(.85,1.12);rt.scale.y*=tr.uniform(.85,1.12)
         else:put('shrubs/export/Shrubs.glb','Resident planting',pos,j*31,'Hydrangea' if j%4==0 else 'Boxwood',.84,'vegetation')
     for j in range(-6,7):
         x=j*24+3;entries=(-plan['loop_x'],plan['loop_x']) if old else (0,)
         if any(abs(x-entry)<7 for entry in entries):continue
         # Shoulder parking on the actual 2% Ground crown; entrances stay clear.
-        rt=put(cars[j%3],'Public street car',(x,-D/2-3.65+2.6,(3.6576-2.6)*.02),90,category='cars');lib.factory(rt,j)
+        model,color=selection(plan['seed'],j+200)
+        rt=put(cars[model],'Public street car',(x,-D/2-3.65+2.6,(3.6576-2.6)*.02),90,category='cars');paint(lib,rt,color)
+        fleet.append(dict(socket='public-'+str(j),model=cars[model],color=color,position=list(rt.location)))
     for side in (-1,1):
         for j in range(-6,7):put('trees/export/RedMaple.glb','Side canopy',(side*(W/2+49),j*19+5,0),j*53,scale=.93,category='vegetation')
     totals={key:sum(len(me.loop_triangles) for me in meshes) for key,meshes in unique.items()}
-    lib.clear();return dict(triangles=counts,unique_triangles=totals,placements=placements,dependencies=lib.dependencies)
+    lib.clear();return dict(triangles=counts,unique_triangles=totals,placements=placements,dependencies=lib.dependencies,fleet=fleet)
