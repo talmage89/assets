@@ -41,6 +41,7 @@ No parked-car mesh is embedded in the garage's geometry budget.
 | Output | Use |
 | --- | --- |
 | `export/ParkingGarage-<seed>.gltf` + `.bin` | Placeable garage, meters, external shared images |
+| `export/sites/ParkingGarageSite-<seed>.gltf` + `.bin` | Complete seeded town setting and instanced parked cars; same canonical external images |
 | `export/modules/<name>.gltf` + `.bin` | Independent construction and mating modules |
 | `export/ParkingGaragePieces.gltf` | Module-sheet arrangement; reset roots before mating |
 | `build/garage-<seed>.blend` | Scripted authoring state, including actual drive/pedestrian curves |
@@ -49,6 +50,7 @@ No parked-car mesh is embedded in the garage's geometry budget.
 | `renders/checkpoint/modules.png`, `contact.jpg` | Module sheet and complete checkpoint contact sheet |
 | `renders/matches/*-pair.jpg`, `contact.jpg` | Three white-balanced fitted photographic type comparisons |
 | `build/check.json`, `render-values.json`, `preservation.json` | Fresh-import geometry, construction rays, exposure diagnostics and protected resource hashes |
+| `build/site-check.json`, `resources.json` | Complete-site instancing, actor counts, external image hashes and memory estimates |
 
 The footprint origin is the structural rectangle's ground center; front is
 Blender −Y, up +Z. glTF maps these to +Z front, +Y up. Preserve the relative
@@ -77,7 +79,11 @@ seed. An additive Ground parking graphics page supplies stall numbers, arrows
 and level signs without changing Ground's existing atlas bytes. Its current
 quick sheet is 2048² RGBA color, **5⅓ MiB** at the same estimate; normal/ORM
 manufacture and final page sizing are deferred. GroundTrim's existing three
-2048 maps cost 16 MiB; the native roof luminaire's 1024 triple costs 4 MiB.
+2048 maps cost 16 MiB, Ground Concrete's existing triple another 16 MiB;
+the native roof luminaire's 1024 triple costs 4 MiB. The garage checkpoint
+therefore references 41⅓ MiB of shared mipped images at this uniform estimate,
+with no second copy for seed 202. The planned new concrete/steel triple is
+additional to these reused resources and has not been manufactured yet.
 Presentation additionally reuses Ground asphalt/lawn, native trees and car
 resources. Final UV density, bake loss, weathering and material/draw-call
 consolidation are explicitly not certified at this form gate.

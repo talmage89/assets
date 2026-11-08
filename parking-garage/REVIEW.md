@@ -47,4 +47,31 @@ outline remains an independent visual comparison. Larger buildings and
 different camera processing limit exact claims. The Alewife atrium/roof are
 secondary references, not forced matches to a different architecture.
 
-Rendered passes will be appended after their images are opened.
+## Pass 1 — six exported Eevee form views
+
+Opened both heroes, both overheads and both aisles in renders/pass1-eevee/. These
+images precede the final construction corrections; their views.json records
+source hashes. Color/value first: the frame is pale and blue, and the aisle
+has almost no contact shadow. The log reports an overflowing Eevee shadow
+pool, so these views cannot establish concrete value or cavity darkness.
+The next set uses Cycles, with unchanged scalar material albedos and an
+explicit clear procedural sky. No weathering is added at this checkpoint.
+
+The municipal hero cuts off the near tower and its roof pole. Move the eye
+farther across the intersection while keeping 1.65m height and 35mm lens.
+The commercial overhead exposes an unfilled rear portion of its larger
+parcel. Add continuous owned parcel ground and a rear landscape strip;
+existing library streets continue beyond it. This is a site-construction
+error, not an acceptable background crop.
+
+The context hatch/SUV glass and tires also exported as white fallback factors;
+this is separate from the shadow failure. Explicit stock quick finishes now
+replace their unsupported procedural graph at site assembly, keeping every
+original vertex. The sedan retains its native baked PBR.
+
+The 60ft precast span reads in the aisle and its twin-stem rhythm is visible.
+The compact garage has transverse downstand beams rather than disguised
+tees. Parking density reads as a weekday. The next views must resolve car
+contact, end-turn barriers, bearing seats, doorway swings and the stair's
+waist construction under real shadows. The first pass is rejected for
+presentation and remains a diagnostic, not a deliverable gallery.

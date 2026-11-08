@@ -16,7 +16,7 @@ from plan import FLOOR,TEE
 
 
 def definitions():
-    p=json.loads(Path('build/garage-101.json').read_text());L,W=p['length'],p['width'];x=-L/2+3*TEE*3;y=-.43
+    p=json.loads(Path('build/garage-101.json').read_text());L,W=p['length'],p['width'];x=-L/2+3*TEE*3;y=0
     def lm(world,pixel):return dict(world=world,pixel=pixel)
     return dict(
       precast=dict(seed=101,title='Precast corbel and tee underside / 2014 photograph',photo='refs/precast-interior.jpg',crop=[0,0,3264,2448],
@@ -27,9 +27,9 @@ def definitions():
       pleasant=dict(seed=101,title='Open precast facade / 2007 photograph',photo='refs/pleasant-hill.jpg',crop=[0,0,1600,814],
         neutral=[1276,599,1332,621],neutral_description='Pale temporary site enclosure panel, shaded, used as approximate neutral',
         location=[-48,-68,1.65],target=[0,-W/2,5],lens=38,lens_bounds_mm=[18,90],
-        landmarks=[lm([-L/2,-W/2,1.04],[466,631]),lm([L/2,-W/2,1.04],[1467,643]),
-          lm([-L/2,-W/2,3*FLOOR+1.04],[466,208]),lm([L/2,-W/2,3*FLOOR+1.04],[1467,532]),
-          lm([-L/2,-W/2,2*FLOOR+1.04],[466,346]),lm([L/2,-W/2,2*FLOOR+1.04],[1467,566])]),
+        landmarks=[lm([-L/2,-W/2,1.08],[466,631]),lm([L/2,-W/2,1.08],[1467,643]),
+          lm([-L/2,-W/2,3*FLOOR+1.08],[466,208]),lm([L/2,-W/2,3*FLOOR+1.08],[1467,532]),
+          lm([-L/2,-W/2,2*FLOOR+1.08],[466,346]),lm([L/2,-W/2,2*FLOOR+1.08],[1467,566])]),
       harmon=dict(seed=202,title='Flat-deck opening rhythm / 2005 garage photographed 2012',photo='refs/harmon.jpg',crop=[1450,450,3420,2170],
         neutral=[2110,1670,2175,1700],neutral_description='Sunlit unpainted concrete spandrel, approximate neutral mineral surface',
         location=[-35,-32,1.65],target=[0,-12.8,4],lens=40,lens_bounds_mm=[18,120],
@@ -54,13 +54,11 @@ def solve():
 
 def render_matches(args,render_shot,lighting):
     import bpy
-    from setting import town
     photo_match.verify('build/matches/calibration.json')
     receipts=[]
     for name,fit in json.loads(Path('build/matches/calibration.json').read_text()).items():
-        bpy.ops.wm.read_factory_settings(use_empty=True);seed=fit['seed'];path=Path(f'export/ParkingGarage-{seed}.gltf')
-        bpy.ops.import_scene.gltf(filepath=str(path.resolve()));rt=next(o for o in bpy.context.scene.objects if o.parent is None)
-        p=json.loads(Path(f'build/garage-{seed}.json').read_text());town(p,rt)
+        bpy.ops.wm.read_factory_settings(use_empty=True);seed=fit['seed'];path=Path(f'export/sites/ParkingGarageSite-{seed}.gltf')
+        bpy.ops.import_scene.gltf(filepath=str(path.resolve()))
         lighting(elevation=36 if name!='precast' else 20,azimuth=-120 if name!='pleasant' else 145,interior=name=='precast')
         shot=fit['shot'];shot['aspect']=(fit['crop'][2]-fit['crop'][0])/(fit['crop'][3]-fit['crop'][1])
         receipts.append(render_shot(args.out/(name+'.png'),shot,args.width,args.samples,args.engine))

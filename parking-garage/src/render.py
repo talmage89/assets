@@ -11,14 +11,13 @@ HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];sys.path[:0]=[str(ROOT
 from kit import gpu,studio
 import geometry as G
 from plan import FLOOR,SPAN,deck_z
-from setting import town
 
 
 def lighting(elevation=18,azimuth=-135,interior=False):
     sc=bpy.context.scene
     world=bpy.data.worlds.new('Original procedural clear sky');world.use_nodes=True;sc.world=world
-    n=world.node_tree.nodes;l=world.node_tree.links;sky=n.new('ShaderNodeTexSky');sky.sky_type='NISHITA';sky.sun_elevation=math.radians(elevation);sky.sun_rotation=math.radians(azimuth);sky.sun_disc=False
-    sky.altitude=.1;sky.air_density=1;sky.dust_density=.35
+    n=world.node_tree.nodes;l=world.node_tree.links;sky=n.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(elevation);sky.sun_rotation=math.radians(azimuth);sky.sun_disc=False
+    sky.altitude=100;sky.air_density=1;sky.aerosol_density=.35
     l.new(sky.outputs[0],n.get('Background').inputs['Color']);n.get('Background').inputs['Strength'].default_value=.32
     light=bpy.data.lights.new('Raking sun','SUN');light.energy=2.8;light.angle=math.radians(.55)
     ob=bpy.data.objects.new('Raking sun',light);sc.collection.objects.link(ob)
@@ -35,21 +34,22 @@ def lighting(elevation=18,azimuth=-135,interior=False):
 
 def shots(p):
     L,W=p['length'],p['width'];fy=p['flat_y'];ry=p['ramp_y'];top=(p['levels']-1)*FLOOR;ex=L/2-p['end_length']/2
-    return dict(hero=dict(location=(-L/2-23,-W/2-25,1.65),target=(0,0,4.0 if p['levels']==4 else 3.0),lens=35),
+    scale_car=max((s for s in p['stalls'] if s['level']==0 and not s['ramp'] and s['yaw']==180 and s['occupied']),key=lambda s:s['x'])
+    return dict(hero=dict(location=(-L/2-34,-W/2-35,1.65),target=(-2,0,5.5 if p['levels']==4 else 4.0),lens=35),
         above=dict(location=(-L*.88,-W*1.7,top+57),target=(0,0,top/2),lens=43,paths=True),
         aisle=dict(location=(-L/2+9,fy,1.65),target=(L/2-8,fy,1.70),lens=38,interior=True),
         ramp_turn=dict(location=(L/2-2,fy-1,1.65+FLOOR),target=(L/2-10,ry,1.0+FLOOR),lens=28,interior=True),
         top_deck=dict(location=(-L/2+6,fy-3,top+1.65),target=(L/3,fy,top+1.70),lens=35),
         entry=dict(location=(ex-8,-W/2-15,1.65),target=(ex,-W/2+2,1.8),lens=40),
-        tower=dict(location=(-L/2-15,-W/2-12,1.65),target=(-L/2-2.5,-W/2+2.8,4),lens=35),
-        scale=dict(location=(L/2-14,-W/2-12,1.65),target=(L/2-3,-W/2+1.5,1.1),lens=45,human=True))
+        tower=dict(location=(L/2-6,-W/2-4,1.65),target=(L/2+2.5,-W/2+2.8,2.8),lens=35),
+        scale=dict(location=(scale_car['x']+5,fy+3,1.65),target=(scale_car['x']+.6,scale_car['y'],1.0),lens=42,interior=True,human=True,human_at=[scale_car['x']+1.45,scale_car['y'],scale_car['z']]))
 
 
 def overlays(p):
     m=G.material('Drive path diagram cyan',(.025,.55,.80),.6,emission=.4);G.M['Diagram']=m
     b=G.Mesh('Drive and pedestrian path overlay')
     # Draw the upper circuit, where the actual slab does not hide the route.
-    row=p['paths'][-2]
+    row=next(r for r in reversed(p['paths']) if r['name'].startswith('Drive_Up_'))
     b.tube([(x,y,z+.09) for x,y,z in row['points']],.095,'Diagram',8)
     b.finish()
 
@@ -61,7 +61,7 @@ def render_shot(out,shot,width,samples,engine='CYCLES'):
     if 'roll' in shot:cam.rotation_euler.rotate_axis('Z',shot['roll'])
     aspect=shot.get('aspect',1.6);sc.render.resolution_x=width;sc.render.resolution_y=round(width/aspect);sc.render.resolution_percentage=100
     sc.render.engine=engine
-    if engine=='CYCLES':gpu.enable();sc.cycles.samples=samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=7;sc.cycles.transparent_max_bounces=12
+    if engine=='CYCLES':gpu.enable();sc.cycles.samples=samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=7;sc.cycles.transparent_max_bounces=32
     sc.render.image_settings.file_format='PNG';out.parent.mkdir(parents=True,exist_ok=True);sc.render.filepath=str(out.resolve());bpy.ops.render.render(write_still=True)
     return dict(camera=list(cam.location),eye_height_m=float(cam.location.z),lens_mm=float(cam.data.lens),engine=engine,
         exposure=sc.view_settings.exposure,width=width,height=sc.render.resolution_y,output=str(out),sha256=hashlib.sha256(out.read_bytes()).hexdigest())
@@ -75,24 +75,32 @@ def main():
     receipts=[]
     for seed in map(int,args.seeds.split(',')):
         p=json.loads(Path(f'build/garage-{seed}.json').read_text())
+        bpy.ops.wm.read_factory_settings(use_empty=True)
+        path=Path(f'export/sites/ParkingGarageSite-{seed}.gltf');bpy.ops.import_scene.gltf(filepath=str(path.resolve()))
+        context=json.loads(Path(f'build/actors-{seed}.json').read_text());bpy.context.view_layer.update()
+        cache=Path(f'build/render-context-{seed}.blend').resolve()
+        bpy.ops.wm.save_as_mainfile(filepath=str(cache))
+        print('TOWN READY',seed,len(context['actors']),context['context_triangles'],flush=True)
         for name,shot in shots(p).items():
             if args.shots!='all' and name not in args.shots.split(','):continue
-            bpy.ops.wm.read_factory_settings(use_empty=True)
-            path=Path(f'export/ParkingGarage-{seed}.gltf');bpy.ops.import_scene.gltf(filepath=str(path.resolve()))
-            rt=next(o for o in bpy.context.scene.objects if o.parent is None)
-            context=town(p,rt);bpy.context.view_layer.update()
+            bpy.ops.wm.open_mainfile(filepath=str(cache))
             if shot.get('paths'):overlays(p)
             if shot.get('human'):
-                for o in studio.human():o.location+=Vector((p['length']/2-2,-p['width']/2+1.6,0))
+                at=Vector(shot['human_at'])
+                for o in studio.human():o.location+=at+Vector((1.03,-.24,0))
             lighting(interior=shot.get('interior',False));receipt=render_shot(args.out/str(seed)/(name+'.png'),shot,args.width,args.samples,args.engine)
             receipt.update(seed=seed,name=name,source=str(path),source_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),cars=len(context['actors']),car_triangles=context['actor_triangles'],context_triangles=context['context_triangles'])
             receipts.append(receipt);(args.out/'views.json').write_text(json.dumps(receipts,indent=2)+'\n')
-            (Path('build')/f'actors-{seed}.json').write_text(json.dumps({k:v for k,v in context.items() if k!='root'},indent=2)+'\n')
     if args.shots=='all' or args.shots=='modules':
         bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(Path('export/ParkingGaragePieces.gltf').resolve()));G.palette()
         plane=G.Mesh('Module inspection ground');plane.box((50,30,-.22),(160,150,.22),'Deck');plane.finish();lighting()
-        shot=dict(location=(135,-115,105),target=(48,30,3),lens=44,aspect=1.4)
+        from kit.fonts import find_font
+        for r in [o for o in bpy.context.scene.objects if o.parent is None and o.get('module_kind')]:
+            text=bpy.data.curves.new(r.name+' caption','FONT');text.body=r.name;text.size=.68;text.align_x='CENTER';text.font=bpy.data.fonts.load(find_font('DejaVu Sans','Book'))
+            ob=bpy.data.objects.new(text.name,text);bpy.context.collection.objects.link(ob);ob.location=r.location+Vector((0,-10.3,.025));text.materials.append(G.M['Steel'])
+        shot=dict(location=(155,-140,145),target=(50,48,2),lens=44,aspect=1.4)
         receipts.append(render_shot(args.out/'modules.png',shot,max(args.width,1800),args.samples,args.engine));(args.out/'views.json').write_text(json.dumps(receipts,indent=2)+'\n')
+    if args.shots=='all':(args.out/'.stamp').touch()
 
 
 if __name__=='__main__':main()

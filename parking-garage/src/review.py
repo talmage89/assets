@@ -28,6 +28,22 @@ def main():
         r=p['delivery'];lines.append(f"| {p['seed']} | {p['garage_triangles']:,} | {len(p['stalls'])} | {p['occupied']} | {r['gltf_bytes']+r['bin_bytes']:,} | {r['materials']} |")
     lines+=['','| Module | Triangles | glTF + BIN bytes |','| --- | ---: | ---: |']
     for name,r in manifest['modules'].items():lines.append(f"| {name} | {r['triangles']:,} | {r['gltf_bytes']+r['bin_bytes']:,} |")
+    resources=[]
+    for p in manifest['garages']:
+        images=[]
+        for uri in p['delivery']['images']:
+            f=Path('export')/uri
+            with Image.open(f) as im:w,h=im.size
+            images.append(dict(uri=uri,width=w,height=h,disk_bytes=f.stat().st_size,estimated_mipped_gpu_bytes=w*h*4/3))
+        resources.append(dict(seed=p['seed'],images=images,disk_bytes=sum(r['disk_bytes'] for r in images),
+            estimated_mipped_gpu_bytes=sum(r['estimated_mipped_gpu_bytes'] for r in images)))
+    Path('build/resources.json').write_text(json.dumps(dict(garages=resources,estimate='8 bits per pixel per image, full mip chain; shared canonical resources are cached once'),indent=2)+'\n')
+    lines+=['','| Image (shared by both seeds) | Pixels | Disk bytes | GPU MiB, 8bpp + mips |','| --- | --- | ---: | ---: |']
+    for r in resources[0]['images']:lines.append(f"| {Path(r['uri']).name} | {r['width']} × {r['height']} | {r['disk_bytes']:,} | {r['estimated_mipped_gpu_bytes']/1048576:.2f} |")
+    if Path('build/site-check.json').exists():
+        lines+=['','| Site | Unique mesh triangles | Expanded triangles | Garage / surface / street cars | Car triangles | glTF + BIN bytes |','| --- | ---: | ---: | --- | ---: | ---: |']
+        for r in json.loads(Path('build/site-check.json').read_text())['sites']:
+            counts=r['car_counts'];lines.append(f"| {r['seed']} | {r['unique_mesh_triangles']:,} | {r['expanded_triangles']:,} | {counts['garage']} / {counts['surface court']} / {counts['street']} | {r['car_triangles']:,} | {r['gltf_bytes']+r['bin_bytes']:,} |")
     Path('build/metrics.md').write_text('\n'.join(lines)+'\n')
     print('CHECKPOINT SHEETS',out/'contact.jpg',flush=True)
 
