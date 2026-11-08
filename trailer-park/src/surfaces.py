@@ -59,7 +59,8 @@ def cut(ob,p):
             cov=2.4384 if component in ('wall','skirting','roof') else 1.2192
             levels=[i*cov for i in range(math.floor(lo[axis]/cov),math.ceil(hi[axis]/cov)+1)]
             if component=='wall' and hi[axis]-lo[axis]>2:
-                levels += [lo[axis]+j*1.2192 for j in range(1,math.ceil((hi[axis]-lo[axis])/1.2192))]
+                if p.get('era')!='1972':
+                    levels += [lo[axis]+j*1.2192 for j in range(1,math.ceil((hi[axis]-lo[axis])/1.2192))]
                 if axis==0 and p.get('era')!='1996':
                     L=p.get('length',18)
                     levels += [L*station+off for station in (-.27,.19) for off in (-.35,0,.35)]
@@ -72,7 +73,7 @@ def cut(ob,p):
                     for face in (('front','back') if axis==0 else ('left','right')):
                         for h in openings(p,face):
                             if h['kind']=='window':
-                                levels += [h['u']+s*h['w']/2+off for s in (-1,1) for off in (-.16,0,.16)]
+                                levels += [h['u']+s*(h['w']/2+.16) for s in (-1,1)]
         for value in sorted(set(levels)):
             if not lo[axis]+.002<value<hi[axis]-.002:continue
             co=[0,0,0];co[axis]=value;n=[0,0,0];n[axis]=1
