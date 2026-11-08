@@ -1,81 +1,95 @@
-# Community gardens — look-dev checkpoint
+# Community gardens
 
-Three original midsummer community gardens for an American town of 1995–2015.
-The accepted construction and plans remain; planting now fills tended plots,
-with overlapping crop canopies, companion herbs and flowering borders. This
-round stops at exported look-dev review: no README gallery or docs images.
+![Bellwether Growers, a city lot between brick apartments](docs/hero-117.jpg)
+![Meadow Commons, in-ground plots beside a park hall](docs/hero-229.jpg)
+![Alder Neighbors, raised trays and compacted granular paths](docs/hero-341.jpg)
+![Plans, growth stages and construction pieces](docs/family.jpg)
+![Construction, midsummer crops, scale and Eevee](docs/details.jpg)
 
-| Seed | Fictional place | Year | Fence footprint | Character |
+Three original, seeded American community gardens of 1995–2015, delivered as
+glTF with shared external images. July crops overlap their supports and plot
+edges; newly planted, weedy and fallow plots retain their different care states.
+Every mesh and asset texel is scripted. Photographs are references only.
+
+| Seed | Fictional place | Year | Fence footprint | Why it differs |
 | --- | --- | --- | --- | --- |
-| 117 | Bellwether Growers | 1998 | 10.668 × 18.8976m | Apartment gap, wood chips, painted mural shed and reclaimed bins |
-| 229 | Meadow Commons | 2004 | 27.432 × 24.384m | In-ground tenant plots, grass alleys, edge trees and neighboring building |
-| 341 | Alder Neighbors | 2012 | 16.4592 × 18.8976m | Compacted gravel courts, elevated greens trays, green shed and newer bin boards |
+| 117 | Bellwether Growers | 1998 | 10.668 × 18.8976 m | A narrow apartment gap: wood chips, reclaimed bins, mural shed and brick enclosure |
+| 229 | Meadow Commons | 2004 | 27.432 × 24.384 m | Eight large unframed tenant plots cut into summer turf, hilled rows, grass paths, mature edge trees and an adjacent park hall |
+| 341 | Alder Neighbors | 2012 | 16.4592 × 18.8976 m | Newer tan beds and standing trays beside a compacted crushed-stone court, steel edging and neighborhood houses |
 
-All five care states remain: tidy, lush, weedy, freshly planted and fallow.
-Only fresh/fallow plots retain broad bare soil or mulch. The plans retain their
-plot centers, widths, aisle dimensions and service positions. Real planting
-spacings fill each usable opening; the large park plots keep internal working
-strips. The park grass corridor has no painted geometric edge, so its measured
-clearance is distinguished from the 1.524m authored design strip.
+## Dimensions and construction
 
-| Construction dimension | Generated | Basis |
+| Part | Real dimensions | Source / design decision |
 | --- | --- | --- |
-| Two-sided raised bed | 4×8 ft / 1.2192×2.4384 m | OSU/ISU 4 ft reach limit; authored 8 ft length |
-| Larger tenant plot | 10×20 ft / 3.048×6.096 m | Brief; internal crop rows leave access strips, not a 10 ft reach bed |
-| Lumber | 38.1mm thick; 234.95 or 285.75mm high | Dressed nominal 2×10 / 2×12; 88.9mm square corner posts |
-| Concrete block | 193.675mm high/thick, 396.875mm long | Angelus specified nominal 8×8×16in CMU; open cells and 25mm webs |
-| Main route | 1.524m; 1.8288m in 2012 | Design widths; chip / grass / firm compacted fines by site |
-| Working aisles | At least .9144m in compact grid | ISU approximately 3 ft for equipment; measured export gaps in check report |
-| Accessible tray bed | 2.4384×.9144m; work surface .8636m | ADA 34in maximum work height; 18in two-sided reach |
-| Tray underside | .6973m before placement | Above ADA 27in / .6858m knee height; leg openings measured separately |
-| Fence | 1.2192m fabric; 3.048mm wire | Native chain-link family, 50.8335mm perpendicular clear mesh |
-| Shed | 2.4384×3.048m nominal | Native gauged 8×10ft shed and lapped roof courses; fine tabs omitted |
-| Cage / trellis | 1.34m / 2.12m high | Authored home-garden hardware; 5mm cage wire, 25mm bamboo poles |
-| Hose | 20.6mm outer diameter | Authored 5/8in bore class; slack coils lie on grade |
+| Raised bed | 4 × 8 ft / 1.2192 × 2.4384 m | OSU and Iowa State two-sided reach guidance; authored 8 ft length |
+| Tenant plot | 10 × 20 ft / 3.048 × 6.096 m | Brief; planted rows and internal access strips, rather than a ten-foot reach bed |
+| Lumber | 38.1 mm thick; 234.95 or 285.75 mm high | Dressed nominal 2×10 / 2×12, butted ends and 88.9 mm corner posts |
+| CMU | 193.675 × 193.675 × 396.875 mm | Angelus nominal 8×8×16 in unit; actual open cores and 25 mm webs |
+| Main route | 1.524 m; accessible site 1.8288 m | Authored widths informed by garden guides and ADA route requirements |
+| Compact working aisles | At least .9144 m | Iowa State equipment access guidance; exported gaps checked separately |
+| Elevated tray | 2.4384 × .9144 m, work surface .8636 m | ADA 34 in maximum work height, two-sided 18 in reach |
+| Tray underside | .6973 m; actual exported clearance tested | Above ADA 27 in / .6858 m knee height; nine knee-space rays |
+| Chain link | 1.2192 m high, 3.048 mm wire | Native fence citations; 50.8335 mm perpendicular clear mesh |
+| Shed | Nominal 2.4384 × 3.048 m | Native gauged 8×10 ft shed: skids, framing, sheathing, returned trim and hinged doors |
+| Cage / trellis | 1.34 / 2.32 m total height | Authored 5 mm cage wire and 25 mm bamboo poles; .20 m driven feet put the trellis 2.12 m above grade |
+| Hose | 20.6 mm outer diameter | Authored 5/8 in bore class; slack runs and coils supported on grade |
+| Park hall, context only | 13 × 8.5 m, 5.05 m ridge | Original representative building; municipal reference informs adjacency, not a surveyed replica |
 
+The [source register](refs/SOURCES.md) gives URLs, authors, rights and uses.
+[REFERENCE.md](REFERENCE.md) explains construction, crop spacing and inference.
+The city's gap-garden type follows land-trust accounts; the park relationship
+follows municipal garden planning; Seattle's P-Patch publications inform the
+later container and standing-bed garden. These are fictional sites. Route
+widths and tray checks do not certify a real installation's ADA compliance.
+The traditional shed threshold is outside the accessible-interior claim.
 
-The city main route is chips; the park's is mown grass; the later site's is
-compacted granular fines. These models do not certify an ADA site.
-Reference dimensions and growth decisions are in [REFERENCE.md](REFERENCE.md),
-with exact image URLs, authors, rights and uses in [refs/SOURCES.md](refs/SOURCES.md).
-Every vertex and asset texel is generated by scripts; photographs are comparisons.
+Soil has planting basins, row ridges, dry crust, straw and hose-wet patches.
+Wood wear follows soil contact, water traps and exposure. Summer turf reuses
+the library's own Ground blade normals and alpha field at a 3.048 m repeat;
+a private albedo, mowing/drought/traffic tints, clipped edge tufts and rooted
+clover replace the even lawn. Angular granular relief, loose shoulder stones,
+steel edging and compressed sole/wheel marks distinguish the later court.
 
-Tomatoes reach 1.72m above soil, with five leaders, nine-leaflet compounds and
-overlapping daughter branchlet cards. Green, turning and ripe fruit hang in
-trusses. Zucchini makes a broad mound of .36–.46m palmate blades; corn reaches
-2.24m plus tassel, with arching leaves and silked ears. Beans overlap up the
-actual poles/twine. Marigolds are compact pinnate flowering mounds. All eleven
-plants retain .28/.64/1.0 stages and two mature seeded variants. Field specimens
-keep their canopy while simplifying petiole sections and tiny fruit geometry;
-separate reusable high specimens support close views. Wind exports as `_WIND`,
-never albedo `COLOR_0`.
+## Plants and reusable pieces
+
+Tomato leaders reach 1.72 m above soil; their measured mature canopy reaches
+about 1.96 m. Five leaders, overlapping nine-leaflet compounds and curved
+branchlet cards carry green, turning and ripe trusses.
+Zucchini forms overlapping .36–.46 m blades. Corn reaches 2.24 m before its
+tassel; husked ears rise from leaf joints and carry brown silk at the tip.
+Beans climb real poles and twine to 1.95 m. Marigolds branch into flowering
+and spent heads. All eleven species have .28/.64/1.0 stages and seeded mature
+variants. Lettuce and kale have eight mature variants with different leaf
+counts, sizes and colors; placements add rotation, intermediate stages and
+failed gaps. These leafy heads represent mixed greens.
 
 | Plant | Seedling | Intermediate | Mature high | Mature field |
 | --- | ---: | ---: | ---: | ---: |
-| tomato | 612 | 1,340 | 4,488 | 2,682 |
+| tomato | 444 | 892 | 4,200 | 2,746 |
 | pepper | 142 | 456 | 1,790 | 236 |
 | squash | 430 | 894 | 1,814 | 904 |
 | bean | 338 | 578 | 1,358 | 436 |
-| corn | 214 | 390 | 971 | 375 |
-| lettuce | 340 | 756 | 1,172 | 152 |
-| kale | 340 | 756 | 1,172 | 152 |
+| corn | 214 | 390 | 961 | 441 |
+| lettuce | 372 | 788 | 1,012–1,268 | 116–164 |
+| kale | 340 | 788 | 980–1,268 | 112–164 |
 | herb | 240 | 848 | 1,840 | 164 |
 | sunflower | 92 | 804 | 900 | 620 |
 | marigold | 944 | 1,964 | 2,952 | 384 |
 | weed | 66 | 66 | 66 | 26 |
 
-Counts are triangles; both mature variants have the same count. The largest
-plant remains within the accepted 4.6k ceiling. Detailed supports and prototypes
-are measured separately from every repeated instance in a garden.
+Counts include each plant's descendants. The maximum remains below 4,608
+triangles. Field versions preserve canopy silhouette with simpler petioles
+and fruit. `_WIND` is a separate custom attribute; only actual leaf/turf tints
+export as material-consumed `COLOR_0`.
 
-| Reusable piece | Triangles including moving children |
+| Piece | Triangles, including moving children |
 | --- | ---: |
 | Raised4x8 | 1,444 |
 | Raised4x8Tall | 1,444 |
 | Block4x8 | 1,536 |
 | Accessible8x3 | 1,448 |
 | Ground10x20 | 756 |
-| GroundBare10x20 | 576 |
+| GroundBare10x20 | 584 |
 | TomatoCage | 608 |
 | BeanTrellis | 322 |
 | CompostThreeBay | 1,361 |
@@ -91,105 +105,177 @@ are measured separately from every repeated instance in a garden.
 | BeanTeepee | 584 |
 | NativeShed | 4,468 |
 
-| Garden | Triangles | Plot plants | Materials | glTF / BIN bytes | Direct texture memory |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| 117 | 122,144 | 204 | 3 | 853,921 / 7,334,972 | 24 MiB |
-| 229 | 214,223 | 529 | 4 | 1,725,716 / 5,598,496 | 40 MiB |
-| 341 | 109,632 | 181 | 4 | 808,047 / 6,832,404 | 40 MiB |
+## Delivery costs
 
-The enforced garden ceiling for this round is 215k, below the original brief’s
-250k cap. Moving parts remain separate. Three city materials are the
-opaque atlas, masked foliage and masked wire. The two other sites add native
-lawn; this fourth material preserves that accepted tiling set instead of copying
-it into a larger new texture. Prototype plants use opaque atlas plus foliage.
+| Garden | Triangles | Plot plants | Materials | glTF / BIN bytes | External PNG bytes | Texture memory |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 117 | 125,758 | 202 | 3 | 862,266 / 7,505,092 | 10,755,853 | 24 MiB |
+| 229 | 248,993 | 512 | 4 | 1,735,196 / 7,556,040 | 33,888,691 | 40 MiB |
+| 341 | 118,974 | 167 | 4 | 780,623 / 8,826,240 | 33,888,691 | 40 MiB |
 
-| Shared set | Shipped maps | Full-mip compressed memory | Origin |
-| --- | --- | ---: | --- |
-| GardenPlants | 1024² RGBA BaseColor / OpenGL +Y Normal / ORM | 4 MiB | Original analytic 4K leaves, branchlets, flowers and bird netting; filtered to 1K |
-| GardenSurfaces | 2048² BaseColor / +Y Normal / ORM | 16 MiB | Original metric fields, Cycles baked at 4K, filtered to 2K |
-| ChainLink | 1024² BaseColor-alpha / +Y Normal / ORM | 4 MiB | Native analytic wire rebuilt in private cache |
-| Lawn | 2048² BaseColor / +Y Normal / ORM | 16 MiB | Existing Ground delivery; park/newer only |
+The park spends the original brief's remaining 250k allowance on visible turf
+edges, fuller planting and varied heads; the plant and texture limits stay.
+The city has three materials: opaque atlas, masked foliage and masked wire.
+Park and accessible gardens add the existing-size lawn set as a fourth.
 
-One opaque atlas covers the entire family: tan and silvered wood with ground
-contact dampness/checks, granular dry/wet soil, straw, fresh/weathered chips,
-compacted gravel, block efflorescence/moss, oxidized zinc, faded paint/plastic,
-hose rubber and small botanical/hardware swatches. Shared chart repetition is
-intentional. The raw UV audit checks chart bounds, collapsed triangles and
-measured density; it makes no unique-island overlap claim for these tiles.
-Analytic normal/color precision and plant coverage survive the shared kit's
-channel-correct filters. These estimates assume 8bpp per map with full mips,
-excluding geometry/engine overhead.
+| Shared set | Shipped maps | Compressed full-mip allocation |
+| --- | --- | ---: |
+| GardenSurfaces | 2048² BaseColor / OpenGL +Y Normal / ORM | 16 MiB |
+| GardenPlants | 1024² RGBA BaseColor / +Y Normal / ORM | 4 MiB |
+| ChainLink | 1024² BaseColor-alpha / +Y Normal / ORM | 4 MiB |
+| GardenLawn | 2048² private BaseColor, native +Y Normal / ORM | 16 MiB |
 
-`export/checkpoint/Garden_<seed>.gltf` plus BIN is the garden. The overlapping
-prototype roots live in `CommunityGardenPieces.gltf`; instance the desired root.
-External image identities are shared across every seed. Keep directory structure
-or remap URIs when integrating. `Site_<seed>.gltf` adds the separately budgeted
-native neighborhood. Every review render freshly imports an export; no source
-look-dev scene is substituted.
+All seeds share image identities. Opaque finishes are authored and Cycles-baked
+at 4096, then filtered to 2048; analytic plants are generated at 4096 and filtered
+to 1024. Ground's accepted maps remain untouched. Identical lawn normal/ORM
+bytes resolve to that native delivery. ORM is R occlusion, G roughness,
+B metallic; BaseColor is sRGB. Estimates assume 8 bits/pixel/map and complete
+mips, excluding geometry and engine overhead. Garden allocations total 40 MiB
+across the entire family, rather than 104 MiB when counted independently.
+Intentional shared charts and alpha-card overlap are audited for chart bounds,
+collapsed UV triangles and measured density, not unique-island packing.
 
-| Packaged scene | Total triangles | Native context | Unique image memory | glTF / BIN bytes |
-| --- | ---: | ---: | ---: | ---: |
-| 117 | 904,710 | 782,566 | 164.02 MiB | 1,111,252 / 34,179,268 |
-| 229 | 1,192,033 | 977,810 | 158.00 MiB | 1,911,457 / 28,558,032 |
-| 341 | 1,016,402 | 906,770 | 158.00 MiB | 974,202 / 29,810,368 |
+| Presentation site | Garden + context triangles | Unique image memory | glTF / BIN bytes |
+| --- | ---: | ---: | ---: |
+| 117 | 908,324 | 164.02 MiB | 1,134,839 / 33,710,896 |
+| 229 | 1,872,723 | 158.00 MiB | 1,975,883 / 31,255,172 |
+| 341 | 1,334,892 | 158.00 MiB | 967,238 / 31,778,188 |
 
-Native context includes the library's houses/apartments, trees, street, cars and
-utility poles. Packed native images are losslessly externalized in a shared
-content-hash cache. Native material-driven vertex colors remain intact. The
-single guarded native-car tangent rounding preservation remains unchanged;
-source native deliveries are never rewritten. Scene costs are not garden costs.
+`export/final/Garden_<seed>.gltf` and its BIN contain the game garden.
+`Site_<seed>.gltf` adds the separately costed native neighborhood used for
+presentation: apartments/houses, street, trees, cars, utility poles and the
+park hall. Staggered rear house rows close gaps in the park and accessible
+service views. Context is optional. Its native images are externalized losslessly
+in a shared content-hash cache. The accepted native-car tangent rounding guard
+preserves its source tangent; no native delivery is rewritten.
 
-Garden roots are centered on the fence footprint at grade, metres, Blender +Z
-up / −Y front, glTF +Y up / +Z front. `GateLeaf` is Z −110°…0°, shown at −85°.
-Native shed doors retain their actual hinges/ranges. `BarrowWheel` is X ±360°;
-`PinwheelRotor` Y ±360°; bib wheels Z 0°…720°; barrel tap Z 0°…90°; lid slides
-Z 0…0.30m. Each plot and standpipe retains its gardener socket. Surface rays
-check actual receiving ground, bed soil, roots, cage feet and tray knee opening;
-raw/fresh-import comparison separately checks serialization. Motion sweeps
-sample gate/shed solids every 5° and omit boundary-only alpha sheets.
+## Placement, generator and motion
+
+Place the garden root at the center of its fence footprint on ground grade,
+in metres, Blender +Z up and −Y front; glTF uses +Y up and +Z forward. Reserve
+space for gate swing, plant overhang and the park's entry flower verge.
+Keep the image URI directory structure or remap it in your importer.
+`CommunityGardenPieces.gltf` contains overlapping prototype roots: instance
+one named root and its children, rather than displaying the whole library at
+once. Shared meshes and materials allow engine instancing. Batch static children by
+material if an importer does not instance mesh references; retain pivots and
+sockets. Distance LODs are
+left to the engine; alpha overdraw still warrants profiling in large scenes.
+
+`src/plan.py` owns dimensions, archetype and deterministic seed decisions.
+The shipped seeds are 117 / 229 / 341. For another site run `make -C community-garden model SEEDS=118
+ARCHETYPE=city` (also `park` or `accessible`). Checks and presentation presets
+cover the three delivered seeds. Care states, crop placement and
+piece variations derive from the seed. `plants.build(species, stage, seed,
+support_radius, field=False)` builds an individual plant. `src/surfaces.py`
+owns the metric finish fields. Private context rebuilds preserve native files.
+
+Moving parts keep their real pivots and names:
+
+| Part | Blender local axis / range |
+| --- | --- |
+| GateLeaf | Z −110°…0°, presented at −85° |
+| Shed Door_L / Door_R | Z −110°…0° / 0°…110° |
+| Context HallDoorLeft / HallDoorRight | Z −90°…0° / 0°…90° |
+| BarrowWheel | X ±360° |
+| PinwheelRotor | Y ±360° |
+| Bib wheels | Z 0°…720° |
+| Barrel tap | Z 0°…90° |
+| Lid slides | Z translation 0…0.30 m |
+
+Each plot and the standpipe expose gardener sockets in the hierarchy. The
+import/contact check measures soil/root, cage feet, receiving grade and tray
+knee-space surfaces. The separate motion check samples gates and shed doors
+every 5° against exported solids, including the new hall and nearby ground;
+it excludes boundary-only alpha sheets.
+Serialization checks prove the export survives import, independently of those
+construction and clearance measurements. An independent raw RGB-stream audit
+checks that site packaging preserves the garden tints, with a .0046 linear
+tolerance for Blender BYTE_COLOR import and U16 re-export. The renderer reads
+the exported result, so missed color transfer cannot hide behind source shaders.
+
+## Correction comparisons
+
+Native before/after PNG panels accompany these JPG pairs. Each panel is at
+least 800 px wide. The three heroes and specimen views retain their historical
+camera; garden comparison cameras now sit among actual neighboring plots.
+
+| Correction | Before / after |
+| --- | --- |
+| July lawn, blade relief, trimmed edges, drought and traffic | [Summer turf](renders/fix-crops/01-summer-turf.jpg) |
+| Cut-earth park plots, hall and closed neighborhood | [Park](renders/fix-crops/02-park-plots-and-building.jpg) |
+| Closed tomato canopy and varied leafy heads with failures | [Tomato](renders/fix-crops/03a-tomato.jpg), [heads](renders/fix-crops/03b-varied-heads.jpg) |
+| Husked ears rising at leaf joints, brown tip silk | [Corn ear](renders/fix-crops/04-upright-corn-ears.jpg) |
+| Removed city row-cover instance at the frame edge | [City corner](renders/fix-crops/05-row-cover-at-frame-edge.jpg) |
+| Granular court, edging, loose stones and compressed tracks | [Accessible court](renders/fix-crops/06-granular-accessible-court.jpg) |
+| Populated garden comparisons | [Wise](renders/fix-crops/07-wise_bed-whole-garden-pair.jpg), [City Hall](renders/fix-crops/07-cityhall_mature-whole-garden-pair.jpg), [Martin](renders/fix-crops/07-martin_place-whole-garden-pair.jpg) |
+| Clear low sun, deep shade and retained highlights | [City](renders/fix-crops/08-117-clear-low-sun.jpg), [park](renders/fix-crops/08-229-clear-low-sun.jpg), [accessible](renders/fix-crops/08-341-clear-low-sun.jpg) |
+
+## Rebuild and evidence
 
 ```sh
 make -C community-garden
 make -C community-garden check
 make -C community-garden repeat
-make -C community-garden render WIDTH=1200 SAMPLES=40
-make -C community-garden model SEEDS=118 ARCHETYPE=city
+make -C community-garden check-texture-repeat
+python3 kit/repo_check.py
 ```
 
-Defaults build the look-dev checkpoint without docs. `src/plan.py` owns accepted
-plans; `plants.build(species, stage, seed, support_radius, field=False)` owns
-crop morphology. `src/surfaces.py` owns the original finish fields. Native inputs
-are read-only and only missing prerequisites are built. Scratch stays in `build/`.
-Cycles bakes/renders use the kit GPU lock in serial sets. No kit change.
-The repeat check rebuilds all seven exports in fresh scenes, repacks native
-context and regenerates the analytic plant maps and surface fields byte for byte.
-It retains native inputs and baked opaque maps; exact GPU bake/render bytes are
-outside that check’s scope.
+Blender 5.2 and the kit's installed tools are required. `make` fetches only
+registered image/PDF references, builds private source geometry and atlases,
+bakes, exports, checks and renders at 1600 px / 96 samples, with 192-sample
+heroes. Only absent native prerequisites are built. All Cycles jobs use the
+shared GPU lock; camera fitting and CPU scene packaging precede one lease for
+the complete serial render set. Interrupted views resume from current receipts.
+No kit changes are required.
 
-Review evidence is local under `renders/lookdev/`: each seed's `hero.png`,
-`above.png`, `above-annotated.jpg`, corner, tomato, bean, squash, compost and water
-views; 341 also accessible tray; 117 scale and Eevee. `before-camera.png` repeats
-the old hero pose, with full-size pairs in `comparisons/<seed>-before-after.jpg`
-when the preserved historical checkpoint cache is present. `plants/` contains
-five standalone exported specimens, paired with botanical photos under
-`comparisons/`. Three midsummer calibrated pairs are in `matches/`. Contact,
-heroes, details, plants and photographic contact sheets stay outside git.
-The historical comparison cache is local evidence from the accepted checkpoint,
-not an image downloaded or committed as a new asset input.
+The complete evidence stays local under `renders/final/`: each seed's hero,
+above and annotated plan, front/side/back inspections, construction and crop
+close-ups; 117 also scale with a 1.8 m silhouette and Eevee; 341 also the tray.
+`pieces.png` uses individually fitted panels with measured W × D × H labels.
+`plants.png` keeps stages at a common scale within each species; species panel
+scales differ and mature heights are labeled. Tomato detail cameras are fitted
+inside actual aisles, with 25 conservative foreground rays reporting zero
+hits for each delivered seed. These rays prove foreground clearance, not
+plant density or image quality. `plants/` includes five
+standalone specimens and the ear detail. `contact.jpg` and `matches/` contain
+the full contact sheet and three midsummer garden pairs. Every final view
+freshly imports an exported garden or site and its shipped baked maps.
 
-The 1200px/40-sample complete build and independent repeat both pass. Forty
-render receipts match current exported bundles; all 479 recorded other-family
-delivery files remain byte-identical.
+`renders/fix-crops/` contains native before/after panels at least 800 px wide
+for all eight corrections (`make fixes`). Historical images are preserved local checkpoint
+evidence; a fresh clone cannot reconstruct earlier revisions from current
+scripts; those historical inputs are optional for a fresh `make` and required
+for the correction crops. Hero and specimen cameras match exactly; photographic comparison
+cameras now fit equivalent landmarks inside the delivered sites.
+`REVIEW.md` records the full-size critique passes, white-balance neutrals and
+remaining CG cues. Camera fits are unsurveyed: City Hall's hoop scale and
+occluded bed ends are inferred. The botanical pairs compare morphology;
+only tomato/concrete and squash/weed-cloth have assumed neutral balances.
 
-[REVIEW.md](REVIEW.md) records the critique passes, neutrals, failures and final
-limitations. The City Hall hoop fit uses an inferred cage scale; plant-photo
-views compare morphology and do not claim surveyed dimensions or identical light.
-The remaining weaknesses are orderly planting, repeated leaf/card silhouettes,
-approximate thin-leaf response, shallow chip relief, even gravel/grass and simple
-compost mounds. Photographic scene context is approximate. The traditional shed
-threshold remains outside the accessible-interior claim.
+The exact repeat rebuilds geometry, full sites, private shed, analytic maps,
+source fields and camera/WB outputs at identical paths. The native-car tangent
+guard checks its variable pre-repair rounding diagnostic separately; the complete
+repaired site BIN still compares exactly. GPU rebakes are compared
+separately at 4K and shipped 2K using the kit's max/RMSE tolerance. GPU renders
+are provenance checked, not promised byte-identical. A final gallery is created
+with `make docs` after recording the local full-size visual review receipt;
+five JPGs are bounded to 1600 px and 200 KB each and committed separately.
 
-Text uses installed Noto Sans (SIL Open Font License 1.1) through `kit/fonts.py`;
-all signs and site names
-are fictional. References are credited in the source register and used only
-for comparison. Native library pieces retain their own documented sources.
+Known limitations: close leaves retain repeated analytic silhouettes/veins;
+branch tiers and fruit are regular, squash runs cool/teal, field silk is thin
+and thin-leaf transmission approximate. Chips have shallow relief; compost
+mounds and the park hall's opaque glazing are simple. Suspended hose spans
+are too straight; foot/wheel marks remain regularly spaced. Coarse turf cards
+and overly straight soil banks show in macros, small vessels retain facets,
+and marigold flowers are angular.
+Eevee glass and foliage are flatter than Cycles. Native tree crowns repeat.
+Photo architecture, crop mixtures and illumination differ from these fictional
+sites. The planted scenes read best from their intended garden viewpoints;
+measurements and successful checks do not make them exact photographic replicas.
+
+Credits: original library Ground, fences, shed, houses, apartments, trees, cars
+and utility families retain their documented source credits. Text uses installed
+Noto Sans (SIL OFL 1.1) found through `kit/fonts.py`. All signs and names are
+fictional. See [refs/SOURCES.md](refs/SOURCES.md) for reference credits;
+photographs never become asset textures or mesh input.

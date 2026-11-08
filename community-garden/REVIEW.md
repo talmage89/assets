@@ -842,3 +842,100 @@ card silhouettes at macro distance, simple compost mounds, faceted small
 vessels, overly straight suspended hose spans and regular track spacing.
 The Eevee view has flatter glass/foliage response than Cycles. Native tree
 crowns repeat; more samples resolve their leaves but cannot change that shape.
+
+## Delivery pass 15 — complete native-size visual acceptance of the final recipe
+
+Color and value first: all 56 final PNGs were opened at their native resolution,
+including the replacement catalogue sheets, all three aisle-fitted tomato
+views and all nine raised inspection views. All thirteen before/after JPG
+comparisons, all three complete garden/photo pairs, the annotated plans and
+contact sheets were opened too. The neutral assumptions remain Wise's gray
+stucco, Martin's pale siding and City Hall's weathered board cap. Martin's
+verge still runs greener and more regular than the photographed grass, but
+its lighter straw-green response, individual blades and drought/traffic
+variation now replace the dark, even plane. All three heroes retain deep
+canopy/eave shade with zero measured clipped-channel share.
+
+Each requested correction is visible in its same-camera crop: summer turf;
+unframed park plots with row ridges, a hall and surrounding houses; the closed,
+overhanging tomato and varied leafy heads with failures; upward husked corn
+ears with brown tip silk; the removed city row-cover instance; granular stone
+with edging and tracks; crowded on-site photographic comparisons; and clear
+low-sun heroes. Before and after PNG panels retain native pixels, each at
+least 800 px wide. Pair cameras deliberately move from isolated fixtures
+into actual sites; hero/specimen cameras compare equal numerically.
+
+The replacement tomato cameras show the entire canopy and the cage below it,
+without the earlier foreground obstruction. Each camera lies in a measured
+plan aisle, with zero foreground hits in 25 conservative triangle rays. This
+proves view clearance, not the canopy's density: the images provide that
+judgment. Raised inspection cameras remove the below-floor black bands.
+The second rear house row closes gaps in the park and accessible service
+views without moving the city composition, trays or first-row houses.
+Catalogue panels no longer overlap: piece dimensions are measured, and growth
+stages share a scale within each species, with differing species scales labeled.
+
+Still CG: repeated leaflet silhouettes and veins; regular bean tiers; cool
+squash; smooth fruit/husks and sparse angular silk; star-like marigold flowers;
+graphic chips and flat straw; coarse grass cards in macros; simple compost
+mounds, small-vessel facets, overly straight suspended hose spans and regular
+track spacing. Native tree crowns repeat. Eevee's glass and foliage are flatter
+than Cycles. These limits remain disclosed rather than described as photographic
+matches. No further model changes are needed for the eight requested fixes.
+
+A second build from cleared production outputs is now running with this final
+script graph; the reviewed images are archived locally for hash comparison.
+The final clean-build/repeat receipts and bounded gallery are still pending.
+
+## Delivery pass 16 — clean build, exact repeat and final crop acceptance
+
+Color and value first: every one of the 56 PNGs from the second clean build
+was opened again at native size, followed by all thirteen regenerated native
+before/after comparisons and the three complete midsummer photo pairs. The
+same documented photo neutrals apply. All three 192-sample heroes have zero
+clipped-channel share; their 5th/median/95th display-luma quantiles are
+.008/.283/.678 (117), .003/.268/.715 (229), and .009/.341/.625 (341).
+These display statistics support the inspected highlight/shadow range; they
+are not albedo measurements. Tree leaf clusters are resolved rather than
+broken into render noise. The native crowns' repeated structure remains CG.
+
+All eight corrections remain visible in the final crops, including the July
+verge in the complete Martin pair. Hero and specimen camera equality passes;
+all before/after panels are at least 800 px wide. Garden comparison cameras
+show actual crowded sites, rather than isolated fixtures. Provenance checks
+all 56 exported-PBR render receipts against current bundles and recipes.
+`build/final-visual-review.json` records the manually reviewed PNG hashes.
+
+The production build, exports, textures and final renders were cleared,
+preserving only the explicitly archived historical evidence and immutable
+native inputs. `make` and the explicit subsequent `make check` both exited 0.
+The final `make check` after repeat also exited 0: scale/surface contacts,
+normal and UV-chart checks, budgets, fresh imports, actual exported-solid
+motion sweeps and independent RGB-stream serialization checks pass. All 479
+protected delivery files remain byte-identical. The repository check reports
+2,090 source files and zero errors before the gallery commit.
+
+`make repeat` exits 0: 50 deterministic files compare byte for byte,
+including 7 complete glTF/BIN pairs, the private shed, plans/costs/package
+receipts, analytic maps and source fields, plus rerun camera/white-balance
+calibration. The broader audit first caught the native-car pre-guard tangent
+diagnostic varying between zero and .0001000166. Exact source position,
+normal and UV signatures are checked before restoring its original tangent;
+the complete repaired site BIN bytes compare exactly. The variable measured
+pre-guard delta is separately bounded by .00011, not presented as a
+deterministic or constant measurement. Equal source-map timestamps are restored
+only after byte equality passes, preventing an unnecessary production rebake.
+
+`make check-texture-repeat` exits 0 at authored 4096 and shipped 2048.
+The worst channel delta is 1 byte; maximum RMSE is
+0.001179311 bytes at 4K and 0.001260737 at 2K,
+within the kit limits of 2 bytes / .02 RMSE. GPU image files are tolerance
+checked rather than promised byte-identical. No kit changes were made.
+
+Still CG: the earlier analytic leaf/branch repetition, cool squash, smooth
+fruit/husks and sparse silk, angular marigold florets, shallow chips/flat straw,
+coarse grass cards and overly straight/faceted soil banks in macros, simple
+compost mounds and small vessels, straight suspended hose spans, regular
+tracks, repeated native tree crowns, and flatter Eevee foliage/glass. These
+limits remain in the README. The eight requested fixes are complete; proceed
+to the bounded five-JPG gallery, then commit those images last by themselves.
