@@ -30,11 +30,11 @@ is static; canonical cars and trees provide the working animation/wind data.
 
 | Scene / package | Expanded tris | Unique tris | Mesh instances | Materials | glTF + BIN bytes | Referenced PNG bytes | Full-mip GPU MiB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 101 Freeway | 287,792 | 270,172 | 837 | 29 | 22,830,592 | 68,047,686 | 106.25 |
-| 101 Town + ROW turf | 113,650,012 | 1,143,343 | 29,852 | 84 | 106,635,449 | 92,493,232 | 175.58 |
+| 101 Freeway | 287,744 | 270,124 | 837 | 29 | 22,827,086 | 68,047,686 | 106.25 |
+| 101 Town + ROW turf | 113,650,012 | 1,143,343 | 29,852 | 84 | 106,635,597 | 92,493,232 | 175.58 |
 | 101 Traffic | 5,305,194 | 1,330,615 | 6,014 | 64 | 71,472,895 | 26,553,791 | 73.33 |
-| 202 Freeway | 162,518 | 162,518 | 590 | 17 | 14,540,805 | 60,547,757 | 88.25 |
-| 202 Town + ROW turf | 37,887,606 | 233,402 | 9,104 | 49 | 23,013,118 | 66,403,646 | 102.92 |
+| 202 Freeway | 162,518 | 162,518 | 590 | 17 | 14,541,340 | 60,547,757 | 88.25 |
+| 202 Town + ROW turf | 38,110,486 | 234,074 | 9,973 | 50 | 23,325,606 | 66,403,646 | 102.92 |
 | 202 Traffic | 2,221,793 | 936,056 | 2,945 | 57 | 50,385,538 | 27,970,229 | 76.00 |
 
 Whole-scene image unions (shared hashes counted once):
@@ -66,15 +66,15 @@ Measured lot and house-clearance ranges are in `build/context-audit.json`.
 
 Seed 101: 1,710 houses, 4,362 trees and 4 apartment blocks; town and ROW turf have 29,852 mesh instances sharing 209 unique meshes.
 
-Seed 202: 656 houses, 1,463 trees and 0 apartment blocks; town and ROW turf have 9,104 mesh instances sharing 19 unique meshes.
+Seed 202: 656 houses, 1,463 trees and 0 apartment blocks; town and ROW turf have 9,973 mesh instances sharing 20 unique meshes.
 
 The house, tree and traffic placements are retained from the accepted delivery.
 Near ROW grass adds linked crossed-card tiles to the optional Town package;
 eight 256-triangle patterns share the maintenance atlas, with density fading
-into the textured base. Their extra expanded triangles are 4.76M / 1.28M net,
+into the textured base. Their extra expanded triangles are 4.76M / 1.50M net,
 including removal of old cosmetic grass skins. Civil color sampling adds
-24,288 / 1,984 triangles for lane-center oil, column runoff and barrier joints.
-Town geometry files shrink by 8.97M / 10.12M bytes; whole-scene compressed image
+24,240 / 1,984 triangles for lane-center oil, column runoff and barrier joints.
+Town geometry files shrink by 8.97M / 9.81M bytes; whole-scene compressed image
 memory is unchanged because the turf reuses maps already present in the scene.
 
 The 50–60 × 100–130 ft range comes from this brief; the 2002 USGS aerial is
@@ -150,7 +150,7 @@ Fresh raw-accessor counts. Material states differ from placed draw calls.
 | GorePaving36 | 20 | 2 |
 | GuardrailEnd | 404 | 4 |
 | MedianF | 140 | 1 |
-| Overpass | 23,940 | 9 |
+| Overpass | 23,892 | 9 |
 | PierBent | 1,828 | 2 |
 | PrestressedGirder24 | 796 | 1 |
 | RampBranch | 548 | 3 |
