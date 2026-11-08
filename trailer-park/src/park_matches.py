@@ -54,8 +54,8 @@ def solve():
     definitions['newer-row-2024']=dict(asset='Park-202',photo='refs/newer-row-2024.jpg',crop=[0,0,1280,873],
       title='Newer occupied lane / planted fronts and summer turf',location=[x,y-3,1.68],target=[x,y+45,14],
       lens=24,lens_bounds_mm=[23.5,24.5],camera_height_m=[1.68,.15],
-      neutral='Sunlit white entrance fence; four lane-edge anchors, longitudinal stations inferred from our fictional plan; does not fit individual houses or establish surveyed depth',
-      neutral_rect=[200,687,250,692],landmarks=[dict(world=q,pixel=pix) for q,pix in anchors])
+      neutral='White PVC entrance-fence post, crop checked at pixel scale; four lane-edge anchors, longitudinal stations inferred from our fictional plan; does not fit individual houses or establish surveyed depth',
+      neutral_rect=[265,683,269,717],landmarks=[dict(world=q,pixel=pix) for q,pix in anchors])
     results={}
     for name,d in definitions.items():
         result=calibrate(d);result.update(asset=d['asset'],neutral=d['neutral'],neutral_rect=d['neutral_rect'])
