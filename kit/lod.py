@@ -153,17 +153,18 @@ def build(config):
                 from kit.lod_scene import capture_geometry,restore_geometry
                 retained=capture_geometry(doc,retain)
                 from kit.lod_shared import meshes
-                from kit.lod_shells import backface_policy,refinement_policy
+                from kit.lod_shells import backface_policy,refinement_policy,powered_policy
                 guard=spec.get('backface_guard',cfg.get('backface_guard',True))
+                powered=spec.get('powered_protection',cfg.get('powered_protection','component'))
                 pixels=spec.get('surface_pixels',cfg.get('max_surface_pixels',.75))
                 sliding=spec.get('seam_sliding',cfg.get('seam_sliding',True))
                 reflective=spec.get('reflective_surface_pixels',cfg.get('reflective_surface_pixels'))
                 size=max((max(image['size']) for image in doc.stats()['images']),default=2048)
                 materials=[doc.data['materials'][i] for i in sorted({p.get('material',0) for _,_,p in doc.primitives()})]
-                with backface_policy(guard,materials),refinement_policy(spec['ratio'],pixels,size,
+                with powered_policy(powered),backface_policy(guard,materials),refinement_policy(spec['ratio'],pixels,size,
                         source=doc,reflective_surface_pixels=reflective,enabled=sliding):
                     reports=meshes(doc,spec['ratio'],meters_per_pixel,cfg.get('feature_pixels',1.5),pixels,seam_sliding=sliding)
-                assembly.update(backface_guard=guard,source_skin_refinement=sliding and guard)
+                assembly.update(backface_guard=guard,source_skin_refinement=sliding and guard,powered_protection=powered)
                 if retained:assembly['retained_source_geometry']=restore_geometry(doc,retained)
                 if reflective is not None:assembly['reflective_surface_pixels']=reflective
             else:

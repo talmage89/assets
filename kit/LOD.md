@@ -290,7 +290,17 @@ Small closed construction islands may disappear under the accepted pixel policy.
 Powered surfaces also protect neighboring components whose bounds overlap the
 powered assembly's bounds expanded by half a switch pixel. This conservative
 selection keeps tiny shutters and housings from exposing an entire bright lens
-after pruning; it is not a surface-contact measurement. A source-skin guard
+after pruning; it is not a surface-contact measurement. A narrower, opt-in
+`"powered_protection": "local"` policy at config or
+level scope pins only corners of source triangles whose bounds overlap the
+same expanded emitter bounds. Original glass, alpha and emissive surfaces stay
+fixed; all UV/frame/data, topology and visibility checks remain. This can free
+remote tessellation in a connected construction. The default `"component"`
+keeps the established whole-component behavior. Review the lamps and their
+occluding trim at every native switch before choosing local protection.
+Receipts report affected triangles and newly protected corner records; the
+constraint inventory separately counts unique fixed geometric vertices.
+Policies reset after each level, including exceptional exits. The source-skin guard
 casts rays to candidate face centers from six axes and eight corner directions.
 If a formerly hidden back face wider than three switch pixels becomes
 visible where the source had an outward-facing surface, split-wedge levels retry

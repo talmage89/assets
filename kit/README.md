@@ -949,6 +949,10 @@ separate these stored counts from active draw calls and count a shared original
 container once across modular kinds.
 `lod_shells.py` guards source layer ordering with measured visibility rays and
 keeps construction beside powered surfaces, including small occluding shutters.
+The default protects a whole connected neighbor; opt-in
+`"powered_protection": "local"` protects only source triangles overlapping the
+same half-pixel-expanded emitter bounds. Original glass/alpha/emissive masks and all reduction guards
+remain. Native lamp/trim comparisons are required before enabling that scope.
 Failed skins try finer source-map reductions before restoring a whole component;
 every trial keeps the original field/distance bounds and tests assembled visibility.
 Optional `reflective_surface_pixels` gives low-roughness metallic constructions a

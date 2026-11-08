@@ -10,6 +10,22 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 
 _BACKFACE_GUARD=ContextVar('lod_source_backface_guard',default=True)
+_POWERED_SCOPE=ContextVar('lod_powered_protection',default='component')
+
+
+@contextmanager
+def powered_policy(scope):
+    """Scope neighboring protection; original powered surfaces stay fixed.
+
+    Component protection is the established default. Local protection pins
+    only source triangle corners inside the same conservative expanded bounds.
+    It needs independent switch-size review; bounds are not contact proofs.
+    """
+    if not isinstance(scope,str) or scope not in ('component','local'):
+        raise ValueError('powered_protection must be component or local')
+    token=_POWERED_SCOPE.set(scope)
+    try:yield
+    finally:_POWERED_SCOPE.reset(token)
 
 
 @contextmanager
@@ -274,7 +290,7 @@ def preserve(source,faces,reduced,triangles,report,meters_per_pixel=0.):
 
 
 def protect_powered(attrs,faces,materials,meters_per_pixel):
-    """Keep a powered lens and its neighboring occluders as one visual assembly."""
+    """Protect source neighbors of a powered lens, without changing its mask."""
     from kit.lod_mesh import components
     groups=components(attrs,faces);bounds=[];retained=[]
     powered={i for i,m in enumerate(materials) if any(v>0 for v in m.get('emissiveFactor',[0,0,0]))}
@@ -286,7 +302,16 @@ def protect_powered(attrs,faces,materials,meters_per_pixel):
         vertices=np.unique(faces[ids]);p=attrs['POSITION'][vertices];lo,hi=p.min(0),p.max(0)
         if not any(np.all(lo<=b) and np.all(hi>=a) for a,b in bounds):continue
         triangles=attrs['POSITION'][faces[ids]];low,high=triangles.min(1),triangles.max(1)
-        if not any(np.any(np.all(low<=b,axis=1)&np.all(high>=a,axis=1)) for a,b in bounds):continue
-        if not attrs['_LOD_KEEP'][vertices].all():retained.append(dict(triangles=len(ids),reason='component bounds overlap powered-source bounds plus half a switch pixel'))
+        hit=np.zeros(len(ids),bool)
+        for a,b in bounds:hit|=np.all(low<=b,axis=1)&np.all(high>=a,axis=1)
+        if not hit.any():continue
+        if _POWERED_SCOPE.get()=='local':
+            component_corners=len(vertices);vertices=np.unique(faces[np.asarray(ids)[hit]])
+            new=int(np.count_nonzero(attrs['_LOD_KEEP'][vertices,0]==0))
+            if new:retained.append(dict(triangles=len(ids),protected_triangles=int(hit.sum()),
+                new_protected_corner_records=new,component_corner_records=component_corners,
+                reason='source triangle bounds overlap powered-source bounds plus half a switch pixel'))
+        elif not attrs['_LOD_KEEP'][vertices].all():
+            retained.append(dict(triangles=len(ids),reason='component bounds overlap powered-source bounds plus half a switch pixel'))
         attrs['_LOD_KEEP'][vertices]=1
     return retained

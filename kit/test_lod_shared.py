@@ -107,8 +107,54 @@ def refinement_fixtures():
     print('SOURCE REFINEMENT FIXTURES PASS',len(faces),'->',len(triangles),flush=True)
 
 
+def powered_fixtures():
+    """Free remote construction while keeping the actual near-lens panel."""
+    from kit.lod_shells import protect_powered,powered_policy
+    points=np.array([[0,0,0],[1,0,0],[1,1,0],[0,1,0],[2,0,0],[2,1,0],
+                     [3,0,0],[3,1,0],[.2,.2,.01],[.6,.2,.01],[.2,.6,.01]],np.float32)
+    faces=np.array([[0,1,2],[0,2,3],[1,4,5],[1,5,2],[4,6,7],[4,7,5],[8,9,10]],np.uint32)
+    base=dict(POSITION=points,NORMAL=np.tile([0,0,1],(11,1)).astype(np.float32),
+              TEXCOORD_0=points[:,:2]/np.array([3,1],np.float32),
+              _LOD_MATERIAL=np.array([[0]]*8+[[1]]*3,np.float32),
+              _LOD_KEEP=np.array([[0]]*8+[[1]]*3,np.float32))
+    materials=[{},dict(emissiveFactor=[1,1,1])]
+    whole={k:v.copy()for k,v in base.items()};protect_powered(whole,faces,materials,.1)
+    assert whole['_LOD_KEEP'].all()
+    local={k:v.copy()for k,v in base.items()}
+    with powered_policy('local'):
+        receipt=protect_powered(local,faces,materials,.1)
+        with powered_policy('component'):
+            nested={k:v.copy()for k,v in base.items()};protect_powered(nested,faces,materials,.1)
+            assert nested['_LOD_KEEP'].all()
+    assert local['_LOD_KEEP'][:4].all() and local['_LOD_KEEP'][8:].all()
+    assert not local['_LOD_KEEP'][4:8].any()
+    assert len(receipt)==1 and receipt[0]['protected_triangles']==2
+    # A real collapse removes remote tessellation while retaining the entire
+    # source panel under the emitter. Whole-component protection cannot do so.
+    outputs=[]
+    for candidate in [whole,local]:
+        attrs={k:v[:8].copy()for k,v in candidate.items()}
+        reduced,triangles,_=collapse(attrs,faces[:6],.5,max_error=.075,
+            uv_limit=.5/1024,meters_per_pixel=.1)
+        outputs.append(len(triangles))
+        assert all(np.any(np.all(reduced['POSITION']==p,axis=1))for p in points[:4])
+    assert outputs[0]==6 and outputs[1]<outputs[0],outputs
+    try:
+        with powered_policy('local'):raise RuntimeError('fixture exit')
+    except RuntimeError:pass
+    restored={k:v.copy()for k,v in base.items()};protect_powered(restored,faces,materials,.1)
+    assert restored['_LOD_KEEP'].all()
+    for invalid in ['',None,True,[], 'triangle']:
+        try:
+            with powered_policy(invalid):pass
+        except ValueError:pass
+        else:raise AssertionError('Invalid powered protection accepted')
+    print('POWERED PROTECTION FIXTURE PASS',outputs,flush=True)
+
+
 def main():
     refinement_fixtures()
+    powered_fixtures()
     from kit.lod_shells import exposed_backfaces,preserve,protect_powered,backface_policy,refinement_policy
     # Two closed constructions meet at one corner and cross farther inside.
     # Their hidden source skins must not emerge after independent collapse.
