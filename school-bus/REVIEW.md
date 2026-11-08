@@ -479,3 +479,19 @@ and rear soot, with duller rail crowns and bumper corrosion. The previous
 chip mask faded primer into yellow; wear now changes its coverage. Give
 the entrance treads and first two bench rows more of the existing atlas so
 wear/ribs survive downsampling. Triangle and texture allocations do not grow.
+
+### Export leak checkpoint before the full gallery
+
+The new six-view direct test rejected the first final batch: 1,480 side
+pixels and 13 top pixels. Archived actual/mask images and ray locations are
+in `renders/round2-leak-failure/`. Side rays hit fictitious cutter-end walls
+at X=-0.760m inside the test die's wheel opening. The independent filled die
+now uses a through arch, as its rear arch already did. This changes the
+expected empty space, rather than masking a delivery hole.
+
+The top failure was real: the optical routing tool extended behind its
+cassette and pierced the swept fender. Shorten that cut to the nose wall.
+All 24 downward probes at the failed region now hit the actual hood, and
+all-face normals and optical intersections still pass. The repair adds 66
+triangles (hood 6,198; total 86,554, exterior 69,290). Rebuild the UV/bake and
+all delivery proofs; previous 86,488-triangle receipts are superseded.

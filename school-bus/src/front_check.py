@@ -2,6 +2,7 @@
 import argparse,json,sys
 from pathlib import Path
 import bpy
+from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1]
 sys.path[:0]=[str(HERE),str(ROOT),str(ROOT/'cars/src')]
@@ -37,6 +38,15 @@ def main():
         correspondence=None
     selected=[o for o in obs if o.name=='Compound hood shell' or o.name.startswith(('Headlamp','Glass sealed headlamp','Bonded headlamp','Lamp front lowbeam','Grille','Recessed grille','Seated grille'))]
     rows={o.name:measure(o) for o in selected};errors=[n for n,r in rows.items() if not r['passed']]
+    hood=next(o for o in selected if o.name=='Compound hood shell')
+    points,faces=triangles(hood);tree=BVHTree.FromPolygons(points,faces,all_triangles=True)
+    roof_probes=[]
+    for sign in [-1,1]:
+        for x in [1.045,1.055,1.065,1.075]:
+            for y in [-5.815,-5.805,-5.795]:
+                hit=tree.ray_cast(Vector((sign*x,y,3)),Vector((0,0,-1)))[0]
+                roof_probes.append(dict(xy_m=[sign*x,y],actual_hood_hit_m=list(hit) if hit is not None else None))
+    if any(r['actual_hood_hit_m'] is None for r in roof_probes):errors.append('Open fender roof behind optical pocket')
     crossing={}
     for cover in [o for o in selected if o.name.startswith('Glass sealed headlamp')]:
         points,faces=triangles(cover);roles=cover.data.attributes.get('sheet_role')
@@ -51,6 +61,7 @@ def main():
         crossing[cover.name]=hits
         if hits:errors.append(cover.name+' optical/body crossings')
     result=dict(passed=not errors,errors=errors,parts=rows,lens_crossings=crossing,
+                optical_rear_roof_probes=roof_probes,
                 stage='fresh imported glTF triangles' if a.delivery else 'source construction',
                 correspondence=correspondence,source=str(source),delivery=a.delivery,
                 scope='Unchanged car all-face/corner/area audit and exact triangle intersections; gasket mounting contact excluded')

@@ -107,7 +107,9 @@ def sculpt(b):
         # The dense source is the smooth mold before these routed cassette
         # openings. Their narrow laminate returns use exact game normals;
         # projecting the original mold onto those perpendicular walls is wrong.
-        cut=G.box('Optical pocket tool',(x,-5.88,1.035),(.395,.38,.305),None,.040,5)
+        # Route only the nose wall. Extending this tool behind the cassette
+        # pierced the swept fender roof, leaving two small top-view holes.
+        cut=G.box('Optical pocket tool',(x,-5.98,1.035),(.395,.26,.305),None,.040,5)
         G.boolean(ob,cut)
         bucket=b.box('Headlamp closed bucket '+str(sign),(x,face_y+.050,1.035),(.400,.104,.314),'black',r=.035)
         G.boolean(bucket,G.box('Optical bucket interior',(x,face_y+.020,1.035),(.378,.160,.292),None,.028,4))
