@@ -19,7 +19,7 @@ def prepare():
         if not q.exists():q.symlink_to(p,target_is_directory=True)
     for dest,source in ((family/'textures',ASSET/'textures'),(family/'build/native',ASSET/'build/native'),(family/'build/library',ASSET/'build/library')):
         dest.parent.mkdir(parents=True,exist_ok=True)
-        if not dest.exists():dest.symlink_to(source,target_is_directory=True)
+        if not dest.exists() and not dest.is_symlink():dest.symlink_to(source,target_is_directory=True)
     cached=ASSET/'build/accepted-age'
     if (cached/'export/Park-202.gltf').exists() and not (family/'export/Park-202.gltf').exists():
         assert (cached/'src/build.py').read_bytes()==subprocess.check_output(['git','show','b0dbccc:trailer-park/src/build.py'],cwd=ROOT)
