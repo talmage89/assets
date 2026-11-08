@@ -6,7 +6,7 @@ import spec as S
 
 def build(wear):
     axles=(S.FRONT_AXLE,S.REAR_AXLE)
-    m={'yellow':V.paint('Bus yellow',(.95,.425,.004),wear,axles,front=-5.94,rear=6.006,metallic=0,flakes=0)}
+    m={'yellow':V.paint('Bus yellow',(.95,.332,.004),wear,axles,front=-5.94,rear=6.006,metallic=0,flakes=0)}
     for key,c,kind in [('black',(.008,.009,.009),'rubber'),('frame',(.013,.014,.013),'steel'),
         ('aluminum',(.35,.37,.36),'alloy'),('wheel',(.29,.31,.30),'steel'),
         ('vinyl',(.027,.042,.034),'plastic'),('floor',(.010,.011,.010),'rubber'),
