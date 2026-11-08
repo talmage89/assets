@@ -107,7 +107,17 @@ def baseline(seed,width,samples):
     bpy.ops.wm.read_factory_settings(use_empty=True);source=folder/'export'/f'RiverCrossing-{seed}.gltf'
     bpy.ops.import_scene.gltf(filepath=str(source.resolve()));restore_water();sc,cam=old.setup(width,samples)
     definitions=views(seed);source_hash=bundle(source)
+    from mathutils.bvhtree import BVHTree
+    soil=bpy.data.objects['BedBanksFloodplain']
+    tree=BVHTree.FromPolygons([soil.matrix_world@v.co for v in soil.data.vertices],
+                              [list(f.vertices) for f in soil.data.polygons],all_triangles=True)
+    clearances=[]
     for name in definitions:
+        eye=Vector(definitions[name]['location'])
+        hit=tree.ray_cast(Vector((eye.x,eye.y,1000)),Vector((0,0,-1)),2000)[0]
+        assert hit is None or eye.z>hit.z+.04,('Before camera inside accepted terrain',seed,name,eye,hit)
+        clearances.append(dict(view=name,eye_z_m=eye.z,terrain_z_m=None if hit is None else hit.z,
+                               clearance_m=None if hit is None else eye.z-hit.z))
         path=Path('renders/fixes/before')/str(seed)/(name+'.png')
         if path.exists() and path.with_suffix('.json').exists():
             cached=json.loads(path.with_suffix('.json').read_text())
@@ -125,6 +135,8 @@ def baseline(seed,width,samples):
         old.shot(sc,cam,definitions[name],path,source,width,samples)
         meta=json.loads(path.with_suffix('.json').read_text());meta.update(accepted_revision='9b1c8bc',comparison='accepted exported asset and light, regenerated with revised camera')
         path.with_suffix('.json').write_text(json.dumps(meta,indent=2)+'\n')
+    Path(f'build/baseline-clearance-{seed}.json').write_text(json.dumps(
+        dict(passed=True,accepted_bundle_sha256=source_hash,views=clearances),indent=2)+'\n')
 
 
 def main():

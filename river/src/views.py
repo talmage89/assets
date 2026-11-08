@@ -9,6 +9,9 @@ def views(seed,plan=None):
     ux=p.water_edges(-7)[0]-.8;uz=p.bed(ux,-7)+1.65
     by=p.bar_y-8;inner=-p.outside;bx=p.water_edges(by)[0 if inner<0 else 1]+inner*.50;bz=p.bed(bx,by)+1.65
     ry=p.riffle_y-13;rx=p.water_edges(ry)[0]-.35;rz=p.bed(rx,ry)+1.65
+    # The widened bend moves this bank. Clear the accepted town terrace too,
+    # so one camera gives useful before/after images of both channel shapes.
+    if not rural:rz=max(rz,4.8)
     bearing_y=-p.deck_width/2-2.2;bearing_x=p.water_edges(bearing_y)[0]-1.4
     bearing_target_x=-p.length/2+.40 if rural else -p.length/2+p.span
     rural_abutment_x=p.water_edges(-13)[0]-2.0

@@ -584,3 +584,63 @@ and completed. No partial or stale frame is treated as final. Frames and pairs
 are retained at `renders/pass13/` and `build/pass13-matches/`. The final full-size
 set must show the last ground-overlap and stone-value corrections before this
 checkpoint is reported.
+
+## Pass 14 — full-size controls expose the last field cutoff
+
+Color/value first: the 1280px heroes retain neutral warm concrete and deep
+under-deck shadow. The olive/brown water body now shows between sky reflections;
+the sunny reeds have yellow-green variation and seed heads. Wet quarry value
+is closer to the silt than in Pass 13. Its large facets, broad repair masks,
+regular town footprints and static whitewater still read as CG.
+
+The full-size rural overhead reveals green teeth at one outer crop edge.
+The lateral terrain no longer overlaps the core, but the crop assignment's
+170m face-centroid cutoff divides its last triangulated strip. Continue that
+material to the actual mesh edge. This adds no triangles or images. Keep
+the cameras, lighting and all construction unchanged for the next control.
+The complete preceding set is archived at `renders/pass14/` after its batch
+finishes; its match set is retained at `build/pass14-matches/`.
+
+The twenty-panel audit also rejects the urban riffle's black before frame.
+Its revised bank camera clears the new channel but lies inside the accepted
+town terrace. Raise that one camera above both surfaces and regenerate both
+sides. Baseline rendering now measures each eye against the imported accepted
+terrain; evidence composition also rejects nearly black images on either side.
+The other nine urban comparisons were opened at their full 1280px-per-side size.
+
+The independent Blender projection check agrees within .005px with all three
+fits: urban 12.69px, bank 11.57px and underside 10.93px. The concrete underside
+reference is readable, but its interior beam arrangement differs from this
+exterior fascia view. Four cap landmarks do not establish full beam alignment.
+The bank water remains smoother/darker than the wind-roughened autumn photo.
+One subsequent model process ended with SIGTERM during export, without a
+Blender diagnostic; no process survived it. Restart the build serially and
+require complete fresh receipts before accepting the corrected evidence.
+
+## Pass 15 — valid comparisons, measured crop-cell failure
+
+Color/value first: all ten rural views and the three fresh photo PNGs were
+opened at native size. Concrete remains warm gray, the water olive/brown
+between sky reflections, and the reed heads sunlit. The overhead still shows
+green teeth inside the hay field. Removing the outer 170m cutoff did not
+resolve this inner edge; reject that attempted correction.
+
+Ray tests on the exported triangles locate two adjacent pixels on opposite
+halves of one quad: one uses hay and one lawn. Its corners are approximately
+(46.629,−62), (66.039,−62), (66.486,−60), (47.052,−60)m. The whole exported
+bed contains **37** crop quads divided this way. Classify each whole quad
+and its row tint together, then check imported triangle neighbors for the
+same failure. The correction needs no extra triangles or images.
+
+The raised town riffle camera works on both exports. Its measured clearance
+above the accepted terrain is **1.14503m**. Both PNGs and their full-size
+comparison were opened; the other nine town comparisons were reviewed in
+Pass 14. Baseline clearance and two-sided near-black gates now pass all twenty
+views. Their receipts are `build/baseline-clearance-*.json` and
+`build/fix-evidence.json`.
+
+This serial restart completed `make`, `make check`, the 41-output exact repeat
+and independent photo projection verification. All 628 existing delivery files
+remain unchanged. The set is retained at `renders/pass15/` and
+`build/pass15-matches/`. It is still rejected for the visible field defect;
+the remaining visual limitations recorded in Pass 14 also remain.
