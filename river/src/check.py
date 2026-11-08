@@ -17,10 +17,12 @@ from package import bundle
 
 def accessor(d,bin,index):
     a=d['accessors'][index];v=d['bufferViews'][a['bufferView']]
-    typ={5126:'<f4',5125:'<u4',5123:'<u2',5121:'u1'}[a['componentType']]
+    typ={5126:'<f4',5125:'<u4',5123:'<u2',5121:'u1',5120:'i1'}[a['componentType']]
     n={'SCALAR':1,'VEC2':2,'VEC3':3,'VEC4':4}[a['type']]
     offset=v.get('byteOffset',0)+a.get('byteOffset',0);stride=v.get('byteStride',np.dtype(typ).itemsize*n)
-    return np.ndarray((a['count'],n),dtype=typ,buffer=bin,offset=offset,strides=(stride,np.dtype(typ).itemsize)).copy()
+    values=np.ndarray((a['count'],n),dtype=typ,buffer=bin,offset=offset,strides=(stride,np.dtype(typ).itemsize)).copy()
+    if a.get('normalized'):values=np.maximum(-1,values.astype(float)/{5120:127,5121:255,5123:65535}[a['componentType']])
+    return values
 
 
 def raw(path):
@@ -42,6 +44,8 @@ def raw(path):
         for pr in me['primitives']:
             inds=accessor(d,binary,pr['indices']).ravel();tris+=len(inds)//3
             v=accessor(d,binary,pr['attributes']['POSITION']);assert np.isfinite(v).all()
+            if 'river_position_decode' in me.get('extras',{}):
+                lo,span=me['extras']['river_position_decode'];v=v*span+np.array(lo)
             if me['name'].startswith('DistantWaterVolume_'):
                 # UV/normal splits in glTF do not make physical shell seams.
                 points,remap=np.unique(np.round(v,6),axis=0,return_inverse=True)
@@ -60,6 +64,8 @@ def raw(path):
             n=accessor(d,binary,pr['attributes']['NORMAL']);norm.extend(np.linalg.norm(n,axis=1))
             if 'TEXCOORD_0' in pr['attributes']:
                 u=accessor(d,binary,pr['attributes']['TEXCOORD_0']);assert np.isfinite(u).all()
+                decode=d['materials'][pr['material']].get('extras',{}).get('river_uv_decode_0')
+                if decode:u=u*np.array(decode[1])+np.array(decode[0])
                 tv=v[inds.reshape(-1,3)];tu=u[inds.reshape(-1,3)]
                 area=np.linalg.norm(np.cross(tv[:,1]-tv[:,0],tv[:,2]-tv[:,0]),axis=1)/2
                 du=tu[:,1]-tu[:,0];dv=tu[:,2]-tu[:,0]
@@ -67,7 +73,7 @@ def raw(path):
                 valid=(area>1e-9)&(ua>1e-12)
                 if valid.any():uv.extend(np.sqrt(ua[valid]/area[valid])*1024)
             if '_FLOW' in pr['attributes']:flows.extend(accessor(d,binary,pr['attributes']['_FLOW']))
-    norm=np.array(norm);assert abs(norm-1).max()<.002
+    norm=np.array(norm);assert abs(norm-1).max()<.007
     flow=np.array(flows);assert len(flow)>1000,(path,'No exported flow')
     assert (flow[:,1]>.005).all() and flow[:,2].max()>1
     assert all((path.parent/im['uri']).is_file() for im in d.get('images',[]))
