@@ -96,6 +96,9 @@ def plant(p,parent):
     ob.name='Rooted barrier-joint weeds %04d'%count;ob.parent=parent
     ob.location=p.xyz(s,side*.58,-.012);ob.scale=(.32,.65,.65)
     ob['turf_card_tile']=True;count+=1
+ if p.kind=='soundwall':
+  from turf_edge import add
+  count+=add(p,parent,soil,paving,templates,rng,count)
  for ob in templates:bpy.data.objects.remove(ob,do_unlink=True)
  parent['turf_tiles']=count;parent['turf_triangles']=sum(len(ob.data.loop_triangles) for ob in parent.children_recursive if ob.type=='MESH' and ob.get('turf_card_tile'))
  return count

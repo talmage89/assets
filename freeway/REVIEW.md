@@ -805,3 +805,32 @@ follows the original 32-sided shaft, offset .6mm; it allocates no new image.
 Town/car repetition, broad road-field regularity and uniform concrete grain
 remain other CG cues. Final-size inspection and new crops are still pending.
 
+## Round 4, pass 3: native comparisons (rejected)
+
+Color and value: opened all six new 1400px exports, all eight native
+before/after panels and three newly rendered before-camera images. The
+concrete-balanced references remain the 2002 aerial and 2008 bridge. The
+yellow clump camouflage is gone; 101's foreground now reads as a dark dense
+stand of grass, with textured mown slopes and no hard lighting triangle.
+The 202 median gains sward texture, but its card exclusion leaves an abrupt
+smooth strip beside paving. Tile rhythm and overly even mowing remain CG cues.
+
+The 101 composition passes: town, bridge and lanes remain, foreground is a
+band. Lane-center darkening, wheel response, joints and native-grain replacement
+slabs survive at the hero camera's distance; the road-camera pair makes the
+changes clearer. Barrier feet and end joints now show road film. Fine runoff
+finally continues down the columns. It also exposes the inherited opaque
+repair skins as pale pasted cutouts: they sit outside the runoff skin. This
+fails the no-stamps requirement. Do not generate docs or continue the finals.
+
+Corrections: remove only the 48 cosmetic column-repair triangles, retaining
+the actual shafts, collars and cap. The construction audit records that
+narrow cosmetic exclusion and still tests the supporting surfaces. Fill the
+median's card-exclusion margin with two narrower shared tile rows, shorter
+toward the pavement. Expose a narrow irregular soil edge sampled from the
+actual terrain. Reuse Ground's original mineral normal/color/ORM for brown
+soil/gravel instead of a smooth scalar strip. No new map is needed. Keep the
+rest of pass 3: hue, dense near grass, smooth grading, framing and lane wear.
+Regular joint staining, lane bands, manufacture grain and native silhouettes
+remain CG tells to assess again after this correction.
+

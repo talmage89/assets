@@ -203,22 +203,8 @@ def construction(root):
                 pts=[(xa,left,a),(xa,right,a),(xc,right,c),(xc,left,c)];uv=[(ul,va),(ur,va),(ur,vc),(ul,vc)]
                 if side<0:pts.reverse();uv.reverse()
                 b.face(pts,'Maintenance',uv=uv,tint=(1,1,1,alpha))
-    # Fresh formed repairs use the same concrete manufacture, without a tar
-    # perimeter intended for paving. Their irregular boundary follows the column.
-    for row,(y,z) in enumerate([(-7,3.2),(0,2.1),(7,3.65)]):
-        rng=random.Random(517+row)
-        lower=[z-.28+rng.uniform(-.045,.045) for j in range(9)]
-        upper=[z+.28+rng.uniform(-.035,.035) for j in range(9)]
-        for j in range(8):
-            a=-.52+1.04*j/8;c=-.52+1.04*(j+1)/8
-            xa,ya=.6008*math.sin(a),y-.6008*math.cos(a);xc,yc=.6008*math.sin(c),y-.6008*math.cos(c)
-            start=len(b.colors)
-            b.face([(xa,ya,lower[j]),(xc,yc,lower[j+1]),(xc,yc,upper[j+1]),(xa,ya,upper[j])],'Bridge')
-            from column_age import tint
-            for k in range(start,len(b.colors)):
-                # These older formed repairs have weathered with the shaft;
-                # their slight mix change must not become a white patch stamp.
-                value=tint(Vector(b.v[k]));b.colors[k]=tuple(min(1,v*1.08) for v in value[:3])+(1,)
+    # The old opaque repair stickers sat outside the runoff skin and made
+    # pale cutouts. Leave continuous concrete and its connected deposits.
     from column_deposits import add
     add(b)
     b.finish()

@@ -26,6 +26,10 @@ lighter/darker card patterns; unmown tiles vary height in drifts. Grass-card
 normal strength is .10 so the atlas's shared repair relief does not make
 individual blades look corrugated. Source-height comparisons apply that same
 strength. The base retains the native baked blade normal at its own scale.
+Two narrow linked tile rows taper the curved median's sward toward paving.
+Bare soil/gravel reuses the native Asphalt mineral grain with brown vertex
+pigment; its image bytes stay canonical. The irregular median-edge skin is
+sampled against the actual terrain, retaining the original supporting mesh.
 World/meter tile UVs intentionally repeat. Existing manufacture remains in
 those maps; broad traffic causes belong to lane-space vertex colors and
 placement-owned maintenance charts. Wheel-polish materials share Ground
@@ -78,6 +82,8 @@ cylinder; no flat patch floats in front of it. Additional column height
 stations carry broad head-connected dampness and low spray deposits.
 The existing runoff chart supplies fine channels on skins following each
 32-sided shaft, .6mm above its actual surface, from below the cap to the foot.
+The old opaque decorative column-repair skins are removed so they cannot
+interrupt that flow with pale rectangular cutouts.
 Barrier toes retain
 road film, and open assembly ends concentrate joint staining. A few ramp-rail bays are bent,
 with neighboring replacements brighter than the older zinc. Litter and rooted

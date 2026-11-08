@@ -12,6 +12,9 @@ def install():
         if role=='Maintenance':m.use_backface_culling=False
         Q.M[role]=m
     Q.M['Barrier']=Q.M['Bridge']
+    # Native mineral grain at the bare paving edge; the previous scalar
+    # brown made soil/gravel look like a strip of smooth paste.
+    Q.M['Earth']=Q.M['Asphalt'].copy();Q.M['Earth'].name='Freeway_Form_Earth'
     Q.M['GrassCard']=Q.M['Maintenance'].copy();Q.M['GrassCard'].name='Freeway_TurfCards'
     normal=next(n for n in Q.M['GrassCard'].node_tree.nodes if n.type=='NORMAL_MAP')
     normal.inputs['Strength'].default_value=.10 # Leaf edges are thinner than the maintenance atlas's 8mm relief.

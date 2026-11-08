@@ -29,6 +29,8 @@ class Batch:
         self.name=name;self.rt=rt;self.v=[];self.f=[];self.roles=[];self.uv=[];self.colors=[];self.normals=[]
 
     def face(self,points,role='Concrete',uv=None,tint=(1,1,1,1),normals=None):
+        if role=='Earth' and globals().get('LOOKDEV',False):
+            tint=tuple(c*f for c,f in zip(tint,(1,.71,.41,1)))
         k=len(self.v);self.v.extend(points);self.f.append(tuple(range(k,k+len(points))));self.roles.append(role)
         a,b,c=map(Vector,points[:3]);n=(b-a).cross(c-a).normalized()
         self.normals.extend(normals or [n]*len(points))
