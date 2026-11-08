@@ -18,12 +18,14 @@ def definitions_revised():
     d=copy.deepcopy(definitions())
     d['precast']['neutral']=[1210,1800,1280,1900]
     d['precast']['neutral_description']='Bare concrete strip on the column, left of the red sign; assumed neutral cement paste in diffuse shade'
-    for row in d['precast']['landmarks']:row['world'][2]*=.85
-    d['precast']['title']='Precast haunch / identical bearing height, deeper lower apex / 2014'
-    m=d['harmon'];m.update(crop=[1980,600,2750,1620],location=[-42,-27,1.65],target=[-1,-12.8,8],lens=105,
-        title='Flat-deck adjacent column stack / five-level generator specimen / 2012',landmarks=[])
-    for x,pixels in [(-7.3152,[(2314,847),(2318,1036),(2322,1228),(2326,1415)]),(3.6576,[(2509,965),(2514,1138),(2520,1302),(2524,1468)])]:
-        for j,pix in enumerate(pixels):m['landmarks'].append(dict(world=[x,-12.8016-.381,(4-j)*FLOOR-.76],pixel=list(pix)))
+    origin=(d['precast']['landmarks'][0]['world'][0]+d['precast']['landmarks'][1]['world'][0])/2
+    for row in d['precast']['landmarks']:row['world'][0]-=origin;row['world'][2]*=.85
+    d['precast']['location'][0]-=origin;d['precast']['target'][0]-=origin
+    d['precast']['title']='Precast tee, inverted-T and haunch / two flat modular bays / 2014'
+    m=d['harmon'];m.update(crop=[1900,550,2900,1650],location=[-56.6304,-27,1.65],target=[-15.6304,-12.8,11],lens=105,
+        title='Flat-deck column stack / six-level, 24-station reference specimen / 2012',landmarks=[])
+    for x,pixels in [(-21.9456,[(2314,847),(2318,1036),(2322,1228),(2326,1415)]),(-10.9728,[(2509,965),(2514,1138),(2520,1302),(2524,1468)])]:
+        for j,pix in enumerate(pixels):m['landmarks'].append(dict(world=[x,-12.8016-.381,(5-j)*FLOOR-.76],pixel=list(pix)))
     return d
 
 

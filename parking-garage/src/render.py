@@ -94,6 +94,7 @@ def render_shot(out,shot,width,samples,engine='CYCLES',source=None):
     sc.render.image_settings.file_format='PNG';out.parent.mkdir(parents=True,exist_ok=True);sc.render.filepath=str(out.resolve());bpy.ops.render.render(write_still=True)
     receipt=dict(camera=list(cam.location),camera_world_z_m=float(cam.location.z),lens_mm=float(cam.data.lens),engine=engine,samples=samples,
         exposure=sc.view_settings.exposure,width=width,height=sc.render.resolution_y,output=str(out),sha256=hashlib.sha256(out.read_bytes()).hexdigest())
+    receipt.update(target=list(shot['target']),rotation_quaternion=list(cam.rotation_euler.to_quaternion()),sensor_width_mm=float(cam.data.sensor_width),roll=shot.get('roll',0))
     if source is not None:receipt.update(source_identity(source))
     return receipt
 

@@ -43,14 +43,14 @@ def end_fade(p,x):
     return max(0,min(1,(x+p['length']/2)/p['end_length'],(p['length']/2-x)/p['end_length']))
 
 
-def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
+def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None, *, comparison=False):
     rng = random.Random(seed)
     system = system or ('precast' if seed % 2 else 'pt')
     if system not in ('precast', 'pt'): raise ValueError(system)
     municipal = system == 'precast'
     count = tee_count if tee_count is not None else ((22 if municipal else 16) if seed in SEEDS else rng.choice((20,21,22,24) if municipal else (16,17,18)))
     levels = levels if levels is not None else ((4 if municipal else 3) if seed in SEEDS else rng.choice((4,5) if municipal else (3,4)))
-    if not 3 <= levels <= 5 or not 12 <= count <= 24: raise ValueError('3–5 levels, 12–24 tee stations')
+    if not 3 <= levels <= (7 if comparison else 5) or not 12 <= count <= 24: raise ValueError('3–5 levels, 12–24 tee stations; taller reference specimens require comparison=True')
     length = count*TEE
     end = 3*TEE
     rw = SPAN if municipal else AISLE

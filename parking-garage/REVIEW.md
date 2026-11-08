@@ -361,3 +361,39 @@ anchors fit at 15.81 native px. Pleasant Hill remains 14.9px. These are
 comparison variants, not changes to the accepted town plans. The precast
 neutral is now bare column concrete left of the sign, rather than paper.
 Source pixels enter only local white-balanced comparison images.
+
+## Revision form pass 2 — reject the floating end decks
+
+Color/value first: opened every full-size view in `renders/form-pass2/`
+and all three matched pairs. The .22 sky / 4.5 sun balance restores the warm
+facade and gives the open levels useful daylight. The pale source deck is
+still too uniform; the later material pass must separate its traffic-darkened
+upper face from the pale concrete soffit. The column concrete, rather than
+the paper sign, is the interior photo's neutral. No material acceptance yet.
+
+The deeper 30in sections make stems and their shadows legible, but the above
+view reveals a construction error: the replacement ramp tees applied the
+ramp rise at the east end platforms as well as inside the ramp limits.
+Reject the set. Limit the replacement rise to central ramp stations, and
+retain the actual old topping, connector and pad triangles. Re-run upward
+clearance rays on the imported result, rather than treating serialization
+identity as a construction test.
+
+The street tree blocks the tower and name; move it onto the opposite
+cross-street walk with a real soil well. Mount diagonal warning stripes on
+the actual column face with a steel backing, rather than detached planes.
+Close the unintended rear tower wall gap and transom slit, correct the
+street-facing signs' winding, and add legible floor numerals. The tower
+landing camera must show the lift doors and stair door as well as the stairs.
+The new buildings close the former empty street horizon; a wider hero frame
+reduces the excessive foreground road without moving its eye-height camera.
+
+The precast fit is numerically close but its ramp and cables disagree with
+the photo's flat middle seat. Build a two-bay flat calibration assembly from
+the same columns, inverted-T girders and tees, with parked native cars. The
+Harmon anchors now identify the correct successive floor undersides, but
+the five-level specimen ends too soon above them. A six-level, 24-station
+comparison version fits the native crop at 5.67px RMS. This private comparison
+option does not expand the public generator's accepted 3–5 level program.
+Both comparisons are explicitly construction specimens; the accepted town
+garages are still four and three levels.

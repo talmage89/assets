@@ -65,10 +65,11 @@ def corbel_pair(r):
     b=Mesh(r.name+'__Mesh',r);corbel_parts(b);b.finish()
 
 
-def spandrel(r):
+def spandrel(r,refined=False):
     b=Mesh(r.name+'__Mesh',r);L=3*TEE-.035
     # Cast panel: sloped cap, chamfered bottom arrises, recessed horizontal band.
     sec=[(-.13,-.34),(.13,-.34),(.13,.98),(.10,1.06),(-.10,1.08),(-.13,1.02)]
+    if refined:sec=[(-.13,-.34),(.13,-.34),(.13,.15),(.122,.15),(.122,.17),(.13,.17),(.13,.98),(.10,1.06),(-.10,1.08),(-.13,1.02),(-.13,.17),(-.122,.17),(-.122,.15),(-.13,.15)]
     b.prism([(-L/2,y,z) for y,z in sec],(L,0,0))
     for x in (-L/2+.35,L/2-.35):
         b.box((x,.18,-.17),(.24,.16,.16),'Concrete');b.box((x,.175,-.07),(.16,.12,.018),'Steel')
@@ -176,8 +177,10 @@ def tower(r,levels=4,elevator=True,refined=False):
     # Rear wall has actual 1.12m door apertures per level.
     for x,w in ((-2.355,.69),(-.57,.64),(.40,.30),(2.375,.65)):
         b.box((x,2.60,H/2),(w,.20,H))
+    if refined:b.box((-.05,2.60,H/2),(.40,.20,H))
     for lev in range(levels):
         z=lev*FLOOR
+        if refined:b.box((-1.45,2.68,z+2.195),(1.18,.10,.09),'Steel')
         head=min(FLOOR,H-z)
         b.box((1.30,2.60,z+(2.22+head)/2),(1.50,.20,head-2.22))
         b.box((-1.45,2.60,z+(2.20+head)/2),(1.12,.20,head-2.20))

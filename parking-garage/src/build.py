@@ -229,7 +229,7 @@ def make_garage(p,templates,layout):
         if not rows[-1]['triangles']:
             rows.pop();bpy.data.objects.remove(rr,do_unlink=True)
     for i,pos in enumerate(p['towers']):
-        kind='Tower' if p['levels']==4 else 'Tower3' if p['levels']==3 else 'Tower5'
+        kind='Tower' if p['levels']==4 else 'Tower'+str(p['levels'])
         put(kind,f'Tower_{i+1}',pos,-90 if i==0 else 90)
         # Diaphragm collector plates into the concrete stair/lift cores.
         # The precast beam seats are pinned; the cores provide the authored

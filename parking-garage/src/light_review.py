@@ -22,7 +22,8 @@ def lighting(elevation=18,azimuth=-135,interior=False):
     ob.rotation_euler=(-sun).to_track_quat('-Z','Y').to_euler()
     for socket in list(sc.objects):
         if socket.get('socket_kind')!='light_emitter':continue
-        for upward,power in ((False,115),(True,45)):
+        for upward,power in ((False,socket.get('emitter_down_watts',115)),(True,socket.get('emitter_up_watts',45))):
+            if power<=0:continue
             ld=bpy.data.lights.new(socket.name+(' uplight' if upward else ' downlight'),'AREA');ld.energy=power;ld.shape='RECTANGLE';ld.size=.11;ld.size_y=1.15;ld.color=(.94,1,.90)
             oo=bpy.data.objects.new(ld.name,ld);sc.collection.objects.link(oo);oo.location=socket.matrix_world@Vector((.15,0,.065) if upward else (0,0,-.015))
             oo.rotation_euler=socket.matrix_world.to_euler()
@@ -40,13 +41,15 @@ def views(p,original):
     s['plan_path']=dict(s['above'],paths=True)
     # Across the public street: 35mm at a measured 1.65m, foreground reduced
     # to the walk/curb, meters, trees and intersecting traffic lanes.
-    s['hero']['aspect']=1.85
+    s['hero']['aspect']=2.35
     if not municipal:
-        s['hero']=dict(s['retained_hero'],aspect=1.85)
+        s['hero']=dict(s['retained_hero'],aspect=2.35)
     s['aisle']=dict(location=(-L/2+10,p['flat_y']-1.6,1.65),target=(L/2-8,p['flat_y']+5,1.9),lens=32,interior=True)
     # Additional construction view angles across the tee stems; the retained
     # aisle itself is unchanged for the required before/after evidence.
     s['tee_detail']=dict(location=(-L/2+10,p['flat_y']-2,1.65),target=(-L/2+19,p['flat_y']+4,2.50),lens=35,interior=True)
-    s['eevee']=dict(s['hero'],engine='BLENDER_EEVEE_NEXT')
+    tower=p['towers'][0]
+    s['tower_landing']=dict(location=(-L/2+6,tower[1]+.3,1.65),target=(tower[0]+2.78,tower[1],1.45),lens=35,interior=True)
+    s['eevee']=dict(s['hero'],engine='BLENDER_EEVEE')
     for shot in s.values():shot['max_bounces']=12
     return s

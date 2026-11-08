@@ -29,7 +29,8 @@ def main():
                 old_lighting(interior=shot.get('interior',False))
                 shot['max_bounces']=7
             else:lighting(interior=shot.get('interior',False))
-            r=render_shot(args.out/str(seed)/(name+'.png'),shot,args.width,args.samples,shot.get('engine','CYCLES'),path)
+            output_name={'retained_hero':'hero','retained_aisle':'aisle'}.get(name,name) if args.stage=='baseline' else name
+            r=render_shot(args.out/str(seed)/(output_name+'.png'),shot,args.width,args.samples,shot.get('engine','CYCLES'),path)
             from hashlib import sha256
             d=json.loads(path.read_text());r['images']={im['uri']:sha256((path.parent/im['uri']).read_bytes()).hexdigest() for im in d.get('images',[])}
             r.update(seed=seed,name=name,stage=args.stage,source_finish=args.source_finish)

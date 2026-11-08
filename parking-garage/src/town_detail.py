@@ -4,6 +4,7 @@ School's ground_finish supplies the .62/.68/.58 maintained-turf tint idiom.
 No turf, paving, car, tree or host texture is changed or regenerated.
 """
 import math
+from pathlib import Path
 import bpy,bmesh
 from mathutils import Vector
 from kit import tiling
@@ -13,7 +14,9 @@ from plan import TEE
 
 def refine(rt,p,layout):
     L,W=p['length'],p['width'];municipal=p['system']=='precast'
+    G.palette(Path('textures/lookdev'))
     sy=W/2+12.2 if municipal else 48.8;rw=12.192
+    walk_x=-(L/2+14.2)-rw/2-1.6
     # Actual World-XY turf projection, rather than each lawn box's ambiguous
     # normal-sorted axes. Color stations break the felt green at mowing scale.
     lawn=tiling.material('Lawn',G.ROOT/'ground/textures/ship',tint=True);lawn.name='Garage town maintained turf'
@@ -52,13 +55,14 @@ def refine(rt,p,layout):
         b.tube([(x,yy,0),(x,yy,1.18)],.026,'Steel')
         b.box((x,yy,1.29),(.19,.14,.24),'Steel');b.box((x,yy-.073,1.32),(.13,.007,.07),'Seal')
         b.box((x+.055,yy-.078,1.22),(.045,.012,.013),'Steel')
-    sx=-L/2+7;yy=-sy-rw/2-.9
+    sx=walk_x+.9;yy=-W/2+5
     b.tube([(sx,yy,0),(sx,yy,2.8)],.03,'Steel');b.box((sx,yy,2.52),(.45,.035,.58),'Steel')
     b.quad([(sx-.21,yy-.020,2.25),(sx+.21,yy-.020,2.25),(sx+.21,yy-.020,2.79),(sx-.21,yy-.020,2.79)],layout['2 HOUR PARKING'],'Graphics')
     b.finish()
     near=G.Mesh('Near crossing parking meters',rt)
-    for yy in (-W/2-4.8,-W/2+1):
-        xx=-L/2-6.6
+    near.box((walk_x,0,-.08),(3.2,2*(sy-rw/2),.16),'GroundConcrete')
+    for yy in (-W/2-2,-W/2+5):
+        xx=walk_x+.9
         near.tube([(xx,yy,0),(xx,yy,1.17)],.026,'Steel')
         near.box((xx,yy,1.29),(.20,.15,.25),'Steel');near.box((xx-.103,yy,1.32),(.006,.105,.08),'Seal')
     near.finish()
@@ -68,9 +72,10 @@ def refine(rt,p,layout):
         G.clone(tree,'Opposite street tree '+str(i),(xx,-sy-rw/2-3.65,0),i*57,rt)
     # A smaller native street tree at the crossing is visible in the hero.
     # Its narrow soil well leaves the long side walk clear beside it.
-    t=G.clone(tree,'Crossing street tree',(-L/2-7.55,-W/2-4.7,0),37,rt);t.scale=(.60,.60,.60)
+    tree_x=walk_x-1.1
+    t=G.clone(tree,'Crossing street tree',(tree_x,-W/2-4.7,0),37,rt);t.scale=(.50,.50,.50)
     G.M['Soil']=G.material('Tree well soil',(.065,.047,.024),.98)
-    soil=G.Mesh('Crossing tree well',rt);soil.box((-L/2-7.55,-W/2-4.7,.001),(.65,.85,.006),'Soil');soil.finish()
+    soil=G.Mesh('Crossing tree well',rt);soil.box((tree_x,-W/2-4.7,.001),(.70,.85,.006),'Soil');soil.finish()
     # The entry queue is a separate actor, shared native mesh, not garage
     # geometry. Place at the actual apron before the clearance gantry.
     car=next(o for o in rt.children if o.name.startswith('Street parked '))

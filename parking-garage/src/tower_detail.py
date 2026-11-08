@@ -18,7 +18,7 @@ def add(r,levels,H):
             if hi<=lo:continue
             for a,c in ((-2.40,-.65),(-.60,1.02)):
                 b.box((-2.713,(a+c)/2,(lo+hi)/2),(.012,c-a,hi-lo),'Glass')
-            b.box((-2.75,-.69,lo),(.10,3.78,.07),'Steel')
+            b.box((-2.75,-.69,z+half*FLOOR/2+.025),(.10,3.78,.13),'Steel')
         for yy in (-2.43,-.625,1.06):b.box((-2.75,yy,z+min(3,H-z)/2),(.10,.05,min(3,H-z)),'Steel')
         # The half landing's exposed edge and its guard remain legible behind
         # the glass. Vertical pickets belong to the landing, not the curtain.
@@ -35,7 +35,7 @@ def add(r,levels,H):
         for a,c in ((-2.57,-.89),(.89,2.57)):
             b.box((2.814,(a+c)/2,z+min(FLOOR,H-z)/2),(.028,c-a,min(FLOOR,H-z)-.025))
         b.box((2.714,0,z+min(FLOOR,H-z)/2),(.012,1.68,min(FLOOR,H-z)-.10),'Glass')
-        b.box((2.77,0,z+.04),(.10,1.78,.08),'Steel')
+        b.box((2.77,0,z+.005),(.10,1.78,.12),'Steel')
         for yy in (-.85,.85):b.box((2.77,yy,z+1.5),(.10,.065,3.0),'Steel')
         # Landing call panel and a conventional recessed door surround.
         b.box((2.22,2.725,z+1.10),(.12,.025,.25),'Steel')
@@ -47,6 +47,7 @@ def add(r,levels,H):
     for j in range(7):b.box((1.48,-2.696,H+.27+j*.065),(1.48,.04,.026),'Steel')
     for xx in (-2.84,2.84):b.box((xx,0,H+.21),(.08,5.66,.08),'Steel')
     for yy in (-2.79,2.79):b.box((0,yy,H+.21),(5.76,.08,.08),'Steel')
+    b.box((-2.75,-.69,H-.005),(.10,3.78,.07),'Steel')
     # Street-door canopy, folded drip, brackets and wall lanterns. No props in
     # the swing volume or on the upper stair/lift route.
     b.box((-3.25,1.83,2.45),(1.3,1.7,.11),'Steel')
@@ -60,7 +61,10 @@ def add(r,levels,H):
     b.box((1.43,0,2.31),(1.9,2.05,.12),'Steel')
     b.box((1.43,0,.07),(1.9,2.05,.14),'Steel')
     for yy in (-1.0,1.0):b.box((1.43,yy,1.17),(1.90,.06,2.2),'Steel')
+    for lev in range(levels):
+        b.box((.105,1.9,lev*FLOOR+2.65),(.09,.70,.18),'Steel')
+        b.box((.055,1.9,lev*FLOOR+2.65),(.012,.62,.13),'Light')
     b.finish()
     root(r.name+'__StairDaylight',(-2.10,-.7,H/2),r,socket_kind='daylight_core')
     for lev in range(levels):
-        root(r.name+f'__StairFixture_{lev}',(-1.35,.40,lev*FLOOR+2.75),r,socket_kind='light_emitter')
+        root(r.name+f'__StairFixture_{lev}',(.025,1.9,lev*FLOOR+2.55),r,socket_kind='light_emitter',emitter_down_watts=35,emitter_up_watts=0)
