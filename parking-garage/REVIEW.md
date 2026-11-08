@@ -634,3 +634,40 @@ the tower returns, and the enclosed lift pockets conceal opened leaves.
 The aligned retained aisle still foreshortens the tee depth; the transverse
 tee detail and the matched interior are the clearer construction evidence.
 Cap runoff still forms comb-like groups and distant turf remains smooth.
+
+## Look pass 6 — final exported checkpoint and its limits
+
+Color/value first: opened all twenty-five 1280px final scene views, the two
+baseline open-door views, all six baked/original-field photo pairs, and the
+final scene, pair and before/after contact sheets. The concrete-balanced
+precast comparison is column Y .13066 versus photo .10930, soffit .00720
+versus .00794, floor .05117 versus .06963. The former twofold column error
+is reduced to about twenty percent; the floor remains twenty-seven percent
+darker and warmer than the wet photograph. This is a remaining look miss.
+The public heroes have display-linear p1/p99 .00030/.70944 municipal and
+.00126/.72468 commercial, with zero clipped RGB pixels in either image.
+Deep shaded bays remain dark while sunlit concrete retains its highlights.
+
+The broad original manufacture fields and filtered bake preserve the same
+appearance without a large color-space or roughness shift. The actual tee
+stems and seats now read in the transverse underside and matched views.
+The aligned retained aisle still foreshortens them. Tower returns reveal
+flights and landings; opened leaves fit within closed pockets and reveal a
+lit ground cab. That cab remains static, with no vertical travel controller.
+Every existing delivery remains protected and the public geometry is unchanged
+from the preceding candidate. The one drawn route is confined to its plan.
+
+The Harmon diagnostic's marked projections were also overlaid on its actual
+render and photo: the two selected column stacks align, with 5.674px RMS,
+but that does not certify the whole facade silhouette. Its periodic columns,
+cleaner cement and more uniform ceiling still differ from the photograph.
+Pleasant's accepted 14.923px fit remains intact; precast is 15.806px.
+
+The municipal street view is closed by native frontage. Commercial includes
+the crossing tree and walk, but surface cars obscure much of its entry queue,
+and the tree partly hides the meters. The entry details show the queue.
+Runoff combs, smooth distant turf, repeated cars and regular light pools remain
+CG tells. Oil, connector rust, salts and roost marks resolve in the detail
+views; each is not independently identifiable at full hero framing. The upper
+deck's sealer history is still subtle. These are checkpoint limitations, not
+claims of a finished photographic match. Stop before the README gallery/docs.
