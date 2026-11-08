@@ -90,9 +90,9 @@ def generate(folder=Path('textures/checkpoint')):
     # Several wind/current wave trains, with different phases and scales.
     # Integer modes tile exactly without a dominant regular comb.
     rng=np.random.default_rng(381);h=np.zeros((n,n))
-    for i in range(24):
-        kx=int(rng.integers(3,36));ky=int(rng.integers(-36,37))
-        amplitude=.0007/(1+math.hypot(kx,ky)/18)
+    for i in range(12):
+        kx=int(rng.integers(2,15));ky=int(rng.integers(-14,15))
+        amplitude=.0018/(1+math.hypot(kx,ky)/8)
         phase=1.4*np.sin(2*np.pi*(x*2+y*3)+i)+.5*np.sin(2*np.pi*(y*5-x*3)+i*.73)
         h+=amplitude*np.sin(2*np.pi*(kx*x+ky*y)+rng.uniform(0,6.28)+phase)
     dy,dx=np.gradient(h,2/n);normal=np.stack((-dx,-dy,np.ones_like(dx)),axis=2)

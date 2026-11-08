@@ -26,6 +26,9 @@ def add(p,parent):
                     b.geom([pos(yy,zz) for yy,zz in ((y+dy-.026,z-.026),(y+dy+.026,z-.026),
                         (y+dy+.026,z+.026),(y+dy-.026,z+.026))],[(0,1,2,3)],'maintenance',uv=uv)
             if y%18==0:patch(y+.7,1.30,3.7,.22,0,(.49,.55,.39,1))
+            if rng.random()<.43:
+                patch(y+rng.uniform(-.12,.16),3.67,rng.uniform(.12,.30),rng.uniform(.7,2.3),0,(.83,.82,.75,1))
+                if rng.random()<.5:patch(y+.14,3.64,.065,rng.uniform(.6,1.6),1,(1,1,.97,1))
         # Covered tags remain visible as mismatched roller-painted rectangles,
         # with diffuse ragged edges from the original alpha maintenance chart.
         for y,w in ((-56,2.1),(-41,3.5),(31,2.8),(107,2.2)):

@@ -60,7 +60,7 @@ def add(p,parent):
                 dx=rng.uniform(-.48,.48);h=rng.uniform(.28,.91);w=rng.uniform(.045,.115)
                 vertical(x+dx,yy,seat-.045,w,h,0,(.65,.63,.54,1))
                 if k%3!=0:
-                    vertical(x+dx+w*.40,yy-side*.001,seat-.075,w*.44,h*.90,1,(1,1,.94,1))
+                    vertical(x+dx+w*.40,yy+side*.001,seat-.075,w*.70,h*.90,1,(1,1,.94,1))
         for side in (-1,1):
             for dx in (-.4,.4):
                 # Oxide originates at the steel/elastomer bearing interface.

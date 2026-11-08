@@ -1,6 +1,7 @@
 """Silt/gravel reach, asymmetric banks, sorted bar and water with flow data."""
 import math
 import random
+import itertools
 import bpy
 import bmesh
 from mathutils import Vector
@@ -13,7 +14,8 @@ def water_surface(p,x,y):
     u=(x-p.center(y))/p.halfwidth(y)
     # Stationary transverse crests over the downstream lip of the shoal;
     # narrow, uneven channels carry longer foam tails in +Y.
-    band=math.exp(-((y-p.riffle_y-1.4)/4.2)**2)*max(0,1-u*u)
+    activity=.30+.70*(.5+.5*math.sin(x*.48+.9*math.sin(y*.63)))
+    band=math.exp(-((y-p.riffle_y-1.4)/4.2)**2)*max(0,1-u*u)*activity
     phase=(y-p.riffle_y)*math.tau/1.65+.60*math.sin(x*.72)+.23*math.sin(x*1.9)
     crest=math.sin(phase)+.32*math.sin(2*phase+.5)
     return p.water_z(y)+.075*crest*band
@@ -33,28 +35,45 @@ def surface_z(p,x,y):
 
 
 def stone(b,x,y,z,r,rng,role='riprap',water_z=0):
-    # Independent fracture planes and tilted bedding, rather than matching
-    # parallel hexagonal rings. Buried hull faces are omitted from the export.
-    phase=rng.random()*math.tau;sx=rng.uniform(.65,1.35);sy=rng.uniform(.65,1.25)
-    vertices=[]
-    for j,(count,height,radius) in enumerate(((5,-.25,1),(5,.26,.94),(3,.66,.48))):
-        for i in range(count):
-            angle=phase+i*math.tau/count+j*.69+rng.uniform(-.19,.19)
-            dx=sx*r*radius*math.cos(angle);dy=sy*r*radius*math.sin(angle)
-            vertices.append((x+dx,y+dy,z+r*(height+rng.uniform(-.15,.15))+.24*dx-.19*dy))
+    # A quarried block is bounded by fracture planes, not a pointed top ring.
+    # Six uneven primary cleavages and two corner breaks yield broad planar
+    # facets. Each block's bedding is independently tilted and rotated.
+    from mathutils import Matrix
+    planes=[]
+    for axis in range(3):
+        for sign in (-1,1):
+            n=Vector([rng.uniform(-.23,.23) for _ in range(3)]);n[axis]=sign
+            planes.append((n.normalized(),rng.uniform(.62,1.0)))
+    for _ in range(2):
+        n=Vector([rng.choice((-1,1))*rng.uniform(.7,1.3) for _ in range(3)]).normalized()
+        planes.append((n,rng.uniform(.93,1.17)))
+    rotation=Matrix.Rotation(rng.random()*math.tau,3,'Z')@Matrix.Rotation(rng.uniform(-.43,.43),3,'Y')
+    vertices=[];sx=rng.uniform(.8,1.35);sy=rng.uniform(.7,1.2)
+    for (a,da),(c,dc),(d,dd) in itertools.combinations(planes,3):
+        determinant=a.dot(c.cross(d))
+        if abs(determinant)<1e-6:continue
+        point=(da*c.cross(d)+dc*d.cross(a)+dd*a.cross(c))/determinant
+        if any(n.dot(point)>limit+1e-5 for n,limit in planes):continue
+        point=rotation@Vector((point.x*sx,point.y*sy,point.z*.75))
+        vertices.append((x+r*point.x,y+r*point.y,z+r*point.z))
     if BED_TREE is not None:
-        for vx,vy,vz in vertices[:5]:
+        for vx,vy,vz in vertices:
             hit=BED_TREE.ray_cast(Vector((vx,vy,100)),Vector((0,0,-1)),120)[0]
             if hit is None or abs(hit.z-(z-.04))>r*1.05:return
     bm=bmesh.new()
     for point in vertices:bm.verts.new(point)
     bmesh.ops.convex_hull(bm,input=list(bm.verts));bm.normal_update()
-    v=rng.uniform(.22,.51);brown=rng.random();wet=.40+.60*min(1,max(0,z-water_z)/.65)
+    bmesh.ops.dissolve_limit(bm,angle_limit=.0001,verts=list(bm.verts),edges=list(bm.edges));bm.normal_update()
+    floors={}
+    for vertex in bm.verts:
+        point=vertex.co
+        hit=BED_TREE.ray_cast(Vector((point.x,point.y,100)),Vector((0,0,-1)),120)[0] if BED_TREE is not None else None
+        floors[vertex]=hit.z if hit is not None else z-.04
+    v=rng.uniform(.45,.83);brown=rng.random()
     for face in bm.faces:
-        if face.normal.z<-.18:continue
-        variation=rng.uniform(.90,1.06)
-        tint=(v*(1+.07*brown)*wet*variation,v*wet*variation,v*(1-.12*brown)*wet*variation,1)
-        if z<water_z+.18:tint=(tint[0]*.74,tint[1]*.88,tint[2]*.61,1)
+        if all(vertex.co.z<=floors[vertex]+.01 for vertex in face.verts):continue
+        variation=rng.uniform(.96,1.04)
+        tint=(v*(1+.04*brown)*variation,v*1.06*variation,v*(1.15-.13*brown)*variation,1)
         b.geom([v.co[:] for v in face.verts],[tuple(range(len(face.verts)))],role,tint)
     bm.free()
 
@@ -116,7 +135,11 @@ def terrain(p,parent):
         for i in range(170):
             x=xx+rng.uniform(-2.0,2.0);y=rng.uniform(-p.deck_width*.48,p.deck_width*.48)
             z=surface_z(p,x,y);stone(rocks,x,y,z+.06,rng.uniform(.15,.33),rng,water_z=p.water_z(y))
-    rocks.finish()
+    stones=rocks.finish();colors=stones.data.color_attributes['Tint']
+    for loop,attribute in zip(stones.data.loops,colors.data):
+        point=stones.data.vertices[loop.vertex_index].co;level=point.z-p.water_z(point.y)
+        wet=.62+.38*min(1,max(0,level)/.45);algae=max(0,1-max(0,level)/.16)
+        c=attribute.color;attribute.color=(c[0]*wet*(1-.16*algae),c[1]*wet,c[2]*wet*(1-.24*algae),c[3])
     # Cutbank roots and flood debris are dead wood, not new tree species.
     debris=G.Batch('CutbankExposedRootsAndDrift',rt,'reach')
     for j in range(18):
@@ -210,12 +233,13 @@ def water(p,parent):
     for v,a in zip(ob.data.vertices,flow.data):
         vx,vy=p.flow(v.co.x,v.co.y)
         a.vector=(vx,vy,max(0,p.water_z(v.co.y)-surface_z(p,v.co.x,v.co.y)))
+    water_tree=BVHTree.FromPolygons([v.co for v in ob.data.vertices],[list(f.vertices) for f in ob.data.polygons],all_triangles=True)
     foam=G.Batch('RiffleBrokenFoam',parent,'water');rng=random.Random(p.seed+31)
     for j in range(110):
         # Ribbons follow local flow, seeded behind wave crests on the shoal.
         y=p.riffle_y+rng.choice((-.9,.75,2.4,4.05))+rng.uniform(-.20,.20)
         l,r=p.water_edges(y);x=rng.uniform(l+1.0,r-1.0)
-        length=rng.uniform(.8,3.1);width=rng.uniform(.025,.10);segments=7
+        length=rng.uniform(.8,3.1);width=rng.uniform(.06,.17);segments=7
         tx,ty=p.tangent(y)
         for k in range(segments):
             t0=k/segments;t1=(k+1)/segments
@@ -225,7 +249,10 @@ def water(p,parent):
                 wobble=.055*math.sin(t*8+j);w=width*(.25+.75*math.sin(math.pi*t))
                 xx=x+tx*length*t+ty*(wobble+sign*w)
                 yy=y+ty*length*t-tx*(wobble+sign*w)
-                coords.append((xx,yy,water_surface(p,xx,yy)+.007))
+                hit=water_tree.ray_cast(Vector((xx,yy,p.water_z(yy)+1)),Vector((0,0,-1)),3)[0]
+                if hit is None:break
+                coords.append((xx,yy,hit.z+.004))
+            if len(coords)!=4:continue
             foam.geom(coords,[(0,1,2,3)],'foam',uv=foam_chart(j%4))
     # Intermittent curling foam/eddy lines in the sheltered pier wakes.
     for i in range(1,p.spans):

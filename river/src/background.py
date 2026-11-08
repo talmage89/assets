@@ -61,7 +61,7 @@ def join_water(p,parent):
     # Geometric end-cap normals must not bend the water's tangent frame.
     normal=Vector((0,.0006,1)).normalized();normals=[]
     for f in core.data.polygons:
-        surface=f.normal.z>.5 and all(abs(core.data.vertices[i].co.z-p.water_z(core.data.vertices[i].co.y))<.08 for i in f.vertices)
+        surface=f.normal.z>.5 and all(abs(core.data.vertices[i].co.z-p.water_z(core.data.vertices[i].co.y))<.15 for i in f.vertices)
         normals.extend([water_normal(p,core.data.vertices[i].co.x,core.data.vertices[i].co.y) if surface else f.normal for i in f.vertices])
     core.data.normals_split_custom_set(normals)
     # A streaming boundary must preserve texture phase and tangent frame as
