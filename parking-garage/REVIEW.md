@@ -703,3 +703,33 @@ Use blue diagonal hatches inside the retained clear aisles and a small blue
 ISA background in each stall, with a white symbol and the existing elevated
 signs. No full stall is a solid blue panel. These changes remain unjudged
 until the exported candidate is opened from the unchanged cameras.
+
+## Delivery pass 8 — the first raking-light probe is too dim
+
+Color/value first: opened both `renders/delivery-light1/*/hero.png` at
+1280px, plus the projected hero sample boxes and the native photographic
+crop containing the sample regions. The sky is deeper and the shadows are
+sharper than the checkpoint, but the sunlit concrete is underexposed. Do not
+confuse a darker image with a convincing sunny day. Increase direct sun and
+exposure while reducing the sky contribution enough to retain its blue.
+
+The facade photograph is Harmon, balanced on its bare concrete using the
+retained neutral ROI [2110,1730,2175,1760]. The inspected independent boxes
+give display-linear Y .53860 spandrel, .23005 shaded cylindrical column and
+.04324 opening. Municipal probe stations give .14966/.14871/.00154;
+commercial .12290/.12890/.00550. The photo's shaded cylindrical column face
+and the public garage's lit square front shaft are different orientations:
+these readings are not an albedo match or a claim that those shaft fronts
+are in shadow. The accepted projecting shafts limit the spandrels' shadow
+on their front faces. Keep the accepted structural geometry and judge the
+actual corbel/column shadows honestly in the next view.
+
+The probe still uses the old maps and old actors. Its comb runoff, empty
+municipal street and obstructing commercial car row therefore remain visible
+and are not claimed corrected by this lighting-only step. The CPU candidate
+now places four native model families with eight independent paint choices;
+it has not yet been visually judged. An initial varied placement failed the
+actual mirror envelope check by 63mm beyond a stall centerline. The replacement
+fits transformed native vertices, including the ramp bank. Fresh imports
+pass with maximum tire/deck discrepancy 2.001mm municipal and .003mm commercial.
+Those are surface checks, not a photographic acceptance.

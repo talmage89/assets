@@ -13,3 +13,9 @@ external=local/'build/lookdev/preservation-external.json'
 if not external.exists():external.write_text(json.dumps(snapshot(),indent=2)+'\n')
 data=json.loads(external.read_text());assert all(hashlib.sha256((root/p).read_bytes()).hexdigest()==h for p,h in data.items())
 print('EXISTING LIBRARY FILES UNCHANGED',len(data))
+# Main may have delivered more families since the preceding checkpoint.
+# Preserve that complete current inventory too; retain the older audit above.
+current=local/'build/delivery-preservation.json'
+if not current.exists():current.write_text(json.dumps(snapshot(),indent=2)+'\n')
+data=json.loads(current.read_text());assert all(hashlib.sha256((root/p).read_bytes()).hexdigest()==h for p,h in data.items())
+print('CURRENT LIBRARY FILES UNCHANGED',len(data))
