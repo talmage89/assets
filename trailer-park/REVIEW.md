@@ -440,3 +440,68 @@ road beyond the camera's set. The homes, density and actual fit subjects
 remain; this pass is rejected for these surface/context defects rather
 than counted as final look approval. All eight historical comparisons pass
 their camera/lens/resolution/light equality checks.
+
+## Look-dev pass 5 — final checkpoint, remaining appearance gap
+
+**Color and value first.** Inspected all 44 native 1440px PNGs in
+`renders/checkpoint/look5`, all four full-size balanced photo pairs, the
+two contacts and all eight before/after sheets. The comparison neutrals
+remain the white storm-door frame, white addition fascia, sunlit aluminum
+pan and white PVC post; gains are calculated in linear RGB. Old/new hero
+p5 values are .0706/.1451 and p95 .7843/.8039. Their near-clip fractions
+are .000944%/.000258%; both obliques have zero near-clipping and p95
+.7725/.7176. Cavity shade remains deep, the sunlit siding retains detail,
+and asphalt separates from pale concrete. These display-value statistics
+support exposure review, not a claim to have measured intrinsic albedo.
+
+The paired 2009 home has the right general siding/skirting separation and
+a much better roof/end-window/step silhouette than the old checkpoint.
+However, the photograph's battered apron is substantially more mottled,
+rough and repaired. Our low cracks and repairs still disappear at this
+framing; the lawn is also too uniform in height and hue. The 2007 addition
+pair shows the occupied row and supported entry, but its tidy woodwork and
+regular planting do not reproduce the photograph's irregular maintenance.
+The aerial now shows a dense inhabited park rather than a lone carport;
+its roofs, mature interior trees, separate pads and narrow lanes read
+clearly. The reference still has stronger hardscape history and more
+varied resident alterations. The newer lane retains a flatter lawn and
+more repeated vehicles than the supplementary photograph.
+
+The open-surface correction is a real shipping fix: raw exported winding
+and normals now point upward for all 22,436/31,482 tagged terrain
+triangles. The previous volume-normal recalculation is bypassed for these
+skins. In Cycles the visible difference is small; this correction does
+not establish that the pavement wear now matches the photograph. Pots
+and small foliage use their intended nonmetal finish, and the public
+street continues beyond the newer set instead of ending behind the trees.
+These changes add no triangles to the shipped parks.
+
+The form comparisons show the 36/33-home neighborhoods, end-on rows,
+era-specific roofs, proud windows, steps, native lot furnishings, interior
+old-park canopies and closed town context. All eight before/after sheets
+pass equal camera/lens/resolution/light checks. The imported construction
+anchors remain visible at 18.43/16.95/16.65px RMS; the supplementary road
+fit is 8.53px with inferred longitudinal stations. This is landmark
+calibration, not a complete photographic scene match or surveyed depth.
+
+Still CG and below the photographic quality goal: the old concrete apron
+is too smooth and clean; broad turf stays planar away from the edge tufts;
+leaf-card silhouettes and small plants are coarse and repetitive. Only
+three native car bodies recur across the parks. The grayed deck has fine
+grain and cupping but still reads unusually even in the full-size detail.
+Some adapted secondary objects (play equipment, utility pole and waste
+enclosure) remain simpler than the homes. Wear is most legible at skirt
+feet, on roof coatings and at carport post bases; it does not yet give
+every sunny wall and pad the reference's visible history. This handoff
+is a look-dev checkpoint, not final art acceptance. No gallery/docs are
+made. A further appearance pass should prioritize irregular repair
+history and ground relief before finer home detailing.
+
+Final `make`, `make repeat` and `make check-preservation` pass: 21 checked
+exports, 1,000 deterministic plans, 1,365 static assembly comparisons,
+936 sampled poses of 18 home hinges without violations, 64 byte-identical
+regenerated package files, and 1,202 unchanged prior files (492 original).
+Repeat uses cached native inputs and does not repeat the GPU bake.
+All 44 render source/image receipts pass. These checks prove their stated
+geometry, serialization, resource and sampled-motion scopes; they do not
+override the visual weaknesses above.
