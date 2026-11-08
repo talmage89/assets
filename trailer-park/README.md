@@ -1,34 +1,20 @@
-# Manufactured home communities — form and construction checkpoint
+# Manufactured home communities — dense parks and look-dev checkpoint
 
 An original, script-built family for an American town of 1995–2015. Alder
-Court is a compact older through-street community; Meadow Bend is a spacious
+Court is a compact older through-street community; Meadow Bend is a roomier
 1990s loop with double-wides, a clubhouse and a playground. The home, lot,
 addition and street grammar is reusable independently of either example.
 
-**This stops before look-dev.** Home materials are quick vertex colors with
-one shared 8 × 8 white image. Native library props retain their images where
-available. There is no manufactured-home bake, finished wear, final gallery,
-collision delivery, interior or game-ready claim. No `docs/` images are
-committed. Four critique rounds are recorded in [REVIEW.md](REVIEW.md).
+**This stops before final documentation.** One new manufactured-finish set
+is GPU-baked at 4096 and shipped at 2048. It combines with the native house,
+ground and prop sets; seeded mesh colors carry broad exposure and upkeep.
+The delivery remains exterior-only, without interiors or collision meshes.
+No `docs/` images or final gallery are produced at this gate. Image critiques
+and their remaining weaknesses are recorded in [REVIEW.md](REVIEW.md).
 
-Local checkpoint images, rebuilt by `make`:
-
-- [Alder Court street hero](renders/checkpoint/pass4/Park-101/hero.png) and
-  [oblique](renders/checkpoint/pass4/Park-101/above.png).
-- [Meadow Bend street hero](renders/checkpoint/pass4/Park-202/hero.png) and
-  [oblique](renders/checkpoint/pass4/Park-202/above.png).
-- [Complete contact sheet](renders/checkpoint/pass4/contact.jpg),
-  [photo comparison sheet](renders/checkpoint/pass4/matched-contact.jpg),
-  [single-wide turnaround](renders/checkpoint/pass4/SingleWide-120/turnaround.jpg)
-  and [double-wide turnaround](renders/checkpoint/pass4/DoubleWide-228/turnaround.jpg).
-- [Home forms](renders/checkpoint/pass4/HomeForms/detail.png),
-  [add-on sheet](renders/checkpoint/pass4/Modules/detail.png),
-  [exposed piers](renders/checkpoint/pass4/SupportFrame/piers.png),
-  [deck](renders/checkpoint/pass4/Deck/detail.png),
-  [carport](renders/checkpoint/pass4/Carport/detail.png),
-  [service pedestal and risers](renders/checkpoint/pass4/UtilityService/detail.png),
-  [entrance sign](renders/checkpoint/pass4/EntranceSign/detail.png) and
-  [human/car scale](renders/checkpoint/pass4/SingleWide-120/scale.png).
+`make` regenerates the ignored checkpoint evidence. `build/metrics.md`
+contains the complete six-home, 69-lot, module and park budget tables;
+render receipts keep presentation cars, vegetation and town separate.
 
 ## Scale and construction
 
@@ -52,12 +38,12 @@ about original 1972 installation practice or engineering adequacy.
 
 | Inspection home | Era | Authored body, ft | Body width × length, m | Triangles | Materials | glTF + BIN, MiB |
 | --- | --- | --- | --- | ---: | ---: | ---: |
-| SingleWide-120 | 1972 | 12 × 60 | 3.6576 × 18.2880 | 30,627 | 5 | 2.776 |
-| SingleWide-147 | 1984 | 14 × 70 | 4.2672 × 21.3360 | 30,555 | 6 | 2.750 |
-| SingleWide-168 | 1984 | 16 × 80 | 4.8768 × 24.3840 | 33,927 | 6 | 3.052 |
-| DoubleWide-245 | 1996 | 24 × 52 | 7.3152 × 15.8496 | 22,462 | 6 | 2.026 |
-| DoubleWide-228 | 1996 | 28 × 60 | 8.5344 × 18.2880 | 24,673 | 6 | 2.222 |
-| DoubleWide-326 | 1996 | 32 × 64 | 9.7536 × 19.5072 | 25,388 | 6 | 2.288 |
+| SingleWide-120 | 1972 | 12 × 60 | 3.6576 × 18.2880 | 26,615 | 3 | 2.294 |
+| SingleWide-147 | 1984 | 14 × 70 | 4.2672 × 21.3360 | 23,287 | 4 | 1.881 |
+| SingleWide-168 | 1984 | 16 × 80 | 4.8768 × 24.3840 | 26,671 | 4 | 2.183 |
+| DoubleWide-245 | 1996 | 24 × 52 | 7.3152 × 15.8496 | 26,690 | 5 | 2.230 |
+| DoubleWide-228 | 1996 | 28 × 60 | 8.5344 × 18.2880 | 29,153 | 5 | 2.421 |
+| DoubleWide-326 | 1996 | 32 × 64 | 9.7536 × 19.5072 | 31,276 | 5 | 2.619 |
 
 The body sizes are **original grammar dimensions**, not replicas of named
 manufacturer models. Published Champion dimension sheets distinguish a
@@ -89,26 +75,26 @@ Construction sections:
   sash/storm frames, backing cavities, blinds and corner returns.
 - Skirts have vents, lower tracks, a seeded missing panel and a separate
   lift-out panel over an actual opening, about 0.8 m wide × 0.61 m high.
-  Fine panel ribs are geometry at this gate; the eventual normal sheet can
-  absorb relief that does not affect the silhouette.
+  Fine skirt and siding ribs use the manufactured normal sheet; tracks,
+  openings, loose panels and silhouette bends remain geometry.
 
 ## Modules and native reuse
 
 | New component | Principal dimensions / construction | Triangles | Materials |
 | --- | --- | ---: | ---: |
-| Deck | 3.6576 × 2.1336 m proof module; 3.048/4.2672 m width variants; cupped boards, beams, joists, 88.9 mm posts | 1,576 | 2 |
-| Carport | 6.7056 × 3.3528 m; 2.42–2.68 m roof, hollow 76.2 mm posts, folded 0.8 mm pans, independently supported | 2,060 | 2 |
-| UtilityService | Meter, breaker, conduit, water valve and sewer cleanout; three actual connection sockets | 508 | 3 |
-| PropaneBottles | Two unbranded 100 lb class cylinders; 378 mm diameter, 1.206 m above pad per Manchester specification | 796 | 2 |
-| Condenser | 0.98 m pad, housing, grille and short line set | 744 | 2 |
+| Deck | 3.6576 × 2.1336 m proof module; 3.048/4.2672 m width variants; cupped boards, beams, joists, 88.9 mm posts | 1,696 | 2 |
+| Carport | 6.7056 × 3.3528 m; 2.42–2.68 m roof, hollow 76.2 mm posts, folded 0.8 mm pans, independently supported | 2,828 | 1 |
+| UtilityService | Meter, breaker, conduit, water valve and sewer cleanout; three actual connection sockets | 508 | 2 |
+| PropaneBottles | Two unbranded 100 lb class cylinders; 378 mm diameter, 1.206 m above pad per Manchester specification | 796 | 1 |
+| Condenser | 0.98 m pad, housing, grille and short line set | 744 | 1 |
 | WindowAC | 0.58 × 0.55 × 0.38 m housing with support brackets | 212 | 1 |
 | SatelliteDish | Spun concave pan, mounting post and feed arm | 276 | 1 |
-| AddedRoom | 3.2 × 2.4 m, independent piers, 2.95–3.20 m roof, real sash opening and removable skirt | 672 | 5 |
+| AddedRoom | 3.2 × 2.4 m, independent piers, 2.95–3.20 m roof, real sash opening and removable skirt | 672 | 4 |
 | Household | Two pots, procedural leaves and small ride-on toy | 432 | 3 |
 | EntranceSign | 2.9 m fictional sign on timber posts; open-license lettering | 685 | 2 |
-| SupportFrame | Unskirted single-wide chassis/pier inspection assembly | 4,036 | 3 |
-| Modules sheet | Add-ons with labels; inspection assembly, not one prop budget | 10,603 | 5 |
-| HomeForms sheet | All six bodies and labels; inspection assembly | 169,578 | 6 |
+| SupportFrame | Unskirted single-wide chassis/pier inspection assembly | 4,036 | 2 |
+| Modules sheet | Add-ons with labels; inspection assembly, not one prop budget | 11,491 | 4 |
+| HomeForms sheet | All six bodies and labels; inspection assembly | 165,638 | 5 |
 
 The deck top is authored at 0.885 m; a fresh-import ray measures
 0.884807 m on a cupped board and 0.147550 m at the low tread. Six equal
@@ -138,86 +124,53 @@ posts. Their original family materials and pivot structures are retained.
 
 ## Two communities
 
-| Park | Residential homes | Ground envelope, m | Main lot, ft / sq ft | Private street | Triangles | Materials | glTF + BIN, MiB |
+| Park | Homes | Ground envelope, m | Lot, ft / sq ft | Street | Placed / unique triangles | Materials | glTF + BIN, MiB |
 | --- | ---: | --- | --- | --- | ---: | ---: | ---: |
-| 101 / Alder Court, 1968 plan | 10 | 79.152 × 102.960 | 40 × 110 / 4,400 | 20 ft / 6.096 m through lane | 629,000 | 29 | 35.899 |
-| 202 / Meadow Bend, 1994 plan | 12 | 123.4672 × 139.536 | 64 × 120 / 7,680 | 24 ft / 7.3152 m rounded loop | 758,960 | 33 | 41.865 |
+| 101 / Alder Court, 1968 plan | 36 | 149.304 × 107.7824 | 32 × 110 / 3,520 | 20 ft / 6.096 m through lanes | 2,132,680 / 651,820 | 29 | 51.134 |
+| 202 / Meadow Bend, 1994 plan | 33 | 133.4544 × 173.6192 | 56 × 95 / 5,320 | 24 ft / 7.3152 m rounded loop | 1,958,764 / 661,768 | 33 | 50.462 |
 
 Counts include home bodies, decks, carports, native props, facilities,
-private ground/roads and service infrastructure. Cars and vegetation are
+private ground/roads, small edge plants and service infrastructure. Cars,
+large trees and shrubs are
 **placement sockets**, not meshes duplicated into the park packages. Render
 provenance reports their actual instantiated triangles separately from the
-park, neighboring buildings and public streets.
+park, neighboring buildings and public streets. Unique totals count each
+distinct exported mesh once; placed totals count every instance. Eight
+seeded home profiles per park, with two solar orientations, share linked
+mesh data; repeated carports, ACs, dishes and other add-ons also share data.
 
-| Render context, counted separately | Alder Court | Meadow Bend |
-| --- | ---: | ---: |
-| Cars, including 14 on public streets | 1,851,325 triangles / 30 cars | 2,280,409 triangles / 37 cars |
-| Trees and shrubs, including town canopy | 913,864 triangles | 1,072,020 triangles |
-| Neighboring house architecture | 1,632,416 triangles | 1,632,416 triangles |
-| Reused public road modules | 15,420 triangles | 15,420 triangles |
+Presentation context is measured after importing the native assets, with
+placed and unique totals for cars, vegetation, town architecture and public
+streets in `build/metrics.md` and each pass's `provenance.json`. Factory
+paint varies independently of the three car bodies. A game can populate or
+cull the exported sockets without loading this presentation neighborhood.
 
-Resident/visitor cars number 16 / 23; factory paint varies independently
-of the three body types. These context counts come from imported meshes,
-not fixed allowances. A game can populate or cull the exported markers
-without loading the whole presentation neighborhood.
+The older 3,520 sq ft lots use the narrower end of
+[HUD's 2000 builder guide](https://www.huduser.gov/Publications/PDF/buildergd.pdf),
+Appendix D pp. 63–66: some surveyed communities allowed 3,500 sq ft and
+frontages down to 20 ft, although 40–50 ft was more common. Its 10–20 ft
+home-separation range informs this compact plan. The modern survey is a
+construction comparator, without a claim of historical local approval.
+The 20 ft older lane and 24 ft newer road comparators remain unchanged.
+Fresh raw-mesh home-envelope separations are **4.246–4.616 m** in Alder
+Court and **6.172–10.418 m** in Meadow Bend, including awnings and eaves.
+These are measured physical gaps, not statutory setbacks.
 
-The older frontage and lot area match the common 40–50 ft / 4,000–5,000 sq ft
-range surveyed in [HUD's 2000 builder guide](https://www.huduser.gov/Publications/PDF/buildergd.pdf).
-The [Johnson City code](https://ecode360.com/12624699) supplies a 40 ft
-frontage / 20 ft drive comparator; Forsyth County's official UDC supplies
-the 24 ft two-way road comparator. These modern dimensions are not a
-claim of historical local approval. Homes are set 6.096 m behind the
-private pavement edge, with separate parking approaches. Fresh raw-mesh
-home separations along the outer rows are **7.279–8.193 m** in Alder Court
-and **10.022–12.765 m** in Meadow Bend. These measure home shells, not all
-attached structures or statutory setbacks.
+Both parks use four rows. Alder Court has two connected through lanes;
+Meadow Bend has a loop and three reserved common lots. Gross densities,
+including common land, are **9.053 / 5.764 homes per acre** for old/new.
+The complete per-lot tables in `build/metrics.md` name every template,
+occupant seed, era, dimensions, home cost, placed lot cost and unique lot
+cost. They exclude cars and large vegetation while including fixed native
+props, small edge plants and local flatwork.
 
-Meadow Bend has ten large outer lots and two shorter central 24 × 52 ft
-homes. The central lots are 29.6848 m deep. Gross density, including common
-ground, is only **4.966 / 2.819 homes per acre** for old/new. The newer park
-is deliberately generous but remains much less dense than the photographed
-Florida park or HUD's common 6–8 homes/acre survey. This is a visible
-weakness to decide at the next gate, not a hidden compliance claim.
-
-Every seeded home and dressed lot is counted independently below. Lot
-totals exclude cars/vegetation but include their native fixed props.
-
-| Park / lot | Home seed | Era / body, ft | Home triangles | Dressed lot triangles |
-| --- | ---: | --- | ---: | ---: |
-| 101 / 1 | 10101 | 1972 / 12 × 60 | 22,421 | 42,981 |
-| 101 / 2 | 10102 | 1972 / 12 × 64 | 23,267 | 68,923 |
-| 101 / 3 | 10103 | 1984 / 16 × 70 | 32,063 | 58,615 |
-| 101 / 4 | 10104 | 1972 / 14 × 52 | 21,438 | 43,746 |
-| 101 / 5 | 10105 | 1972 / 12 × 60 | 31,004 | 74,860 |
-| 101 / 6 | 10106 | 1972 / 12 × 60 | 23,109 | 48,785 |
-| 101 / 7 | 10107 | 1972 / 12 × 64 | 23,789 | 46,461 |
-| 101 / 8 | 10108 | 1984 / 16 × 70 | 31,838 | 77,386 |
-| 101 / 9 | 10109 | 1972 / 14 × 60 | 22,725 | 46,521 |
-| 101 / 10 | 10110 | 1972 / 14 × 64 | 23,441 | 45,993 |
-| 202 / 1 | 20201 | 1996 / 24 × 60 | 24,629 | 48,957 |
-| 202 / 2 | 20202 | 1996 / 32 × 64 | 24,859 | 47,743 |
-| 202 / 3 | 20203 | 1996 / 28 × 60 | 24,263 | 69,871 |
-| 202 / 4 | 20204 | 1996 / 28 × 60 | 24,346 | 50,622 |
-| 202 / 5 | 20205 | 1984 / 16 × 76 | 22,340 | 43,508 |
-| 202 / 6 | 20206 | 1996 / 32 × 56 | 23,841 | 69,309 |
-| 202 / 7 | 20207 | 1996 / 24 × 56 | 23,341 | 49,817 |
-| 202 / 8 | 20208 | 1996 / 24 × 64 | 25,034 | 48,010 |
-| 202 / 9 | 20209 | 1996 / 28 × 60 | 24,141 | 67,665 |
-| 202 / 10 | 20210 | 1984 / 14 × 76 | 33,233 | 59,601 |
-| 202 / 11 | 20211 | 1996 / 24 × 52 | 22,670 | 45,714 |
-| 202 / 12 | 20212 | 1996 / 24 × 52 | 22,816 | 68,088 |
-
-The older office/laundry assemblies cost 23,132 / 20,752 triangles; the newer
-clubhouse/laundry assemblies 24,193 / 27,272, including their entry decks.
-Their signs, decks, cluster mail,
-dumpster enclosure, visitor parking, common walks and playground are
+Office, clubhouse and laundry assemblies, their entry decks, signs, cluster
+mail, dumpster enclosure, visitor parking, common walks and playground are
 included in whole-park counts. Native pole sockets support sagging overhead
 conductors; individual lot service connections route below grade to risers.
-New common components cost 752 triangles for cluster mail, 112 for the
-schematic dumpster, 448 for each park's two bump/sign assemblies, 2,016 for
-the three conductor spans and 228 per lot for under-home service routes.
-Meadow Bend's visitor markings add 60. The dumpster and pot foliage remain
-simpler than the home and deck construction.
+The schematic dumpster and pot foliage remain simpler than the home and
+deck construction. Component budgets are measured in each park's JSON
+`assemblies` table rather than repeated here as stale constants.
 
 ## Generator and game connections
 
@@ -226,9 +179,10 @@ length_ft)` accepts eras `1972`, `1984`, `1996`, widths 12/14/16 or
 24/28/32 ft and the bounded length choices 52/56/60/64/70/76/80 ft.
 The seed chooses siding, color, roof, porch width, carport, independent
 room, AC type, propane, dish, missing panel, tarp, sag and upkeep label.
-The upkeep label is not yet a weather shader. `park(seed, kind, rows)` uses
-`old`/`new` and 4–6 lots per outer row. Home seeds are derived per lot;
-lengths and plant placement have independent deterministic random streams.
+Upkeep and exposure drive finish color and caused weather. `park(seed,
+kind, rows)` uses `old`/`new` and 8–10 lots per row, default nine. Home
+profiles are reused through linked mesh instances; occupant dressing and
+plant placement have independent deterministic random streams.
 An older through lane and a newer closed loop have different road graphs,
 lot widths, home mix, common reservations and building placements.
 
@@ -246,12 +200,11 @@ six standalone homes at 2° intervals with 1 mm tolerance: 18 motions,
 Native shed/gate motion definitions remain inherited; this checkpoint
 does not claim a complete sweep against every dressed lot neighbor.
 
-The exported parks also pass **177 static assembly-pair checks** between
-separate lots and common facilities, plus **16 deck/carport mesh checks**.
-Car sockets have at least 6.539 m spacing in Alder Court and 2.743 m in
-Meadow Bend. These are rest-pose mesh/marker checks, not swept vehicle
-clearance. The final placement audit removed duplicate carport sockets and
-moved the mail cluster beside the common walk, clear of the central homes.
+The exported parks also pass **1,365 static assembly-pair checks** between
+separate lots and common facilities, plus deck/carport mesh checks.
+These are rest-pose mesh/marker checks, not swept vehicle clearance. The
+placement audit moves sheds behind the tightly packed older homes and
+keeps their utilities clear of neighboring rear landings and fences.
 
 `socket_kind` extras identify car, occupant, door approach, mailbox,
 electric/water/sewer, street connection, planting and drive-path nodes.
@@ -267,24 +220,28 @@ are written once under `export/shared/`. Copy the package **with its
 referenced images**, or remap those URIs through a game's resource loader.
 No photograph, downloaded asset or HDRI is used as a material or light.
 
-At this gate, the unique image allocation across both park packages is
-**124.042 MiB**, estimated at 8 bits/texel block compression with full
-mipmaps. That is existing Ground lawn/asphalt/concrete/trim, privacy fence,
-patio and grill 2048 trios (16 MiB each), mailbox/cart/chain-link 1024 trios
-(4 MiB each), one native 64 × 512 playground chain card (0.0417 MiB), and
-the white 8 × 8 home placeholder (under 0.001 MiB with block padding/mips).
-The parks share these resources; the second park does not allocate a
-second set. PNG disk size and uncompressed glTF runtime size differ.
-Cars, trees and render-only neighboring houses add their own native images.
+The static image union across both park packages is **176.042 MiB**,
+estimated at 8 bits/texel block compression with full mipmaps: 124.042 MiB
+of native Ground/fence/patio/grill/mailbox/cart/chain-link/playground maps,
+36 MiB of Houses Siding/Shingles/Trim, and the new 16 MiB Manufactured set.
+The parks share these images; canonical URI caching avoids a second
+allocation. Cars, large trees and town context add native resources whose
+render dependencies are recorded separately. PNG disk size, uncompressed
+runtime allocation and this block-compression estimate differ.
 
-The later home look-dev should reuse Houses' Siding 1024, Shingles 2048
-and Trim 2048 sets (36 MiB already shared with the town). **One new
-manufactured-home set**, 2048 BaseColor / OpenGL normal / ORM, is reserved
-for ribbed metal roofing/siding, skirt, steel chassis, piers and aluminum
-carport. Its incremental compressed allocation is **16 MiB**, independent
-of the number of lots. No new baked set has been authored at this gate.
-Six quick construction roles currently aid inspection; they are not a
-final draw-call optimization or finished material count.
+The **one new shared set** contains 2048 BaseColor (sRGB), OpenGL +Y Normal
+and ORM (occlusion/roughness/metallic), **5,670,523 PNG bytes** in total.
+Our scripts create every field, bake it at 4096 using Cycles GPU, then
+downsample to shipping resolution. Atlas cells encode ribbed metal siding,
+rolled roofing, skirt, chassis steel, pier concrete, aluminum carport and
+hardware. Broad seeded exposure and caused wear multiply these fields via
+standard glTF `COLOR_0`; they are not projected photographs. Repeated
+meter-scale UVs intentionally overlap within their material cells, with
+guard texels. This is a shared tiling atlas, not a unique lightmap unwrap.
+Homes use three to five materials including inherited shingles, siding,
+wood and glazing; whole-park native material counts are larger. The
+unbatched primitive counts and unique mesh counts remain explicit in
+`build/metrics.md`; linked mesh reuse does not itself promise one draw call.
 
 ## Rebuild and proof
 
@@ -295,7 +252,7 @@ packages, scripts or binaries are downloaded. From this folder:
 make                         # references, models, checks, locked Cycles set, pairs, contacts
 make check                   # raw export, sampled dimensions, re-import, home door sweeps, repo rules
 make repeat                  # regenerate packages and compare bytes with cached native inputs
-make OLD_SEED=303 NEW_SEED=404 ROWS=6 PASS=alternate
+make OLD_SEED=303 NEW_SEED=404 ROWS=9 PASS=alternate
 make render PASS=preview WIDTH=1000 SAMPLES=16
 make check-preservation
 ```
@@ -317,24 +274,28 @@ Evidence is local and rebuildable:
 | `build/check.json` | Raw triangle/normal/finite UV checks, zero collapsed geometry/UV triangles, fresh re-import counts, sampled physical dimensions, 1,000 deterministic plans |
 | `build/motion.json` | Sampled actual home-door meshes; no penetrations, no contact exceptions |
 | `build/repeat.json` | Byte identity of regenerated glTF/BIN/JSON/local PNGs, using cached native inputs; not a GPU rebake test |
-| `build/preserved.json` | SHA-256 baseline for 492 pre-existing delivery/image files; all unchanged |
-| `renders/checkpoint/pass4/provenance.json` | Fresh glTF imports, image/export hashes, camera/light settings and actual context triangles |
-| `renders/checkpoint/pass4/tonal-report.json` | Image percentiles and near-clip fractions; supports visual judgement, not albedo certification |
-| `renders/checkpoint/pass4/source-verification.json` | Every render receipt still matches its current glTF and external image hashes |
-| `renders/checkpoint/pass4/matches/` | Three photo pairs, neutral patches, camera overlays and calibration residuals |
+| `build/preserved.json` | SHA-256 baseline for 1,202 pre-existing delivery/image files; all unchanged |
+| `build/look-check.json` | Atlas-cell containment, finite UVs, image resources, density and instance audits |
+| `build/metrics.md` | Every home, lot and module; unique/placed park and presentation counts; image memory |
+| `renders/checkpoint/<pass>/provenance.json` | Fresh embedded GLB imports, source/image hashes, cameras, light and actual context triangles |
+| `renders/checkpoint/<pass>/sources/` | Exact embedded GLBs used by that pass, retaining its original baked images |
+| `renders/checkpoint/<pass>/tonal-report.json` | Percentiles and near-clip fractions; supports visual judgement, not albedo certification |
+| `renders/checkpoint/<pass>/source-verification.json` | Archived GLB and referenced image SHA-256 receipts |
+| `renders/checkpoint/<pass>/matches/` | Three complete-park pairs, neutral balance, anchor overlays and calibration residuals |
 
 Heroes are perspective views from 1.68 m at 40 mm under a procedural clear
 sky and 18° raking sun. The complete set also includes turnarounds,
-skirting, opened entry, exposed frame/piers, all requested module details,
-scale references and both park obliques. Three matched pairs use distinct
-2009, 2007 and 2015 Commons photographs. They compare construction types;
-the 84.5 px single-wide fit and 100 mm-bound carport lens are disclosed in
-the critique, rather than presented as exact photographic replicas.
+skirting, opened entry, exposed frame/piers, module details, scale references
+and both park obliques. Three complete-park matched pairs use distinct
+2009, 2007 and 2015 Commons photographs. Selected construction-anchor RMS
+is **9.59 / 17.00 / 16.56 native pixels**. The single-lot camera is inferred
+low without a height prior; the aerial reaches its 100 mm crop-lens bound.
+Neither fit proves that this fictional park reproduces a photographed site.
+Neutral patches are identified and balanced in linear RGB before comparing
+values. The final critique records what still reads as CG.
 
-Remaining weaknesses are the broad new-park grounds and low density,
-smooth lawn interiors, repetitive source silhouettes, simplified household
-plants and quick window/metal responses. There are no interiors. Causal
-sun fade, seam rust, north-wall algae, splash, worn boards and seed-unique
-ground marks belong to the next look gate. This checkpoint does not claim
-unique baked UV packing/density, structural/civil certification or full-site
-motion clearance. No kit or top-level README changes were made.
+There are no interiors. This checkpoint does not claim structural/civil
+certification, unique lightmap packing, full-site motion clearance or final
+draw-call batching. Native shed/pole/playground adapters, household plants
+and the schematic dumpster remain less developed than the homes. No kit,
+top-level README or final docs images are changed.
