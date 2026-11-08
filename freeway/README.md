@@ -30,18 +30,18 @@ is static; canonical cars and trees provide the working animation/wind data.
 
 | Scene / package | Expanded tris | Unique tris | Mesh instances | Materials | glTF + BIN bytes | Referenced PNG bytes | Full-mip GPU MiB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 101 Freeway | 287,744 | 270,124 | 837 | 29 | 22,827,086 | 68,047,686 | 106.25 |
-| 101 Town + ROW turf | 113,650,012 | 1,143,343 | 29,852 | 84 | 106,635,597 | 92,493,232 | 175.58 |
+| 101 Freeway | 287,744 | 270,124 | 837 | 29 | 22,827,086 | 68,053,155 | 106.25 |
+| 101 Town + ROW turf | 114,763,356 | 1,141,807 | 104,662 | 84 | 130,631,322 | 92,498,701 | 175.58 |
 | 101 Traffic | 5,305,194 | 1,330,615 | 6,014 | 64 | 71,472,895 | 26,553,791 | 73.33 |
-| 202 Freeway | 162,518 | 162,518 | 590 | 17 | 14,541,340 | 60,547,757 | 88.25 |
-| 202 Town + ROW turf | 38,110,486 | 234,074 | 9,973 | 50 | 23,325,606 | 66,403,646 | 102.92 |
+| 202 Freeway | 162,518 | 162,518 | 590 | 17 | 14,541,340 | 60,553,226 | 88.25 |
+| 202 Town + ROW turf | 38,077,398 | 232,538 | 28,365 | 50 | 29,122,275 | 66,409,115 | 102.92 |
 | 202 Traffic | 2,221,793 | 936,056 | 2,945 | 57 | 50,385,538 | 27,970,229 | 76.00 |
 
 Whole-scene image unions (shared hashes counted once):
 
-- 101: 105 unique images, 140,721,834 PNG bytes and 298.92 MiB compressed GPU memory.
-- 202: 78 unique images, 115,949,892 PNG bytes and 226.92 MiB compressed GPU memory.
-- Both scenes together: 107 unique images, 142,138,272 PNG bytes and 301.58 MiB.
+- 101: 105 unique images, 140,727,303 PNG bytes and 298.92 MiB compressed GPU memory.
+- 202: 78 unique images, 115,955,361 PNG bytes and 226.92 MiB compressed GPU memory.
+- Both scenes together: 107 unique images, 142,143,741 PNG bytes and 301.58 MiB.
 
 The civil files are `export/Freeway-{101,202}.gltf`. Separate
 `Town-<seed>.gltf` and `Traffic-<seed>.gltf` packages make the context optional;
@@ -64,18 +64,23 @@ Cedar Hollow uses offset-curve frontage compensation to retain the same lot
 scale; its inner yards put trees behind the roofs from the freeway's view.
 Measured lot and house-clearance ranges are in `build/context-audit.json`.
 
-Seed 101: 1,710 houses, 4,362 trees and 4 apartment blocks; town and ROW turf have 29,852 mesh instances sharing 209 unique meshes.
+Seed 101: 1,710 houses, 4,362 trees and 4 apartment blocks; town and ROW turf have 104,662 mesh instances sharing 209 unique meshes.
 
-Seed 202: 656 houses, 1,463 trees and 0 apartment blocks; town and ROW turf have 9,973 mesh instances sharing 20 unique meshes.
+Seed 202: 656 houses, 1,463 trees and 0 apartment blocks; town and ROW turf have 28,365 mesh instances sharing 20 unique meshes.
 
 The house, tree and traffic placements are retained from the accepted delivery.
 Near ROW grass adds linked crossed-card tiles to the optional Town package;
-eight 256-triangle patterns share the maintenance atlas, with density fading
-into the textured base. Their extra expanded triangles are 4.76M / 1.50M net,
+eight 64-triangle patterns share the maintenance atlas. Smaller .65m patches
+fit terrain creases, with height and density fading into a mown textured base.
+Their extra expanded triangles are 5.87M / 1.47M net,
 including removal of old cosmetic grass skins. Civil color sampling adds
 24,240 / 1,984 triangles for lane-center oil, column runoff and barrier joints.
-Town geometry files shrink by 8.97M / 9.81M bytes; whole-scene compressed image
-memory is unchanged because the turf reuses maps already present in the scene.
+The finer 101 layout grows the Town geometry files by 15.02M bytes; 202 remains
+4.01M bytes smaller than the prior delivery. Many additional authoring nodes
+share those eight meshes. Group nodes tagged `turf_card_tile` by mesh/material
+into instance buffers per streamed tile; individual grass nodes are not an
+efficient game scene graph. Whole-scene compressed image memory is unchanged
+because turf reuses maps already present in the scene.
 
 The 50–60 × 100–130 ft range comes from this brief; the 2002 USGS aerial is
 the density/canopy comparison, not a cadastral survey. House roofs, openings,
