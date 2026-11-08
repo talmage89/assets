@@ -1,7 +1,7 @@
 """Rebuild the deterministic geometry packages in place and compare bytes.
 
 Canonical sibling images and cached local native adapters remain immutable
-inputs. This is not a GPU rebake repeat; no new family bake exists at this gate.
+inputs. This checks package regeneration, not an independent GPU texture rebake.
 """
 import hashlib,json,os,subprocess
 from pathlib import Path

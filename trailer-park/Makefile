@@ -42,7 +42,7 @@ bake: textures/ship/.stamp
 build/cameras.json: src/matches.py src/park_matches.py src/plans.py
 	@mkdir -p build
 	$(PYTHON) src/matches.py
-$(CHECKPOINT_RENDER_OUTPUTS): build/cameras.json
+$(CHECKPOINT_RENDER_OUTPUTS): build/cameras.json src/town_context.py src/inspection.py
 
 .PHONY: repeat check-preservation clean-family
 repeat: model
