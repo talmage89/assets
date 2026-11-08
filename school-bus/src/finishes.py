@@ -6,11 +6,11 @@ import spec as S
 
 def build(wear,coat=.25):
     axles=(S.FRONT_AXLE,S.REAR_AXLE)
-    m={'yellow':V.paint('Bus yellow',(.95,.332,.004),wear,axles,front=-5.94,rear=6.006,metallic=0,flakes=0)}
+    m={'yellow':V.paint('Bus yellow',S.ENAMEL,wear,axles,front=-5.94,rear=6.006,metallic=0,flakes=0)}
     for key,c,kind in [('black',(.008,.009,.009),'rubber'),('frame',(.013,.014,.013),'steel'),
         ('aluminum',(.35,.37,.36),'alloy'),('wheel',(.29,.31,.30),'steel'),
-        ('vinyl',(.027,.042,.034),'plastic'),('floor',(.010,.011,.010),'rubber'),
-        ('ceiling',(.58,.60,.565),'plastic'),('dash',(.025,.029,.026),'plastic'),
+        ('vinyl',(.092,.047,.024),'plastic'),('floor',(.010,.011,.010),'rubber'),
+        ('ceiling',(.63,.605,.565),'plastic'),('dash',(.025,.029,.026),'plastic'),
         ('white',(.70,.72,.65),'plastic'),('red',(.40,.007,.005),'plastic')]:
         m[key]=V.manufactured('Bus '+key,c,kind,wear,axles,refined=True)
     m['glass']=V.glazing('Bus glass',(.30,.37,.33),axes=(1,2))

@@ -91,7 +91,7 @@ def apply(m,wear):
     relief(n,n.mul(seam,.0010));layer(n,'rough',seam,.68)
     touch=n.mul(n.ramp(z,2.12,2.25),n.ramp(z,2.36,2.32),
                 n.ramp(n.noise(n.vec('MULTIPLY',p,(18,.2,8)),4,3),.43,.70),wear,.55)
-    layer(n,'base',touch,(.095,.104,.083));layer(n,'rough',touch,.66)
+    layer(n,'base',touch,(.155,.091,.049));layer(n,'rough',touch,.66)
     # Two small tape repairs near a central row, with slightly raised edges.
     repair=n.mul(n.ramp(x,.31,.33),n.ramp(x,.46,.44),n.ramp(y,1.18,1.19),n.ramp(y,1.23,1.21),
                  n.ramp(z,1.94,1.95),n.ramp(z,2.065,2.055))

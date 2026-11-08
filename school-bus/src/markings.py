@@ -4,10 +4,11 @@ import sys
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from PIL import Image,ImageDraw,ImageFont
 from kit.fonts import find_font
-from spec import SEEDS
+from spec import SEEDS,ENAMEL
 FONT=find_font('Noto Sans','Bold')
+ENAMEL_BYTES=tuple(round(255*(12.92*v if v<=.0031308 else 1.055*v**(1/2.4)-.055)) for v in ENAMEL)
 
-def label(text,path,size=(1600,240),color=(5,6,5),background=(249,156,13)):
+def label(text,path,size=(1600,240),color=(5,6,5),background=ENAMEL_BYTES):
     im=Image.new('RGB',size,background);d=ImageDraw.Draw(im);f=ImageFont.truetype(FONT,round(size[1]*.80))
     bb=d.textbbox((0,0),text,font=f);tw=bb[2]-bb[0];th=bb[3]-bb[1]
     tile=Image.new('RGB',(tw+10,th+10),background);ImageDraw.Draw(tile).text((5-bb[0],5-bb[1]),text,font=f,fill=color)

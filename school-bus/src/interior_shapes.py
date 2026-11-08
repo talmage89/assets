@@ -2,13 +2,14 @@
 import math
 from kit import model as G
 
+BACK_STATIONS=[(0,.94,.080,.020),(.12,1,.085,.026),(.48,1,.105,.028),
+               (.88,1,.122,.027),(.94,.985,.126,.025),(.978,.93,.128,.019),
+               (.995,.85,.129,.008),(1,.82,.129,.002)]
+
 def padded_back(b,name,x,y,width=.970,z0=1.570,z1=2.335,barrier=False):
     rings=[];height=z1-z0
     # The 56 mm envelope retains the accepted clear back-to-back spacing.
-    stations=[(0,.94,.080,.020),(.12,1,.085,.026),(.48,1,.105,.028),
-              (.88,1,.122,.027),(.94,.985,.126,.025),(.978,.93,.128,.019),
-              (.995,.85,.129,.008),(1,.82,.129,.002)]
-    for t,scale,dy,depth in stations:
+    for t,scale,dy,depth in BACK_STATIONS:
         if barrier:dy=0;depth*=1.70
         w=width*scale/2;ring=[]
         for side,values in [(-1,[-1,-.94,-.60,0,.60,.94,1]),(1,[1,.94,.60,0,-.60,-.94,-1])]:
@@ -35,10 +36,14 @@ def cushion(b,name,x,y):
 def front_welts(b,x,y):
     # Only the close entrance benches need silhouette-scale sewn welts.
     # All rows also carry fine seam relief in the source material.
-    pts=[(x-.438,y+.110,1.70),(x-.468,y+.112,2.24),
-         (x-.454,y+.114,2.29),(x-.415,y+.115,2.318),
-         (x,y+.115,2.322),(x+.415,y+.115,2.318),
-         (x+.454,y+.114,2.29),(x+.468,y+.112,2.24),(x+.438,y+.110,1.70)]
+    def front(dx,z):
+        t=(z-1.570)/.765
+        a,c=next((a,c) for a,c in zip(BACK_STATIONS,BACK_STATIONS[1:]) if a[0]<=t<=c[0])
+        f=(t-a[0])/(c[0]-a[0]);scale,dy,depth=[a[i]+f*(c[i]-a[i]) for i in range(1,4)]
+        u=dx/(.485*scale)
+        return (x+dx,y+dy-depth*(1-.30*u*u)-.0020,z)
+    pts=[front(dx,z) for dx,z in [(-.438,1.70),(-.468,2.24),(-.454,2.29),
+          (-.415,2.318),(0,2.322),(.415,2.318),(.454,2.29),(.468,2.24),(.438,1.70)]]
     b.tube('Bench sewn welt '+str(x)+str(y),pts,.0022,'vinyl',category='interior',sides=4)
 
 def lining(b):
@@ -88,7 +93,8 @@ def paint_reverse_faces(b,ob):
     elif name.startswith(('Side emergency lower','Side emergency upper frame','Driver lower side')):direction=(-1,0,0)
     elif name in ['Windshield header closure','Front roof cap','Stepwell front wall']:direction=(0,1,0)
     elif name=='Stepwell rear wall':direction=(0,-1,0)
-    elif name=='Front cap under-header':direction=(0,0,-1)
+    # The cap's exposed rolled underside is exterior enamel. Gray here made
+    # a pale camera-facing band across the entire windshield.
     if direction is None:return
     from mathutils import Vector
     slot=len(ob.data.materials);ob.data.materials.append(b.m['ceiling'])
