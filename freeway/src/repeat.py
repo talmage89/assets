@@ -53,7 +53,7 @@ def main():
  assert report['all_identical'],[r['file'] for r in geometry if not r['identical']]
  presentation=[]
  if Path('build/final-provenance.json').exists() and list(Path('docs').glob('*.jpg')):
-  products=[*sorted(Path('docs').glob('*.jpg')),*sorted(Path('renders/fix-crops').glob('*.jpg')),Path('renders/final/contact.jpg')]
+  products=[*sorted(Path('docs').glob('*.jpg')),*sorted(Path('renders/fix-crops').glob('*.jpg')),*sorted(Path('renders/round4-crops').glob('*.jpg')),Path('renders/final/contact.jpg')]
   for folder in ('renders/final-matches','renders/final-source-matches'):
    products.extend(sorted(Path(folder).glob('*.jpg')))
   before={str(p):sha(p) for p in products}
@@ -61,6 +61,7 @@ def main():
   from kit.photo_match import compose
   for folder in ('renders/final-matches','renders/final-source-matches'):compose('build/cameras.json',folder,folder)
   run([sys.executable,str(HERE/'final_evidence.py')],ASSET,target/'evidence.log')
+  run([sys.executable,str(HERE/'round4_evidence.py')],ASSET,target/'round4-evidence.log')
   run([sys.executable,str(HERE/'docs.py')],ASSET,target/'docs.log')
   presentation=[dict(file=p,sha256=h,bytes=Path(p).stat().st_size,identical=sha(p)==h) for p,h in before.items()]
   assert all(r['identical'] for r in presentation),('CPU presentation repeat',presentation)
