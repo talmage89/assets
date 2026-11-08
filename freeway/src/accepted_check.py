@@ -21,7 +21,7 @@ def geometry(path):
    mat=doc['materials'][prim['material']]['name']
    if mat.startswith('FreewayMaintenance'):continue
    if mesh['name'].startswith('Repairs sealants ghosts tire contacts') and mat in ('Concrete','Freeway_Form_Joint'):continue
-   if mesh['name'].startswith(('Cut slopes and drainage','WideMedian')) and 'summer turf' in mat.lower():continue
+   if mesh['name'].startswith(('Cut slopes and drainage','WideMedian')) and ('summer turf' in mat.lower() or mat=='Lawn'):continue
    attr=prim['attributes'];idx=read(prim['indices']).ravel()
    values=np.concatenate([read(attr[k]).astype('<f4') for k in ('POSITION','NORMAL','TEXCOORD_0')],axis=1)[idx].reshape(-1,3,8)
    if mesh['name'].startswith('Mowing drainage') and ('lawn' in mat.lower() or 'summer turf' in mat.lower()):
