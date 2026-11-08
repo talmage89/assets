@@ -63,6 +63,15 @@ def plant(p,parent):
    ob.name='ROW turf tile %05d'%count;ob.parent=parent;ob.location=q+Vector((0,0,-.025))
    ob.rotation_mode='QUATERNION';ob.rotation_quaternion=normal.to_track_quat('Z','Y')@Quaternion(Vector((0,0,1)),rng.uniform(0,math.tau));ob.scale=(1,1,h)
    ob['turf_card_tile']=True;count+=1
+ if p.kind=='diamond':
+  for j in range(-32,33):
+   s=j*6.096
+   if abs(s)<20 or rng.random()<.22:continue
+   for side in (-1,1):
+    ob=templates[rng.randrange(len(templates))].copy();bpy.context.collection.objects.link(ob)
+    ob.name='Rooted barrier-joint weeds %04d'%count;ob.parent=parent
+    ob.location=p.xyz(s,side*.58,.004);ob.scale=(.32,.65,.65)
+    ob['turf_card_tile']=True;count+=1
  for ob in templates:bpy.data.objects.remove(ob,do_unlink=True)
  parent['turf_tiles']=count;parent['turf_triangles']=count*64
  return count

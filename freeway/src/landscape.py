@@ -73,6 +73,12 @@ def surface(b,p,points):
     x,y,z=b.v[k];u=p.radius-math.hypot(p.radius-x,y) if p.radius else x
     kind='unmown' if abs(u)>(43 if p.kind=='diamond' else 28) else 'verge'
     b.colors[k]=lawn_tint(x,y,kind,p.seed,z,lateral=u)
+    margin=abs(abs(u)-p.edge)
+    if p.kind=='soundwall':margin=min(margin,abs(abs(u)-p.median/2))
+    # Exposed soil follows the paving contact, interrupted by rooted grass.
+    # Its extent is tied to that edge rather than a uniform terrain overlay.
+    soil=math.exp(-(margin/.42)**2)*(.50+.28*math.sin(y*.73+math.sin(y*.17)))
+    r,g,blue,_=b.colors[k];b.colors[k]=(r*(1-soil*.10),g*(1-soil*.43),blue*(1-soil*.38),1)
 
 def smooth(ob):
  """Average matching earth corners; retain the physical ditch/crest shape."""
