@@ -37,7 +37,10 @@ def terrain(p,parent):
         xs=[p.center(y)+u*p.halfwidth(y) for u in us]+p.water_edges(y)
         xs += [s*(p.length/2+off) for s in (-1,1) for off in (-.01,.01,.89,.90,1.02,1.03)]
         xs += [-170,-155,155,170]
-        if p.kind=='downtown':xs += [left-off for off in (.74,.76,1,1.12,4.2,4.44,4.46)]
+        if p.kind=='downtown':
+            xs += [left-off for off in (.74,.76,1,1.12,4.2,4.44,4.46)]
+            right=p.center(y)+p.halfwidth(y)
+            xs += [right+off for off in (5,11,11.2,13.6)]
         rows.append([(x,y,p.bed(x,y)) for x in sorted(xs)])
     for row0,row1 in zip(rows,rows[1:]):
         for j in range(len(row0)-1):

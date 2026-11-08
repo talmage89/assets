@@ -106,8 +106,9 @@ def add(p,parent):
                     streets.geom([(side*x0,a,grade(a)),(side*x1,a,grade(a)),(side*x1,c,grade(c)),(side*x0,c,grade(c))],[(0,1,2,3)],role,up=True)
                 # The rear service lane lies on the raised river terrace.
                 if abs(a)>15:
-                    x0=p.center(a)+side*(p.halfwidth(a)+4.6);x1=x0+side*2.4
-                    streets.geom([(x0,a,3.70),(x1,a,3.70),(x1,c,3.70),(x0,c,3.70)],[(0,1,2,3)],'asphalt',up=True)
+                    offset=4.6 if side<0 else 11.2
+                    x0=p.center(a)+side*(p.halfwidth(a)+offset);x1=x0+side*2.4
+                    streets.geom([(x0,a,3.775+p.water_z(a)),(x1,a,3.775+p.water_z(a)),(x1,c,3.775+p.water_z(c)),(x0,c,3.775+p.water_z(c))],[(0,1,2,3)],'asphalt',up=True)
         streets.finish()
         for side in (-1,1):
             for x in (-17,17):

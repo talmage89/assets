@@ -42,7 +42,7 @@ def definitions():
     # the photographed steel cross-bracing remains an explicit mismatch.
     p=generate(101);x=-p.span/2;half=p.deck_width/2-.3
     cap_top=p.deck_z-.32-1.143-.30
-    # Native F-cap is 2.30m wide, 1.10m deep, with 50mm chamfers.
+    # Native bent cap is 2.30m wide, 1.10m deep, with 50mm chamfers.
     # Use its actual upper/lower chamfer endpoints after height adaptation.
     under=definition('under-huron.jpg','Under bridge / support frame; steel reference differs',[
         ((x-1.10,half,cap_top),.170,.660),((x-1.10,-half,cap_top),.849,.679),

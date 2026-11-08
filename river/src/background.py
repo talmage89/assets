@@ -5,6 +5,9 @@ It is presentation context and can be discarded by a world-streaming engine.
 """
 import geometry as G
 import context
+import bpy
+import bmesh
+from channel import surface_z
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
@@ -15,13 +18,13 @@ def water_reach(p,parent,side,ground):
     This remains presentation context, separate from the 300m game reach.
     Matching the boundary cross-section avoids a flat painted water seam.
     """
-    ys=sorted(side*(p.reach/2+i*5) for i in range(131));nx=20;stride=nx+1
+    ys=sorted(side*(p.reach/2+i*10) for i in range(66));nx=20;stride=nx+1
     rows=[]
     for y in ys:
         l,r=p.water_edges(y)
         rows.append([(l+(r-l)*j/nx,y,p.water_z(y)) for j in range(stride)])
     top=[v for row in rows for v in row];count=len(top)
-    bottom=[(x,y,min(p.bed(x,y)-.02,z-.025)) for x,y,z in top]
+    bottom=[(x,y,min(surface_z(p,x,y)-.02,z-.025)) for x,y,z in top]
     faces=[(i*stride+j,i*stride+j+1,(i+1)*stride+j+1,(i+1)*stride+j)
            for i in range(len(rows)-1) for j in range(nx)]
     ground.geom([(x,y,p.bed(x,y)) for x,y,z in top],faces,'bank',(.48,.4704,.432,1),smooth=True,up=True)
@@ -39,6 +42,29 @@ def water_reach(p,parent,side,ground):
         tx,ty=p.tangent(v.co.y);speed=p.speed(v.co.x,v.co.y)
         a.vector=(tx*speed,ty*speed,max(0,p.water_z(v.co.y)-p.bed(v.co.x,v.co.y)))
     ob['presentation_only']=True
+
+
+def join_water(p,parent):
+    """One connected medium: internal closing planes would refract as dams."""
+    core=next(o for o in parent.children_recursive if o.name=='WaterSurface')
+    far=[o for o in parent.children_recursive if o.name.startswith('DistantWaterVolume_')]
+    bpy.ops.object.select_all(action='DESELECT')
+    for ob in [core]+far:ob.select_set(True)
+    bpy.context.view_layer.objects.active=core;bpy.ops.object.join()
+    bm=bmesh.new();bm.from_mesh(core.data)
+    caps=[f for f in bm.faces if any(all(abs(v.co.y-y)<1e-5 for v in f.verts) for y in (-p.reach/2,p.reach/2))]
+    bmesh.ops.delete(bm,geom=caps,context='FACES_ONLY')
+    bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-5)
+    bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(core.data);bm.free();core.data.update()
+    # Horizontal surface normals continue through a streaming boundary.
+    # Geometric end-cap normals must not bend the water's tangent frame.
+    normal=Vector((0,.0006,1)).normalized();normals=[]
+    for f in core.data.polygons:
+        surface=f.normal.z>.5 and all(abs(core.data.vertices[i].co.z-p.water_z(core.data.vertices[i].co.y))<.015 for i in f.vertices)
+        normals.extend([normal if surface else f.normal]*len(f.loop_indices))
+    core.data.normals_split_custom_set(normals)
+    core['core_reach_limits_y_m']=[-p.reach/2,p.reach/2]
+    core['presentation_reach_limits_y_m']=[-800,800]
 
 
 def add(p,parent):
@@ -99,4 +125,5 @@ def add(p,parent):
         if p.kind=='downtown':x=(-1 if i%3 else 1)*(front-10)
         context.instance(context.REPO/'school/build/context/houses-ranch.glb','Beyond reach neighbor '+str(i),
                          (x,y,seat(x,y)-.025),rt,90 if x<0 else -90)
+    join_water(p,parent)
     return rt
