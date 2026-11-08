@@ -423,3 +423,20 @@ views; squared board tops and simpler hinge bevels remain close-view losses,
 with the same grain/value and separate gate/latch. All three original privacy,
 picket and chain-link checks pass again after this refresh. Current tool/stage
 receipts are under `../build/lod-v4/`.
+
+Final fresh proof at freeze `5b75c09` repeats all three one-level chains without
+editing the kit or literal recipe. All nine native strips, six module views
+and three contacts are opened again; fresh family `make check-lod` passes.
+The three original privacy/picket/chain-link checks pass after the final builds.
+The current combined adoption report is `../build/lod-adoptions/report.md`;
+family residency remains 16.2639 MiB with no new images.
+
+Opened three additional native assembly strips and six whole/joint close views
+in `../build/lod-v4/fence-joints/`. At the common 17.6166 m switch, values and
+line-post/gate joins remain consistent; worst mean .00631 and silhouette loss
+.01915 pass the unchanged bounds. Close views retain the documented squared
+tops, stronger plank seams and simpler hinge bevels. Six actual socket-origin
+errors are identical in source/reduced assemblies, maximum 1.13297e-7 m.
+These are measured placement frames plus rendered joins, not a new exhaustive
+bearing-contact or swept-motion certificate. The command returns zero and its
+receipt captures the actual exported source and donor dependencies.

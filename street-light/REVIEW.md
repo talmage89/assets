@@ -124,3 +124,12 @@ is unchanged. Opened both refreshed construction views: shaft, arm, fixture
 and dark material response match the prior review. Original make check passes
 again after this refresh. Current receipts: `../build/lod-v4/adoption-freeze.json`
 and `../build/lod-v4/adoption-stages.json`.
+
+Final fresh proof at freeze `5b75c09` repeats the written recipe without a kit
+or recipe edit. The three native strips, two construction images and contact
+sheet are opened again. Values, shaft coverage, bend, head and ground flange
+remain consistent at 25% / 27.56 m. Fresh `make check-lod` and the post-build
+original `make check` both return zero. The chain retains 1656/3180 triangles,
+three materials and three draws per level, 4.348 MiB resident and no new images.
+Every literal source/recipe hash and all 15 recorded evidence hashes match.
+Current combined report: `../build/lod-adoptions/report.md`.

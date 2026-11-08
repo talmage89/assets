@@ -2345,3 +2345,41 @@ near levels. Its native review is pending. No production tool, frozen recipe,
 near material or original delivery has changed. Until a control passes, the
 canonical house's seams remain explicitly open; neither its target counts nor
 its numeric image result is reported as visual acceptance.
+
+The native failure is archived under `build/lod-v4/house-seam-baseline/`, with
+render hashes, configuration, original manifest and exact index/attribute
+arrays in relocated meshes. The .125-pixel near control completes at 28698
+triangles (49.28%). Its unfinished middle attempt was stopped deliberately;
+the standalone near rebuild returns zero and its native review remains pending.
+The interrupted canonical check has also been recaptured: `make check-lod`
+returns zero, including the independent original-field audit. That result
+does not approve the observed seams.
+
+## Pass 62 — frozen adoptions and actual assembled fence joins
+
+The final adoption freeze is `5b75c09`. All 103 literal hash entries still match,
+including every kit source and the recipe. Fresh street-light and all three
+WoodPrivacy builds, renders and `check-lod` commands return zero. Every native
+strip and construction image is opened, and all 60 recorded evidence hashes
+match the current manifests. Original street-light, privacy, picket and
+chain-link checks return zero after those builds. No tool or recipe edit
+occurred during this proof. The current combined adoption report and contact
+sheet are `build/lod-adoptions/report.md` and `contact.jpg`.
+
+Opened all three exported fence assembly strips and all six construction/joint
+views under `build/lod-v4/fence-joints/`. Color/value and the line-post/gate
+joins remain consistent at the native switch. The common 17.6166 m camera is
+derived from the smallest original module height, 1.83077 m. Worst mean RGB
+.00631, p95 .03253, local .02968, alpha .01864 and silhouette loss .01915
+remain within the unchanged limits. The close views expose squared dog-ear
+tops, stronger plank seams and simpler hinge bevels; these remain closer-camera
+limitations. Gate and line-post placement show no new visible join gap.
+
+The actual six source/reduced socket errors are identical, with maximum
+1.13297e-7 m. These are measured socket origins, not a claimed bearing-surface
+or swept-clearance measurement. This proof combines those frames with the
+rendered joins; the original construction/motion checks are separately retained.
+The joint command returns zero, peak child RSS 1361920 KiB. Its official source,
+donor, script and tool receipts are in `fence-joints/receipt.json`. The paused
+post-adoption supervisor has been removed after both joint proof and four
+original checks completed; no duplicate validation was scheduled.
