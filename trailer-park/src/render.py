@@ -26,74 +26,19 @@ def setup(width,samples):
 
 
 def context(plan):
-    from site import getsitepackages # startup site remains untouched
-    import importlib.util
-    spec=importlib.util.spec_from_file_location('_render_terrain',HERE/'site.py');S=importlib.util.module_from_spec(spec);spec.loader.exec_module(S)
-    lib=Library();W,D=plan['size'];ground=ROOT/'ground/export/Ground.glb'
-    counts=dict(cars=0,vegetation=0,town_architecture=0,street=0);placements=[]
-    def triangle_count(root):
-        result=0
-        for ob in [root,*root.children_recursive]:
-            if ob.type=='MESH':ob.data.calc_loop_triangles();result+=len(ob.data.loop_triangles)
-        return result
-    turf=S.library_material(lib,'Lawn');asphalt=S.library_material(lib,'Asphalt')
-    parent=bpy.data.objects.new('TownContext',None);bpy.context.collection.objects.link(parent)
-    # Ground continues into the town, below the native park surface. There is
-    # no plinth; the public street crosses both actual park connections.
-    for x0,x1,y0,y1 in ((-600,-W/2,-600,600),(W/2,600,-600,600),(-W/2,W/2,-600,-D/2),(-W/2,W/2,D/2,600)):
-        S.ground_box(parent,'Continuing town lawn',((x0+x1)/2,(y0+y1)/2,-.05),(x1-x0,y1-y0,.10),turf,3.048,(.78,.80,.64))
-    for sy in (-1,1):
-        y=sy*(D/2+3.65)
-        for j in range(-23,24):
-            r=lib.place(ground,'Public street',(j*6.096,y,-.00635),90,'Road_Straight_'+('ABC'[j%3]));counts['street']+=triangle_count(r)
-        for j in range(-4,5):
-            hp=ROOT/'houses/export'/('Hearthfield-2.gltf' if j%2 else 'Hearthfield-27.gltf')
-            r=lib.place(hp,'Neighbor',(j*27+7,sy*(D/2+25),0),180 if sy<0 else 0);counts['town_architecture']+=triangle_count(r)
-    for side in (-1,1):
-        # Side neighbors have a public approach too; the neighborhood continues
-        # around the park rather than ending in houses staged on a lawn.
-        for j in range(-30,31):
-            r=lib.place(ground,'Continuing side street',(side*(W/2+39),j*6.096,-.00635),0,'Road_Straight_'+('BCA'[j%3]));counts['street']+=triangle_count(r)
-        for j in range(-2,3):
-            hp=ROOT/'houses/export'/('Hearthfield-2.gltf' if j%2 else 'Hearthfield-27.gltf')
-            r=lib.place(hp,'Beyond park boundary',(side*(W/2+21),j*27,0),-90 if side<0 else 90);counts['town_architecture']+=triangle_count(r)
-    cars=[ROOT/'cars/export'/s for s in ('AlderC150.glb','AlderX220.glb','AlderH120.glb')]
-    markers=[o for o in bpy.context.scene.objects if o.get('socket_kind') in ('car','tree','shrub')]
-    for j,o in enumerate(markers):
-        xf=o.matrix_world.copy();kind=o['socket_kind'];pos=xf.translation;yaw=math.degrees(xf.to_euler().z)
-        if kind=='car':
-            # Some driveways hold two vehicles, some one. Every occupied street
-            # includes three native body types with varied factory paint.
-            if not o.get('occupied',True):continue
-            path=cars[int(o.get('vehicle_index',j%3))];r=lib.place(path,'Resident car '+str(j),pos,yaw)
-            # Distribute colors independently of vehicle/lot seed modulo.
-            # The leading pair deliberately uses Atlantic and Graphite.
-            paint=(3,4,0,1,3,0,4,1,2)[len(placements)%9];lib.factory(r,paint)
-        elif kind=='tree':
-            species=o.get('species','maple');path=ROOT/'trees/export'/('PinOak.glb' if species=='oak' else 'RedMaple.glb')
-            s=float(o.get('plant_scale',1));r=lib.place(path,'Yard tree '+str(j),pos,j*47,scale=(s,s,s))
-        else:
-            path=ROOT/'shrubs/export/Shrubs.glb';r=lib.place(path,'Yard planting '+str(j),pos,j*33,select='Hydrangea' if j%4==0 else 'Boxwood',scale=(.84,.84,.84))
-        category='cars' if kind=='car' else 'vegetation'
-        n=triangle_count(r)
-        paint_names=sorted({slot.material.name for ob in r.children_recursive if ob.type=='MESH' for slot in ob.material_slots if slot.material and slot.material.name.startswith('Presentation factory')})
-        counts[category]+=n;placements.append(dict(kind=kind,triangles=n,source=str(path.relative_to(ROOT)),position=list(pos),paint_materials=paint_names))
-    for sy in (-1,1):
-        for j in range(-6,7):
-            r=lib.place(ROOT/'trees/export/RedMaple.glb','Town canopy',(j*23+10,sy*(D/2+12),0),j*61,scale=(1.03,1.03,1.03))
-            counts['vegetation']+=triangle_count(r)
-        for j in range(-3,4):
-            r=lib.place(cars[(j+1)%3],'Street resident',(j*31,sy*(D/2+17),0),90 if sy<0 else -90);lib.factory(r,j);counts['cars']+=triangle_count(r)
-    lib.clear();return dict(triangles=counts,placements=placements,dependencies=lib.dependencies)
+    from town_context import context as town
+    return town(plan)
 
 
 def shot_views(stem,meta):
     p=meta['plan'];wide=stem.startswith('Double');L=p.get('length',10) if p else 10;W=p.get('width',5) if p else 5
     if stem.startswith('Park'):
         span=p['span'];sx,sy=p['size'];old=p['kind']=='old'
-        return dict(hero=dict(location=(-1.50,-span/2-13,1.68) if old else (-17.5,-span/2-3,1.68),target=(-.4,-span/2+16,1.83) if old else (-24,-span/2+25,1.92),lens=40),
+        xx=p['loop_x']
+        return dict(hero=dict(location=(-xx-1.50,-span/2+2,1.68),target=(-xx-.3,-span/2+31,1.83),lens=40),
                     above=dict(location=(sx*1.02,-sy*1.05,max(sx,sy)*.95),target=(0,0,0),lens=43,aspect=1.45),
-                    entrance=dict(location=(12,-span/2-23,1.68),target=(7,-span/2-16,1.4),lens=48,aspect=1.5))
+                    entrance=dict(location=(-xx+11,-span/2-19,1.68),target=(-xx+6,-span/2-7,1.4),lens=48,aspect=1.5),
+                    row=dict(location=(-xx+2.3,-span/2+15,1.68),target=(-xx-12,-span/2+23,1.8),lens=40))
     if stem.startswith(('Single','Double')):
         return dict(hero=dict(location=(L*.92,-L*1.14,3.6),target=(0,0,1.7),lens=42),
                     front=dict(location=(0,-40,1.8),target=(0,0,1.8),ortho=L+2.7,aspect=2.1),
@@ -147,7 +92,7 @@ def render(stem,path,meta,views,out,width,samples,dress=True):
         cam.data.type='ORTHO' if 'ortho' in v else 'PERSP';cam.data.lens=v.get('lens',45);cam.data.ortho_scale=v.get('ortho',20)
         if v.get('roll'):cam.rotation_euler.rotate_axis('Z',v['roll'])
         sc.render.resolution_x=width;sc.render.resolution_y=round(width/v.get('aspect',1.78));sc.render.filepath=str((out/stem/(name+'.png')).resolve());Path(sc.render.filepath).parent.mkdir(parents=True,exist_ok=True)
-        if not stem.startswith('Park') and name in ('hero','detail','front','back','side','top','scale'):
+        if not v.get('fixed_camera') and not stem.startswith('Park') and name in ('hero','detail','front','back','side','top','scale'):
             from bpy_extras.object_utils import world_to_camera_view
             lo,hi=meta['bounds_min'],meta['bounds_max'];corners=[Vector((x,y,z)) for x in (lo[0],hi[0]) for y in (lo[1],hi[1]) for z in (lo[2],hi[2])]
             bpy.context.view_layer.update()
@@ -171,12 +116,16 @@ def render(stem,path,meta,views,out,width,samples,dress=True):
 
 
 def main():
-    a=argparse.ArgumentParser();a.add_argument('--source');a.add_argument('--out',type=Path,default=Path('renders/checkpoint/pass1'));a.add_argument('--width',type=int,default=1200);a.add_argument('--samples',type=int,default=24);a.add_argument('--only',default='all');a.add_argument('--shots',default='all');a.add_argument('--cameras',type=Path);a.add_argument('--no-context',action='store_true');a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
+    a=argparse.ArgumentParser();a.add_argument('--source');a.add_argument('--out',type=Path,default=Path('renders/checkpoint/pass1'));a.add_argument('--width',type=int,default=1200);a.add_argument('--samples',type=int,default=24);a.add_argument('--only',default='all');a.add_argument('--shots',default='all');a.add_argument('--cameras',type=Path);a.add_argument('--before-cameras',type=Path);a.add_argument('--no-context',action='store_true');a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
     stems=[*[k for k in json.loads(Path('build/family.json').read_text()) if k.startswith('Park-')],'SingleWide-120','DoubleWide-228','Deck','Carport','UtilityService','EntranceSign','Modules','HomeForms','SupportFrame'] if a.only=='all' else a.only.split(',')
     receipts=[]
     for stem in stems:
         path=Path('export')/(stem+'.gltf');meta=json.loads(path.with_suffix('.json').read_text());views=shot_views(stem,meta)
         if a.shots!='all':views={k:v for k,v in views.items() if k in a.shots.split(',')}
+        if a.before_cameras and a.before_cameras.exists():
+            for row in json.loads(a.before_cameras.read_text()):
+                if row['stem']==stem and row['shot'] in ('hero','above'):
+                    views['before_'+row['shot']]=dict(row['camera'],fixed_camera=True)
         if views:receipts+=render(stem,path,meta,views,a.out,a.width,a.samples,not a.no_context)
     if a.cameras and a.cameras.exists():
         from kit.photo_match import verify
@@ -187,7 +136,7 @@ def main():
             v['light']=(dict(sun_energy=.55,sky_strength=.36,angle_degrees=12,direction=(.3,.3,-1),exposure=-.40) if name=='single-2009' else
                         dict(sun_energy=1.5,sky_strength=.26,angle_degrees=5,direction=(.6,.6,-1),exposure=-.5) if name=='addition-2007' else
                         dict(sun_energy=3.3,sky_strength=.16,angle_degrees=.65,direction=(.5,.5,-1),exposure=-.5))
-            receipts+=render(stem,Path('export',stem+'.gltf'),meta,{name:v},a.out/'matches',a.width,a.samples,False)
+            receipts+=render(stem,Path('export',stem+'.gltf'),meta,{name:v},a.out/'matches',a.width,a.samples,True)
     a.out.mkdir(parents=True,exist_ok=True);(a.out/'provenance.json').write_text(json.dumps(receipts,indent=2));print('RENDERED',len(receipts),flush=True)
 
 if __name__=='__main__':main()

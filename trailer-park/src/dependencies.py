@@ -47,7 +47,18 @@ def canonical_inputs():
 def main():
     out=ASSET/'build/native';out.mkdir(parents=True,exist_ok=True)
     canonical_inputs()
-    for kind in ('shed','utility','playground'):
+    for kind in ('shed','utility','playground','strip'):
+        if kind=='strip':
+            path=out/'strip-201.glb'
+            if path.exists():continue
+            stage=ASSET/'build/commercial-context';stage.mkdir(parents=True,exist_ok=True)
+            if not (stage/'textures').exists():(stage/'textures').symlink_to(ROOT/'commercial/textures',target_is_directory=True)
+            for family in ('ground','houses','shrubs','trees'):
+                link=stage.parent/family
+                if not link.exists():link.symlink_to(ROOT/family,target_is_directory=True)
+            with (out/'strip.log').open('w') as log:
+                subprocess.run([os.environ.get('BLENDER','blender'),'-b','-t','2','--factory-startup','--python-exit-code','1','--python',str(ROOT/'commercial/src/strip_build.py'),'--','--seeds','201','--out',str(out),'--look'],cwd=stage,stdout=log,stderr=subprocess.STDOUT,check=True)
+            print('LOCAL NATIVE strip',flush=True);continue
         path=out/(kind+'.gltf')
         deps=list((ROOT/kind/'src').glob('*.py'))+[HERE/'native_build.py']
         if path.exists() and path.stat().st_mtime>=max(p.stat().st_mtime for p in deps):continue

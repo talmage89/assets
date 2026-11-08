@@ -31,11 +31,11 @@ def park(seed=101, kind=None, rows=9):
     kind=kind or ('old' if seed%2 else 'new')
     if kind not in ('old','new') or not 8<=rows<=10:raise ValueError('kind old/new; rows 8..10')
     r=random.Random(seed);old=kind=='old'
-    pitch=(40 if old else 56)*FT;depth=(100 if old else 95)*FT
+    pitch=(32 if old else 56)*FT;depth=(110 if old else 95)*FT
     street=(20 if old else 24)*FT
     span=rows*pitch
     # Four rows, two narrow lanes: old through streets / newer connected loop.
-    # 4000 / 5320 sqft lots; gross density includes the two common end strips.
+    # 3520 / 5320 sqft lots; gross density includes the two common end strips.
     loop_x=depth+street/2
     lots=[]
     for lane in (-loop_x,loop_x):
@@ -44,7 +44,7 @@ def park(seed=101, kind=None, rows=9):
             hs=seed*100+len(lots)+1;variant=(j*5+len(lots)//rows*3)%8
             era=('1972' if variant%3!=2 else '1984') if old else ('1984' if variant==7 else '1996')
             vs=seed*100+variant+1
-            spec=home(vs,era,width_ft=(12 if variant%2 else 14) if old else (16 if era=='1984' else (24,28,28,24)[variant%4]),
+            spec=home(vs,era,width_ft=(16 if era=='1984' else 12 if variant%4==3 else 14) if old else (16 if era=='1984' else (24,28,28,24)[variant%4]),
                       length_ft=(52,60,64,70)[variant%4] if old else (52,56,60,64)[variant%4])
             spec.update(variant_id=f'{kind}-{variant}',occupant_seed=hs)
             yy=(j-(rows-1)/2)*pitch
@@ -66,5 +66,5 @@ def park(seed=101, kind=None, rows=9):
     return dict(seed=seed,kind=kind,name='Alder Court' if old else 'Meadow Bend',year=1968 if old else 1994,
                 street_width=street,lot_frontage=pitch,lot_depth=depth,span=span,loop_x=loop_x,
                 size=[4*depth+2*street+3,span+20],lots=lots,roads=roads,
-                lot_area_sqft=(4000 if old else 5320),template_count=8,
+                lot_area_sqft=(3520 if old else 5320),template_count=8,
                 density_note='Gross parcel includes two lanes and common end strips; modern code comparators, not historical approval.')

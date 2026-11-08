@@ -1,0 +1,28 @@
+"""Native-size correction evidence from explicitly frozen pass-4 cameras."""
+import argparse,json
+from pathlib import Path
+from PIL import Image,ImageDraw,ImageFont
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
+
+
+def compare(folder):
+    before=Path('renders/checkpoint/pass4');out=Path('renders/fixes');out.mkdir(parents=True,exist_ok=True)
+    receipts=[];font=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),24)
+    for row in json.loads((folder/'provenance.json').read_text()):
+        if not row['shot'].startswith('before_'):continue
+        name=row['shot'][7:];stem=row['stem'];a=before/stem/(name+'.png');b=folder/stem/(row['shot']+'.png')
+        old=next(q for q in json.loads((before/'provenance.json').read_text()) if q['stem']==stem and q['shot']==name)
+        for key in ('location','target','lens','ortho','roll','aspect'):
+            assert row['camera'].get(key)==old['camera'].get(key),(stem,key)
+        left=Image.open(a).convert('RGB');right=Image.open(b).convert('RGB');assert left.size==right.size and left.width>=800
+        im=Image.new('RGB',(left.width*2,left.height+58),(232,233,226));im.paste(left,(0,58));im.paste(right,(left.width,58));d=ImageDraw.Draw(im)
+        d.text((18,15),f'{stem} / pass 4',font=font,fill=(25,30,25));d.text((left.width+18,15),'Current export / identical camera',font=font,fill=(25,30,25))
+        path=out/(stem+'-'+name+'.jpg');im.save(path,quality=95,optimize=True)
+        receipts.append(dict(path=str(path),panel_size=left.size,camera_equal=True,before=str(a),after=str(b),camera=row['camera']))
+    (out/'cameras.json').write_text(json.dumps(receipts,indent=2));print('FROZEN CAMERA PAIRS',len(receipts))
+
+
+if __name__=='__main__':
+    p=argparse.ArgumentParser();p.add_argument('folder',type=Path);a=p.parse_args();compare(a.folder)
