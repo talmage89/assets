@@ -256,7 +256,7 @@ def main():
     a.add_argument('--width',type=int,default=1200);a.add_argument('--samples',type=int,default=24)
     a.add_argument('--only',default='all');a.add_argument('--shots',default='all');a.add_argument('--cameras',type=Path)
     a.add_argument('--before-cameras',type=Path);a.add_argument('--baseline',type=Path);a.add_argument('--no-context',action='store_true')
-    a.add_argument('--retain-cameras',type=Path);a.add_argument('--eevee',action='store_true');a.add_argument('--source-finish',action='store_true')
+    a.add_argument('--retain-cameras',type=Path);a.add_argument('--eevee',action='store_true');a.add_argument('--source-finish',action='store_true');a.add_argument('--delivery',action='store_true')
     a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
     stems=[*[k for k in json.loads(Path('build/family.json').read_text()) if k.startswith('Park-')],'SingleWide-120','DoubleWide-228','Deck','Carport','UtilityService','EntranceSign','Modules','HomeForms','SupportFrame'] if a.only=='all' else a.only.split(',')
     receipts=[]
@@ -295,5 +295,8 @@ def main():
             receipts+=render(stem,Path('export',stem+'.gltf'),meta,{name:v},a.out/'matches',a.width,a.samples,True,a.source_finish)
     if a.baseline and a.baseline.exists():receipts+=baseline_renders(a.baseline,receipts,a.out,a.width,a.samples)
     a.out.mkdir(parents=True,exist_ok=True);(a.out/'provenance.json').write_text(json.dumps(receipts,indent=2));print('RENDERED',len(receipts),flush=True)
+    if a.delivery:
+        from delivery_batch import extra
+        extra(main,a)
 
 if __name__=='__main__':main()

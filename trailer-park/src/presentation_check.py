@@ -6,7 +6,8 @@ from PIL import Image
 
 
 def check(folder):
-    rows=json.loads((folder/'provenance.json').read_text());seen={(r['stem'],r['shot']) for r in rows};results=[]
+    from inspection import mirror
+    rows=json.loads((folder/'provenance.json').read_text());seen={(r['stem'],r['shot']) for r in rows};results=[];packages={}
     expected=[*(('Park-'+str(s),v) for s in (101,202) for v in ('hero','above','entrance','row')),
               *((s,v) for s in ('SingleWide-120','DoubleWide-228') for v in ('hero','front','side','back','top','skirt','entry','scale')),
               *((s,'detail') for s in ('Deck','Carport','UtilityService','EntranceSign','Modules','HomeForms','SupportFrame')),
@@ -16,6 +17,8 @@ def check(folder):
     for row in rows:
         source=Path(row['source']);assert hashlib.sha256(source.read_bytes()).hexdigest()==row['sha256']
         delivery=Path(row['delivery']);meta=json.loads(delivery.with_suffix('.json').read_text())
+        if str(delivery) not in packages:packages[str(delivery)]=hashlib.sha256(mirror(delivery).read_bytes()).hexdigest()
+        assert packages[str(delivery)]==row['sha256'],('Changed game geometry after render',row['stem'])
         assert meta['images']==row['images'],('Stale render metadata',row['stem'],row['shot'])
         for im in row['images']:assert hashlib.sha256((delivery.parent/im['uri']).read_bytes()).hexdigest()==im['sha256']
         p=folder/row['stem']/(row['shot']+'.png')

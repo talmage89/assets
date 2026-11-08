@@ -44,7 +44,15 @@ def render_before(family,receipt,out,width,samples):
     renderer.context=legacy.context;rows=json.loads(receipt.read_text());all_=[]
     for stem in ('Park-101','Park-202'):
         views={r['shot']:dict(r['camera'],light=r['light'],fixed_camera=True,fixed_matrix=r['camera_matrix_world'])
-               for r in rows if r['stem']==stem and r['shot'] in ('hero','row','above','street-2007')}
+               for r in rows if r['stem']==stem and r['shot'] in ('hero','row','above','single-2009','street-2007')}
+        if stem=='Park-101':
+            # Actual b0dbccc camera receipt, retained only to show the
+            # requested framing correction honestly as a camera change.
+            views['street-historical']=dict(location=[54.32302425781817,52.902613355049134,1.458895869127385],
+                target=[54.90090935098777,52.10275963243158,1.6210157059987518],lens=25.925687905011888,
+                roll=.011730331641289091,aspect=1.369757174392936,fixed_camera=True,
+                light=dict(sun_energy=2,sky_strength=.30,sky_saturation=.10,camera_sky_strength=.30,camera_sky_saturation=.10,
+                           angle_degrees=5,direction=(.6,.6,-1),exposure=.10))
         path=family/'export'/(stem+'.gltf');meta=json.loads(path.with_suffix('.json').read_text())
         all_+=renderer.render(stem,path,meta,views,out,width,samples,True)
     out.mkdir(parents=True,exist_ok=True);(out/'provenance.json').write_text(json.dumps(all_,indent=2))
