@@ -142,7 +142,7 @@ mesh data; repeated carports, ACs, dishes and other add-ons also share data.
 Presentation context is measured after importing the native assets, with
 placed and unique totals for cars, vegetation, town architecture and public
 streets in `build/metrics.md` and each pass's `provenance.json`. Factory
-paint varies independently of the three car bodies. A game can populate or
+paint, parking offsets and angles vary independently of native body choice. A game can populate or
 cull the exported sockets without loading this presentation neighborhood.
 
 The older 3,520 sq ft lots use the narrower end of
@@ -244,7 +244,11 @@ and ORM (occlusion/roughness/metallic), **6,429,664 PNG bytes** in total.
 Our scripts create every field, bake it at 4096 using Cycles GPU, then
 downsample to shipping resolution. Atlas cells encode ribbed metal siding,
 rolled roofing, skirt, chassis steel, pier concrete, aluminum carport and
-hardware. Broad seeded exposure and caused wear multiply these fields via
+hardware. Sparse fastener runoff, sheltered damp, grade splash and the garden's
+four clipped-blade variants occupy guarded cells in that same set. Coverage
+is analytic: GPU-bake RGB/normal/ORM first, then pack the original alpha field
+without premultiplying paint color. No reference pixels enter the atlas.
+Broad seeded exposure and caused wear multiply these fields via
 standard glTF `COLOR_0`; they are not projected photographs. Repeated
 meter-scale UVs intentionally overlap within their material cells, with
 guard texels. This is a shared tiling atlas, not a unique lightmap unwrap.
@@ -263,6 +267,7 @@ packages, scripts or binaries are downloaded. From this folder:
 make                         # references, models, checks, locked Cycles set, pairs, contacts
 make check                   # raw export, sampled dimensions, re-import, home door sweeps, repo rules
 make repeat                  # regenerate packages and compare bytes with cached native inputs
+make check-texture-repeat    # regenerate fields, locked GPU rebake, kit tolerance + exact coverage
 make model OLD_SEED=303 NEW_SEED=404 ROWS=9
 make render PASS=preview WIDTH=1000 SAMPLES=16
 make check-preservation
@@ -297,7 +302,7 @@ Evidence is local and rebuildable:
 | `build/check.json` | Raw triangle/normal/finite UV checks, zero collapsed geometry/UV triangles, fresh re-import counts, sampled physical dimensions, 1,000 deterministic plans |
 | `build/motion.json` | Sampled actual home-door meshes; no penetrations, no contact exceptions |
 | `build/repeat.json` | Byte identity of regenerated glTF/BIN/JSON/local PNGs, using cached native inputs; not a GPU rebake test |
-| `build/preserved*.json` | SHA-256 baselines for 1,202 pre-existing delivery/image files; all unchanged |
+| `build/preserved*.json` | SHA-256 baselines for 1,212 pre-existing delivery/image files; all unchanged |
 | `build/look-check.json` | Atlas-cell containment, finite UVs, image resources, density and instance audits |
 | `build/metrics.md` | Every home, lot and module; unique/placed park and presentation counts; image memory |
 | `renders/checkpoint/<pass>/provenance.json` | Fresh embedded GLB imports, source/image hashes, cameras, light and actual context triangles |
@@ -309,9 +314,12 @@ Evidence is local and rebuildable:
 Heroes are perspective views from 1.68 m at 40 mm under a procedural clear
 sky and 18° raking sun. The complete set also includes turnarounds,
 skirting, opened entry, exposed frame/piers, module details, scale references
-and both park obliques. Three complete-park matched pairs use distinct
-2009, 2007 and 2015 Commons photographs. Selected construction-anchor RMS
-is **18.43 / 16.95 / 16.65 native pixels**. The single-lot camera is inferred
+and both park obliques. Comparisons use the 2009 used home, 2015 aerial and
+2024 straight-lane Commons photographs. The 2007 photo remains an age reference;
+its curved apron could not fit a level older-lane camera below 20 px RMS.
+The replacement inside Alder Court uses zero pitch/roll and lens rise;
+its road depths are inferred. RMS is **18.43 / 11.53 / 16.65 / 8.53 native
+pixels** for the used home, older lane, aerial and newer lane. The single-lot camera is inferred
 low without a height prior; the aerial reaches its 100 mm crop-lens bound.
 Neither fit proves that this fictional park reproduces a photographed site.
 Neutral patches are identified and balanced in linear RGB before comparing

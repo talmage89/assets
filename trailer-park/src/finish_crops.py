@@ -34,7 +34,7 @@ def compare(before,after,out):
     history=Path('renders/age-pass3/matches/Park-101/street-2007.png')
     if history.exists():
         pair('04-street-roll-correction',Image.open(history).convert('RGB'),Image.open(frame(after,'Park-101','street-2007')).convert('RGB'),
-             'Previous rolled camera / 2007 curved apron','Zero roll / replacement straight-lane photo')
+             'Previous rolled camera / 2007 curved apron','Level camera with lens rise / replacement photo')
     (out/'cameras.json').write_text(json.dumps(receipt,indent=2))
 
 
