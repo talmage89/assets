@@ -66,12 +66,13 @@ def source_finish():
     """Same game geometry/cause colors, original manufacture before GPU bake."""
     for mat in bpy.data.materials:
         if not mat.name.startswith(('ManufacturedPBR_Metal','ManufacturedPatina','ManufacturedGrassBlades')):continue
-        ns,ls=mat.node_tree.nodes,mat.node_tree.links
+        ns,ls=mat.node_tree.nodes,mat.node_tree.links;alpha_targets=[]
         for node in ns:
             if node.type!='TEX_IMAGE' or not node.image:continue
             name=node.image.name
             channel='BaseColor' if 'BaseColor' in name else 'ORM' if 'ORM' in name else None
             if channel:
+                if channel=='BaseColor':alpha_targets.extend(link.to_socket for link in node.outputs['Alpha'].links)
                 node.image=bpy.data.images.load(str(Path('textures/source',f'T_Manufactured_{channel}.png').resolve()),check_existing=True)
                 node.image.colorspace_settings.name='sRGB' if channel=='BaseColor' else 'Non-Color'
         height=ns.new('ShaderNodeTexImage');height.image=bpy.data.images.load(str(Path('textures/source/T_Manufactured_Height.png').resolve()),check_existing=True);height.image.colorspace_settings.name='Non-Color'
@@ -79,9 +80,9 @@ def source_finish():
         bs=next(n for n in ns if n.type=='BSDF_PRINCIPLED');ls.new(bump.outputs['Normal'],bs.inputs['Normal'])
         if mat.name.startswith(('ManufacturedPatina','ManufacturedGrassBlades')):
             coverage=ns.new('ShaderNodeTexImage');coverage.image=bpy.data.images.load(str(Path('textures/source/T_Manufactured_Coverage.png').resolve()),check_existing=True);coverage.image.colorspace_settings.name='Non-Color'
-            if mat.name.startswith('ManufacturedPatina'):
-                alpha=bs.inputs['Alpha'].links[0].from_node;ls.new(coverage.outputs['Color'],alpha.inputs[0])
-            else:ls.new(coverage.outputs['Color'],bs.inputs['Alpha'])
+            # Preserve any imported vertex-alpha multiplication or mask
+            # threshold, including VEC3's implicit full vertex opacity.
+            for socket in alpha_targets:ls.new(coverage.outputs['Color'],socket)
 
 
 def clear_raking_direction(plan):
