@@ -35,6 +35,18 @@ def solve():
       location=transform(lot,(7,-9,2.0),off),target=transform(lot,(0,0,1.7),off),lens=28,lens_bounds_mm=[12,80],
       neutral='White porch fascia around yellow addition; full photograph, not the earlier isolated addition crop',neutral_rect=[482,449,650,459],
       landmarks=[dict(world=transform(lot,w,off),pixel=p) for w,p in pts])
+    # The previous room-only fit put the camera beyond the last row and
+    # pointed away from the actual street. Keep its 26mm optics, but fit the
+    # lane context explicitly. Longitudinal road stations are inferred;
+    # this is a type/framing comparison, not a reconstruction of the site.
+    lane=-plan['loop_x'];y=-plan['span']/2;half=plan['street_width']/2
+    anchors=[((lane-half,y+7,.015),(255,900)),((lane+half,y+7,.015),(1220,900)),
+             ((lane-half,y+16,.015),(338,712)),((lane+half,y+16,.015),(777,712))]
+    definitions['street-2007']=dict(asset='Park-101',photo='refs/street-2007.jpg',crop=[0,0,1241,906],
+      title='Older park lane / occupied neighbors, driveways and planted fronts',
+      location=[lane,y+1,1.46],target=[lane+1,y+25,1.9],lens=25.93,lens_bounds_mm=[20,45],camera_height_m=[1.46,.30],
+      neutral='White addition fascia; four inferred lane-edge stations fit street framing, not individual home construction; replaces the isolated room camera',
+      neutral_rect=[482,449,650,459],landmarks=[dict(world=q,pixel=pix) for q,pix in anchors])
     lot=next(q for q in plan['lots'] if q['number']==6);h=lot['home'];off=(h['length']/2-2.9,-h['width']/2-1.82,0)
     pts=[((-3.3528,1.6764,2.68),(1337,1201)),((3.3528,1.6764,2.68),(1509,1223)),
          ((-3.3528,-1.6764,2.42),(1328,1270)),((3.3528,-1.6764,2.42),(1473,1291)),
@@ -59,7 +71,7 @@ def solve():
       neutral='White PVC entrance-fence post, crop checked at pixel scale; four lane-edge anchors, longitudinal stations inferred from our fictional plan; does not fit individual houses or establish surveyed depth',
       neutral_rect=[265,683,269,717],landmarks=[dict(world=q,pixel=pix) for q,pix in anchors])
     results={}
-    subjects={'single-2009':['Lot_01_Home'],'street-2007':['Lot_36_AddedRoom'],
+    subjects={'single-2009':['Lot_01_Home'],'street-2007':['Lot_01_Home','Lot_10_Home'],
               'aerial-2015':['Lot_06_Carport','Lot_07_Carport'],'newer-row-2024':[]}
     for name,d in definitions.items():
         nodes={n.get('name') for n in json.loads(Path('export',d['asset']+'.gltf').read_text())['nodes']}

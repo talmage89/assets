@@ -57,6 +57,23 @@ def image_resources():
     return sorted(result.values(),key=lambda row:row['sha256'])
 
 
+def source_finish():
+    """Same game geometry/cause colors, original manufacture before GPU bake."""
+    for mat in bpy.data.materials:
+        if not mat.name.startswith('ManufacturedPBR_Metal'):continue
+        ns,ls=mat.node_tree.nodes,mat.node_tree.links
+        for node in ns:
+            if node.type!='TEX_IMAGE' or not node.image:continue
+            name=node.image.name
+            channel='BaseColor' if 'BaseColor' in name else 'ORM' if 'ORM' in name else None
+            if channel:
+                node.image=bpy.data.images.load(str(Path('textures/source',f'T_Manufactured_{channel}.png').resolve()),check_existing=True)
+                node.image.colorspace_settings.name='sRGB' if channel=='BaseColor' else 'Non-Color'
+        height=ns.new('ShaderNodeTexImage');height.image=bpy.data.images.load(str(Path('textures/source/T_Manufactured_Height.png').resolve()),check_existing=True);height.image.colorspace_settings.name='Non-Color'
+        bump=ns.new('ShaderNodeBump');bump.inputs['Distance'].default_value=.012;ls.new(height.outputs['Color'],bump.inputs['Height'])
+        bs=next(n for n in ns if n.type=='BSDF_PRINCIPLED');ls.new(bump.outputs['Normal'],bs.inputs['Normal'])
+
+
 def clear_raking_direction(plan):
     """Choose the 18-degree camera-side sun through the real imported canopy.
 
@@ -99,10 +116,13 @@ def shot_views(stem,meta):
     if stem.startswith('Park'):
         span=p['span'];sx,sy=p['size'];old=p['kind']=='old'
         xx=p['loop_x']
-        return dict(hero=dict(location=(-xx-1.50,-span/2+2,1.68),target=(-xx-.3,-span/2+31,1.83),lens=40),
+        views=dict(hero=dict(location=(-xx-1.50,-span/2+2,1.68),target=(-xx-.3,-span/2+31,1.83),lens=40),
                     above=dict(location=(sx*1.02,-sy*1.05,max(sx,sy)*.95),target=(0,0,0),lens=43,aspect=1.45,light=dict(exposure=1.0,sky_strength=.12,sun_energy=8)),
                     entrance=dict(location=(-xx+11,-span/2-19,1.68),target=(-xx+6,-span/2-7,1.4),lens=48,aspect=1.5),
                     row=dict(location=(-xx+2.3,-span/2+15,1.68),target=(-xx-12,-span/2+23,1.8),lens=40))
+        # Preserve the accepted look5 direction despite canopy variation.
+        for v in views.values():v.setdefault('light',{})['direction']=(-.6724985241889954,.6724985241889954,-.30901700258255005)
+        return views
     if stem.startswith(('Single','Double')):
         return dict(hero=dict(location=(L*.92,-L*1.14,3.6),target=(0,0,1.7),lens=42),
                     front=dict(location=(0,-40,1.8),target=(0,0,1.8),ortho=L+2.7,aspect=2.1),
@@ -126,9 +146,9 @@ def shot_views(stem,meta):
     return out
 
 
-def render(stem,path,meta,views,out,width,samples,dress=True):
+def render(stem,path,meta,views,out,width,samples,dress=True,source=False):
     from inspection import mirror
-    delivery=path;packed=mirror(path);archive=(out.parent if out.name=='matches' else out)/'sources'/(path.stem+'.glb')
+    delivery=path;packed=path if path.suffix=='.glb' else mirror(path);archive=(out.parent if out.name=='matches' else out)/'sources'/(path.stem+'.glb')
     archive.parent.mkdir(parents=True,exist_ok=True)
     if not archive.exists() or archive.read_bytes()!=packed.read_bytes():archive.write_bytes(packed.read_bytes())
     path=archive
@@ -138,6 +158,7 @@ def render(stem,path,meta,views,out,width,samples,dress=True):
     for o in list(bpy.context.scene.objects):
         if o.type=='MESH' and not o.data.materials and 'Icosphere' in o.name:bpy.data.objects.remove(o,do_unlink=True)
     ctx=context(meta['plan']) if stem.startswith('Park') and dress else {}
+    if source:source_finish()
     if ctx:
         ctx['image_resources']=image_resources()
         ctx['image_gpu_mib']=sum(im['mipped_8bpp_mib'] for im in ctx['image_resources'])
@@ -195,12 +216,13 @@ def render(stem,path,meta,views,out,width,samples,dress=True):
         visibility=landmark_visibility(v['review_landmarks'],cam.location) if v.get('review_landmarks') else None
         if v.get('require_visible_landmarks'):
             assert visibility and visibility['clear_count']==visibility['anchor_count'],(name,'Occluded photo-fit anchors',visibility)
+        sc.render.engine=v.get('engine','CYCLES')
         bpy.ops.render.render(write_still=True)
         provenance.append(dict(stem=stem,shot=name,camera=v,source=str(path),delivery=str(delivery),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),images=meta['images'],context=ctx,
-                               light={**light,'sun_elevation_degrees':math.degrees(math.asin(-dv.z)),'sun_visibility':sun_choice if automatic else None},
+                               source_manufacture=source,light={**light,'sun_elevation_degrees':math.degrees(math.asin(-dv.z)),'sun_visibility':sun_choice if automatic else None},
                                landmark_visibility=visibility,camera_matrix_world=[list(r) for r in cam.matrix_world],
                                camera_parameters=dict(type=cam.data.type,lens=cam.data.lens,ortho_scale=cam.data.ortho_scale,sensor_width=cam.data.sensor_width,
-                                                      resolution=[sc.render.resolution_x,sc.render.resolution_y]),engine='CYCLES',width=width,samples=samples))
+                                                      resolution=[sc.render.resolution_x,sc.render.resolution_y]),engine=sc.render.engine,width=width,samples=samples))
         for root in temporary:
             for o in [*root.children_recursive,root]:bpy.data.objects.remove(o,do_unlink=True)
         for pivot,rest in posed.items():pivot.matrix_basis=rest
@@ -234,12 +256,19 @@ def main():
     a.add_argument('--width',type=int,default=1200);a.add_argument('--samples',type=int,default=24)
     a.add_argument('--only',default='all');a.add_argument('--shots',default='all');a.add_argument('--cameras',type=Path)
     a.add_argument('--before-cameras',type=Path);a.add_argument('--baseline',type=Path);a.add_argument('--no-context',action='store_true')
+    a.add_argument('--retain-cameras',type=Path);a.add_argument('--eevee',action='store_true');a.add_argument('--source-finish',action='store_true')
     a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
     stems=[*[k for k in json.loads(Path('build/family.json').read_text()) if k.startswith('Park-')],'SingleWide-120','DoubleWide-228','Deck','Carport','UtilityService','EntranceSign','Modules','HomeForms','SupportFrame'] if a.only=='all' else a.only.split(',')
     receipts=[]
     for stem in stems:
         path=Path('export')/(stem+'.gltf');meta=json.loads(path.with_suffix('.json').read_text());views=shot_views(stem,meta)
         if a.shots!='all':views={k:v for k,v in views.items() if k in a.shots.split(',')}
+        if a.retain_cameras:
+            prior=json.loads(a.retain_cameras.read_text())
+            for row in prior:
+                if row['stem']==stem and row['shot'] in views:
+                    views[row['shot']]=dict(row['camera'],fixed_camera=True,light=row['light'],fixed_matrix=row['camera_matrix_world'])
+        if a.eevee and stem=='Park-202':views['eevee']=dict(views['hero'],engine='BLENDER_EEVEE')
         if a.before_cameras and a.before_cameras.exists():
             for row in json.loads(a.before_cameras.read_text()):
                 if row['stem']==stem and row['shot'] in ('hero','above'):
@@ -253,7 +282,7 @@ def main():
                     camera=dict(row['camera']);camera.update(location=transform(lot,camera['location'],offset),target=transform(lot,camera['target'],offset),
                         fixed_camera=True,light=row['camera'].get('light',{}),baseline_reference=dict(stem=row['stem'],shot=row['shot'],camera=row['camera'],module_frame=True))
                     views['before_'+row['shot']]=camera
-        if views:receipts+=render(stem,path,meta,views,a.out,a.width,a.samples,not a.no_context)
+        if views:receipts+=render(stem,path,meta,views,a.out,a.width,a.samples,not a.no_context,a.source_finish)
     if a.cameras and a.cameras.exists():
         from kit.photo_match import verify
         verify(a.cameras)
@@ -263,7 +292,7 @@ def main():
             v['light']=(dict(sun_energy=.8,sky_strength=.40,sky_saturation=.06,camera_sky_strength=.40,camera_sky_saturation=.06,angle_degrees=12,direction=(.3,.3,-1),exposure=-.80) if name=='single-2009' else
                         dict(sun_energy=2.0,sky_strength=.30,sky_saturation=.10,camera_sky_strength=.30,camera_sky_saturation=.10,angle_degrees=5,direction=(.6,.6,-1),exposure=.10) if name=='street-2007' else
                         dict(sun_energy=5,sky_strength=.12,sky_saturation=.35,angle_degrees=.65,direction=(.5,.5,-1),exposure=.10))
-            receipts+=render(stem,Path('export',stem+'.gltf'),meta,{name:v},a.out/'matches',a.width,a.samples,True)
+            receipts+=render(stem,Path('export',stem+'.gltf'),meta,{name:v},a.out/'matches',a.width,a.samples,True,a.source_finish)
     if a.baseline and a.baseline.exists():receipts+=baseline_renders(a.baseline,receipts,a.out,a.width,a.samples)
     a.out.mkdir(parents=True,exist_ok=True);(a.out/'provenance.json').write_text(json.dumps(receipts,indent=2));print('RENDERED',len(receipts),flush=True)
 
