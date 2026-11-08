@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 from kit.fonts import find_font
 
 
-def generate(folder=Path('textures/checkpoint'),extra=False):
+def generate(folder=Path('textures/checkpoint'),extra=False,extra_levels=7):
     size=2048;im=Image.new('RGBA',(size,size));d=ImageDraw.Draw(im);layout={}
     labels=['ALDER QUAY','MUNICIPAL PARKING','BELLWETHER COMMONS','PUBLIC PARKING','ENTRY','EXIT','PAY HERE','FULL',
             'CLEARANCE  8 FT 2 IN','UPPER LEVELS  7 FT','COMPACT','STAIR / LIFT','VAN ACCESSIBLE','RESERVED',
@@ -17,8 +17,9 @@ def generate(folder=Path('textures/checkpoint'),extra=False):
     word_count=len(labels)
     labels += [f'{n:03d}' for n in range(1,121)]
     if extra:labels += ['OPEN  6 AM - MIDNIGHT','PAY BEFORE RETURNING','STAIRS','ELEVATOR','PARKING','NO ENTRY','2 HOUR PARKING','METERED PARKING']+[f'TOWER {n}' for n in range(1,6)]+['LEVEL 6','LEVEL 7','TOWER 6','TOWER 7']
-    level_colors=[(43,78,82,255),(126,46,29,255),(102,87,31,255),(39,76,56,255),(71,52,84,255),(32,80,75,255),(68,73,74,255)]
-    cols=8;cw=256;ch=100
+    if extra:labels += [f'{key} {n}' for n in range(8,extra_levels+1) for key in ('LEVEL','TOWER')]
+    level_colors=[(43,78,82,255),(126,46,29,255),(102,87,31,255),(39,76,56,255),(71,52,84,255),(32,80,75,255),(68,73,74,255),(90,61,36,255)]
+    cols=8;cw=256;ch=96 if extra_levels>7 else 100
     for i,string in enumerate(labels):
         x=(i%cols)*cw;y=(i//cols)*ch;rect=(x+4,y+4,x+cw-4,y+ch-4)
         bg=(24,52,62,255) if i<word_count and string!='♿' else (0,0,0,0);fg=(235,230,204,255)

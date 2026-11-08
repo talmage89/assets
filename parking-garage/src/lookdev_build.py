@@ -20,9 +20,10 @@ def modules():
     roots=[o for o in bpy.context.scene.objects if o.parent is None];G.palette(Path('textures/lookdev'))
     layout=json.loads(Path('textures/lookdev/layout.json').read_text());mats=palette();p=garage(101);report={}
     for root in roots:
-        root.location=(0,0,0);name=root.name
+        root.location=(0,0,0);name=root.name;parameters=dict(p)
         if name.startswith('Tower'):
             levels=int(name[-1]) if name[-1].isdigit() else 4
+            parameters['levels']=levels
             for o in list(root.children_recursive):bpy.data.objects.remove(o,do_unlink=True)
             pieces.tower(root,levels,refined=True);tower_signs(root,levels,layout,'ALDER QUAY')
         elif name=='DoubleTee':
@@ -46,7 +47,7 @@ def modules():
                 for v in ob.data.vertices:v.co.z+=rise*(deck.location.x+v.co.x)
                 bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free();ob.data.update()
         for ob in root.children_recursive:remove_paint(ob)
-        bpy.context.view_layer.update();bind(root,p,mats)
+        bpy.context.view_layer.update();bind(root,parameters,mats)
         report[name]=export(f'export/lookdev/modules/{name}.gltf',members(root),images())
         report[name]['bounds_m']=G.bounds(members(root))
         assert report[name]['triangles']<=(8000 if name.startswith('Tower') else 2000),(name,report[name]['triangles'])
@@ -60,6 +61,9 @@ def sites():
         p=json.loads(Path(f'build/lookdev/garage-{seed}.json').read_text());rt=bpy.data.objects['Garage_'+str(seed)];mats=palette()
         binds=bind(rt,p,mats);age=placed(rt,p,mats);rt['stage']='BAKED LOOK-DEV CHECKPOINT / NO DOCS'
         p['garage_triangles']=G.triangles(members(rt));assert p['garage_triangles']<300000
+        p['placed_parts']=[dict(name=ob.name,kind=ob.get('module_kind','assembly-owned'),triangles=G.triangles(members(ob)))
+            for ob in rt.children if G.triangles(members(ob))>0]
+        assert sum(row['triangles'] for row in p['placed_parts'])==p['garage_triangles']
         for row in p['pieces']:
             ob=bpy.data.objects.get(row['name'])
             if ob:row['triangles']=G.triangles(members(ob))

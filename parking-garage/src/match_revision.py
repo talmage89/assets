@@ -23,7 +23,7 @@ def definitions_revised():
     d['precast']['location'][0]-=origin;d['precast']['target'][0]-=origin
     d['precast']['title']='Precast tee, inverted-T and haunch / two flat modular bays / 2014'
     m=d['harmon'];m.update(crop=[1900,550,2900,1650],location=[-56.6304,-27,1.65],target=[-15.6304,-12.8,11],lens=105,
-        title='Flat-deck column stack / six-level, 24-station reference specimen / 2012',landmarks=[])
+        title='Flat-deck column stack / eight-level, 24-station reference specimen / 2012',landmarks=[])
     for x,pixels in [(-21.9456,[(2314,847),(2318,1036),(2322,1228),(2326,1415)]),(-10.9728,[(2509,965),(2514,1138),(2520,1302),(2524,1468)])]:
         for j,pix in enumerate(pixels):m['landmarks'].append(dict(world=[x,-12.8016-.381,(5-j)*FLOOR-.76],pixel=list(pix)))
     return d

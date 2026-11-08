@@ -412,3 +412,81 @@ check. Small manufactured faces translate their texture phase without being
 split; large core panels trade transverse density for zero extra geometry.
 Tower3 / Tower / Tower5 remain 4,324 / 5,928 / 7,532 triangles. Actual bake
 and material acceptance are still pending the next photographic review.
+
+## Revision form pass 3 — fixed platforms and readable cores
+
+Color/value first: opened all 23 full-size scene views in
+`renders/form-pass3/`, each comparison PNG and all three side-by-side pairs.
+Against the bare-concrete-balanced interior photo, the source floor remains
+too clean and bright, with regular luminaire pools. The photo has a darker,
+reflective traffic surface, broad side daylight, mottled soffits and deep
+local beam shade. Keep the pale cement soffit distinct from the darkened
+upper deck finish; reduce the regular pools during the baked review. The
+exterior has a useful sun/shade range, but clean panels still read as CG.
+
+The overhead confirms that replacement tees no longer rise above the east
+platform. The angled tee view shows deep paired stems and their seats; the
+retained aisle provides an honest comparison to the original camera. The
+front tower now exposes switchback flights and landing guards through its
+return, a glazed lift slot, separate panels, coping and machine-room vent.
+Level numerals and opening-hours plaques read correctly. The landing view
+shows both real door apertures and the call panel; exterior pull hardware
+remains a useful small construction refinement for the next pass.
+
+The new crossing tree leaves the core visible, and the original foreground
+camera now sees meters, a planted walk and a queue vehicle. The panorama
+reduces the excessive road. Town blocks close the hero's former street end.
+Ground Lawn maps, world-XY UVs and the School's maintained-turf tint replace
+the quick lawn material; the large commercial lawn still reads too smooth
+at this distance. The cyan route appears only on the separate plan view.
+
+The flat two-bay interior specimen is materially closer to the photographed
+construction than the ramp: actual inverted-T seats, paired tees and parked
+cars. Its haunch landmarks remain 15.81px. Pleasant Hill remains 14.92px.
+The Harmon lower-stack landmarks are 5.67px, but the pair reveals that a
+six-level specimen stops above them too soon: the photo continues for two
+more floors. Extend only this private comparison to eight levels and re-render
+it before judging the bake. The scalar landmark fit alone did not prove the
+upper massing. The accepted town programs remain four and three levels.
+
+## Look pass 1 — reject the aggregate bump and clean traffic finish
+
+Color/value first: opened all 23 exported views in `renders/look-pass1/`,
+the three baked photographic pairs and three original-field pairs. In the
+precast pair, the neutral-photo column has display-linear Y .109 versus .181
+in the render; the near dark soffit patch is .0079 versus .0175, and the
+floor patch is .0696 versus .0787. These are displayed-image comparisons
+under unequal lighting, not recovered albedos. The renderer's column is
+too yellow/green. Use less yellow cement, neutral practicals, broader side
+daylight and lower comparison exposure before judging finer surface detail.
+Do not simply darken every concrete surface to match a shaded photo.
+
+The 4096 GPU bake preserves RGB mean to .0000197 and mean absolute error
+.00142; OpenGL normals and coverage-aware 2048 filtering are real outputs.
+The first attempt caught associated-alpha darkening in the emission input;
+bake opaque RGB and restore original coverage before filtering. Source and
+baked pairs retain the same large-scale response, but the source's overly
+strong height is itself wrong: broad cement clouds and aggregate bump make
+the walls look like sponge. Reduce the normal amplitude and macro variation.
+
+Runoff, repaired spots and turning tires are visible in close-ups. Individual
+runoff streams merge away too much in the full hero; increase coverage only
+on those cap/joint masks. The little repairs still read as round spots at
+this scale: use angular cutout patches and vary their extent. Preserve dry
+gaps between causes. Decks need a coated traffic response, with roughness
+separate from bare soffits, using the same sheet and material rather than
+adding a second draw to every structural tile. The fixtures make repeated
+white pools on the floor; reduce their downward power and add more sky
+and upward bounce. The full-frame wear must improve without a noise wash.
+
+The eight-level Harmon source and baked pair now continue above the measured
+stack, but the photograph has a deeper cast edge beam than this town variant.
+Add that downstand only to the reference specimen, so its opening/solid ratio
+matches the photograph. Keep both actual town programs and their accepted
+surfaces unchanged. The three native landmark residuals remain 15.81,
+14.92 and 5.67px; the points alone are not a silhouette proof.
+
+Add exterior pull handles to the refined doors, recheck their full motions,
+and close the small remaining town gap visible beside the municipal entry.
+The large turf plot still needs a more convincing maintained edge. These
+are review findings, not claims that the look-dev checkpoint is finished.

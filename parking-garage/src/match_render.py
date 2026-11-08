@@ -1,5 +1,5 @@
 """Render comparison specimens, before/after finishes on the same exports."""
-import argparse,json,sys
+import argparse,hashlib,json,sys
 from pathlib import Path
 import bpy
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];sys.path[:0]=[str(ROOT),str(HERE)]
@@ -31,6 +31,10 @@ def main():
         if name=='precast':bpy.context.scene.view_settings.exposure=1.0
         shot=fit['shot'];shot['aspect']=(fit['crop'][2]-fit['crop'][0])/(fit['crop'][3]-fit['crop'][1]);shot['max_bounces']=12
         r=render_shot(a.out/(name+'.png'),shot,a.width,a.samples,'CYCLES',path)
+        digest=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
+        doc=json.loads(path.read_text());r['images']={im['uri']:digest(path.parent/im['uri']) for im in doc.get('images',[])}
+        r['calibration_sha256']=digest(calibration)
+        if a.source_finish:r['source_finish_images']={str(p):digest(p) for p in Path('build/lookdev/atlas-source').glob('*.png')}
         r.update(name=name,stage=a.stage,source_finish=a.source_finish,native_rms_px=fit['residual_rms_pixels'],camera_clearance_hidden_context_cars=hidden);receipts.append(r)
         (a.out/'views.json').write_text(json.dumps(receipts,indent=2)+'\n')
     photo_match.compose(calibration,a.out,a.out)
