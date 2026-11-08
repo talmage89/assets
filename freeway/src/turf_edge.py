@@ -18,6 +18,8 @@ def add(p,parent,soil,paving,templates,rng,start):
   for side in (-1,1):
    for distance,height in ((1.08,.42),(.79,.36),(.50,.30),(.21,.25)):
     if rng.random()>density:continue
+    height*=max(.005,density*density)
+    if height<.065:continue
     q,normal,_,_=hit(soil,p,s,side*(p.median/2-distance))
     if q is None:continue
     tangent=Vector((*p.frame(s)[1],0))
@@ -27,7 +29,7 @@ def add(p,parent,soil,paving,templates,rng,start):
     if any(paving.ray_cast(v+Vector((0,0,30)),Vector((0,0,-1)),60)[0] is not None for v in probes):continue
     ob=templates[rng.randrange(8)].copy();bpy.context.collection.objects.link(ob)
     ob.name='Mown edge turf %05d'%(start+count);ob.parent=parent
-    ob.location=q-Vector((0,0,.012));ob.scale=(.19,.5,height*max(.005,density*density))
+    ob.location=q-Vector((0,0,.012));ob.scale=(.19,.5,height)
     ob.rotation_mode='QUATERNION';ob.rotation_quaternion=rotation
     gaps=[]
     for v in probes[1:]:

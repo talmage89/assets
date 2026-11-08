@@ -84,6 +84,7 @@ def plant(p,parent):
    # Shrinking blades, as well as thinning them, avoids dark square islands
    # when all of the distance transition is visible from an aerial camera.
    h=(mown*(1-blend)+long*blend)*max(.005,density*density)
+   if h<.14:continue # Faded stubble is buried or below a pixel at these distances.
    pattern=rng.randrange(8) if tall else (4*(math.floor(u/1.524)%2)+rng.randrange(4))
    ob=templates[pattern].copy();bpy.context.collection.objects.link(ob)
    ob.name='ROW turf tile %05d'%count;ob.parent=parent;ob.location=q+Vector((0,0,-.025))
