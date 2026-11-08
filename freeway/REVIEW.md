@@ -890,3 +890,25 @@ render-only hiding is used. The aerials must pass before final continuation.
 This retains the successful framing, lane and barrier age and continuous
 column flow; the stronger ground test did not certify the full set.
 
+## Round 4, pass 5: ground and aerial gates pass
+
+Color and value: opened all eleven fifth-pass exports at native 1400px,
+including both 101 aerials, the 202 aerial and the terminal, plus all eight
+native before/after panels. Against the same concrete-balanced summer
+references, the finer sward keeps a muted green and dark under-blade value.
+The aerial fade no longer leaves dark rectangular islands. Mowing texture
+continues into the base; the terminal's smaller clumps fit the terrain better.
+The retained-camera grass panels show volume instead of isolated toothpicks,
+and the sunlit slope has no lighting facets. The 202 edge has shorter growth
+and a narrow mineral margin instead of the former smooth exclusion strip.
+
+The new 101 composition leaves a foreground band. Continuous column runoff,
+barrier toe/joint film, wheel paths, lane-center deposits and native-grain
+replacement slabs still read. Accepted town, traffic, skies and cap runoff
+pass their retention audit. All eight requested comparisons pass this gate.
+Still CG: the clump and mowing rhythm, especially the close median edge;
+regular lane bands and joints; even manufacture grain; repeated native town,
+tree and car silhouettes. The terminal still has a procedural patch rhythm.
+These limits remain explicit; this is approval to render the remaining
+finals, not a claim of photographic equivalence or completed validation.
+
