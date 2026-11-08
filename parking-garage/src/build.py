@@ -22,7 +22,7 @@ from kit import tiling
 def members(r):return [r,*r.children_recursive]
 
 
-def export(path,obs):
+def export(path,obs,extra_images=()):
     """Use the existing kit GLB exporter, then split without reencoding images."""
     import copy
     from kit.gltf import GLB
@@ -31,6 +31,7 @@ def export(path,obs):
     tiling.export(tmp,obs);g=GLB(tmp);doc=g.json;binary=g.binary
     known={hashlib.sha256(p.read_bytes()).hexdigest():p for folder in (ROOT/'ground/textures/ship',ROOT/'street-light/textures/ship',ROOT/'cars/textures/sedan/ship',ROOT/'trees/textures/ship',ROOT/'trees/textures/oak/ship') for p in folder.glob('*.png')}
     known.update({hashlib.sha256(p.read_bytes()).hexdigest():p for p in Path('textures/checkpoint').rglob('*.png')})
+    known.update({hashlib.sha256(p.read_bytes()).hexdigest():p for p in extra_images})
     for im in doc.get('images',[]):
         v=doc['bufferViews'][im.pop('bufferView')];a=v.get('byteOffset',0);payload=binary[a:a+v['byteLength']]
         h=hashlib.sha256(payload).hexdigest();assert h in known,im

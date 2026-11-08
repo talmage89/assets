@@ -153,15 +153,23 @@ def ticket(r,pay=False):
     b.finish()
 
 
-def tower(r,levels=4,elevator=True):
+def tower(r,levels=4,elevator=True,refined=False):
     b=Mesh(r.name+'__Fabric',r);H=(levels-1)*FLOOR+3.0
     # 5.6 x 5.4m tower: two 1.30m concrete flights, 1.142m between
     # handrails, and full-depth landings. Rear faces the garage.
-    b.box((2.7,0,H/2),(.20,5.4,H))
+    if not refined:b.box((2.7,0,H/2),(.20,5.4,H))
+    else:
+        for yy in (-1.78,1.78):b.box((2.7,yy,H/2),(.20,1.84,H))
     # Ground exit pierces the stair's side at its lower landing; there is no
     # door trying to pass underneath the half-level return landing.
-    b.box((-2.7,0,(H+2.2)/2),(.20,5.4,H-2.2))
-    b.box((-2.7,-.725,1.1),(.20,3.95,2.2))
+    if not refined:
+        b.box((-2.7,0,(H+2.2)/2),(.20,5.4,H-2.2))
+        b.box((-2.7,-.725,1.1),(.20,3.95,2.2))
+    else:
+        # A glazed return exposes the two flights to the public street. The
+        # existing exit jamb, landing, stair widths and pivots stay in place.
+        for yy in (-2.56,1.17):b.box((-2.7,yy,H/2),(.20,.28,H))
+        b.box((-2.7,1.83,(H+2.2)/2),(.20,1.04,H-2.2))
     b.box((-2.7,2.545,1.1),(.20,.31,2.2))
     b.box((.25,0,H/2),(.20,5.4,H))
     b.box((1.50,-2.60,H/2),(2.40,.20,H))
@@ -219,7 +227,7 @@ def tower(r,levels=4,elevator=True):
         z=lev*FLOOR
         b.box((-1.32,-2.675,z+1.5),(2.62,.025,2.98),'Glass')
         b.box((-1.32,-2.71,z+.08),(2.78,.07,.16),'Steel')
-        if lev<levels-1:b.box((-1.32,-2.66,z+3.175),(2.62,.10,.37),'Blue')
+        if lev<levels-1:b.box((-1.32,-2.66,z+3.175),(2.62,.10,.37),'Steel' if refined else 'Blue')
         for x in (-2.61,-1.32,-.03):b.box((x,-2.71,z+1.5),(.06,.07,3.0),'Steel')
     b.box((0,0,H+.10),(5.8,5.6,.20));b.finish()
     # Hinge at the opposite jamb: the open leaf moves away from the garage
@@ -229,6 +237,9 @@ def tower(r,levels=4,elevator=True):
     root(r.name+'__StreetThreshold',(-2.85,1.83,0),r,socket_kind='pedestrian_threshold')
     root(r.name+'__GarageStairThreshold',(-1.45,2.85,0),r,socket_kind='pedestrian_threshold')
     root(r.name+'__GarageLiftThreshold',(1.30,2.85,0),r,socket_kind='accessible_threshold')
+    if refined:
+        from tower_detail import add
+        add(r,levels,H)
 
 
 def jobs(levels=4):

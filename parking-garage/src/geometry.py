@@ -24,7 +24,7 @@ def material(name, color, rough=.8, metal=0, emission=0, transmission=0):
     return m
 
 
-def palette():
+def palette(graphics_folder=Path('textures/checkpoint')):
     M.clear()
     # Blender 5.2's importer expects all current settings sockets. The kit's
     # minimal AO group is sufficient for export but collides on a later import.
@@ -48,7 +48,7 @@ def palette():
         M[key]=tiling.material(key,ROOT/'ground/textures/ship',alpha=key=='GroundTrim')
     M['GroundConcrete']=tiling.material('Concrete',ROOT/'ground/textures/ship')
     m=material('GroundParkingTrim form extension',(1,1,1),.75)
-    t=m.node_tree.nodes.new('ShaderNodeTexImage');t.image=bpy.data.images.load(str(Path('textures/checkpoint/T_GroundParkingTrim_BaseColor.png').resolve()),check_existing=True)
+    t=m.node_tree.nodes.new('ShaderNodeTexImage');t.image=bpy.data.images.load(str((graphics_folder/'T_GroundParkingTrim_BaseColor.png').resolve()),check_existing=True)
     l=m.node_tree.links;p=m.node_tree.nodes.get('Principled BSDF');l.new(t.outputs['Color'],p.inputs['Base Color']);l.new(t.outputs['Alpha'],p.inputs['Alpha']);m.surface_render_method='DITHERED'
     M['Graphics']=m
 
