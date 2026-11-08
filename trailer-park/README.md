@@ -257,6 +257,15 @@ make render PASS=preview WIDTH=1000 SAMPLES=16
 make check-preservation
 ```
 
+Historical before/after evidence uses the supplied earlier checkpoint cache:
+`make baseline` freezes its six packages before `make repeat` replaces that
+cache. When present, `build/baseline/export/` enables the additional renders
+and identical-camera/light comparison sheets automatically. The historical
+geometry and image payloads are SHA-checked; only image URIs relocate.
+This optional historical input is separate from rebuilding the current
+family from scripts. No previous asset package is substituted for a current
+delivery, and the comparisons remain ignored review images.
+
 `kit/checkpoint_rules.mk` supplies the gate graph; `kit/with_gpu.sh` holds
 the shared GPU lock once for the complete render batch. Modeling and
 checks use serial Blender processes. References are fetched only as

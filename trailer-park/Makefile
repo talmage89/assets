@@ -12,8 +12,9 @@ CHECKPOINT_ARGS := --old-seed $(OLD_SEED) --new-seed $(NEW_SEED) --rows $(ROWS)
 CHECKPOINT_DEPS := $(addprefix src/,build.py plans.py geometry.py homes.py era_details.py addons.py site.py ground_edges.py lot_dressing.py surfaces.py terrain.py textures.py) build/native.stamp build/preserved.json textures/ship/.stamp
 CHECKPOINT_CHECK = $(BP) --python src/check.py && $(BP) --python src/check_motion.py && $(BP) --python src/look_check.py
 CHECKPOINT_OUT := renders/checkpoint/$(PASS)
-CHECKPOINT_RENDER_ARGS := --cameras build/cameras.json
-CHECKPOINT_REVIEW = $(PYTHON) src/matches.py compose $(CHECKPOINT_OUT) && $(PYTHON) src/review.py --renders $(CHECKPOINT_OUT) && $(PYTHON) src/metrics.py --renders $(CHECKPOINT_OUT)
+BASELINE_REVIEW := $(wildcard build/baseline/export/Baseline_Park-101.gltf)
+CHECKPOINT_RENDER_ARGS := --cameras build/cameras.json $(if $(BASELINE_REVIEW),--baseline build/baseline/export)
+CHECKPOINT_REVIEW = $(PYTHON) src/matches.py compose $(CHECKPOINT_OUT) && $(PYTHON) src/review.py --renders $(CHECKPOINT_OUT) && $(PYTHON) src/metrics.py --renders $(CHECKPOINT_OUT) $(if $(BASELINE_REVIEW),&& $(PYTHON) src/before_after.py $(CHECKPOINT_OUT))
 include ../kit/checkpoint_rules.mk
 BP += -t 2
 export BLENDER
@@ -42,7 +43,11 @@ bake: textures/ship/.stamp
 build/cameras.json: src/matches.py src/park_matches.py src/plans.py
 	@mkdir -p build
 	$(PYTHON) src/matches.py
-$(CHECKPOINT_RENDER_OUTPUTS): build/cameras.json src/town_context.py src/inspection.py
+$(CHECKPOINT_RENDER_OUTPUTS): build/cameras.json src/town_context.py src/inspection.py $(BASELINE_REVIEW)
+
+.PHONY: baseline
+baseline:
+	$(PYTHON) src/baseline.py
 
 .PHONY: repeat check-preservation clean-family
 repeat: model
