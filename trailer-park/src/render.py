@@ -65,7 +65,7 @@ def image_resources():
 def source_finish():
     """Same game geometry/cause colors, original manufacture before GPU bake."""
     for mat in bpy.data.materials:
-        if not mat.name.startswith('ManufacturedPBR_Metal'):continue
+        if not mat.name.startswith(('ManufacturedPBR_Metal','ManufacturedPatina')):continue
         ns,ls=mat.node_tree.nodes,mat.node_tree.links
         for node in ns:
             if node.type!='TEX_IMAGE' or not node.image:continue

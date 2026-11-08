@@ -99,6 +99,8 @@ def window(a,p,face,h,xf):
             m.box((xx,.045,z+ht/2),(.25,.035,ht+.08),'Trim',p['accent'],xf=xf)
             for j in range(9):m.box((xx,.070,z+.08+j*(ht-.10)/9),(.21,.014,.035),'Trim',p['accent'],xf=xf)
     m.finish()
+    from patina import awning
+    awning(a,p,face,h,xf)
 
 
 def steps(a,p):

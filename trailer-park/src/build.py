@@ -68,6 +68,17 @@ def publish(stem,root,plan=None):
         export_yup=True,export_extras=True,export_animations=False,export_tangents=False,export_attributes=True,
         export_all_vertex_colors=False,export_image_format='AUTO')
     doc=json.loads(path.read_text());known=canonical_images()
+    # Opaque and blended users share one canonical RGBA BaseColor. Blender
+    # may otherwise serialize a redundant RGB copy for the opaque subset.
+    from PIL import Image
+    for ma in doc['materials']:
+        if ma['name'].split('.')[0] not in ('ManufacturedPBR_Metal','ManufacturedPatina'):continue
+        texture=ma['pbrMetallicRoughness']['baseColorTexture']['index'];im=doc['images'][doc['textures'][texture]['source']]
+        original=Path('textures/ship/T_Manufactured_BaseColor.png').resolve()
+        actual=np.asarray(Image.open(path.parent/im['uri']).convert('RGB'),dtype=np.int16)
+        expected=np.asarray(Image.open(original).convert('RGB'),dtype=np.int16)
+        assert actual.shape==expected.shape and abs(actual-expected).max()<=1,('Changed manufactured RGB on export',ma['name'])
+        im['uri']=Path(os.path.relpath(original,path.parent)).as_posix()
     # Hash-identify original image files; preserve one canonical URI per image
     # across the entire town. No inherited delivery file is opened for writing.
     for im in doc.get('images',[]):
@@ -81,6 +92,15 @@ def publish(stem,root,plan=None):
             if ma.get('extras',{}).get('tiling_vertex_tint') is False:primitive['attributes'].pop('COLOR_0',None)
     for ma in doc['materials']:
         if ma['name'].startswith('ManufacturedSoilFringe'):ma.update(alphaMode='BLEND',doubleSided=True)
+        if ma['name'].startswith('ManufacturedPatina'):ma.update(alphaMode='BLEND',doubleSided=False)
+    images=[];indices={};remap={}
+    for i,im in enumerate(doc.get('images',[])):
+        key=im['uri']
+        if key not in indices:indices[key]=len(images);images.append(im)
+        remap[i]=indices[key]
+    for texture in doc.get('textures',[]):
+        if 'source' in texture:texture['source']=remap[texture['source']]
+    doc['images']=images
     path.write_text(json.dumps(doc,separators=(',',':'))+'\n')
     report['triangles_export']=sum(sum(doc['accessors'][pr['indices']]['count']//3 for pr in doc['meshes'][n['mesh']]['primitives']) for n in doc['nodes'] if 'mesh' in n)
     report['unique_export_triangles']=sum(doc['accessors'][pr['indices']]['count']//3 for mesh in doc['meshes'] for pr in mesh['primitives'])
