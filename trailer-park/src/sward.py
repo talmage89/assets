@@ -70,6 +70,8 @@ def add(parent,plan,lib):
     wind=ob.data.color_attributes.get('Wind')
     if wind:ob.data.color_attributes.remove(wind)
     tint=ob.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT');ob.data.color_attributes.active_color=tint
+    ob.data.color_attributes.active_color_index=ob.data.color_attributes.find('Tint')
+    ob.data.color_attributes.render_color_index=ob.data.color_attributes.find('Tint')
     for row,vertex in zip(tint.data,ob.data.vertices):
         x,y=vertex.co[:2];dry=max(0,(.5+.25*math.sin(x*.19+y*.12+plan['seed'])+.25*math.sin(x*.37-y*.24)-.76)/.24)
         gain=.84+.30*(.5+.5*math.sin(x*31.7+y*43.1))

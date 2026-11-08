@@ -35,6 +35,10 @@ def audit():
                         assert 'COLOR_0' in pr['attributes'],(path,'Lost authored finish tint')
                         color=g.accessor(pr['attributes']['COLOR_0'])
                         assert np.min(color[:,:3])<.95,(path,mesh['name'],'White replacement of authored finish tint')
+                    if name=='ManufacturedPBR_Grass':
+                        assert 'COLOR_0' in pr['attributes'],(path,'Lost blade tint')
+                        color=g.accessor(pr['attributes']['COLOR_0'])
+                        assert color[:,1].mean()>color[:,0].mean() and color[:,:3].max()<.5,(path,'Invalid July blade hue/value')
                     if name=='ManufacturedPatina':
                         assert ma.get('alphaMode')=='BLEND' and not ma.get('doubleSided',False)
                         rgba=g.accessor(pr['attributes']['COLOR_0'])
