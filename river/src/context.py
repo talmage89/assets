@@ -89,44 +89,8 @@ def add(p,parent):
     # Downtown brick backs line an actual alley behind the riverwalk. The
     # approach street passes through the gap, rather than through a building.
     if p.kind=='downtown':
-        plans={}
-        for i in range(1,7):
-            key=f'Midwest_411_{i:02d}.gltf'
-            doc=json.loads((REPO/'downtown/export'/key).read_text())
-            plans[key]=json.loads(next(n['extras']['plan'] for n in doc['nodes'] if n.get('extras',{}).get('building')))
-        front=math.ceil(abs(p.bend)+p.width*.5325+max(v['depth'] for v in plans.values())+10)
-        rt['main_street_front_m']=front
-        for side in (-1,1):
-            for direction in (-1,1):
-                cursor=15.2
-                for i in range(10):
-                    key=f'Midwest_411_{1+(i%6):02d}.gltf';path=REPO/'downtown/export'/key
-                    native_plan=plans[key]
-                    width=native_plan['width'];depth=native_plan['depth']
-                    y=direction*(cursor+width/2);cursor+=width
-                    x=side*(front-depth/2)
-                    instance(path,f'MainStreetBack_{side}_{direction}_{i}',(x,y,3.675),rt,-90 if side<0 else 90)
-                    lots.append((x-depth/2-3,x+depth/2+3,y-width/2-1,y+width/2+1))
-        streets=G.Batch('MainStreetAndServiceAlleys',rt,'context')
-        for side in (-1,1):
-            for j in range(150):
-                a=-150+j*2;c=a+2
-                grade=lambda y:max(3.7,2.1+(p.deck_z-.06-2.1)*max(0,1-max(0,abs(y)-7)/15))+.075+p.water_z(y)
-                for x0,x1,role in ((front,front+2,'concrete'),(front+2,front+9.3152,'asphalt'),(front+9.3152,front+11.4,'concrete')):
-                    if abs(a)<6:continue
-                    pts=[(side*x0,a,grade(a)),(side*x1,a,grade(a)),(side*x1,c,grade(c)),(side*x0,c,grade(c))]
-                    streets.geom(pts,[(0,1,2,3)],role,up=True)
-                    edge=(3,0) if x0==front else (1,2)
-                    if role=='concrete':paving_skirts(streets,pts,[edge if side>0 else edge[::-1]],role)
-                # The rear service lane lies on the raised river terrace.
-                if abs(a)>15:
-                    offset=4.6 if side<0 else 11.2
-                    x0=p.center(a)+side*(p.halfwidth(a)+offset);x1=x0+side*2.4
-                    pts=[(x0,a,3.775+p.water_z(a)),(x1,a,3.775+p.water_z(a)),(x1,c,3.775+p.water_z(c)),(x0,c,3.775+p.water_z(c))]
-                    streets.geom(pts,[(0,1,2,3)],'asphalt',up=True)
-                    edges=[(3,0),(1,2)]+([(0,1)] if a in (-150,16) else [])+([(2,3)] if c in (-14,150) else [])
-                    paving_skirts(streets,pts,[e if side>0 else e[::-1] for e in edges],'asphalt')
-        streets.finish()
+        from urban import add as urban
+        lots=urban(p,rt);front=rt['main_street_front_m']
         for side in (-1,1):
             for x in (-17,17):
                 instance(native/'light.glb','Parapet light',(x,side*(p.deck_width/2-.3048),p.deck_z+.90),rt,0 if side>0 else 180)
@@ -135,11 +99,13 @@ def add(p,parent):
             instance(native/'furniture.glb','Riverwalk bench '+str(i),(x,y,.65),rt,90,select='Bench')
     else:
         for i in range(12):
-            x=(-1 if i%2 else 1)*(90+(i%3)*22);y=-67+(i//2)*28
+            x=(-1 if i%2 else 1)*(58+(i//4)*29);y=(-1 if i%4<2 else 1)*rng.uniform(25,38)
             style='houses-ranch.glb' if i%2 else 'houses-cape.glb'
             instance(native/style,'Floodplain neighbor '+str(i),(x,y,surface_z(p,x,y)-.025),rt,90 if x>0 else -90)
             lots.append((x-12,x+12,y-12,y+12))
         instance(native/'furniture.glb','Fishing bench',(-25,34,2.15),rt,90,select='Bench')
+        from rural import add as rural
+        rural(p,rt,lots)
     signs=REPO/'street-signs/export/set/RoadSigns.gltf'
     if signs.exists():
         for side in (-1,1):
@@ -149,9 +115,9 @@ def add(p,parent):
     # Only the delivered native RedMaple and PinOak species. Red maple near
     # water; oak on higher ground. No invented willow or generic new tree.
     veg=G.root('NativeVegetation',parent=parent)
-    for i in range(86 if p.kind=='edge' else 55):
+    for i in range(310 if p.kind=='edge' else 30):
         y=rng.uniform(-160,165);side=-1 if i%2 else 1
-        near=i<32;x=p.center(y)+side*(p.halfwidth(y)+(rng.uniform(3,11) if near else rng.uniform(30,95)))
+        near=i<250;x=p.center(y)+side*(p.halfwidth(y)+(rng.uniform(3,17) if near else rng.uniform(30,95)))
         if abs(y)<12:continue
         if any(a<x<b and c<y<d for a,b,c,d in lots):continue
         if p.kind=='downtown' and front+1<abs(x)<front+12:continue
@@ -167,6 +133,14 @@ def add(p,parent):
             if 0<t<1 and math.hypot(x-ax-t*dx,y-ay-t*dy)<radius:occludes=True
         if occludes:continue
         z=surface_z(p,x,y);species='RedMaple' if near or i%3 else 'PinOak'
-        ob=instance(REPO/f'trees/export/{species}.glb','Native_'+species+'_'+str(i),(x,y,z-.04),veg,rng.uniform(0,360),rng.uniform(.63,1.1),category='vegetation')
+        ob=instance(REPO/f'trees/export/{species}.glb','Native_'+species+'_'+str(i),(x,y,z-.04),veg,rng.uniform(0,360),rng.uniform(.36,1.10),category='vegetation')
         if near and p.kind=='edge':ob.rotation_euler.y=side*math.radians(rng.uniform(-6,-2))
+    for i in range(650 if p.kind=='edge' else 45):
+        y=rng.uniform(-149,149);side=(-1,1)[i%2]
+        if abs(y)<14:continue
+        x=p.center(y)+side*(p.halfwidth(y)+rng.uniform(1.9,15.5))
+        if p.kind=='downtown':continue
+        if side<0 and abs(abs(x-p.center(y))-p.halfwidth(y)-7)<1.4:continue
+        instance(native/'shrub.glb','Native bank shrub '+str(i),(x,y,surface_z(p,x,y)-.02),veg,
+                 rng.uniform(0,360),rng.uniform(.75,2.1),category='vegetation')
     return rt

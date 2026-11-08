@@ -62,12 +62,31 @@ def fixtures(p,parent):
         G.root('BoatLaunch',(x-5,y,2.10-2.22*13/18.8),rt,socket_kind='launch')
         fy=33;fx=p.center(fy)-p.halfwidth(fy)
         G.root('FishingSpot',(fx-2,fy+5,surface_z(p,fx-2,fy+5)+.02),rt,socket_kind='fishing')
-    b.finish();G.path('RiverbankTrail',trail,rt,'walk')
+    ob=b.finish()
+    if p.kind=='downtown':
+        # Matching opposite riverwalk/floodwall follows the bent channel,
+        # rather than leaving one suburban lawn across the town river.
+        right=ob.copy();right.data=ob.data.copy();right.name='OppositeFloodwallTrail'
+        import bpy
+        bpy.context.collection.objects.link(right);right.parent=rt
+        for v in right.data.vertices:v.co.x=2*p.center(v.co.y)-v.co.x
+        import bmesh
+        bm=bmesh.new();bm.from_mesh(right.data);bmesh.ops.reverse_faces(bm,faces=list(bm.faces));bm.to_mesh(right.data);bm.free()
+    G.path('RiverbankTrail',trail,rt,'walk')
     return rt
 
 
 def plants(p,parent):
-    rng=random.Random(p.seed+18);b=G.Batch('BankGrassReedsCattails',parent,'vegetation')
+    import bpy
+    rng=random.Random(p.seed+18);templates=[]
+    for k in range(16):
+        b=G.Batch('BankColonyTemplate_'+str(k),parent,'vegetation')
+        a=(k%4)/4;c=(k//4%2)/4
+        uv=[(a+.002,c+.002),(a+.248,c+.002),(a+.248,c+.248),(a+.002,c+.248)]
+        for j in range(3):
+            angle=j*math.pi/3+k*.19;dx=math.cos(angle)*.40;dy=math.sin(angle)*.40
+            b.geom([(-dx,-dy,-.02),(dx,dy,-.02),(dx+.09,dy,1),(-dx+.09,-dy,1)],[(0,1,2,3)],'plants',uv=uv)
+        ob=b.finish();templates.append(ob)
     # Dense low colonies, wide enough to read as cover; no lone wire tufts.
     for i in range(22000):
         y=rng.uniform(-149,149);side=(-1,1)[i%2]
@@ -79,13 +98,14 @@ def plants(p,parent):
             if side<0 and abs(x-(p.center(y)-p.halfwidth(y)-7))<1.15:continue
             ramp_edge=p.center(-36)-p.halfwidth(-36)
             if abs(y+36)<2.15 and ramp_edge-18.1<x<ramp_edge+.9:continue
-        if z<.06 or z>2.8:continue
+        if z<.03 or z>2.8:continue
         if math.sin(y*.13+u*19)+math.sin(y*.33-u*8)<-.9:continue
+        # Colonies thin into water rather than stopping in a solid dark row.
+        if z<.22 and rng.random()<.55:continue
         reed=z<.65 and i%3==0;h=rng.uniform(.55,1.15) if reed else rng.uniform(.15,.45)
-        w=rng.uniform(.35,.65) if reed else rng.uniform(.55,.95);yaw=rng.uniform(0,6.28)
-        k=rng.randrange(14,16) if reed else rng.randrange(12);a=(k%4)/4;c=(k//4)/4
-        uv=[(a+.002,c+.002),(a+.248,c+.002),(a+.248,c+.248),(a+.002,c+.248)]
-        for angle in (yaw,yaw+math.pi/2):
-            dx=math.cos(angle)*w/2;dy=math.sin(angle)*w/2
-            b.geom([(x-dx,y-dy,z-.02),(x+dx,y+dy,z-.02),(x+dx+.09,y+dy,z+h),(x-dx+.09,y-dy,z+h)],[(0,1,2,3)],'plants',uv=uv)
-    b.finish()
+        w=rng.uniform(.35,.65) if reed else rng.uniform(.55,.95)
+        k=rng.randrange(6,8) if reed else rng.randrange(6)
+        ob=templates[k+(8 if i%2 else 0)].copy();ob.name='Bank colony '+str(i)
+        bpy.context.collection.objects.link(ob);ob.location=(x,y,z);ob.scale=(w/.8,w/.8,h);ob.rotation_euler.z=rng.uniform(0,6.28)
+        ob['river_instance']='bank_colony'
+    for ob in templates:bpy.data.objects.remove(ob,do_unlink=True)

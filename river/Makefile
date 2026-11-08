@@ -3,9 +3,10 @@ CHECKPOINT_OUTPUTS := build/river.blend build/manifest.json export/RiverCrossing
 PIECES := TypeIII_Girder18 DeckPanel6 Parapet6 PierColumns PierWall Abutment GuardrailTerminal
 CHECKPOINT_OUTPUTS += export/RiverCrossing-101.bin export/RiverCrossing-202.bin export/RiverModules.bin $(foreach p,$(PIECES),export/pieces/$(p).gltf export/pieces/$(p).bin)
 CHECKPOINT_DEPS := $(wildcard src/*.py) textures/checkpoint/.stamp build/preservation.json build/dependencies.json
+CHECKPOINT_DEPS += build/town/manifest.json
 CHECKPOINT_DEPS += $(addprefix ../freeway/src/,pieces.py geom.py plan.py graphics.py)
 CHECKPOINT_CHECK = $(BP) --python src/check.py
-CHECKPOINT_REVIEW = $(PYTHON) src/matches.py --compose && $(PYTHON) src/review.py --gate && $(PYTHON) src/report.py
+CHECKPOINT_REVIEW = $(PYTHON) src/matches.py --compose && $(PYTHON) src/review.py --gate && $(PYTHON) src/report.py && $(PYTHON) src/resources.py
 CHECKPOINT_RENDER_ARGS := --seeds 101 202 --modules --matches
 WIDTH ?= 1280
 SAMPLES ?= 32
@@ -28,6 +29,8 @@ build/dependencies.json: src/dependencies.py
 	$(PYTHON) src/dependencies.py
 build/photo-calibration.json: build/manifest.json src/matches.py
 	$(PYTHON) src/matches.py --prepare
+build/town/manifest.json: src/native_town.py
+	$(BP) --python src/native_town.py
 $(CHECKPOINT_RENDER_OUTPUTS): build/photo-calibration.json
 
 .PHONY: match repeat

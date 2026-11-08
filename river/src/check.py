@@ -26,10 +26,23 @@ def accessor(d,bin,index):
 def raw(path):
     d=json.loads(path.read_text());binary=(path.parent/d['buffers'][0]['uri']).read_bytes();tris=0;norm=[];uv=[];flows=[];heightfield_faces=0;water_volume=None;context_volumes={}
     for me in d['meshes']:
+        if me['name']=='WaterSurface':
+            positions=[];indices=[];base=0
+            for pr in me['primitives']:
+                v=accessor(d,binary,pr['attributes']['POSITION'])
+                positions.append(v);indices.append(accessor(d,binary,pr['indices']).ravel()+base);base+=len(v)
+            v=np.concatenate(positions);inds=np.concatenate(indices)
+            points,remap=np.unique(np.round(v,6),axis=0,return_inverse=True)
+            faces=remap[inds.reshape(-1,3)]
+            edges=np.sort(np.concatenate((faces[:,[0,1]],faces[:,[1,2]],faces[:,[2,0]])),axis=1)
+            _,uses=np.unique(edges,axis=0,return_counts=True)
+            assert (uses==2).all(),('Open water volume',np.unique(uses,return_counts=True))
+            tri=points[faces];water_volume=float(np.einsum('ij,ij->i',tri[:,0],np.cross(tri[:,1],tri[:,2])).sum()/6)
+            assert water_volume>100,('Reversed water shell',water_volume)
         for pr in me['primitives']:
             inds=accessor(d,binary,pr['indices']).ravel();tris+=len(inds)//3
             v=accessor(d,binary,pr['attributes']['POSITION']);assert np.isfinite(v).all()
-            if me['name']=='WaterSurface' or me['name'].startswith('DistantWaterVolume_'):
+            if me['name'].startswith('DistantWaterVolume_'):
                 # UV/normal splits in glTF do not make physical shell seams.
                 points,remap=np.unique(np.round(v,6),axis=0,return_inverse=True)
                 faces=remap[inds.reshape(-1,3)]
@@ -183,7 +196,7 @@ def construction(seed):
             bounds=np.array(corners);lo=bounds.min(axis=0);hi=bounds.max(axis=0)
             along=pts[(pts[:,1]>=lo[1]-1)&(pts[:,1]<=hi[1]+1)]
             assert all(x+1.65<lo[0] or x-1.65>hi[0] for x,y,z in along),('Building over riverwalk',building.name,lo.tolist(),hi.tolist())
-        assert building_walk_checks==40,('Missing building/walk audit',building_walk_checks)
+        assert building_walk_checks==48,('Missing building/walk audit',building_walk_checks)
         walk=bvh(next(o for o in obs if o.name=='FloodwallTrailAndAccess'))
         beams=[bvh(o) for o in obs if o.type=='MESH' and o.name.startswith('Girder_')]
         stations=sorted({round(sum((o.matrix_world@v.co).y for v in o.data.vertices)/len(o.data.vertices),5) for o in obs if o.type=='MESH' and o.name.startswith('Girder_')})

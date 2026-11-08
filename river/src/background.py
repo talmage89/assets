@@ -125,10 +125,18 @@ def add(p,parent):
         if p.kind=='downtown' and abs(abs(x)-front)<22:continue
         context.instance(context.REPO/'trees/export/RedMaple.glb','Distant floodplain maple '+str(i),
                          (x,y,seat(x,y)-.04),rt,rng.uniform(0,360),rng.uniform(.75,1.15),category='vegetation')
-    for i in range(16):
+    for i in range(28 if p.kind=='downtown' else 16):
         side=(-1,1)[i%2];y=side*(163+(i//2)*24);x=(-1 if i%3 else 1)*62
-        if p.kind=='downtown':x=(-1 if i%3 else 1)*(front-10)
-        context.instance(context.REPO/'school/build/context/houses-ranch.glb','Beyond reach neighbor '+str(i),
-                         (x,y,seat(x,y)-.025),rt,90 if x<0 else -90)
+        if p.kind=='downtown':
+            region,seed=(('Midwest',411),('Northeast',613),('Western',512),('Southern',714))[i//7]
+            path=context.REPO/f'downtown/export/{region}_{seed}_{i%7+1:02d}.gltf'
+            doc=__import__('json').loads(path.read_text())
+            plan=__import__('json').loads(next(n['extras']['plan'] for n in doc['nodes'] if n.get('extras',{}).get('building')))
+            sign=(-1 if i//7 in (0,2) else 1);y=(-1 if i//7<2 else 1)*(156+(i%7)*10.9)
+            x=p.center(y)+sign*(p.halfwidth(y)+11.5+plan['depth']/2)
+            context.instance(path,'Town continuation '+str(i),(x,y,seat(x,y)),rt,-90 if sign<0 else 90)
+        else:
+            context.instance(context.REPO/'school/build/context/houses-ranch.glb','Beyond reach neighbor '+str(i),
+                             (x,y,seat(x,y)-.025),rt,90 if x<0 else -90)
     join_water(p,parent)
     return rt

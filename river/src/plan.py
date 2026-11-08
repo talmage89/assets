@@ -36,11 +36,11 @@ class Plan:
     def center(self, y):
         # A second, broad bend gives the downtown reach an actual turn while
         # retaining its accepted width, crossing stations and bend parameter.
-        local=1.65 if self.kind=='downtown' else 1
+        t=max(0,min(1,(y+30)/90));local=1+.95*t*t*(3-2*t) if self.kind=='downtown' else 1
         return local*self.bend*(math.sin(y/78+self.phase)-math.sin(self.phase))
 
     def tangent(self, y):
-        dx = (1.65 if self.kind=='downtown' else 1)*self.bend/78*math.cos(y/78+self.phase)
+        delta=.01;dx=(self.center(y+delta)-self.center(y-delta))/(2*delta)
         length = math.hypot(dx, 1)
         return dx/length, 1/length
 
@@ -90,6 +90,9 @@ class Plan:
         if abs(y)>3.3528:fill_top=self.road_z(x)-.06
         if abs(y)<7.8 and abs(x)<self.length/2+.90:z=min(z,.50 if self.kind=='downtown' else 2.1)
         if a>1.12 and end_fill>0:z=max(z,2.1+(fill_top-2.1)*road_fill*end_fill)
+        if self.kind=='edge' and abs(x)>self.length/2+9:
+            ditch=math.exp(-((abs(y)-9.4)/1.85)**2)
+            z-=.70*ditch
         if self.kind=='edge' and abs(y+36)<=2.05:
             launch_edge=self.center(-36)-self.halfwidth(-36)
             t=(x-(launch_edge-18))/18.8
@@ -110,7 +113,8 @@ class Plan:
 
     def speed(self, x, y):
         depth=max(.02,self.water_z(y)-self.bed(x,y))
-        return (.38+.65*math.exp(-((y-self.riffle_y)/11)**2))*min(1,depth/.35)
+        run=.43/(.65+depth*.48)
+        return (run+.75*math.exp(-((y-self.riffle_y)/7)**2))*min(1,depth/.20)
 
     def data(self): return asdict(self)
 
