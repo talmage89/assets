@@ -20,7 +20,7 @@ def add(a,p,seed):
         m.tube([(x+1.16,y-.2,.003),(x+1.16,y-.2,.29)],.13,'Trim',(.27,.29,.25),12)
     # A low, sagging fabric cover over stored tools; gravity-shaped folds.
     # It is tied around a supported heap, not stretched between remote pins.
-    if seed%4==0 and p['era']!='1996':
+    if (seed%4==0 or p.get('corner_apron')) and p['era']!='1996':
         cx=x-1.1;cy=y-.22;vs=[]
         m.box((cx,cy,.24),(.85,.54,.48),'Veneer',(.12,.11,.08))
         # Grid stations follow the actual box edges, so triangles outside

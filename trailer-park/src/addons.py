@@ -79,16 +79,17 @@ def stairs(a,width,depth,height,m):
 def carport(name='Carport',length=6.7056,width=3.3528,sag=0,context=None):
     a=Assembly(name);a.root['weather_spec']=json.dumps(context or dict(seed=303,era='1972',upkeep='patched'),sort_keys=True)
     m=a.mesh('AluminumPans',component='carport');zback=2.68;zfront=2.42
+    posts=a.mesh('PaintedSteelPosts',component='carport_posts')
     # Independent support posts; an add-on never loads a mobile home's wall.
     for x in (-length/2+.13,0,length/2-.13):
         for sy in (-1,1):
             y=sy*(width/2-.08);z=zfront if sy<0 else zback
             m.box((x,y,.035),(.35,.35,.07),'Concrete')
             # Hollow 76.2 mm square posts, 2 mm walls and anchored foot plate.
-            m.box((x,y,.085),(.15,.15,.010),'Trim',ZINC)
+            posts.box((x,y,.085),(.15,.15,.010),'Trim',(.49,.50,.46))
             for s in (-1,1):
-                m.box((x+s*.0371,y,z/2),(.002,.0762,z-.14),'Trim',(.49,.50,.46))
-                m.box((x,y+s*.0371,z/2),(.0722,.002,z-.14),'Trim',(.49,.50,.46))
+                posts.box((x+s*.0371,y,z/2),(.002,.0762,z-.14),'Trim',(.49,.50,.46))
+                posts.box((x,y+s*.0371,z/2),(.0722,.002,z-.14),'Trim',(.49,.50,.46))
             m.beam((x,y,z-.48),(x+(.28 if x<=0 else -.28),y,z-.05),.025,.025,'Trim',ZINC,r=0)
     for sy in (-1,1):m.box((0,sy*width/2,(zfront if sy<0 else zback)-.065),(length,.045,.13),'Trim')
     for x in (-length/2,0,length/2):m.beam((x,-width/2,zfront-.05065),(x,width/2,zback-.05065),.05,.10,'Trim',r=0)
@@ -116,7 +117,7 @@ def carport(name='Carport',length=6.7056,width=3.3528,sag=0,context=None):
             if len(uses)==1:
                 u,v=uses[0];closed.append((v,u,u+count,v+count))
         m.geom(vs+back,closed,'Trim',(.57,.56,.49))
-    m.finish();a.socket('Car',(0,-.05,0),'car',yaw=90);return a
+    posts.finish();m.finish();a.socket('Car',(0,-.05,0),'car',yaw=90);return a
 
 
 def utility(name='UtilityService'):

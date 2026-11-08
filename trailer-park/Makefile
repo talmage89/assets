@@ -2,7 +2,7 @@
 OLD_SEED ?= 101
 NEW_SEED ?= 202
 ROWS ?= 9
-PASS ?= look3
+PASS ?= look4
 WIDTH ?= 1440
 SAMPLES ?= 32
 CHECKPOINT_BLEND := build/family.blend

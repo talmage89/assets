@@ -34,11 +34,12 @@ def ground_box(parent,name,p,size,mat,coverage,tint=(1,1,1)):
 def road(parent,p,lib):
     asphalt=library_material(lib,'Asphalt');a=Assembly('PrivateStreet');a.root.parent=parent
     w=p['street_width'];span=p['span'];old=p['kind']=='old';xx=p['loop_x']
+    tint=(.48,.47,.44) if old else (.43,.43,.41)
     radius=5.0
     ranges=[(x,0,w,span+20) for x in (-xx,xx)] if old else [(-xx,0,w,span),(xx,0,w,span),(0,-span/2-5,2*xx-2*radius,w),(0,span/2+5,2*xx-2*radius,w),(0,-span/2-9,w,8)]
-    for i,(x,y,sx,sy) in enumerate(ranges):ground_box(a.root,'Private asphalt '+str(i),(x,y,-.035),(sx,sy,.10),asphalt,6.096)
+    for i,(x,y,sx,sy) in enumerate(ranges):ground_box(a.root,'Private asphalt '+str(i),(x,y,-.035),(sx,sy,.10),asphalt,6.096,tint)
     from terrain import road_edge
-    road_edge(a.root,p,asphalt)
+    road_edge(a.root,p,asphalt,tint)
     if not old:
         top=span/2+5
         for cx,cy,start in ((xx-radius,-top+radius,270),(xx-radius,top-radius,0),(-xx+radius,top-radius,90),(-xx+radius,-top+radius,180)):
@@ -49,6 +50,9 @@ def road(parent,p,lib):
             fs=[(i*2,i*2+1,i*2+3,i*2+2) for i in range(12)]
             mesh=bpy.data.meshes.new('Private circular return');mesh.from_pydata(vs,[],fs);mesh.materials.append(asphalt);mesh.update()
             ob=bpy.data.objects.new('Private circular return',mesh);bpy.context.collection.objects.link(ob);ob.parent=a.root;world_uv(ob,6.096)
+            for name in {n.layer_name or 'Color' for n in asphalt.node_tree.nodes if n.type=='VERTEX_COLOR'}:
+                attr=mesh.color_attributes.new(name=name,type='FLOAT_COLOR',domain='POINT');mesh.color_attributes.active_color=attr
+                for v in attr.data:v.color=(*tint,1)
     for k,path in enumerate(p['roads']):
         closed=math.dist(path[0],path[-1])<1e-7
         for j,point in enumerate(path):
@@ -233,7 +237,11 @@ def common(p,lib,parent):
 
 def build(p):
     a=Assembly('Park_'+str(p['seed']));a.root['park_plan']=json.dumps(p,sort_keys=True);lib=Library()
-    turf=library_material(lib,'Lawn');W,D=p['size']
+    turf=library_material(lib,'Lawn').copy();turf.name='ManufacturedSummerTurf';W,D=p['size']
+    # Reuse the native blades and their physical UV scale. Stronger grazing
+    # relief survives the wide exported view without an extra texture or mesh.
+    for node in turf.node_tree.nodes:
+        if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=2.2
     from terrain import turf as summer_turf
     summer_turf(a.root,p,turf)
     road(a.root,p,lib);instances=Instances()

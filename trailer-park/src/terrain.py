@@ -72,8 +72,13 @@ def pavement(a,p,lib,library_material):
     trim=library_material(lib,'GroundTrim');seed=p['occupant_seed'];r=random.Random(seed+148)
     L,W=p['length'],p['width']
     if p.get('corner_apron'):
-        for j in range(6):
-            decal(a.root,'Corner apron settlement crack',(-L*.42+j*L*.17,-W/2-2.0+r.uniform(-.7,.7)),(.12,2.5+r.random()),trim,(.5,0,.625,.25),r.uniform(-65,65),seed,z=.003)
+        for j in range(16):
+            # Native fissures are millimeters wide after atlas mapping;
+            # the wider strip retains their ragged sides in the park shot.
+            decal(a.root,'Corner apron settlement crack',(-L*.46+j*L*.061,-W/2-2.0+r.uniform(-1.1,1.1)),(.45,2.5+r.random()),trim,(.5,0,.625,.25),r.uniform(-65,65),seed,z=.003)
+        for j in range(8):
+            decal(a.root,'Corner apron repair',(-L*.40+j*L*.11,-W/2-1.8+r.uniform(-1,1)),(.6+r.random(),.35+r.random()),trim,(.25,.25,.5,.5),r.uniform(-70,70),seed,z=.002)
+        decal(a.root,'Corner parked engine oil',(-L*.31,-7.2),(1.2,1.5),trim,(.5,.5,.75,.75),33,seed,z=.004)
         for j in range(4):
             decal(a.root,'Gravel at aged hardstanding edge',(-L*.35+j*5.7,-8.23),(.20,6.096),trim,(0,.5,.5,.75),90,seed,z=.003)
     if seed%3==0:
@@ -86,7 +91,7 @@ def pavement(a,p,lib,library_material):
             decal(a.root,'Pad settlement crack',(L/2+1.1+j*1.8,-1.1+r.uniform(-.6,.6)),(.16,1.6+r.random()),trim,(.5,0,.625,.25),r.uniform(-60,60),seed)
 
 
-def road_edge(parent,p,mat):
+def road_edge(parent,p,mat,tint=(1,1,1)):
     # A continuous irregular 15–75mm fringe, not regularly spaced teeth.
     # Centerline width remains the accepted 20/24 ft.
     w=p['street_width'];vs=[];fs=[];r=random.Random(p['seed']+512)
@@ -99,4 +104,6 @@ def road_edge(parent,p,mat):
                 vs.extend([(x+side*(w/2-.015),y,.016),(x+side*(w/2+depth),y,.007),
                            (x+side*(w/2+nextdepth),ynext,.007),(x+side*(w/2-.015),ynext,.016)])
                 fs.append((k,k+1,k+2,k+3) if side>0 else (k+3,k+2,k+1,k));depth=nextdepth
-    return mesh(parent,'Broken curbless asphalt edges',vs,fs,mat,6.096)
+    ob=mesh(parent,'Broken curbless asphalt edges',vs,fs,mat,6.096)
+    for v in ob.data.color_attributes.active_color.data:v.color=(*tint,1)
+    return ob

@@ -44,17 +44,17 @@ def home_spec(ob):
 
 def cut(ob,p):
     component=ob.get('component');bm=bmesh.new();bm.from_mesh(ob.data)
-    if component not in ('wall','skirting','roof','carport'):
+    if component not in ('wall','skirting','roof','carport','carport_posts'):
         bm.free();return
     lo=[min(v.co[k] for v in bm.verts) for k in range(3)];hi=[max(v.co[k] for v in bm.verts) for k in range(3)]
     F,E=p.get('floor',.91),p.get('eave',3.35)
     for axis in range(3):
-        if component=='carport' and axis!=2:continue
+        if component in ('carport','carport_posts') and axis!=2:continue
         if component=='roof' and axis==2:continue
         if axis==2:
             levels=[F+.25,E-.4,E-.10,F+2.4384]
             if component=='skirting':levels=[.28]
-            if component=='carport':levels=[.10,.20,.32,.45]
+            if component in ('carport','carport_posts'):levels=[.10,.20,.32,.45]
         else:
             cov=2.4384 if component in ('wall','skirting','roof') else 1.2192
             levels=[i*cov for i in range(math.floor(lo[axis]/cov),math.ceil(hi[axis]/cov)+1)]
@@ -110,8 +110,8 @@ def age(q,n,c,role,component,p,seed):
         color=Vector((.62,.61,.55))
         soil=severity*.95*math.exp(-max(0,z-.04)/(.17+.06*ripple))*(.6+.4*ripple)
         color=color.lerp(Vector((.065,.070,.030)),soil)
-    if component=='carport' and z<.43:
-        rust=severity*.74*math.exp(-z/.16)*(.7+.3*ripple)
+    if component=='carport_posts' and z<.43:
+        rust=severity*.93*math.exp(-max(0,z-.08)/.20)*(.65+.35*ripple)
         color=color.lerp(Vector((.22,.065,.018)),rust)
     if role=='Veneer':
         # Seasoned exposed timber: gray fibers, darker protected underside.
