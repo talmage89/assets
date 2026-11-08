@@ -33,6 +33,9 @@ def main():
         sc.render.resolution_x=1000;sc.render.resolution_y=round(1000/s['aspect'])
         sc.render.filepath=str((out/f'{name}.png').resolve())
         bpy.ops.render.render(write_still=True)
-    (out/'source.json').write_text(json.dumps(dict(source=a.source,stage='Workbench source form preview')))
+    import gpu
+    renderer=gpu.platform.renderer_get()
+    (out/'source.json').write_text(json.dumps(dict(source=a.source,stage='Workbench source form preview',renderer=renderer)))
+    print('FORM_RENDERER',renderer,flush=True)
 
 if __name__=='__main__':main()

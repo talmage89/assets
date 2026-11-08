@@ -25,6 +25,11 @@ def section(row):
           (.79,top-.121),(.85,shoulder+.055),(.955,shoulder+.036),
           (w-.045,shoulder-.020),(w,shoulder-.079),(w,bottom+.030),
           (w-.006,bottom)]
+    t=max(0,min(1,(y+4.45)/.435));t=t*t*(3-2*t)
+    # The fender shoulder merges into the nearly level windshield sill.
+    # A rising shoulder must not cross the falling crown and make a trough.
+    offsets=[.012,.008,.005,.002,-.001,-.003,-.005,-.007,-.011]
+    half=[(x,z*(1-t)+(top+offsets[i])*t) if i<9 else (x,z) for i,(x,z) in enumerate(half)]
     return [(-x,y,z) for x,z in reversed(half[1:])]+[(x,y,z) for x,z in half]
 
 def sculpt(b):
@@ -51,17 +56,21 @@ def sculpt(b):
         prev=ids
     ob=G.mesh('Compound hood shell',vs,fs,b.m['yellow']);b.add(ob)
     sub=ob.modifiers.new('Fiberglass compound subdivision','SUBSURF');sub.levels=1;sub.render_levels=1
-    G.apply(ob)
+    high=ob.copy();high.data=ob.data.copy();bpy.context.collection.objects.link(high)
+    high.name='Dense front mold';del high['asset_set'];high['bake_only']=True
+    high.modifiers[0].levels=3;high.modifiers[0].render_levels=3
     # Keep an independently generated dense mold for selected-to-active normals.
     # It is saved separately, never joined into or exported with the game mesh.
     ob['mold_source']='Supported cage, Catmull-Clark; high source uses three levels'
-    wall=ob.modifiers.new('Six millimeter fiberglass laminate','SOLIDIFY');wall.thickness=.006;wall.offset=-1
-    G.apply(ob)
-    for sign in [-1,1]:
-        # One cut per side avoids carving the raised center of the engine cover.
-        cut=G.cylinder('Wheelhouse mold tool',(sign*.76,S.FRONT_AXLE,S.HUB),(sign*1.50,S.FRONT_AXLE,S.HUB),.692,None,96)
-        G.boolean(ob,cut)
-    G.smooth(ob,50)
+    for mold in [ob,high]:
+        G.apply(mold)
+        wall=mold.modifiers.new('Six millimeter fiberglass laminate','SOLIDIFY');wall.thickness=.006;wall.offset=-1
+        G.apply(mold)
+        for sign in [-1,1]:
+            cut=G.cylinder('Wheelhouse mold tool',(sign*.76,S.FRONT_AXLE,S.HUB),(sign*1.50,S.FRONT_AXLE,S.HUB),.692,None,96)
+            G.boolean(mold,cut)
+        G.smooth(mold,50)
+    high.hide_render=True
     # Narrow recessed mouth, actual return walls and a radiator behind the web.
     contour=G.rounded_rectangle(1.20,.505,.080,6)
     rings=[[(x,-5.895+d+.055*(x/1.1)**2,1.125+z) for x,z in contour] for d in [0,.012,.076]]
@@ -77,8 +86,9 @@ def sculpt(b):
     # Each lamp is a bonded cassette inside a real cut in the common molding.
     for sign in [-1,1]:
         x=sign*.882;z=1.070
-        cut=G.box('Optical pocket tool',(x,-5.88,z),(.395,.38,.225),None,.052,5)
-        G.boolean(ob,cut)
+        for mold in [ob,high]:
+            cut=G.box('Optical pocket tool',(x,-5.88,z),(.395,.38,.225),None,.052,5)
+            G.boolean(mold,cut)
         b.box('Headlamp closed bucket '+str(sign),(x,-5.790,z),(.400,.084,.230),'black',r=.045)
         b.box('Headlamp silver reflector '+str(sign),(x,-5.840,z),(.344,.008,.176),'aluminum',r=.035)
         for dx in [-.092,.092]:
@@ -91,6 +101,6 @@ def sculpt(b):
         b.tube('Bonded headlamp bezel '+str(sign),[cover(0,0),cover(1,0),cover(1,1),cover(0,1),cover(0,0)],.011,'black',sides=8)
         b.box('Front amber signal '+str(sign),(x,-5.850,.915),(.245,.010,.054),'amber',category='lamps',r=.017)
         # Backed parting line follows the full curved cowl, rather than a plate.
-        b.tube('Hood cowl parting line '+str(sign),[(sign*.78,-3.980,1.76),(sign*1.11,-3.980,1.77),(sign*1.182,-3.980,1.64),(sign*1.182,-3.980,.81)],.006,'black',sides=6)
         b.box('Hood rubber latch '+str(sign),(sign*1.175,-4.11,1.31),(.032,.058,.138),'black',r=.008)
+    b.tube('Hood cowl parting line',[(x,-3.979,z) for x,_,z in section(STATIONS[-1])],.004,'black',sides=6)
     return ob

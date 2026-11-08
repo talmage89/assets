@@ -19,7 +19,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True)
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     bpy.ops.wm.open_mainfile(filepath=str(Path(a.source).resolve()))
-    prefixes=('Compound hood','Seated grille','Grille radiator','Recessed grille',
+    prefixes=('Compound hood','Dense front mold','Seated grille','Grille radiator','Recessed grille',
               'Grille vertical','Headlamp closed','Headlamp silver','Lamp front lowbeam',
               'Glass sealed headlamp','Bonded headlamp','Front amber','Hood cowl','Hood rubber')
     for ob in list(bpy.context.scene.objects):
