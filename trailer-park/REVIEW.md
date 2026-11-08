@@ -944,10 +944,12 @@ Delivery gate: REJECTED
 
 **Color and value first.** Opened all 37 native final frames, the four
 shipped photo pairs, both final contact sheets, the complete older hero,
-and the same-camera correction crops at full size. The 2009 home and 2015
-park comparisons retain the concrete-pad balances recorded in pass 5;
-the replacement lane photo uses its neutral white PVC post. These balances
-support hue/value judgment under differing light, not albedo certification.
+and the same-camera correction crops at full size. Lawn hue/value uses the
+separate concrete-balanced 2009/2015 images recorded in pass 5 and saved in
+`build/color-audit/`. The composed calibration pairs retain their declared
+neutrals: the home's white storm-door frame, aerial aluminum pan, and lane
+photo's white PVC post. These distinct balances support judgment under
+differing light, not albedo certification.
 Older/newer hero display-value p5/p95 is 0.071/0.776 and 0.184/0.796;
 near clipping is 0.000773% and zero. Deep under-deck, tree and crawl-space
 shade remains. The heroes do not fail by clipping or a pale global exposure.
@@ -985,8 +987,10 @@ primary view imports its exact archived exported GLB and shipping images.
 hashes, optics, light, traffic and tonal limits. All 21 exports, 1,000 plans,
 936 hinge poses, 1,365 static pairs, UV/resource checks and 1,217 preserved
 sibling files also pass. These prove their stated data/construction scopes,
-not photographic realism. Final source-pair completion and repeat proofs
-remain to be recorded before the gallery commit.
+not photographic realism. All four source-manufacture frames and their
+four pairs are now completed and opened; their field/GLB hashes verify.
+`build/visual-review.json` lists the 37 final and four source frames opened.
+Repeat proofs remain to be recorded before the gallery commit.
 
 The other CG tells are regular house/lot rhythm, schematic small dressing,
 the very smooth concrete apron beside the used-home photograph, dark rear
