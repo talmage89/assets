@@ -31,6 +31,8 @@ def run_job(name,args,outputs,exports=Path('export'),camera=None):
         source.extend(digest(path.parent/im['uri']) for im in doc.get('images',[]))
     recipe=[digest(HERE/file) for file in ('render.py','town_context.py','geometry.py','traffic.py','inspection.py')]
     if camera:recipe.append(digest(camera))
+    if '--source-finish' in args:
+        recipe.extend(digest(Path('textures/source')/f'T_Manufactured_{field}.png') for field in ('BaseColor','ORM','Height','Coverage'))
     key=hashlib.sha256(json.dumps([source,recipe,args]).encode()).hexdigest()
     cache=Path('build/render-jobs')/(name+'.json');cache.parent.mkdir(parents=True,exist_ok=True)
     if cache.exists():
