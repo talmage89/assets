@@ -17,15 +17,6 @@ def add(p,parent):
         a,v,c,d=patch
         pts=[(xx,yy,p.deck_z-.02*abs(yy)+.006) for xx,yy in ((x-w,y-h),(x+w,y-h),(x+w,y+h),(x-w,y+h))]
         b.geom(pts,[(0,1,2,3)],'decal',uv=[(a+.002,v+.002),(c-.002,v+.002),(c-.002,d-.002),(a+.002,d-.002)])
-    # Discrete joint leaks: several narrow gravity tracks, terminating at
-    # physical cap faces. They are intentionally coarse temporary solids.
-    for j in range(1,p.spans):
-        x=-p.length/2+j*p.span
-        for side in (-1,1):
-            y=side*(p.deck_width/2-.3)
-            for k in range(7):
-                xx=x+rng.uniform(-.55,.55);w=rng.uniform(.012,.043);z=2.687-rng.uniform(.22,.65)
-                b.geom([(xx-w,y,2.66),(xx+w,y,2.66),(xx+w*.4,y,z),(xx-w*.5,y,z-.10)],[(0,1,2,3)],'algae')
     # A waterline and high-water stain wrap the actual pier section, never a
     # planar billboard floating in front of it.
     for j in range(1,p.spans):

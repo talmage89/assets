@@ -34,10 +34,13 @@ class Plan:
         return 1 if self.bend*math.sin(self.bar_y/78+self.phase)>=0 else -1
 
     def center(self, y):
-        return self.bend*(math.sin(y/78+self.phase)-math.sin(self.phase))
+        # A second, broad bend gives the downtown reach an actual turn while
+        # retaining its accepted width, crossing stations and bend parameter.
+        local=1.65 if self.kind=='downtown' else 1
+        return local*self.bend*(math.sin(y/78+self.phase)-math.sin(self.phase))
 
     def tangent(self, y):
-        dx = self.bend/78*math.cos(y/78+self.phase)
+        dx = (1.65 if self.kind=='downtown' else 1)*self.bend/78*math.cos(y/78+self.phase)
         length = math.hypot(dx, 1)
         return dx/length, 1/length
 
@@ -53,28 +56,33 @@ class Plan:
 
     def bed(self, x, y):
         u=(x-self.center(y))/self.halfwidth(y); a=abs(u)
-        riffle=math.exp(-((y-self.riffle_y)/9)**2)
+        riffle=math.exp(-((y-self.riffle_y)/5.5)**2)
         pool=math.exp(-((y-self.bar_y)/26)**2)
-        depth=1.05-.68*riffle
+        depth=1.05-.86*riffle
         if a <= 1:
             z=-depth*(1-a**3)
             z-=1.25*pool*math.exp(-((u*self.outside-.60)/.32)**2)
             # The inner point bar rises across the normal-flow contour.
             z+=1.08*pool*math.exp(-((u*self.outside+.80)/.32)**2)
         else:
-            steep=.18 if u*self.outside>0 and pool>.3 else .46
-            z=min(2.15,(a-1)/steep*2.15)
-            z+=.08*math.sin(x*.62+y*.30)*min(1,(a-1)*4)
+            cut=u*self.outside>0 and pool>.22
+            # Retreat/scallop the outside bank; slump toes occur below the
+            # near-vertical soil face rather than along an even ramp.
+            retreat=(.020*math.sin(y*.83)+.025*math.sin(y*.29)) * pool if cut else 0
+            bank=a-1-retreat
+            steep=.105 if cut else .46
+            z=min(2.15,max(0,bank)/steep*2.15)
+            if cut:
+                z+=.24*math.exp(-((bank-.028)/.025)**2)*( .55+.45*math.sin(y*.71))
+                z-=.26*pool*math.exp(-((bank-.14)/.09)**2)*( .5+.5*math.sin(y*.57))
+            z+=.10*math.sin(x*.62+y*.30)*min(1,max(0,bank)*4)
         if self.kind=='downtown' and a>1:
             # Main Street is a raised terrace. The floodable low riverwalk
             # passes under the girders with >2.3m headroom.
             edge_distance=abs(x-self.center(y))-self.halfwidth(y)
-            if x<self.center(y):
-                if edge_distance>=4.45:z=max(z,3.7)
-                elif edge_distance>.75:z=.50
-                else:z=min(z,.50)
-            elif edge_distance>5:
-                z=max(z,2.15+1.55*max(0,min(1,(edge_distance-5)/6)))
+            if edge_distance>=4.45:z=max(z,3.7)
+            elif edge_distance>.75:z=.50
+            else:z=min(z,.50)
         # Embankments under each road approach meet the abutment backwall.
         road_fill=max(0,1-max(0,abs(y)-7)/15)
         end_fill=max(0,min(1,(abs(x)-self.length/2-.90)/.12))

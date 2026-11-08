@@ -144,8 +144,21 @@ def bearing(batch,x,y,z):
     bounds={role:(min(v[2] for ps,r in faces if r==role for v in ps),
                   max(v[2] for ps,r in faces if r==role for v in ps))
             for role in ('bridge_concrete','zinc','rubber')}
-    heights={'bridge_concrete':(0,.20),'zinc':(.20,.22),'rubber':(.22,.30)}
+    heights={'bridge_concrete':(0,.20),'zinc':(.20,.22),'rubber':(.22,.284)}
     for points,role in faces:
         low,high=bounds[role];a,c=heights[role]
         adapted=[(x+(vx-.65)*(.56/.88),y+vy*(.70/.78),z+a+(vz-low)/(high-low)*(c-a)) for vx,vy,vz in points]
         batch.geom(adapted,[(0,1,2)],role)
+    # The girder bears on a sole plate over the laminated elastomer. Keep
+    # the accepted stack's top datum and the actual surface-contact checks.
+    batch.box((x,y,z+.292),(.44,.53,.016),'zinc')
+    for side in (-1,1):
+        yy=y+side*.332
+        batch.box((x,yy,z+.225),(.48,.065,.010),'zinc')
+        batch.box((x,yy+side*.027,z+.256),(.48,.010,.072),'zinc')
+        for dx in (-.19,.19):
+            batch.cylinder((x+dx,yy,z+.245),.012,.055,'steel',6)
+            batch.cylinder((x+dx,yy,z+.244),.022,.014,'zinc',6)
+    # Two recessed reinforcement laminations are visible on the pad edge.
+    for dz in (.24,.262):
+        batch.box((x,y,z+dz),(.433,.521,.002),'steel')
