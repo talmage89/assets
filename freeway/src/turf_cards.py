@@ -42,7 +42,8 @@ def plant(p,parent):
   b=Q.Batch('Grass clump tile %02d'%pattern)
   for j in range(16):
    x=rng.uniform(-.65,.65);y=rng.uniform(-.65,.65);h=rng.uniform(.10,.23)
-   tint=(rng.uniform(.78,1),rng.uniform(.83,1),rng.uniform(.65,.87),1)
+   shade=1 if pattern<4 else .80
+   tint=(rng.uniform(.78,1)*shade,rng.uniform(.83,1)*shade,rng.uniform(.65,.87)*shade,1)
    for angle in (rng.uniform(0,math.pi),rng.uniform(math.pi,math.tau)):
     d=Vector((math.cos(angle),math.sin(angle),0))*.16;v=Vector((x,y,0))
     pts=[v-d,v+d,v+d+Vector((.035,0,h)),v-d+Vector((.035,0,h))]
@@ -68,7 +69,8 @@ def plant(p,parent):
    # than a dotted row of isolated stems. Mown median stays close-cropped.
    h=(1.7+.8*math.sin(s*.19+u*.43)**2) if tall else .52+.28*rng.random()
    if tall and math.sin(s*.23+u*.39)<-.6:h*=.5
-   ob=templates[rng.randrange(len(templates))].copy();bpy.context.collection.objects.link(ob)
+   pattern=rng.randrange(8) if tall else (4*(math.floor(abs(u)/1.8)%2)+rng.randrange(4))
+   ob=templates[pattern].copy();bpy.context.collection.objects.link(ob)
    ob.name='ROW turf tile %05d'%count;ob.parent=parent;ob.location=q+Vector((0,0,-.025))
    ob.rotation_mode='QUATERNION';ob.rotation_quaternion=normal.to_track_quat('Z','Y')@Quaternion(Vector((0,0,1)),rng.uniform(0,math.tau));ob.scale=(1,1,h)
    # A linked tile is planar at its roots. At a ditch/crest crease, lower it

@@ -48,6 +48,7 @@ def paving(p):
                         # A replacement slab samples the native manufacture;
                         # its boundaries follow the construction joints.
                         b.surface([p.xyz(s+.025,u-1.79,.003),p.xyz(s+.025,u+1.79,.003),p.xyz(s+JOINT-.025,u+1.79,.003),p.xyz(s+JOINT-.025,u-1.79,.003)],'Concrete',tint=(.70,.69,.66,1))
+                        rng.random() # Retain the old decal-orientation draw and all later wear placements.
                     else:
                         # A maintained asphalt lane gets darker asphalt, not
                         # the pale concrete-repair chart used by the JPCP.

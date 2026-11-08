@@ -127,4 +127,13 @@ def curve(rt,name,points):
     return sock
 
 def count(rt):
-    return sum(sum(len(p.vertices)-2 for p in ob.data.polygons) for ob in [rt,*rt.children_recursive] if ob.type=='MESH')
+    # Count each actual shared mesh once per call, then expand its instances.
+    # Rewalking millions of identical foliage polygons made reporting slower
+    # than building. A local cache cannot survive a later topology change.
+    totals={};count=0
+    for ob in [rt,*rt.children_recursive]:
+        if ob.type!='MESH':continue
+        key=ob.data.as_pointer()
+        if key not in totals:totals[key]=sum(len(p.vertices)-2 for p in ob.data.polygons)
+        count+=totals[key]
+    return count

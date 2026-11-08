@@ -51,8 +51,9 @@ def lawn_tint(x,y,kind='verge',seed=0,height=0,lateral=None):
  red_scale=.155/.175
  # Keep the accepted irrigated-yard mean when changing the ROW's pigment.
  if kind=='yard':return ((.80+.18*dry)*(.125/.175)*rootshade,(.93-.26*dry)*(.155/.190)*rootshade,(.94-.37*dry)*(.055/.060)*rootshade,1)
- stripe=1 if kind=='unmown' else .95+.05*math.cos((x if lateral is None else lateral)*math.pi/1.8)
- return ((.84+.20*dry)*red_scale*rootshade*stripe,(.98-.16*dry)*rootshade*stripe,(.96-.27*dry)*rootshade*stripe,1)
+ # Mowing contrast belongs to the dense card tiles. Sampling its short
+ # period on the sparse earth corners would alias into large triangles.
+ return ((.84+.20*dry)*red_scale*rootshade,(.98-.16*dry)*rootshade,(.96-.27*dry)*rootshade,1)
 
 def verges(p,parent):
  """Exported instanced clumps share a guarded chart in the existing atlas."""
@@ -60,26 +61,17 @@ def verges(p,parent):
  return plant(p,parent)
 
 def surface(b,p,points):
- """Small color stations on graded turf; geometry remains on its support."""
- from mathutils import Vector
- aa,bb,cc,dd=map(Vector,points)
- near=max(abs(v.y) for v in (aa,bb,cc,dd))<240 and min(abs(v.x) for v in (aa,bb,cc,dd))<100
- nx=min(64,max(1,math.ceil((bb-aa).length/1.8))) if near else 1
- ny=max(1,math.ceil((dd-aa).length/3)) if near else 1
- def at(x,y):return aa.lerp(bb,x).lerp(dd.lerp(cc,x),y)
- for j in range(ny):
-  for i in range(nx):
-   start=len(b.colors);b.surface([at(i/nx,j/ny),at((i+1)/nx,j/ny),at((i+1)/nx,(j+1)/ny),at(i/nx,(j+1)/ny)],'Lawn')
-   for k in range(start,len(b.colors)):
-    x,y,z=b.v[k];u=p.radius-math.hypot(p.radius-x,y) if p.radius else x
-    kind='unmown' if abs(u)>(43 if p.kind=='diamond' else 28) else 'verge'
-    b.colors[k]=lawn_tint(x,y,kind,p.seed,z,lateral=u)
-    margin=abs(abs(u)-p.edge)
-    if p.kind=='soundwall':margin=min(margin,abs(abs(u)-p.median/2))
-    # Exposed soil follows the paving contact, interrupted by rooted grass.
-    # Its extent is tied to that edge rather than a uniform terrain overlay.
-    soil=math.exp(-(margin/.42)**2)*(.50+.28*math.sin(y*.73+math.sin(y*.17)))
-    r,g,blue,_=b.colors[k];b.colors[k]=(r*(1-soil*.10),g*(1-soil*.43),blue*(1-soil*.38),1)
+ """Retain the accepted physical earth triangles; shade them smoothly later.
+
+ Bilinear quad resampling changed the heights of the old triangulated slopes
+ and moved seats/flumes. Manufacture grain and instanced cards provide local
+ detail without adding a dense terrain grid or altering those supports.
+ """
+ start=len(b.colors);b.surface(points,'Lawn')
+ for k in range(start,len(b.colors)):
+  x,y,z=b.v[k];u=p.radius-math.hypot(p.radius-x,y) if p.radius else x
+  kind='unmown' if abs(u)>(43 if p.kind=='diamond' else 28) else 'verge'
+  b.colors[k]=lawn_tint(x,y,kind,p.seed,z,lateral=u)
 
 def smooth(ob):
  """Average matching earth corners; retain the physical ditch/crest shape."""
