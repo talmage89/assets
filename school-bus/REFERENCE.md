@@ -8,7 +8,7 @@ licenses and retrieval URLs are in [SOURCES](refs/SOURCES.md).
 
 | Package datum | Published basis | Original design target |
 | --- | --- | ---: |
-| Exterior steel body width | Blue Bird AM-VIS-0710 brochure, dimensions table | 96 in / 2.4384 m |
+| Nominal width | Blue Bird AM-VIS-0710 brochure, dimensions table: 96 in exterior | 96 in / 2.4384 m steel; rail crowns add 61.6 mm |
 | Conventional wheelbase | Same table, 72/77 student package | 273 in / 6.9342 m |
 | Tire designation | Same brochure | 11R22.5; 1.046 m circular loaded envelope |
 | Capacity class | Same table, 72–77 children | 25 three-place benches / 75 children |
@@ -21,11 +21,14 @@ track, overhang, bay, door and seat positions are original construction
 estimates. These must not be described as manufacturer measurements.
 
 The [2010 NSTSP](https://www.msbo.org/sites/default/files/NationalSpecs.pdf)
-and [2015 NSTSP](https://www.nasdpts.org/NSTSP-Documents) body/chassis sections
+and [2015 NSTSP](https://www.nasdpts.org/resources/Documents/NCSTFiles/NCST%202015%20Specifications%20and%20Procedures%204.20.18.pdf) body/chassis sections
 guide yellow/black livery, lettering, corrugated rails, step arrangement and
 the crossing gate. They are recommendations unless locally adopted. The
 modeled 104mm rail exceeds the 4-inch recommendation; first tread is about
-354mm above ground including its wear layer, followed by 210mm rises. The
+354mm above ground including its wear layer, followed by three 210mm rises
+and a 196mm rise to the landing. The
+670mm seat pitch leaves at least 614mm between actual back sections and clears
+the 24-inch recommendation in the 2010 inspection chapter, printed page 100. The
 deployed crossing loop extends more than 70 inches. Glyph height is measured
 from our generated bitmap's active bounds, not its transparent/substrate box.
 
