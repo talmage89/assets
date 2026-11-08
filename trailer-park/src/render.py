@@ -30,6 +30,26 @@ def context(plan):
     return town(plan)
 
 
+def image_resources():
+    """Content-deduplicated images bound by the visible presentation meshes."""
+    materials={slot.material for ob in bpy.context.scene.objects if ob.type=='MESH' and not ob.hide_render
+               for slot in ob.material_slots if slot.material};images=set();seen=set()
+    def visit(tree):
+        if tree in seen:return
+        seen.add(tree)
+        for node in tree.nodes:
+            if node.type=='TEX_IMAGE' and node.image:images.add(node.image)
+            elif node.type=='GROUP' and node.node_tree:visit(node.node_tree)
+    for mat in materials:
+        if mat.use_nodes:visit(mat.node_tree)
+    result={}
+    for im in images:
+        data=im.packed_file.data if im.packed_file else Path(bpy.path.abspath(im.filepath)).read_bytes()
+        sha=hashlib.sha256(data).hexdigest();w,h=im.size[:]
+        result[sha]=dict(name=im.name,sha256=sha,size=[w,h],png_bytes=len(data),mipped_8bpp_mib=w*h*4/3/1048576)
+    return sorted(result.values(),key=lambda row:row['sha256'])
+
+
 def shot_views(stem,meta):
     p=meta['plan'];wide=stem.startswith('Double');L=p.get('length',10) if p else 10;W=p.get('width',5) if p else 5
     if stem.startswith('Park'):
@@ -74,6 +94,9 @@ def render(stem,path,meta,views,out,width,samples,dress=True):
     for o in list(bpy.context.scene.objects):
         if o.type=='MESH' and not o.data.materials and 'Icosphere' in o.name:bpy.data.objects.remove(o,do_unlink=True)
     ctx=context(meta['plan']) if stem.startswith('Park') and dress else {}
+    if ctx:
+        ctx['image_resources']=image_resources()
+        ctx['image_gpu_mib']=sum(im['mipped_8bpp_mib'] for im in ctx['image_resources'])
     cam=setup(width,samples);sc=bpy.context.scene
     if not stem.startswith('Park'):
         from kit.studio import studio_mat

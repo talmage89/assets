@@ -18,7 +18,7 @@ def report(folder):
         d=exports[stem];p=d['plan'];r=look['exports'][stem]
         homes.append([stem,p['era'],' × '.join(map(str,p['nominal_ft'])),f'{d["triangles"]:,}',d['materials'],f'{r["gpu_mib"]:.2f}',f'{d["geometry_bytes"]:,}'])
     text += [table(['Home','Era','Body ft','Triangles incl. both steps','Materials','Shared GPU MiB','glTF + BIN bytes'],homes)]
-    parks=[];lots=[];context=[]
+    parks=[];lots=[];context=[];presentation_images={};presentation_memory=[]
     for stem,d in exports.items():
         if not stem.startswith('Park-'):continue
         p=d['plan'];r=look['exports'][stem];c=checks['construction'][stem]
@@ -33,6 +33,9 @@ def report(folder):
         if row:
             for category,n in row['context']['triangles'].items():
                 context.append([stem,category,f'{n:,}',f'{row["context"]["unique_triangles"][category]:,}'])
+            if 'image_resources' in row['context']:
+                images=row['context']['image_resources'];presentation_images.update({i['sha256']:i for i in images})
+                presentation_memory.append([stem,len(images),f'{row["context"]["image_gpu_mib"]:.4f}'])
         text += [f'{stem}: measured core road {c["road_width_mesh_m"]:.6f}m; home-envelope separation '
                  f'{min(c["home_separation_mesh_m"]):.4f}–{max(c["home_separation_mesh_m"]):.4f}m; '
                  f'{c["static_assembly_pairs_checked"]} between-assembly comparisons.\n']
@@ -42,6 +45,12 @@ def report(folder):
              'distinct exported meshes; placed totals count every node instance.\n',
              table(['Park','Lot','Template','Occupant seed','Era','Body ft','Home triangles','Lot placed triangles','Lot unique triangles'],lots)]
     if context:text += [table(['Presentation park','Category','Placed triangles','Unique triangles'],context)]
+    if presentation_memory:
+        text += [table(['Complete presentation','Unique images','Shared GPU MiB'],presentation_memory),
+                 f'Both presentations together bind {len(presentation_images)} distinct image payloads / '
+                 f'{sum(i["mipped_8bpp_mib"] for i in presentation_images.values()):.4f} MiB at the same '
+                 '8bpp / full-mip estimate. These totals include the static parks and visible native context; '
+                 'content hashes merge identical packed and external images.\n']
     modules=[]
     for stem in ('Deck','Carport','UtilityService','PropaneBottles','Condenser','WindowAC','SatelliteDish','AddedRoom','Household','EntranceSign','SupportFrame'):
         d=exports[stem];modules.append([stem,f'{d["triangles"]:,}',d['materials'],f'{d["geometry_bytes"]:,}'])
@@ -57,7 +66,8 @@ def report(folder):
              f'and {checks["preserved_delivery_files"]} immutable pre-existing files. Serialization, sampled '
              'construction/motion and photographic appearance have separate scopes.\n']
     Path('build/metrics.md').write_text('\n'.join(text))
-    Path('build/metrics.json').write_text(json.dumps(dict(homes=homes,parks=parks,lots=lots,context=context,new_set=new),indent=2))
+    Path('build/metrics.json').write_text(json.dumps(dict(homes=homes,parks=parks,lots=lots,context=context,new_set=new,
+                                                       presentation_memory=presentation_memory,presentation_images=list(presentation_images.values())),indent=2))
     print('METRICS',len(homes),'homes,',len(lots),'lots,',len(context),'context categories')
 
 
