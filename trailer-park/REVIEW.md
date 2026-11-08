@@ -268,3 +268,48 @@ infers a low camera, without a height prior; it is not an eye-height hero.
 
 This entry records the rejected baseline and source decisions. The three
 new exported-material image critiques follow after the shared GPU bake.
+
+## Look-dev pass 1 — dense exported parks, failed daylight and occluded fits
+
+**Color and value first.** Viewed every one of the 13 exported-GLB PNGs in
+`renders/checkpoint/look1` at native 1000px width, and all three composed
+photo pairs. The neutral door-frame, addition fascia and aluminum-pan
+assumptions remain explicit in their receipts. The street heroes are too
+blue and dark, and the elevated views underexpose the roofs and turf.
+The full-frame inspection homes are readable but too clean; the old skirt
+has almost no legible splash at this distance. Increasing blue sky fill
+did not make photographic daylight. Rebalance direct sun against the sky,
+reduce the sky's saturation, and check sun visibility through actual trees.
+Do not correct this lighting error by making the material albedos white.
+
+The four rows, closely spaced end walls and mature interior trees now read
+as a park rather than a hamlet. The older canopy is too continuous: a tree
+on every lot blankets the lanes and the aerial comparison. Keep mature
+trees between homes, but allow the gaps an actual uneven canopy has. The
+curbless asphalt fringe has regular 0.8m teeth, an obvious CG silhouette.
+Reduce their depth and irregularize their spacing. Turf still reads flat
+and uniform; its worn-route mask is partly hidden by the concrete walk.
+
+The inspection homes have their era roofs, end banks, lights, both stairs,
+eaves/shutters/entry covers and deep frames. The new close entry cameras
+sit behind the rail, obscuring the doors; move onto the actual porch at
+standing eye height. Timber has transverse, oversized wave grain because
+the native trim's grain direction is mapped across the long member. Fix
+the UV direction/scale rather than modifying the native texture. The blind
+stacks repeat at the same height on every window of a given home.
+
+The low numerical pair errors do NOT establish useful comparisons. The
+2009 camera sees a neighboring car/home in front of its intended subject;
+the 2007 camera is immediately against the neighboring home's wall. Both
+are rejected despite their 9.59/17.00px anchor residuals. Compare exposed
+end-of-row homes/additions in the complete park, with visibility checked
+on the actual imported triangles. The aerial does show the occupied park,
+but is too tree-covered and dark against its sunny reference. Its 100mm
+bound remains disclosed. No new image in this pass is accepted as final.
+
+A source construction audit also found a 25mm gap below the new canopy
+posts and tools that leaned short of the wall. Prepared corrections seat
+the posts in the cupped deck, lean tools against the wall, drape the cover
+over its actual support footprint, and map severity to the upkeep label
+(the former seed-index order made `kept` dirtier than `patched`). These
+await the next model build and imported-surface bearing measurements.
