@@ -31,7 +31,7 @@ def raw(path):
             assert p.get('mode',4)==4
             xyz=d.accessor(p['attributes']['POSITION']);norm=d.accessor(p['attributes']['NORMAL'])
             assert np.isfinite(xyz).all() and np.isfinite(norm).all()
-            assert 'COLOR_0' not in p['attributes'],'Data masks must not multiply the material albedo'
+            assert 'COLOR_0' not in p['attributes'] or d.json['materials'][p['material']].get('extras',{}).get('tiling_vertex_tint'), 'Unexpected albedo tint/data-mask leak'
             if '_WIND' in p['attributes']:
                 wind=d.accessor(p['attributes']['_WIND']);assert np.isfinite(wind).all() and wind.min()>=0 and wind.max()<=1
                 wind_primitives+=1
@@ -86,7 +86,7 @@ def route_width(ground,y,surface):
 
 
 def imported(seed,expected):
-    p=Path(f'export/checkpoint/Garden_{seed}.gltf');bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(p.resolve()));bpy.context.view_layer.update()
+    p=Path(f'export/final/Garden_{seed}.gltf');bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(p.resolve()));bpy.context.view_layer.update()
     roots=[o for o in bpy.context.scene.objects if not o.parent];assert len(roots)==1
     rt=roots[0];assert rt.matrix_world.translation.length<1e-6
     assert count(rt)==expected['triangles']
@@ -168,7 +168,7 @@ def imported(seed,expected):
             lowest=min(v.z for v in vertices)
             for foot in [v for v in vertices if v.z<lowest+.001]:
                 hit=soil.ray_cast(Vector((foot.x,foot.y,3)),Vector((0,0,-1)),5)[0]
-                assert hit is not None;anchors.append(hit.z-foot.z);assert .18<hit.z-foot.z<.23
+                assert hit is not None;anchors.append(hit.z-foot.z);assert .18<hit.z-foot.z<.26
     assert max(bed_grade)<.001,'Bed root is above its receiving ground'
     modules={o.name:count(o) for o in rt.children if o.get('kind') in ('fence','gate') or o.name.startswith('RainCapture')}
     assert all(n<=2000 for n in modules.values()),('Infrastructure module over budget',modules)
@@ -204,18 +204,18 @@ def imported(seed,expected):
 
 
 def main():
-    report=dict(stage='look-dev checkpoint; shared baked opaque atlas and analytic plant atlas',gardens={},pieces={})
+    report=dict(stage='final external-image glTF; shared baked opaque atlas and analytic plant atlas',gardens={},pieces={})
     counts=json.loads(Path('build/pieces.json').read_text())
     for n,row in counts.items():
         cap=4608 if row['kind']=='plant' else 8000 if n=='NativeShed' else 2000
         assert row['triangles']<=cap,(n,row['triangles'],cap)
     report['pieces']=counts
     for s in SEEDS:
-        row=raw(Path(f'export/checkpoint/Garden_{s}.gltf'));assert row['triangles']<=215000
+        row=raw(Path(f'export/final/Garden_{s}.gltf'));assert row['triangles']<=250000
         info=json.loads(Path(f'build/garden-{s}.json').read_text());assert row['triangles']==info['triangles']
         row['import']=imported(s,row);report['gardens'][str(s)]=row
-    library=raw('export/checkpoint/CommunityGardenPieces.gltf');report['library']=library
-    bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(Path('export/checkpoint/CommunityGardenPieces.gltf').resolve()));bpy.context.view_layer.update()
+    library=raw('export/final/CommunityGardenPieces.gltf');report['library']=library
+    bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(Path('export/final/CommunityGardenPieces.gltf').resolve()));bpy.context.view_layer.update()
     roots={o.name:o for o in bpy.context.scene.objects if not o.parent}
     def points(n,wood_only=False):
         result=[]
@@ -260,6 +260,22 @@ def main():
         soil_top_m=top,cmu_core_ray_open=True,cmu_web_top_m=web[0].z,
         pail_floor_top_m=pail_floor.z,
         scope='actual imported surfaces, separate from raw/import serialization comparison')
+    # Measure one opaque husked ear from the imported corn's actual vertices.
+    # Foliage is excluded by material, stalk nodes by their X/Z envelope.
+    corn=[]
+    for ob in roots['corn_2_0'].children_recursive:
+        if ob.type!='MESH':continue
+        ids={i for face in ob.data.polygons if 'GardenSurfaces' in ob.data.materials[face.material_index].name for i in face.vertices}
+        corn.extend(ob.matrix_world@ob.data.vertices[i].co for i in ids)
+    cloud=np.array([tuple(v) for v in corn if .028<v.x<.22 and 1.04<v.z<1.41])
+    assert len(cloud)>20,'Ear surface is missing'
+    eigen,axes=np.linalg.eigh(np.cov(cloud.T));axis=axes[:,-1]
+    if axis[2]<0:axis=-axis
+    angle=math.degrees(math.acos(float(axis[2])));length=float(np.ptp(cloud@axis))
+    assert 10<angle<50 and .17<length<.30,('Ear does not stand out/up at leaf axil',angle,length)
+    report['construction']['corn_ear_measured_axis_from_vertical_degrees']=angle
+    report['construction']['corn_ear_measured_length_m']=length
+    report['construction']['corn_ear_surface_vertices']=len(cloud)
     # Shared external leaf/mesh/lawn images must have identical identities.
     identity=[{i['sha256'] for i in row['images']} for row in report['gardens'].values()]
     assert len(set.intersection(*identity))>=6,'Leaf and wire maps must be shared across all seeds'

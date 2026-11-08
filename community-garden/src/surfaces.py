@@ -61,8 +61,23 @@ def generate(size=4096):
                 d.polygon(poly,fill=tuple(np.uint8(col)));hd.polygon(poly,fill=int(rng.uniform(120,205)))
             base=np.asarray(c);h=(np.asarray(hm,dtype=float)/255-.4)*.015;ao=.78+.22*np.clip(h/.006,0,1)
         elif name=='Gravel':
-            # Fine compacted aggregate, warm buff matrix, no slab or paving seams.
-            base[:]=[139,129,108];base+=noise[:,:,None]*5+fine[:,:,None]*32;h=noise*.00010+fine*.0009;rough[:]=.94;ao-=abs(fine)*.16
+            # 2–12 mm crushed stone in warm compacted fines. Individual
+            # angular grains and facets survive 4K -> 2K at the metric scale.
+            base[:]=[132,119,94];base+=noise[:,:,None]*11+fine[:,:,None]*8
+            c=Image.fromarray(np.uint8(np.clip(base,0,255)));hm=Image.new('L',(n,n),106)
+            draw=ImageDraw.Draw(c);hd=ImageDraw.Draw(hm)
+            for k in range(14000):
+                xx,yy=rng.integers(0,n,2);radius=rng.uniform(1.5,6.0);a=rng.random()*math.tau
+                points=[(xx+radius*rng.uniform(.65,1.2)*math.cos(a+j*math.tau/5),yy+radius*rng.uniform(.65,1.2)*math.sin(a+j*math.tau/5)) for j in range(5)]
+                color=np.array(([163,153,131],[116,111,98],[184,172,144],[98,94,84])[k%4])*rng.uniform(.82,1.07)
+                draw.polygon(points,fill=tuple(np.uint8(color)));hd.polygon(points,fill=round(rng.uniform(125,200)))
+                # Fractured mineral face; height belongs to the real grain.
+                draw.polygon([points[0],points[1],(xx,yy)],fill=tuple(np.uint8(np.clip(color*1.09,0,255))))
+            base=np.asarray(c,dtype=float);h=(np.asarray(hm,dtype=float)/255-.40)*.009
+            rough[:]=.94;ao=.79+.21*np.clip(h/.0035,0,1)
+            compressed=(x>.94)&(x<.985)&(y>.02)&(y<.05)
+            base[compressed]=np.array([115,106,85])+fine[compressed,None]*7
+            h[compressed]=fine[compressed]*.00035;ao[compressed]=.98
         elif name=='Block':
             base[:]=[133,132,119];base+=noise[:,:,None]*22+fine[:,:,None]*21
             moss=np.clip((.20-y+noise*.12)*6,0,.8);salt=np.clip(noise*2.3+.10,0,.55)*(1-y*.55)

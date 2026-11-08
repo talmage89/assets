@@ -31,7 +31,7 @@ def finishes():
     from kit import tiling
     from surfaces import NAMES,PALETTE
     for name in dict.fromkeys([*NAMES,*PALETTE]):
-        ma=tiling.material('GardenSurfaces','textures/checkpoint');ma.name='Garden_'+name;ma['garden_finish']=name
+        ma=tiling.material('GardenSurfaces','textures/ship');ma.name='Garden_'+name;ma['garden_finish']=name
         ma.node_tree.nodes.get('Principled BSDF').inputs['Specular IOR Level'].default_value=.23
         M[name]=ma
 
@@ -68,7 +68,7 @@ def finish_uv(o,only=None):
 
 
 def root(name,kind='piece',parent=None):
-    o=G.pivot(name,(0,0,0));o.parent=parent;o['kind']=kind;o['stage']='form checkpoint'
+    o=G.pivot(name,(0,0,0));o.parent=parent;o['kind']=kind;o['stage']='baked game mesh'
     return o
 
 

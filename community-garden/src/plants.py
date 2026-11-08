@@ -21,7 +21,7 @@ def along(axis,t):
 
 def material(folder):
     global LEAF
-    LEAF=tiling.material('GardenPlants',folder,alpha=True)
+    LEAF=tiling.material('GardenPlants',folder,alpha=True,tint=True)
     LEAF.use_backface_culling=False
     LEAF.alpha_threshold=.45
     bs=LEAF.node_tree.nodes.get('Principled BSDF');bs.inputs['Specular IOR Level'].default_value=.18
@@ -49,7 +49,7 @@ class Plant:
 
     def leaf(self,base,direction,length,width,cup=.06,droop=.24,rows=3,cols=2):
         if self.field:
-            if self.sp=='corn':rows=6;cols=2
+            if self.sp=='corn':rows=3 if length<.4 else 6;cols=2
             elif self.sp=='squash':rows=4;cols=3
             elif self.sp in ('lettuce','kale'):rows=3;cols=2
             else:rows=2;cols=2
@@ -101,10 +101,10 @@ class Plant:
             for j in range(4):
                 base=along(axis,.12+j*.09);a=j*2.399+.5;tip=Vector((math.cos(a)*.31*s,math.sin(a)*.31*s,h*self.rng.uniform(.75,.98)))
                 leaders.append(self.stem([base,base.lerp(tip,.4)+Vector((0,0,.025)),tip],.006*s,6))
-        nodes=max(3,round(36*s))
+        nodes=max(3,round((20 if self.field else 24)*s))
         for j in range(nodes):
             axis=leaders[j%len(leaders)];n=math.ceil((nodes-j%len(leaders))/len(leaders))
-            t=.15+.76*(j//len(leaders))/max(1,n-1)+self.rng.uniform(-.025,.025)*s;base=along(axis,t);az=j*2.399+.4+self.rng.uniform(-.25,.25)
+            t=.14+.78*(j//len(leaders))/max(1,n-1)+self.rng.uniform(-.025,.025)*s;base=along(axis,t);az=j*2.399+.4+self.rng.uniform(-.25,.25)
             out=Vector((math.cos(az),math.sin(az),.30));reach=(.29+.18*math.sin(t*math.pi))*s
             tip=base+out*reach;rachis=self.stem([base,base.lerp(tip,.5)+Vector((0,0,.025*s)),tip],.0035*s,4)
             side=Vector((-out.y,out.x,0))
@@ -112,37 +112,37 @@ class Plant:
                 tt=.16+k*.21;node=along(rachis,tt)
                 for sign in (-1,1):
                     v=(out*.4+side*sign+Vector((0,0,self.rng.uniform(-.35,.55)))).normalized()
-                    end=node;# Leaflet petiole is the connected base of the blade.
-                    self.leaf(end,v,(.19-.018*k)*s,.095*s,droop=.62 if s>.7 else .35,rows=3)
+                    self.leaf(node,v,(.19-.018*k)*s,.095*s,droop=.62 if s>.7 else .35,rows=3)
             self.leaf(tip,out,.20*s,.095*s,droop=.42,rows=3)
-            if s>.7 and j%2==0:
-                # Supplemental daughter compound: nine original atlas leaflets
-                # overlap the modeled compound and screen the leader's interior.
-                az2=az+.8;v=Vector((math.cos(az2),math.sin(az2),self.rng.uniform(-.12,.32)))
-                side2=Vector((-v.y,v.x,self.rng.uniform(-.4,.4)))
-                base2=base;rows=3 if self.field else 4;cols=2 if self.field else 3;grid=[]
-                # Lower compounds cannot droop through the receiving soil.
-                # Keep their lowest rolled edge above grade; upper branches
-                # retain the full gravity curve.
-                drop=min(.30*s,max(.025*s,base2.z+v.z*.52*s-.15*s))
-                for jj in range(rows):
-                    tt=jj/(rows-1);row=[]
-                    for kk in range(cols):
-                        u=kk/(cols-1)*2-1
-                        p=base2+v*(.52*s*tt)+side2*(u*.58*s/2)+Vector((0,0,-drop*tt*tt+.02*s*u*u*math.sin(math.pi*tt)))
-                        row.append(p)
-                    grid.append(row)
-                self.cards.add_grid(grid,(.753,.503,.997,.747),(.5,.8,self.rng.random(),.8))
             if s>.7 and j in (2,4,7,10,13,16):
                 fruitstem=base+out*.12*s-Vector((0,0,.07*s));self.stem([base,fruitstem],.002*s,4)
                 for k in range(3):
                     p=fruitstem+side*(k-.5)*.075*s-Vector((0,0,.045*s));self.stem([fruitstem,p],.0016,4)
                     Q.sphere('Hanging tomato berry',p,.037*s,self.root,('Fruit' if (j+k)%3==0 else 'Turning' if (j+k)%3==1 else 'Unripe'),scale=(1,1,.85),segments=8 if self.field else 10,rings=4)
         if s>.7:
+            # Overlapping daughter compounds on actual leaders; cards encode
+            # nine independently veined leaflets, not a solid canopy billboard.
+            # Inner, outer and drooping terminal sprays fill the cage and spill
+            # beyond it. Upright sprays screen holes in eye-height views.
+            for j in range(138 if self.field else 150):
+                axis=leaders[j%len(leaders)];t=.10+.87*((j*.61803398875)%1)
+                base=along(axis,t);a=j*2.399+self.rng.uniform(-.4,.4)
+                v=Vector((math.cos(a),math.sin(a),self.rng.uniform(-.05,.65)))
+                side=Vector((-v.y,v.x,self.rng.uniform(-.9,.9))).normalized()
+                length=self.rng.uniform(.46,.76)*s;width=self.rng.uniform(.48,.67)*s
+                drop=min(.26*s,max(.018*s,base.z+v.z*length-.17*s));grid=[]
+                for jj in range(3):
+                    tt=jj/2;row=[]
+                    for kk in range(2):
+                        u=kk*2-1
+                        row.append(base+v*(length*tt)+side*(u*width/2)+Vector((0,0,-drop*tt*tt+.025*s*u*u*math.sin(math.pi*tt))))
+                    grid.append(row)
+                self.cards.add_grid(grid,(.753,.503,.997,.747),(.5,.8,self.rng.random(),.8))
+        if s>.7:
             for j,axis in enumerate(leaders):
                 at=along(axis,.97);az=j*2.399;v=Vector((math.cos(az),math.sin(az),.6))
                 for sign in (-1,0,1):self.leaf(at,v+Vector((-.45*sign,.32*sign,.15)),.12*s,.065*s,droop=.3,rows=3)
-        self.root['architecture']='five leaders; 36 modeled nine-leaflet compounds plus 18 overlapping nine-leaflet branchlet cards; terminal leaves and six green-to-red trusses'
+        self.root['architecture']='five leaders; modeled compound axes and 138/150 overlapping curved nine-leaflet sprays; cage overflow and six green-to-red trusses'
 
     def pepper(self):
         s=self.stage;h=.76*s**1.25;self.stem([(0,0,0),(0,0,h*.47)],.007*s,6)
@@ -208,29 +208,47 @@ class Plant:
         for j in range(max(4,round(13*s))):
             t=.13+.72*j/max(1,round(13*s)-1);az=(j%2)*math.pi+.18+self.rng.uniform(-.30,.30)
             node=along(axis,t)
-            if not self.field:Q.cyl('Corn sheathing node',node-Vector((0,0,.018*s)),node+Vector((0,0,.018*s)),.015*s,self.root,'Stem',7)
+            if not self.field:Q.cyl('Corn sheathing node',node-Vector((0,0,.018*s)),node+Vector((0,0,.018*s)),(.014*(1-.7*t)+.0008)*s,self.root,'Stem',7)
             self.leaf(node,(math.cos(az),math.sin(az),.62),(.95-.20*t)*s,.10*s,cup=.16,droop=.79,rows=9,cols=2)
         if s>.7:
-            for z,a in ((h*.53,0),(h*.64,math.pi)):
-                node=along(axis,z/h);p=node+Vector((.045*s*math.cos(a),.045*s*math.sin(a),.035*s))
-                self.stem([node-Vector((0,0,.06*s)),p-Vector((0,0,.075*s))],.006*s,5)
-                Q.sphere('Husked sweet corn ear',p,.035*s,self.root,'Unripe',scale=(1,1,3),segments=7,rings=4)
+            for z,a in ((h*.55,.18),(h*.67,math.pi+.18)):
+                # Short shank grows from a leaf axil; ear points out/up at 28
+                # degrees from the culm. Husk blades converge at brown silk.
+                node=along(axis,z/h);direction=Vector((.47*math.cos(a),.47*math.sin(a),.883))
+                start=node+Vector((.035*math.cos(a),.035*math.sin(a),.005))*s
+                self.stem([node,start],.009*s,5)
+                u=Vector((-math.sin(a),math.cos(a),0));v=direction.cross(u)
+                rings=[]
+                for t,r in ((0,.015),(.15,.030),(.48,.035),(.80,.026),(1,.008)):
+                    c=start+direction*(.235*s*t)
+                    rings.append([c+(u*math.cos(k*math.tau/7)+v*math.sin(k*math.tau/7))*r*s for k in range(7)])
+                Q.own(Q.G.smooth(Q.G.loft('Upright tapered husked ear',rings,Q.M['Stem']),75),self.root)
+                for k in range(3):
+                    aa=a+k*2.1;d=direction+Vector((.13*math.cos(aa),.13*math.sin(aa),.10))
+                    self.leaf(start,d,.215*s,.034*s,cup=.09,droop=.06,rows=3)
+                silk=start+direction*(.235*s)
+                # Loose curved filaments, rather than a flower-shaped cap.
+                # Field silk uses the same triangle count as the old ribbons
+                # plus crossed alpha cards, with no additional texture cell.
+                for k in range(6 if self.field else 8):
+                    a_silk=k*2.399;spread=u*math.cos(a_silk)+v*math.sin(a_silk)
+                    side=spread.cross(direction).normalized()*.00065*s
+                    points=[silk+spread*.003*s,
+                            silk+direction*.018*s+spread*.012*s,
+                            silk+direction*.033*s+spread*.022*s-Vector((0,0,(.032+.010*math.sin(k*2.1))*s))]
+                    vertices=[point+side*sign for point in points for sign in (-1,1)]
+                    Q.mesh('Curled brown silk filaments',vertices,[(0,1,3,2),(2,3,5,4)],self.root,'Spent',upward=True)
             for j in range(7 if self.field else 9):
                 a=j*2.4;tip=Vector((.12*s*math.cos(a),.12*s*math.sin(a),h+.14*s));self.stem([(0,.015*s,h*.93),tip],.002*s,3)
                 for k in range(1 if self.field else 3):
                     p=Vector((0,.015*s,h*.93)).lerp(tip,.52 if self.field else .35+k*.24)
                     Q.mesh('Tassel anthers',[p+Vector((-.003,0,-.009))*s,p+Vector((.003,0,-.009))*s,p+Vector((0,.003,.009))*s],[(0,1,2)],self.root,'Straw')
-            for j in range(7):
-                p=Vector((.045*s,0,h*.53+.105*s));end=p+Vector((.03+.009*math.sin(j*1.8),-.045-.014*j/7,.005-.004*math.cos(j)));mid=p+Vector((.02*math.sin(j),-.025*j/7,.025))
-                if self.field:
-                    side=Vector((.0007,0,0));Q.mesh('Brown silk filament ribbon',[p-side,p+side,end+side,end-side],[(0,1,2,3)],self.root,'Spent',upward=True)
-                else:Q.tube('Brown silk filament',[p,mid,end],.0007*s,self.root,'Spent',3)
         self.root['architecture']='jointed culm; alternate distichous strap leaves; ears at upper axils; terminal tassel'
 
     def rosette(self):
         s=self.stage;sp=self.sp;kale=sp=='kale';h=(.36 if kale else .11)*s**1.25
         self.stem([(0,0,0),(0,0,h)],.012*s,6)
-        n=max(6,round((35 if self.field else 36)*s))
+        n=max(6,round((self.rng.randint(25,38) if self.field else self.rng.randint(30,40))*s))
         for j in range(n):
             az=j*2.399;f=j/n;base=Vector((0,0,h*f));v=(math.cos(az),math.sin(az),.08+f*1.7)
             self.leaf(base,v,(.32 if kale else .24)*s*(1-.35*f),(.15 if kale else .17)*s,cup=.20,droop=.15,rows=5,cols=5)
@@ -310,10 +328,14 @@ class Plant:
             botany.wind_attribute(core,[(max(0,min(1,v.co.z/height))*.38,.25,phase,0) for v in core.data.vertices])
         if self.cards.vertices:
             ob=self.cards.mesh(self.root.name+'__Leaves',LEAF);ob.parent=self.root
+            tint=ob.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT')
+            variation=self.rng.uniform(.77,1) if self.sp in ('lettuce','kale') else 1
+            color=(variation,self.rng.uniform(.88,1) if self.sp in ('lettuce','kale') else 1,variation*self.rng.uniform(.86,1) if self.sp in ('lettuce','kale') else 1,1)
+            for row in tint.data:row.color=color
             # This stage uses outline alpha only. Physical normals come from
             # shared curved cards, not painted crown illumination.
             tr=ob.modifiers.new('Leaf triangles','TRIANGULATE');tr.keep_custom_normals=True;Q.G.apply(ob)
-        extra=162 if self.sp=='tomato' and self.stage>.7 else 0
+        extra=(138 if self.field else 150)*9 if self.sp=='tomato' and self.stage>.7 else 0
         self.root['atlas_leaflet_count']=extra
         self.root['blade_count']=len(self.blades)+extra
         self.root['blade_lengths_m']=[b['length_m'] for b in self.blades]
@@ -339,7 +361,7 @@ def library():
     out={}
     for sp in SPECIES:
         for j,stage in enumerate((.28,.64,1.0)):
-            for variant in range(2 if stage==1 else 1):
+            for variant in range((8 if sp in ('lettuce','kale') else 2) if stage==1 else 1):
                 name=f'{sp}_{j}_{variant}';rt=build(sp,stage,713+SPECIES.index(sp)*29+variant*167,support_radius=.00125 if sp=='bean' and variant==1 else .0125)
                 rt.name=name;out[name]=rt
                 if stage==1:

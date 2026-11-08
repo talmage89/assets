@@ -44,7 +44,7 @@ def split(ob):
 def main():
     reports={}
     for seed in (117,229,341):
-        bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(Path(f'export/checkpoint/Garden_{seed}.gltf').resolve()))
+        bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(Path(f'export/final/Garden_{seed}.gltf').resolve()))
         gate=next(o for o in bpy.context.scene.objects if o.name.startswith('GateLeaf'));gate.rotation_mode='XYZ';gate.rotation_euler.z=0;bpy.context.view_layer.update()
         # Include placed shed doors as well as the gate. An isolated native
         # assembly test cannot prove clearance from this garden's plots/tools.
@@ -66,7 +66,18 @@ def main():
     for pivot in [o for o in bpy.context.scene.objects if o.name.startswith('Door_') and o.type=='EMPTY']:
         specs.append(dict(node=pivot.name,axis='Z',range=list(pivot['range_degrees']),step=5,tolerance_m=.0005,allow=[]))
     reports['shed']=K.sweep(dict(MOTIONS=specs));assert reports['shed']['passed'],reports['shed']
-    result=dict(passed=True,scope='exported solids; gate and placed shed-door neighbourhoods, plus native shed assembly',reports=reports,
+    # The original context hall is new construction too. Use its actual site
+    # export, with a conservative world-AABB broad phase for nearby solids.
+    bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(Path('export/final/Site_229.gltf').resolve()));bpy.context.view_layer.update()
+    pivots=[o for o in bpy.context.scene.objects if o.name.startswith('HallDoor') and o.type=='EMPTY'];assert len(pivots)==2
+    for ob in list(bpy.context.scene.objects):
+        if ob.type!='MESH':continue
+        if 'asset_set' in ob:del ob['asset_set']
+        points=np.array([tuple(ob.matrix_world@Vector(v)) for v in ob.bound_box]);lo=points.min(0);hi=points.max(0)
+        if any(np.linalg.norm(np.maximum(lo-np.array(pivot.matrix_world.translation),0)+np.minimum(hi-np.array(pivot.matrix_world.translation),0))<2.5 for pivot in pivots):split(ob)
+    specs=[dict(node=pivot.name,axis='Z',range=list(pivot['range_degrees']),step=5,tolerance_m=.0004,allow=[]) for pivot in pivots]
+    reports['park_hall']=K.sweep(dict(MOTIONS=specs));assert reports['park_hall']['passed'],reports['park_hall']
+    result=dict(passed=True,scope='exported solids; garden gates/shed doors, native shed and new park-hall doors with nearby site solids',reports=reports,
                 limitation='5 degree sampled sweep; intentional alpha sheets omitted; no continuous-time certification')
     Path('build/motion.json').write_text(json.dumps(result,indent=2));print('MOTION CHECK PASSED',flush=True)
 

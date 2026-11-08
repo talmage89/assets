@@ -98,3 +98,27 @@ fallow and weedy care states stay; the revision fills the usable growing area
 instead of enlarging the accepted beds. Botanical photo comparisons use assumed
 neutral concrete (tomato) and black weed cloth (squash). Bean, corn and marigold
 photographs have no reliable neutral and support morphology review only.
+
+## Delivery corrections
+
+The park's eight tenant plots are unframed cultivated openings in the turf.
+Their hilled rows return to grade at the soil edge. The adjacent recreation
+hall is an original representative building, 13 x 8.5 m with a 5.05 m ridge,
+not a surveyed or traced building. Its siting follows the park-building
+relationship in the municipal reference; its dimensions are authored.
+
+Summer turf reuses the library's original Ground blade field and baked normal
+and ORM maps at their actual 3.048 m repeat. A private warmer, lighter albedo,
+vertex tints for mowing and dry/worn areas, crossed fine blade cards and rooted
+clover change the garden without rewriting that delivery. Neutral assumptions
+for the garden pairs are Wise's gray stucco, Martin's pale house siding and
+City Hall's weathered gray board cap. Different photographic exposure and sun
+remain limits on numerical color comparisons.
+
+Corn ears now project upward from actual leaf joints, with a tapered husk,
+short bracts and brown tip silk. The imported surface audit measures their
+axis and length instead of quoting the generator's direction constant.
+Mature lettuce and kale each have eight deterministic rosette variants;
+placements also vary scale, angle, stage and color and retain failed gaps.
+The generator's leafy rosettes represent mixed greens, not a taxonomic
+replica of a particular cabbage cultivar.

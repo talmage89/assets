@@ -43,12 +43,22 @@ def preserve_native_corner(path,repo):
 
 def export(path,repo):
     path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
+    # Resolve imported active-color nodes to their real layers. ACTIVE export
+    # preserves the opaque lawn stream where MATERIAL exports white; the
+    # consumer filter below prevents unrelated Wind attributes tinting PBR.
+    for ob in bpy.context.scene.objects:
+        if ob.type!='MESH' or not ob.data.color_attributes.active_color:continue
+        for ma in ob.data.materials:
+            if not ma or not ma.use_nodes or ma.get('tiling_vertex_tint') is not True:continue
+            for node in ma.node_tree.nodes:
+                if node.type=='VERTEX_COLOR' and not node.layer_name:node.layer_name=ob.data.color_attributes.active_color.name
+    color_consumers={ma.name for ma in bpy.data.materials if ma.use_nodes and any(node.type=='VERTEX_COLOR' for node in ma.node_tree.nodes)}
     canonical={}
-    for folder in (Path('textures/checkpoint'),Path('build/context/chain'),repo/'ground/textures/ship',Path('textures/context')):
+    for folder in (Path('build/context/chain'),Path('textures/ship'),repo/'ground/textures/ship',Path('textures/context')):
         for p in folder.glob('*.png'):canonical[hashlib.sha256(p.read_bytes()).hexdigest()]=p.resolve()
     bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',
         export_extras=True,export_animations=False,export_tangents=True,export_attributes=True,
-        export_vertex_color='MATERIAL',export_all_vertex_colors=False,
+        export_vertex_color='ACTIVE',export_all_vertex_colors=False,
         export_image_format='AUTO',export_texture_dir='site-cache')
     doc=json.loads(path.read_text());rows=[]
     # Semantic source swatches share exactly one stock PBR material in glTF.
@@ -63,6 +73,14 @@ def export(path,repo):
         doc['materials']=[doc['materials'][i] for i in sorted(used)]
         for mesh in doc['meshes']:
             for primitive in mesh['primitives']:primitive['material']=remap[primitive['material']]
+    # glTF multiplies COLOR_0 even when a Blender material ignores it.
+    # Keep actual botanical/turf tints; never let a mesh-wide default or Wind
+    # affect the shared opaque atlas and native untinted materials.
+    for mesh in doc.get('meshes',[]):
+        for primitive in mesh['primitives']:
+            mat=doc['materials'][primitive['material']]
+            if mat.get('extras',{}).get('tiling_vertex_tint') is False or mat['name'] not in color_consumers:
+                primitive['attributes'].pop('COLOR_0',None)
     for row in doc.get('images',[]):
         copied=path.parent/row['uri'];data=copied.read_bytes();sha=hashlib.sha256(data).hexdigest();target=canonical.get(sha)
         if target is None:
@@ -77,11 +95,11 @@ def export(path,repo):
 
 def prepare(seed,repo,recipe,context):
     """CPU assembly/cache boundary shared by checks and GPU presentation."""
-    garden=Path(f'export/checkpoint/Garden_{seed}.gltf');scene=Path(f'export/checkpoint/Site_{seed}.gltf');receipt=Path(f'build/context/site-{seed}.json')
+    garden=Path(f'export/final/Garden_{seed}.gltf');scene=Path(f'export/final/Site_{seed}.gltf');receipt=Path(f'build/context/site-{seed}.json')
     package_recipe=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     old=json.loads(receipt.read_text()) if receipt.exists() else {};valid=False
     if scene.exists():
-        try:valid=old.get('scene_bundle')==digest(scene)
+        try:valid=old.get('scene_bundle')==digest(scene) and Path(f'build/context/costs-{seed}.json').exists() and Path(f'build/context/Site_{seed}-native-tangent.json').exists()
         except (OSError,KeyError):pass
     if valid and old.get('garden_bundle')==digest(garden) and old.get('render_recipe')==recipe and old.get('package_recipe')==package_recipe:return scene,receipt
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(garden.resolve()))

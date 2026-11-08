@@ -31,12 +31,14 @@ def plan(seed,archetype=None):
     elif kind=='park':
         # Larger tenant plots (10 x 20 ft) contain rows separated by walk strips.
         for y in (-5.334,2.286):
-            for x in (-8.5344,-3.6576,3.6576,8.5344):plot(x,y,3.048,6.096,'board' if x<0 else 'none')
+            for x in (-8.5344,-3.6576,3.6576,8.5344):plot(x,y,3.048,6.096,'none')
         # Two smaller donated raised beds turn across the shared front apron.
         plot(-6.1,-10.15,2.4384,1.2192,'lumber','herb','fallow')
         plot(6.1,-10.15,2.4384,1.2192,'block','lettuce','new')
         p['paths']=[dict(center=[0,-1.524],size=[1.524,D-3.048],surface='Lawn'),
                     dict(center=[0,-1.524],size=[W-3.048,1.524],surface='Lawn')]
+        p['sign_x']=-7.0;p['sign_yaw_degrees']=26.5;p['sign_inset']=.32
+        p['flower_borders']=[dict(center=[-9.0,-12.592],width=1.8,depth=.55),dict(center=[-5.0,-12.592],width=1.8,depth=.55)]
         p['service']=[9.5,9.2];p['compost']=[3.5,10.3];p['water']=[-1.3,8.6];p['bench']=[-8.5,9.0]
     else:
         # East/west cross aisle and front accessible court; main route reaches services.
@@ -54,6 +56,7 @@ def plan(seed,archetype=None):
                     dict(center=[-3.048,-7.01],size=[3.048,3.9624],surface='Gravel'),
                     dict(center=[3.048,-7.01],size=[3.048,3.9624],surface='Gravel')]
         p['service']=[4.8,7.01];p['compost']=[-5.3,7.7];p['water']=[-1.4,6.7];p['bench']=[1.9,6.7]
+    if kind=='accessible':p['plots'][5]['crop'],p['plots'][7]['crop']=p['plots'][7]['crop'],p['plots'][5]['crop']
     # Care varies, but the exemplar must still contain midsummer staple crops.
     # An unlucky modular pairing previously made every tomato fallow or new.
     for crop in ('tomato','bean','corn','squash','pepper'):
@@ -61,6 +64,6 @@ def plan(seed,archetype=None):
         if candidates and not any(q['state'] in ('tidy','lush','weedy') for q in candidates):
             q=candidates[0];q['state']='lush' if crop=='tomato' else 'tidy';q['stage']=1.0
     p['gate_width']=1.8288 if kind=='accessible' else 1.524
-    p['parameters']=dict(archetype=kind,seed=seed,season='midsummer',prototype_seed=713,mature_variants=2,
+    p['parameters']=dict(archetype=kind,seed=seed,season='midsummer',prototype_seed=713,mature_variants=2,leafy_head_variants=8,
                          plot_state_rule='five interleaved care states; preserve a mature stand of each staple crop; seeded morphology')
     return p

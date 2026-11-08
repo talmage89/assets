@@ -4,6 +4,7 @@ Pixel coordinates refer to prepared 1024px wide copies, avoiding false subpixel
 precision from oversized originals. The source photographs remain untouched.
 """
 from pathlib import Path
+import math
 P=Path('build/photo-references')
 MATCHES={
     'wise_bed':dict(title='Mature raised bed / July 2010',photo=str(P/'wise.jpg'),crop=(0,0,1024,768),
@@ -54,3 +55,26 @@ MATCHES['cityhall_mature'].update(location=(.76,-4.5,1.65),target=(.76,0,.75),
                dict(world=[.76+.296,0,1.40375],pixel=[585,468]),
                dict(world=[.76,-.296,1.40375],pixel=[494,492]),
                dict(world=[.76,.296,1.40375],pixel=[497,465])])
+
+# Express the original local bed/cage observations in the actual delivered
+# site's frame. The camera fits against those world landmarks inside a garden;
+# surrounding plots, circulation and neighborhood remain in the export.
+for name,offset in [('wise_bed',(-1.3716,.6096,0)),('cityhall_mature',(-3.6536,-.3048,0))]:
+    definition=MATCHES[name]
+    for key in ('location','target'):
+        definition[key]=[a+b for a,b in zip(definition[key],offset)]
+    for landmark in definition['landmarks']:
+        landmark['world']=[a+b for a,b in zip(landmark['world'],offset)]
+
+# Preserve the measured sign projection in the actual angled frontage. Both
+# initial camera and observed world points undergo the same rigid transform.
+from plan import plan
+entry=plan(229,'park');angle=math.radians(entry['sign_yaw_degrees'])
+old=(3.4,-entry['size'][1]/2+.24,0)
+new=(entry['sign_x'],-entry['size'][1]/2+entry['sign_inset'],0)
+def placed(point):
+    x,y,z=[a-b for a,b in zip(point,old)]
+    return [new[0]+x*math.cos(angle)-y*math.sin(angle),new[1]+x*math.sin(angle)+y*math.cos(angle),new[2]+z]
+definition=MATCHES['martin_place']
+for key in ('location','target'):definition[key]=placed(definition[key])
+for landmark in definition['landmarks']:landmark['world']=placed(landmark['world'])

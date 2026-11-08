@@ -594,3 +594,152 @@ flat field grass, shallow graphic chips, even gravel shoulders and simple compos
 Period pairs retain crop/context differences; City Hall's hoop scale is inferred.
 Passing measurements do not resolve those visual weaknesses. Nothing is needed
 from the lead to reproduce this state.
+
+## Delivery pass 8 — first correction crops, rejected for final use
+
+Color and value first: opened all 15 new 1200 px exported views, the rebuilt
+historical corn-ear close-up and all three full photographic pairs. The grass
+is still too brown and low in value: a sunlit park patch is RGB 86/95/54,
+display Y .354, versus 105/138/79 and Y .498 in the Wise grass after balancing
+on its gray apartment stucco. Martin's house-siding balance gives much brighter
+dry July turf (Y .724). Exposure and illumination differ, so these are visual
+constraints, not measured albedos. Keep the hero exposure and accepted surface
+sets; raise the private summer lawn's healthy green value, retain localized dry
+patches and strengthen the fine blade silhouettes at bed edges. The Wise and
+City Hall foliage also sits too dark against the balanced photos; soften the
+Wise comparison's light and lift the City Hall comparison's sky fill before
+judging fine form. Hero eaves, underside shade and sunlit lumber already retain
+useful depth without clipped highlights.
+
+What improved: the tomato is now a closed, cage-overflowing mass at 4,200
+triangles. The foreground heads have different sizes, rotations, leaf counts,
+colors, intermediate stages and failed gaps. The park plots are cut from turf;
+the recreation hall, houses and edge grove replace the gray horizon. The white
+foreground object was a clipped row cover; moving it onto the rear seedling bed
+removes it without changing the accepted city camera. Upright husked ears now
+leave the actual corn leaf joints; their measured opaque surface is about
+.237 m long at 29 degrees from vertical. The fixed-camera close-up proves the
+old pendant pod shape is gone.
+
+Still CG / corrections owed: the lawn remains a flat thatch-like field between
+its sparse edge blades; clover needs rooted petioles. The granular court now has
+angular grain but its print sampler misses part of its compacted swatch, and
+many loose stones are buried in the feathered shoulder. Deformed earth needs
+terrain stations on the rows and updated smooth normals. The complete Wise
+site comparison now has neighboring crops, chips and apartments in frame.
+City Hall still reads as one edge bed beside empty lawn despite importing the
+whole accessible site: move that garden's tomato stand to an interior plot and
+fit to that actual cage, with neighboring squash/greens in the foreground.
+Martin has its real park and new entry planting, but its mounds are too small
+behind the fence. Enlarge only those entrance marigolds within the same genus
+and triangle count. Leaf silhouettes, regular branching, smooth fruit and the
+very even granular microstructure remain obvious close up. No docs approved.
+
+## Delivery pass 9 — whole-site pairs and summer turf, before final corrections
+
+Color and value first: opened all 15 native 1200 px pass-2 PNGs and all three
+full photographic pairs, then reopened the three original garden photographs.
+In the same park-hero lawn region (x950–1150, y550–680), median RGB changes
+from 73/90/65 to 103/128/65; display Y rises from .332 to .463. The assumed
+neutrals remain Wise's gray stucco, Martin's pale house siding and City Hall's
+weathered gray board cap. Different exposure/light prevents an albedo claim.
+The body grass now has visible blade/thatch normals and muted yellow-green
+variation. The upright edge cards are still too bright and tall, reading as a
+lime fringe. Shorten them to a clipped 25–45 mm visible height, lower their
+albedo and reduce the yellow bias. Put an actual brown dry patch in the
+visible exposed southern shoulder, instead of leaving its strongest mask
+outside the hero's field of view. Keep the low sun, unclipped lumber and deep
+canopy/eave shade.
+
+The park is now clearly cultivated earth cut into turf, with different head
+sizes, leaf counts, colors and stages, and failed gaps. Its hall and grove
+close the hero. The tomato comparison is a closed mass extending beyond its
+cage; individual leaflet silhouettes and tiers still repeat too much. Ears
+are upward at leaf joints and have a brown tip, but the crossed spent-flower
+cards read as a star-shaped cap in the ear close-up. Replace that cap with
+curved individual silk ribbons at essentially the same field triangle cost.
+The granular court now has angular grain, loose edge stones, steel edging,
+sole prints and wheel tracks. Its aggregate distribution remains too even.
+The city row cover is smoother and farther back, but still clips the right
+frame edge as a gray blob; remove the city instance outright. Keep the reusable
+piece and the other gardens' covers.
+
+Wise now frames neighboring corn, beans, herb margins, chips, apartments and
+the actual tomato stand. City Hall frames the interior stand and foreground
+squash, but still exposes a featureless horizon behind the shed. Add rear
+neighbors and mature rear canopies without moving its accepted houses/trays;
+fit to the stand's opposite actual cage to improve the foreground overlap.
+Martin frames the service beds rather than the park's dense tenant plots;
+its left flower margin is outside the fitted field of view. Place the park
+sign on the cultivated side of the entrance and flank it with the two public
+flower margins, keeping the gate approach clear. Refit that actual sign.
+These are corrections in the delivered sites, not replacement fixtures.
+
+Still CG: analytic leaf veins and serrations, regular vine tiers, star-like
+marigold florets, shallow graphic chips, even aggregate and repeated native
+tree crowns. Squash still runs cool/teal in its isolated comparison. The
+first batch was interrupted after five saved views; the remaining set resumed
+from disk and completed with exit 0. No gallery images have been generated.
+
+## Delivery pass 10 — third correction set, final two framing issues
+
+Color and value first: all 15 native pass-3 PNGs and all three complete photo
+pairs were opened at original size. The shorter, darker blade fringe now
+belongs to the lawn instead of glowing lime. Sunlit boards retain grain and
+canopy shadows remain deep. The same assumed photo neutrals apply. The main
+lawn is lighter/yellower with visible blade normals, but the authored dry
+station still misses the park camera: ray projection places the visible lower
+right shoulder around x0/y−5, rather than x2.4/y−8. Move that localized mask
+there and put forty small crossed tufts along the path shoulders, leaving its
+worn centre clear. This uses 320 triangles within the original garden limit.
+
+The city white edge object is gone. Ears rise from their actual joints; the
+close-up now shows separate brown curled strands instead of a flower cap.
+The silk is still angular and sparse, and the husks very smooth, but the
+pendant-pepper construction is gone. Tomato mass and varied leafy heads hold.
+The accessible hero keeps its trays and original houses; its pair now shows
+neighboring beds, foreground squash, canopies and houses instead of an empty
+horizon. Foreground grass still occupies more of that composition than in the
+photograph; the real crop mix and bed proportions are different.
+
+The park pair still looks diagonally through a broad lawn toward the service
+area, despite moving the sign left. Move/angle the actual sign on the cultivated
+frontage, clear of the fence, then apply the same rigid transform to its photo
+landmarks and initial camera. That directs the full-site view toward the corn
+and tomato plots without changing the hero camera or staging an isolated bed.
+Use matte dark painted letters instead of reflective metal on the old boards.
+No change to the camera-fit residual can prove surrounding density: judge the
+new exported picture. Leaf repetition, clean analytic fruit, regular trellis
+tiers, shallow chips, even aggregate and cloned native crowns remain CG tells.
+No gallery images approved yet.
+
+## Delivery pass 11 — fourth set and a serialization failure caught visually
+
+Color and value first: all 15 native pass-4 PNGs and three complete photographic
+pairs were opened at original size. The park's newly positioned/angled sign
+now frames corn, leafy plots, flowers, the hall and the neighborhood. The assumed
+neutrals are unchanged. Yet the lawn still lacked the designed mowing, dry and
+traffic variation. Raw garden COLOR_0 carried it (green down to .523), while
+that same lawn primitive in the full-site export was entirely white. Moving
+the dry mask could never correct that loss. The presence/count of a color
+attribute was an inadequate serialization check.
+
+The full-site exporter now explicitly resolves imported color layers, exports
+the active color stream and strips it from materials that do not consume it,
+so Wind remains separate. A new independent raw-stream audit compares actual
+local position/RGB records, collapsing only duplicate seam samples. Measured
+maximum linear RGB differences are .004148 / .004504 / .004498 for 117 / 229 /
+341, within the .0046 limit for Blender's BYTE_COLOR import and U16 re-export.
+This proves color serialization; the next native exported images must prove
+the lawn's appearance. The street-side turf verge also carries mowing and
+curb/sign-side dry variation, rather than leaving the photographic foreground
+as the untinted presentation plane. No texture allocation was added.
+
+The new hall received pull-handle standoffs and door-bottom clearance above
+its threshold. Its added exported-solid sweep caught a 5 mm glazing/jamb clash
+at 90 degrees. Reducing the jamb's projection to 200 mm gives both leaves their
+full ±90 degree travel with zero reported penetration at 5 degree samples.
+Garden gate/shed sweeps, actual surface contacts, UVs, budgets, fresh imports,
+all three color-transfer audits and the 479 protected deliveries now pass.
+These checks prove construction/serialization, not photographic realism.
+The fifth correction set is pending; no gallery images have been generated.

@@ -36,7 +36,7 @@ def main():
     (balanced/'balance.json').write_text(json.dumps(balances,indent=2))
     rows={}
     for seed in (117,229,341):
-        data=json.loads(Path(f'build/garden-{seed}.json').read_text());p=Path(f'export/checkpoint/Garden_{seed}.gltf');d=json.loads(p.read_text());images=[]
+        data=json.loads(Path(f'build/garden-{seed}.json').read_text());p=Path(f'export/final/Garden_{seed}.gltf');d=json.loads(p.read_text());images=[]
         for im in d['images']:
             path=p.parent/im['uri'];w,h=Image.open(path).size;images.append(dict(uri=im['uri'],size=[w,h],bytes=path.stat().st_size))
         rows[str(seed)]=dict(triangles=data['triangles'],plants=sum(len(q['plants']) for q in data['plan']['plots']),materials=len(d['materials']),gltf_bytes=p.stat().st_size,bin_bytes=p.with_suffix('.bin').stat().st_size,texture_mib=sum(i['size'][0]*i['size'][1]*4/3 for i in images)/2**20,images=images)

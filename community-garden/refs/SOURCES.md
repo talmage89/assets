@@ -61,3 +61,16 @@ Text uses the installed Noto Sans Regular through `kit/fonts.py`. Its embedded
 font metadata credits the Noto Project Authors (2022) and identifies the
 [SIL Open Font License 1.1](https://scripts.sil.org/OFL). No font file is bundled.
 All names, signs and the painted shed motif are original and fictional.
+
+Delivery turf correction: the lawn's 3.048 m metric tile and its original
+analytic tuft generator are reused read-only from `ground/` (`organic.edging`).
+A local July albedo variant preserves the native normal/ORM bytes; four upright
+tufts occupy the previously senescent weed half-cell in the existing 1K plant
+set. No extra texture allocation or photographic pixels are introduced. The
+weed's remaining healthy tile still supplies its modeled blades.
+
+The small park recreation hall is an original representative timber design,
+13 × 8.5 m with 3.3 m eaves and a 5.05 m ridge, rather than a surveyed building.
+Its site role follows the park-building adjacency in the cited Seattle/DC
+municipal material. These envelope dimensions are authored placement choices;
+no claim of a measured replica or architectural/code certification is made.

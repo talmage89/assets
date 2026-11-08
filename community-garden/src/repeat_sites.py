@@ -9,7 +9,7 @@ from plan import SEEDS
 
 for seed in SEEDS:
     bpy.ops.wm.read_factory_settings(use_empty=True)
-    bpy.ops.import_scene.gltf(filepath=str(Path(f'export/checkpoint/Garden_{seed}.gltf').resolve()))
+    bpy.ops.import_scene.gltf(filepath=str(Path(f'export/final/Garden_{seed}.gltf').resolve()))
     p=json.loads(Path(f'build/garden-{seed}.json').read_text())['plan'];context(p)
-    neighborhood.export(f'export/checkpoint/Site_{seed}.gltf',REPO)
+    neighborhood.export(f'export/final/Site_{seed}.gltf',REPO)
 

@@ -19,11 +19,11 @@ def sites():
     report={}
     def count(doc):return sum(doc['accessors'][p['indices']]['count']//3 for n in doc['nodes'] if 'mesh' in n for p in doc['meshes'][n['mesh']]['primitives'])
     for seed in (117,229,341):
-        path=Path(f'export/checkpoint/Site_{seed}.gltf');doc=json.loads(path.read_text());receipt=json.loads(Path(f'build/context/site-{seed}.json').read_text())
-        garden_path=Path(f'export/checkpoint/Garden_{seed}.gltf');garden_doc=json.loads(garden_path.read_text());garden_triangles=count(garden_doc)
+        path=Path(f'export/final/Site_{seed}.gltf');doc=json.loads(path.read_text());receipt=json.loads(Path(f'build/context/site-{seed}.json').read_text())
+        garden_path=Path(f'export/final/Garden_{seed}.gltf');garden_doc=json.loads(garden_path.read_text());garden_triangles=count(garden_doc)
         triangles=count(doc)
         assert triangles==receipt['triangles']==garden_triangles+receipt['context_triangles']
-        assert receipt['garden_bundle']==bundle(f'export/checkpoint/Garden_{seed}.gltf')
+        assert receipt['garden_bundle']==bundle(f'export/final/Garden_{seed}.gltf')
         assert receipt['scene_bundle']==bundle(path)
         assert receipt['package_recipe']==hashlib.sha256((HERE/'neighborhood.py').read_bytes()).hexdigest()
         unique={};uris=[]
@@ -34,12 +34,14 @@ def sites():
         assert garden_images.issubset(unique),'Packaged scene lost/re-encoded a garden image'
         def descend(i):return [i]+[j for child in doc['nodes'][i].get('children',[]) for j in descend(child)]
         garden=next(i for i,n in enumerate(doc['nodes']) if n.get('name')=='Garden_'+str(seed));garden_nodes=descend(garden)
-        assert not any('COLOR_0' in p['attributes'] for i in garden_nodes if 'mesh' in doc['nodes'][i] for p in doc['meshes'][doc['nodes'][i]['mesh']]['primitives']),'Wind leaked into garden base color'
+        assert not any('COLOR_0' in p['attributes'] and not doc['materials'][p['material']].get('extras',{}).get('tiling_vertex_tint') for i in garden_nodes if 'mesh' in doc['nodes'][i] for p in doc['meshes'][doc['nodes'][i]['mesh']]['primitives']),'Wind leaked into garden base color'
         colors=sum('COLOR_0' in p['attributes'] for m in doc['meshes'] for p in m['primitives'])
         assert colors>0,'Native building material tints lost during scene packaging'
+        from color_audit import compare
+        tint=compare(garden_path,path)
         report[str(seed)]=dict(triangles=triangles,garden_triangles=garden_triangles,context_triangles=receipt['context_triangles'],
             materials=len(doc.get('materials',[])),unique_images=len(unique),compressed_texture_mib=sum(r['width']*r['height']*4/3 for r in unique.values())/2**20,
-            gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,external_png_bytes=sum(r['bytes'] for r in unique.values()),native_color_primitives=colors,uris=uris)
+            gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,external_png_bytes=sum(r['bytes'] for r in unique.values()),native_color_primitives=colors,garden_color_transfer=tint,uris=uris)
     Path('build/site-check.json').write_text(json.dumps(dict(passed=True,scenes=report,scope='raw glTF counts and shared external image bytes; renderer separately checks fresh Blender re-import count'),indent=2))
 
 
@@ -86,7 +88,7 @@ def main():
     for name in ('pieces.png','plants.png'):
         if (folder/name).exists():files.append(folder/name)
     files+=sorted((folder/'matches').glob('*-pair.jpg'))
-    captions={str(p):p.parent.name+' / '+p.stem for p in files};contact(files,folder/'contact.jpg',width=1600,title='Community gardens / exported PBR look-dev',captions=captions)
+    captions={str(p):p.parent.name+' / '+p.stem for p in files};contact(files,folder/'contact.jpg',width=1600,title='Community gardens / final exported PBR',captions=captions)
     heroes=[folder/str(s)/'hero.png' for s in (117,229,341)]
     if all(p.exists() for p in heroes):review_sheet([[p] for p in heroes],folder/'heroes.jpg',width=1600,title='Eye height / 35–50mm / raking sun')
     pairs=sorted((folder/'matches').glob('*-pair.jpg'))

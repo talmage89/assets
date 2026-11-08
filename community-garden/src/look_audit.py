@@ -11,7 +11,7 @@ WIDTHS={'SCALAR':1,'VEC2':2,'VEC3':3,'VEC4':4}
 def audit():
     report={};texture_identity={}
     for seed in (117,229,341):
-        path=Path(f'export/checkpoint/Garden_{seed}.gltf');d=json.loads(path.read_text());binary=(path.parent/d['buffers'][0]['uri']).read_bytes()
+        path=Path(f'export/final/Garden_{seed}.gltf');d=json.loads(path.read_text());binary=(path.parent/d['buffers'][0]['uri']).read_bytes()
         def read(i):
             a=d['accessors'][i];v=d['bufferViews'][a['bufferView']];dt=TYPES[a['componentType']];n=WIDTHS[a['type']];offset=v.get('byteOffset',0)+a.get('byteOffset',0)
             return np.ndarray((a['count'],n),dtype=dt,buffer=binary,offset=offset,strides=(v.get('byteStride',n*dt.itemsize),dt.itemsize)).copy()
@@ -32,7 +32,7 @@ def audit():
                     # glTF stores V down, Blender authored V up.
                     inside|=(uv[:,0]>=u0-1e-5)&(uv[:,0]<=u1+1e-5)&(uv[:,1]>=1-v1-1e-5)&(uv[:,1]<=1-v0+1e-5)
                 outside+=int((~inside).sum())
-            size=2048 if mat in ('GardenSurfaces','Lawn') else 1024
+            size=2048 if mat in ('GardenSurfaces','GardenLawn') else 1024
             density.setdefault(mat,[]).extend((size*np.sqrt(area2[area3>1e-12]/area3[area3>1e-12])).tolist())
         images=[]
         for im in d['images']:
@@ -46,14 +46,22 @@ def audit():
         assert not degenerate,(seed,'Collapsed UVs',degenerate)
         assert row['materials']<=4
         report[str(seed)]=row
-    old=Path('build/lookdev-before/existing-deliveries.json')
+    old=Path('build/delivery-before/existing-deliveries.json')
     if old.exists():
         baseline=json.loads(old.read_text());root=Path.cwd().parent;changed=[p for p,h in baseline.items() if not (root/p).exists() or hashlib.sha256((root/p).read_bytes()).hexdigest()!=h]
         assert not changed,('Existing delivery changed',changed)
         report['preserved_delivery_files']=len(baseline)
-    plant=np.asarray(Image.open('textures/checkpoint/T_GardenPlants_BaseColor.png'))
+    plant=np.asarray(Image.open('textures/ship/T_GardenPlants_BaseColor.png'))
     net=plant[:plant.shape[0]//4,:plant.shape[1]//4,3]
     retained=float((net>.45*255).mean());assert .01<retained<.7,('Bird net disappeared or became solid',retained)
+    from atlas import grass_rect
+    tufts=[]
+    for i in range(4):
+        u0,v0,u1,v1=grass_rect(i);h,w=plant.shape[:2]
+        coverage=float((plant[round((1-v1)*h):round((1-v0)*h),round(u0*w):round(u1*w),3]>.45*255).mean())
+        assert .08<coverage<.80,('Grass tuft alpha disappeared or closed',i,coverage)
+        tufts.append(coverage)
+    report['grass_tuft_retained_alpha_fractions']=tufts
     report['net_retained_alpha_fraction']=retained
     report['passed']=True;Path('build/look-audit.json').write_text(json.dumps(report,indent=2));print('LOOK AUDIT PASSED')
 

@@ -78,6 +78,10 @@ def bed(name,w=1.2192,d=2.4384,h=.23495,edge='lumber',seed=10):
         for i in range(nx):
             k=j*(nx+1)+i;faces.append((k,k+1,k+nx+2,k+nx+1))
     Q.mesh('Cultivated soil actual surface',v,faces,rt,'Soil',upward=True)
+    if edge=='none':
+        for side in (-1,1):
+            Q.mesh('Cultivated sloping soil edge',[(side*(w/2-inset),-d/2+inset,soilh),(side*(w/2-inset),d/2-inset,soilh),(side*w/2,d/2,0),(side*w/2,-d/2,0)],[(0,1,2,3)],rt,'Soil',upward=True)
+            Q.mesh('Cultivated sloping soil end',[(-w/2+inset,side*(d/2-inset),soilh),(w/2-inset,side*(d/2-inset),soilh),(w/2,side*d/2,0),(-w/2,side*d/2,0)],[(0,1,2,3)],rt,'Soil',upward=True)
     rt['soil_surface_m']=soilh
     Q.join(rt);return rt
 
@@ -286,7 +290,7 @@ def rowcover():
             v.append((.495*math.cos(a),y,z+.008))
     for j in range(8):
         for k in range(12):i=j*13+k;f.append((i,i+1,i+14,i+13))
-    Q.mesh('Fabric sag between hoops',v,f,rt,'White',upward=True);Q.join(rt);return rt
+    Q.G.smooth(Q.mesh('Fabric sag between hoops',v,f,rt,'White',upward=True),75);Q.join(rt);return rt
 
 
 def pinwheel():

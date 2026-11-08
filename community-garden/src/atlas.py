@@ -14,8 +14,14 @@ COLORS=((64,110,43),(55,101,40),(47,88,54),(56,108,43),(67,112,43),(100,132,68),
         (68,105,89),(57,111,45),(53,90,32),(43,81,28),(85,105,41))
 
 def rect(species,old=False):
+    old=old and species!='weed'
     i=SPECIES.index(species);x=i%4;y=i//4
     return (x/4+.003+(.125 if old else 0),y/4+.003,x/4+(.247 if old else .122),(y+1)/4-.003)
+
+def grass_rect(index):
+    # Four native analytic tuft variants in the former old-weed half cell.
+    x=index%2;y=index//2
+    return (.628+x*.0595+.0015,.503+y*.122+.0015,.628+(x+1)*.0595-.0015,.503+(y+1)*.122-.0015)
 
 def flower_rect(name):
     x={'Flower':1,'Yellow':2,'Spent':3}.get(name,1)
@@ -26,6 +32,7 @@ def generate(folder,size=4096):
     bc=np.zeros((size,size,4),np.uint8);nm=np.full((size,size,3),(128,128,255),np.uint8);orm=np.full((size,size,3),(255,173,0),np.uint8)
     for i,sp in enumerate(SPECIES):
       for old in (False,True):
+        if sp=='weed' and old:continue
         u0,v0,u1,v1=rect(sp,old);xa,xb=round(u0*size),round(u1*size);ya,yb=round((1-v1)*size),round((1-v0)*size)
         h,w=yb-ya,xb-xa;x,y=np.meshgrid(np.linspace(-1,1,w),np.linspace(1,0,h));t=np.clip((y-.025)/.95,0,1)
         width=np.sin(math.pi*t)**.78
@@ -84,12 +91,25 @@ def generate(folder,size=4096):
         height=vein*.001+secondary*.00020+fine*.000008
         gy,gx=np.gradient(height,.25/h,.12/w);normal=np.stack((-gx,gy,np.ones_like(gx)),axis=-1);normal/=np.linalg.norm(normal,axis=-1)[:,:,None]
         nm[ya:yb,xa:xb]=np.uint8(np.clip((normal*.5+.5)*255,0,255));orm[ya:yb,xa:xb,1]=np.uint8(161+old*24+fine*4)
+    # Reuse our Ground family's original procedural tuft generator. Four
+    # variants share an existing plant-atlas cell, never another texture set.
+    import importlib.util
+    spec=importlib.util.spec_from_file_location('garden_native_turf',Path(__file__).resolve().parents[2]/'ground/src/organic.py')
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    original=module.edging(1024,1024)[:,:512]
+    from PIL import ImageFilter
+    tuft=Image.fromarray(np.uint8(original*255)).resize((round(.119*size),round(.244*size)),Image.Resampling.LANCZOS)
+    pixels=np.array(tuft);alpha=Image.fromarray(pixels[:,:,3]).filter(ImageFilter.MaxFilter(3));pixels[:,:,3]=np.asarray(alpha)
+    rgb=pixels[:,:,:3].astype(float)/255;linear=np.where(rgb<=.04045,rgb/12.92,((rgb+.055)/1.055)**2.4)*np.array([1.45,1.75,2.0])
+    rgb=np.where(linear<=.0031308,linear*12.92,1.055*linear**(1/2.4)-.055);pixels[:,:,:3]=np.uint8(np.clip(rgb,0,1)*255)
+    xa=round(.628*size);ya=round((1-.747)*size);h,w=pixels.shape[:2]
+    bc[ya:ya+h,xa:xa+w]=pixels;nm[ya:ya+h,xa:xa+w]=(128,128,255);orm[ya:ya+h,xa:xa+w]=(255,240,0)
     # Supported tomato branchlets, nine overlapping leaflets per alpha card.
     # Shared shrub/tree idiom: texture gives fine leaflet geometry at low cost.
     xa,xb=round(.753*size),round(.997*size);ya,yb=round(.253*size),round(.497*size)
     h,w=yb-ya,xb-xa;xx,yy=np.meshgrid(np.linspace(0,1,w),np.linspace(1,0,h));mask=(abs(xx-.5)<.004);color=np.zeros((h,w,3));color[:]=[64,103,35]
     normal=np.full((h,w,3),(128,128,255),np.uint8)
-    sites=[(.5,.76,0,.235,.10)]+[(.5,.16+j*.155,side*1.16,.30-j*.025,.105-j*.009) for j in range(4) for side in (-1,1)]
+    sites=[(.5,.68,0,.31,.20)]+[(.5,.12+j*.18,side*1.12,.38-j*.030,.21-j*.017) for j in range(4) for side in (-1,1)]
     for k,(bx,by,a,length,width) in enumerate(sites):
         dx,dy=xx-bx,yy-by;along=dx*math.sin(a)+dy*math.cos(a);cross=dx*math.cos(a)-dy*math.sin(a);t=along/length
         outline=np.maximum(0,np.sin(math.pi*np.clip(t,0,1)))**.7*(.88+.12*np.sin(t*math.pi*15+cross*8))

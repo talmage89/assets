@@ -1,12 +1,12 @@
 """Three photo comparisons made only with freshly imported exported assets."""
-import sys,json,argparse,math
+import sys,json,argparse,math,hashlib
 from pathlib import Path
 import bpy
 import numpy as np
 from PIL import Image,ImageOps
 HERE=Path(__file__).resolve().parent;REPO=HERE.parents[1];sys.path[:0]=[str(REPO),str(HERE)]
 import geometry as Q
-from render import setup,shot,render,context,bundle
+from render import setup,shot,render,context,bundle,RECIPE_SHA256
 from kit import photo_match
 
 
@@ -26,47 +26,30 @@ def references():
 
 
 def fixture(name):
-    """Assemble comparison from exported library parts without changing vertices."""
-    if name in ('wise_bed','cityhall_mature'):
-        # Use a complete delivered planting, including supports and mulch.
-        # A four-prototype display was too sparse to represent a planted bed.
-        from mathutils import Matrix
-        source=Path('export/checkpoint/Garden_117.gltf');bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
-        bed=next(o for o in bpy.context.scene.objects if o.get('plot_id')==10);keep={bed,*bed.children_recursive}
-        bed.parent=None;bed.matrix_world=Matrix.Rotation(math.pi/2,4,'Z') if name=='cityhall_mature' else Matrix.Identity(4)
-        for ob in list(bpy.context.scene.objects):
-            if ob not in keep:bpy.data.objects.remove(ob,do_unlink=True)
-        ctx=context(dict(size=[18.288,21.336],archetype='city',bench=[-3.6,7]))
-        next(o for o in ctx.children if o.name=='Neighborhood ground').location.z+=.04
-        return source
-    source=Path('export/checkpoint/CommunityGardenPieces.gltf');bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
-    roots={o.name:o for o in bpy.context.scene.objects if not o.parent};Q.palette();bed=roots['Raised4x8']
-    keep=[bed]
-    for i in range(6):Q.instance(roots['lettuce_0_0'],'Young transplant',((i%2-.5)*.42,(i//2-1)*.65,.198),i*71,bed)
-    for n,rt in roots.items():
-        if rt not in keep:
-            for ob in [*rt.children_recursive,rt]:bpy.data.objects.remove(ob,do_unlink=True)
-    # Context geometry is original script-built library, not photographic data.
-    rt=Q.root('Ground context');Q.box('Installation-day grass',(0,0,-.035),(80,80,.07),rt,'Lawn')
+    """Fresh full exported site; no isolated bed or invented empty lawn."""
+    seed={'wise_bed':117,'cityhall_mature':341,'martin_place':229}[name]
+    source=Path(f'export/final/Site_{seed}.gltf')
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
     return source
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',default='renders/checkpoint/matches');p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=40);p.add_argument('--calibrate-only',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
-    references();cal=Path('build/matched-cameras.json');photo_match.solve(str(HERE/'photo_matches.py'),cal)
-    data=json.loads(cal.read_text());photo_match.verify(cal)
+    p=argparse.ArgumentParser();p.add_argument('--out',default='renders/checkpoint/matches');p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=40);p.add_argument('--calibrate-only',action='store_true');p.add_argument('--prepared',action='store_true');p.add_argument('--render-only',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
+    cal=Path('build/matched-cameras.json')
+    if not a.prepared:references();photo_match.solve(str(HERE/'photo_matches.py'),cal);photo_match.verify(cal)
+    data=json.loads(cal.read_text())
     if a.calibrate_only:return
     for name,row in data.items():
         if name=='oliver_construction':continue
         v=dict(row['shot']);v['engine']='CYCLES';v['aspect']=1024/1365 if name=='cityhall_mature' else 1024/768
-        if name in ('wise_bed','cityhall_mature'):v.update(sun_energy=6.5,sun_angle=6.0,sky_strength=.30,exposure=-.15)
-        if name=='cityhall_mature':v.update(sun_energy=7.5,sun_angle=2,sky_strength=.13,sun_direction=(-.6,.5,-.75),exposure=-.35)
-        if name=='martin_place':render(229,out,a.width,a.samples,custom={name:v},with_context=True)
-        else:
-            source=fixture(name);cam=setup(a.samples);shot(cam,v,out/(name+'.png'),a.width)
-            (out/(name+'.json')).write_text(json.dumps(dict(source=str(source),bundle_sha256=bundle(source),camera=v,engine='CYCLES',comparison='unmodified delivered Plot10 relocated for framing' if name=='wise_bed' else 'unmodified exported prototype assembly; photograph never an asset input'),indent=2))
-    photo_match.compose(cal,out,out)
-    notes=dict(bed_corners='WiseWords far-left/back corner is vegetation-occluded and weighted down; 4x8 dimensions are inferred, not surveyed. Compare delivered tomato Plot10 with a mature mixed-crop bed: crop identities and surrounding architecture differ.',
+        if name in ('wise_bed','cityhall_mature'):v.update(sun_energy=3.0,sun_angle=20.0,sky_strength=.55,exposure=.05,overcast=True)
+        if name=='cityhall_mature':v.update(overcast=False,sun_energy=7.5,sun_angle=2,sky_strength=.22,sun_direction=(-.6,.5,-.75),exposure=.10)
+        if name=='martin_place':v.update(sky_strength=.22,exposure=.05)
+        source=fixture(name);cam=setup(a.samples);shot(cam,v,out/(name+'.png'),a.width)
+        (out/(name+'.json')).write_text(json.dumps(dict(source=str(source),bundle_sha256=bundle(source),render_script_sha256=RECIPE_SHA256,match_recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()+(HERE/'photo_matches.py').read_bytes()).hexdigest(),camera=v,engine='CYCLES',samples=a.samples,comparison='entire delivered garden and neighborhood; photo landmarks on actual bed/cage or entry sign; no isolated staging'),indent=2))
+    if not a.render_only:photo_match.compose(cal,out,out)
+    notes=dict(bed_corners='WiseWords far-left/back corner is vegetation-occluded and weighted down; 4x8 dimensions are inferred, not surveyed. Compare the complete delivered city garden around tomato Plot10 with a mature mixed-crop garden: crop identities and surrounding architecture differ.',
                construction='Oliver has people obscuring corners; along-edge phases are inferred and weighted down. This is a weaker construction/framing comparison, not a precision survey.',
                entrance='Martin sign/post rectangular corners are directly visible. Fictional sign text and site composition intentionally differ.')
     (out/'limitations.json').write_text(json.dumps(notes,indent=2))

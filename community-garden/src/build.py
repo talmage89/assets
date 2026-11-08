@@ -2,10 +2,10 @@
 import argparse,sys,json,math,random,hashlib,os,shutil
 from pathlib import Path
 import bpy
-from mathutils import Vector
+from mathutils import Vector,Matrix
 HERE=Path(__file__).resolve().parent;REPO=HERE.parents[1];sys.path[:0]=[str(REPO),str(HERE)]
 import geometry as Q
-import plants,pieces,fence
+import plants,pieces,fence,groundcover
 from plan import plan,SEEDS
 from kit import tiling
 
@@ -23,16 +23,16 @@ def export(path,roots):
         if ob.type=='MESH':
             for attr in list(ob.data.color_attributes):
                 if attr.name=='Wind':attr.name='_WIND'
-                elif attr.name!='_WIND':ob.data.color_attributes.remove(attr)
+                elif attr.name not in ('_WIND','Tint'):ob.data.color_attributes.remove(attr)
     bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',use_selection=True,
         export_extras=True,export_animations=False,export_tangents=True,export_attributes=True,
-        export_vertex_color='NONE',export_image_format='AUTO',export_texture_dir='cache')
+        export_vertex_color='MATERIAL',export_all_vertex_colors=False,export_image_format='AUTO',export_texture_dir='cache')
     # Resolve exported copies back to one canonical image identity, shared by
     # family and all seeds. Checkpoint files never touch the native deliveries.
     doc=json.loads(path.read_text())
     for ma in doc.get('materials',[]):
         if ma.get('name') in ('GardenPlants','ChainLink'):ma['alphaMode']='MASK';ma['doubleSided']=True;ma['alphaCutoff']=.45
-    folders=[Path('textures/checkpoint'),Path('build/context/chain'),REPO/'ground/textures/ship']
+    folders=[Path('build/context/chain'),Path('textures/ship'),REPO/'ground/textures/ship']
     known={hashlib.sha256(p.read_bytes()).hexdigest():p.resolve() for f in folders for p in f.glob('*.png')}
     # Semantic source swatches share exactly one stock PBR material in glTF.
     atlas=[i for i,m in enumerate(doc.get('materials',[])) if m.get('name','').startswith('Garden_') and m.get('extras',{}).get('garden_finish')]
@@ -46,6 +46,15 @@ def export(path,roots):
         doc['materials']=[doc['materials'][i] for i in sorted(used)]
         for mesh in doc['meshes']:
             for primitive in mesh['primitives']:primitive['material']=remap[primitive['material']]
+    # glTF multiplies COLOR_0 even when a Blender material ignores it.
+    # Keep actual botanical/turf tints; never let a mesh-wide default or Wind
+    # affect the shared opaque atlas and native untinted materials.
+    for mesh in doc.get('meshes',[]):
+        for primitive in mesh['primitives']:
+            if not doc['materials'][primitive['material']].get('extras',{}).get('tiling_vertex_tint',False):
+                # Native materials may genuinely consume a color attribute.
+                if True or doc['materials'][primitive['material']].get('extras',{}).get('tiling_vertex_tint') is False:
+                    primitive['attributes'].pop('COLOR_0',None)
     for row in doc.get('images',[]):
         copied=path.parent/row['uri'];target=known.get(hashlib.sha256(copied.read_bytes()).hexdigest())
         if target is None:raise ValueError('Unregistered image '+str(copied))
@@ -150,7 +159,13 @@ def planted(plot,bed,site):
                     # Neglected midsummer beds gain weeds; they do not lose a
                     # random half of a two-plant squash planting.
                     if plot['state']=='weedy':rng.random()
-                    add(sp,x,y)
+                    if sp in ('lettuce','kale'):
+                        if rng.random()<.075:continue
+                        st=1 if rng.random()<.14 else stage
+                        v=rng.randrange(8) if st==2 else 0
+                        plant=add(sp,x+rng.uniform(-.045,.045),y+rng.uniform(-.055,.055),st,variant=v)
+                        scale=rng.uniform(.76,1.14);plant.scale=(scale*rng.uniform(.94,1.06),scale,scale*rng.uniform(.90,1.12))
+                    else:add(sp,x,y)
         # Straw stays concentrated beneath vegetables, never a whole-site wash.
         for i in range(24 if w<2 else 50):
             x=rng.uniform(-w/2+.13,w/2-.13);y=rng.uniform(-d/2+.13,d/2-.13);a=rng.random()*6.28
@@ -171,17 +186,54 @@ def planted(plot,bed,site):
         if ob.type!='MESH':continue
         if Q.M['WetSoil'] not in list(ob.data.materials):ob.data.materials.append(Q.M['WetSoil'])
         ids={i for f in ob.data.polygons if ob.data.materials[f.material_index] in (Q.M['Soil'],Q.M['WetSoil']) for i in f.vertices}
+        # Keep the existing vertex budget, but place terrain stations on the
+        # actual crop rows and their furrows before evaluating the hills.
+        if w>2 and roots:
+            axis=1 if sp=='bean' else 0;extent=plot['depth'] if axis else plot['width'];steps=24 if axis else 12
+            clusters=[]
+            for value in sorted(r[axis] for r in roots):
+                if not clusters or value-clusters[-1][-1]>.18:clusters.append([])
+                clusters[-1].append(value)
+            rows=[sum(values)/len(values) for values in clusters]
+            stations=[-extent/2+.025,*rows,*[(a+b)/2 for a,b in zip(rows,rows[1:])],extent/2-.025]
+            stations=sorted(set(stations))
+            while len(stations)<steps+1:
+                gap=max(range(len(stations)-1),key=lambda i:stations[i+1]-stations[i]);stations.insert(gap+1,(stations[gap]+stations[gap+1])/2)
+            if len(stations)==steps+1:
+                for i in ids:
+                    vertex=ob.data.vertices[i].co
+                    if abs(vertex[axis])>=extent/2-.024:continue
+                    index=round((vertex[axis]+extent/2-.025)/(extent-.05)*steps)
+                    vertex[axis]=stations[max(0,min(steps,index))]
         for i in ids:
             v=ob.data.vertices[i].co
             if plot['edge'] not in ('accessible',):
                 distance=min((math.hypot(v.x-r[0],v.y-r[1]) for r in roots),default=10)
-                ridge=.014*(1+math.sin((v.y/1.05 if sp=='bean' else v.x/.70)*math.tau)) if w>2 else .012*math.sin(v.y*7+v.x*3)
+                if w>2:
+                    coordinate=1 if sp=='bean' else 0
+                    distance_to_row=min((abs(v[coordinate]-r[coordinate]) for r in roots),default=10)
+                    fade=min(1,max(0,(plot['width']/2-abs(v.x))/.12),max(0,(plot['depth']/2-abs(v.y))/.12))
+                    ridge=.055*math.exp(-(distance_to_row/.19)**2)*fade
+                else:ridge=.012*math.sin(v.y*7+v.x*3)
                 v.z+=ridge-.014*math.exp(-(distance/.16)**2)
         for f in ob.data.polygons:
             if ob.data.materials[f.material_index]==Q.M['Soil'] and plot['state'] in ('tidy','lush'):
                 x,y=f.center.x,f.center.y
                 watered=any(math.hypot(x-r[0],y-r[1])<.30*(1+.12*math.sin(x*13+y*7)) for r in roots)
                 if watered:f.material_index=list(ob.data.materials).index(Q.M['WetSoil'])
+        ob.data.update()
+        # Recompute only deformed earth normals. Manufactured board/bevel
+        # normals keep their accepted values; terrain gets smooth area normals.
+        earth={face.index for face in ob.data.polygons if ob.data.materials[face.material_index] in (Q.M['Soil'],Q.M['WetSoil'])}
+        accum={}
+        for face in ob.data.polygons:
+            if face.index in earth:
+                for i in face.vertices:accum[i]=accum.get(i,Vector())+face.normal*face.area
+        normals=[n.vector.copy() for n in ob.data.corner_normals]
+        for face in ob.data.polygons:
+            if face.index in earth:
+                for li in face.loop_indices:normals[li]=accum[ob.data.loops[li].vertex_index].normalized()
+        ob.data.normals_split_custom_set(normals)
         Q.finish_uv(ob,{'Soil','WetSoil'})
     # The roots remain embedded after dishing, and correspond to the real mesh.
     from mathutils.bvhtree import BVHTree
@@ -207,11 +259,24 @@ def garden(p):
     # An aged chip surface belongs to the city lot; broad grass alleys frame
     # park/newer plots. Compacted fines form the shared accessible route.
     ma='Chip' if p['archetype']=='city' else 'Lawn'
-    Q.box('Garden base',(0,0,-.040),(W,D,.06),ground,ma)
+    Q.box('Garden base',(0,0,-.0305 if p['archetype']=='park' else -.040),(W,D,.06),ground,'Soil' if p['archetype']=='park' else ma)
     for j in range(math.ceil(D)):
         for i in range(math.ceil(W)):
             x0=-W/2+i*W/math.ceil(W);x1=-W/2+(i+1)*W/math.ceil(W);y0=-D/2+j*D/math.ceil(D);y1=-D/2+(j+1)*D/math.ceil(D)
-            Q.mesh('Meter soil/chip/lawn tile',[(x0,y0,0),(x1,y0,0),(x1,y1,0),(x0,y1,0)],[(0,1,2,3)],ground,ma,upward=True)
+            # Cut cultivated park openings right out of the turf.
+            parts=[(x0,x1,y0,y1)]
+            if p['archetype']=='park':
+                for bed in [*p['plots'][:8],*p.get('flower_borders',[])]:
+                    bx,by=bed['center'];l,r=bx-bed['width']/2,bx+bed['width']/2;f,k=by-bed['depth']/2,by+bed['depth']/2
+                    nextparts=[]
+                    for a,b,c,d in parts:
+                        if b<=l or a>=r or d<=f or c>=k:nextparts.append((a,b,c,d));continue
+                        if a<l:nextparts.append((a,l,c,d))
+                        if b>r:nextparts.append((r,b,c,d))
+                        if c<f:nextparts.append((max(a,l),min(b,r),c,f))
+                        if d>k:nextparts.append((max(a,l),min(b,r),k,d))
+                    parts=nextparts
+            for a,b,c,d in parts:Q.mesh('Meter soil/chip/lawn tile',[(a,c,0),(b,c,0),(b,d,0),(a,d,0)],[(0,1,2,3)],ground,ma,upward=True)
     # Partition the union of firm routes once. Coplanar crossing rectangles
     # previously z-fought and made the park's main route appear interrupted.
     # Grass cross alleys are the native grade, never an overlay on the spine.
@@ -235,6 +300,8 @@ def garden(p):
                 if inside((a[0]+b[0])/2+dx*1e-6,(a[1]+b[1])/2+dy*1e-6):continue
                 c=(b[0]+dx*.10,b[1]+dy*.10,0);d=(a[0]+dx*.10,a[1]+dy*.10,0)
                 Q.mesh('Feathered outside path shoulder',[a,b,c,d],[(0,3,2,1)],ground,mat,upward=True)
+    if p['archetype']!='city':groundcover.turf(p,ground)
+    if p['archetype']=='accessible':groundcover.gravel_edges(p,ground)
     Q.join(ground)
     for plot in p['plots']:
         x,y=plot['center'];w,d=plot['width'],plot['depth']
@@ -251,6 +318,23 @@ def garden(p):
             # Weed cloth shows only in a narrow torn patch beside a bed.
             Q.mesh('Worn weed cloth edge',[(w/2,-.35,.009),(w/2+.12,-.28,.012),(w/2+.07,.14,.01),(w/2,.26,.009)],[(0,1,2,3)],bed,'Cloth')
         Q.join(bed)
+    # Informal planted entry margins: July flowers join the sign to the
+    # cultivated site, rather than a sign isolated on a broad bare apron.
+    for index,border in enumerate(p.get('flower_borders',[])):
+        x,y=border['center'];w,d=border['width'],border['depth'];patch=Q.root('Entry flower border','planting',rt)
+        vertices=[(x+(i/6-.5)*w,y+(j/2-.5)*d,.018+.003*math.sin(i*2+j)) for j in range(3) for i in range(7)]
+        faces=[(j*7+i,j*7+i+1,(j+1)*7+i+1,(j+1)*7+i) for j in range(2) for i in range(6)]
+        Q.mesh('Cultivated flower-border soil',vertices,faces,patch,'Soil',upward=True)
+        # The public flower strip is mounded into the neighboring grade,
+        # with real soil slopes rather than an unsupported flat overlay.
+        for side in (-1,1):
+            Q.mesh('Flower strip sloped long soil edge',[(x-w/2,y+side*d/2,.018),(x+w/2,y+side*d/2,.018),(x+w/2+.08,y+side*(d/2+.08),-.04),(x-w/2-.08,y+side*(d/2+.08),-.04)],[(0,1,2,3)],patch,'Soil',upward=True)
+            Q.mesh('Flower strip sloped soil end',[(x+side*w/2,y-d/2,.018),(x+side*w/2,y+d/2,.018),(x+side*(w/2+.08),y+d/2+.08,-.04),(x+side*(w/2+.08),y-d/2-.08,-.04)],[(0,1,2,3)],patch,'Soil',upward=True)
+        for j in range(6):
+            flower=Q.instance(PLANTS['marigold_2_0_field'],'Entry flowering marigold',(x+(j-2.5)*.28,y+.05*math.sin(j),.004),j*137+index*53,patch)
+            flower.scale*=1.45+.08*math.sin(j*1.7+index)
+        Q.instance(PLANTS['sunflower_2_0_field'],'Entry sunflower',(x+(-.60 if index==0 else .60),y+.13,.004),index*133,patch)
+        Q.join(patch)
     infrastructure=[]
     sx,sy=p['service'];shed=place('NativeShed','ToolShed',(sx,sy,0),rt);infrastructure.append(shed)
     site_finish={'city':'Blue','park':'OldWood','accessible':'Green'}[p['archetype']]
@@ -303,7 +387,8 @@ def garden(p):
     place('Wheelbarrow','Wheelbarrow',barrow,rt,-25)
     # One short row-cover is over a freshly planted plot; it never crosses a route.
     fresh=next(q for q in p['plots'] if q['state']=='new' and min(q['width'],q['depth'])<2)
-    x,y=fresh['center'];place('RowCover','Row cover',(x,y,fresh['soil_z_world']-.025),rt,90 if fresh['width']>fresh['depth'] else 0)
+    x,y=fresh['center']
+    if p['archetype']!='city':place('RowCover','Row cover',(x,y,fresh['soil_z_world']-.025),rt,90 if fresh['width']>fresh['depth'] else 0)
     # Netting over a separate low crop, tied to four actual stakes. The sag
     # follows the unsupported span, and shares an otherwise unused leaf tile.
     netplot=next(q for q in p['plots'] if q['crop'] in ('lettuce','herb','kale') and q['state']!='fallow')
@@ -335,10 +420,16 @@ def garden(p):
     entry=Q.socket(rt,'Socket_StreetEntry',(0,-D/2,.014),'site_entry');entry.rotation_euler.z=math.pi
     sign=Q.root('GardenSign','infrastructure',rt)
     compact=p['archetype']=='park';span=1.05 if compact else 2.35;height=.66 if compact else .58
-    for x in (3.4-span*.42,3.4+span*.42):Q.box('Garden sign ground post',(x,-D/2+.25,.95),(.0889,.0889,1.90),sign,'OldWood')
-    Q.box('Garden sign boards',(3.4,-D/2+.24,1.45),(span,.0381,height),sign,'OldWood' if compact else 'Green')
-    Q.text(sign,'MEADOW\nCOMMONS' if compact else p['name'],(3.4,-D/2+.218,1.49 if compact else 1.50),.105 if compact else .118,'Steel' if compact else 'White')
-    Q.text(sign,'GARDEN' if compact else 'COMMUNITY GARDEN',(3.4,-D/2+.218,1.23 if compact else 1.29),.095,'Steel' if compact else 'White');Q.join(sign)
+    sign_x=p.get('sign_x',3.4)
+    for x in (sign_x-span*.42,sign_x+span*.42):Q.box('Garden sign ground post',(x,-D/2+.25,.95),(.0889,.0889,1.90),sign,'OldWood')
+    Q.box('Garden sign boards',(sign_x,-D/2+.24,1.45),(span,.0381,height),sign,'OldWood' if compact else 'Green')
+    Q.text(sign,'MEADOW\nCOMMONS' if compact else p['name'],(sign_x,-D/2+.218,1.49 if compact else 1.50),.105 if compact else .118,'Cloth' if compact else 'White')
+    Q.text(sign,'GARDEN' if compact else 'COMMUNITY GARDEN',(sign_x,-D/2+.218,1.23 if compact else 1.29),.095,'Cloth' if compact else 'White');Q.join(sign)
+    if compact:
+        # Street-facing angled board on the cultivated frontage. Its whole
+        # assembly rotates about its centre and stays clear of the wire.
+        center=Vector((sign_x,-D/2+.24,0));shift=Vector((0,p['sign_inset']-.24,0))
+        sign.matrix_world=Matrix.Translation(center+shift)@Matrix.Rotation(math.radians(p['sign_yaw_degrees']),4,'Z')@Matrix.Translation(-center)
     # Give the margins living weeds: rooted clumps under posts and in corners.
     for j in range(20):
         x=(-1 if j%2 else 1)*(W/2-.16);y=rng.uniform(-D/2+.3,D/2-.4)
@@ -349,10 +440,10 @@ def garden(p):
 def main():
     a=argparse.ArgumentParser();a.add_argument('--out',default='build/gardens.blend');a.add_argument('--seeds',type=int,nargs='+',default=list(SEEDS));a.add_argument('--archetype',choices=('city','park','accessible'));args=a.parse_args(sys.argv[sys.argv.index('--')+1:])
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.context.scene.unit_settings.system='METRIC';Q.palette();Q.finishes()
-    plants.material('textures/checkpoint');fence.material('build/context/chain')
+    plants.material('textures/ship');fence.material('build/context/chain')
     # Reuse native tiling sets in surface-only checkpoint roles; all three seeds
     # reference the same files. No existing map is rebaked or overwritten.
-    for name in ('Lawn',):Q.M[name]=tiling.material(name,REPO/'ground/textures/ship')
+    for name in ('Lawn',):Q.M[name]=groundcover.material(REPO)
     LIB.update(pieces.library());PLANTS.update(plants.library())
     before=set(bpy.context.scene.objects);bpy.ops.import_scene.gltf(filepath=str(Path('build/context/shed.glb').resolve()))
     added=set(bpy.context.scene.objects)-before
@@ -369,13 +460,13 @@ def main():
     root=next(o for o in added if o.parent not in added);root.name='NativeShed';LIB[root.name]=root
     modules=[*LIB.values(),*PLANTS.values()]
     counts={o.name:dict(kind=o['kind'] if 'kind' in o else 'shed',triangles=Q.count(o)) for o in modules}
-    export('export/checkpoint/CommunityGardenPieces.gltf',modules)
+    export('export/final/CommunityGardenPieces.gltf',modules)
     # Save prototypes separately to support an exported-pieces sheet.
     Path('build').mkdir(exist_ok=True);Path('build/pieces.json').write_text(json.dumps(counts,indent=2))
     for seed in args.seeds:
         p=plan(seed,args.archetype);rt=garden(p);count=Q.count(rt)
-        export(f'export/checkpoint/Garden_{seed}.gltf',[rt])
-        info=dict(plan=p,triangles=count,modules=counts,stage='lookdev: baked shared PBR surfaces and analytic 1K species leaves')
+        export(f'export/final/Garden_{seed}.gltf',[rt])
+        info=dict(plan=p,triangles=count,modules=counts,stage='baked external-image glTF family; shared PBR surfaces and analytic 1K species leaves')
         Path(f'build/garden-{seed}.json').write_text(json.dumps(info,indent=2));print('GARDEN',seed,count,flush=True)
         remove(rt)
     for rt in modules:remove(rt)
