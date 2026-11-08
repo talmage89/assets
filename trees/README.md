@@ -275,11 +275,19 @@ Load these files as alternatives and configure Godot visibility ranges, Unity LO
 
 Intermediate levels reduce branches and retain fewer, enlarged source leaf cards. Their source UVs, bent normals and Wind fields remain; the last impostor freezes wind and lighting.
 
-Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/check.json` and `normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/check.json` and `export/lod/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/RedMaple/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
 
 Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048; LOD2: 3 × 2048×2048; LOD3: 1 × 1024×256; LOD3 camera-facing: 1 × 2048×1024.
 
 LOD1/2 retain fewer, enlarged source leaf cards, their original UVs, bent normals and Wind fields; wood simplifies separately. LOD3 is four fixed crossed planes / eight triangles, one material and one draw, fitted jointly to 32 renders of this tree. It works without an engine controller. The separate camera-facing alternative has two triangles and a 32-sector atlas. `kit/lod_impostor.py:pose` is its reference controller. Both impostors freeze lighting and wind; overhead views, changing sun and continuous angular blending remain limitations.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 40,264 | 3 | 7 | 15,769,169 | 21.2044 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 2 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
 
 <!-- LOD checkpoint: end -->
 

@@ -2531,3 +2531,42 @@ Near levels add no image and retain all four canonical source materials;
 active draws are 30/30/30/1. Mesh, render and independent audit commands
 return zero; the render command's zero exit means images were produced,
 not that its failed image gates were accepted.
+
+## Pass 67 — final colonial strips and all six original checks
+
+Opened every newly rebuilt colonial native strip, all four construction views
+and the contact sheet. Color/value comes first: the near garage panels, siding,
+roof and window trim retain the original response. The long dark vertical
+window seams from the cheaper baseline are absent at both switches. The near
+levels pass every original color/coverage limit, including .08 local; no near
+phase allowance remains. LOD1 mean RGB is .00139/.00139/.00107 and local
+.05850/.04853/.01430. LOD2 mean is .00285/.00254/.00172 and local
+.02043/.02157/.01074; alpha/IoU errors stay below .00037.
+
+The 512 proxy visibly blurs shingles and trim at the construction camera. At
+its actual 4.5% switch it retains the broad wall/roof values and openings;
+brighter trim pixels are within the measured unchanged-source phase floor.
+Reference mean is .02593/.01926/.01015, p95 .10980/.08245/.04706 and local
+.07079/.06348/.04444. It passes the already documented far-only .03/.13/.10
+limits, with unchanged alpha/IoU gates. This is a native-size phase correction,
+not a global lighting, palette, color-space or occlusion adjustment. The
+original .75-pixel source controls remain its justification.
+
+The final chain is 28698/18427/1798 against 58232 original triangles:
+49.28%/31.64%/3.09%. LOD1 meets 55%; LOD2 misses 25%. The cheaper
+13218-triangle seam failure remains at
+`build/lod-v4/house-seam-baseline/renders/LOD2-55-strip.jpg`. This is the
+lowest reviewed passing middle setting, not a global minimum. Six canonical
+materials and ten active draws remain near; the proxy has one of each.
+Residency is 48.795 MiB versus LOD0's 42.837 MiB, including every mesh and
+only the proxy's 1.333 MiB of new images. The final manifest is
+`e1312a1dce7c354a8d250f85d1b1c423eeeeb9d5809decd955aa045af93fb235`.
+Captured mesh, render and full `make check-lod` commands return zero; the
+independent original UV/frame audit passes. Render peak child RSS is
+1677908 KiB; the full check peaks at 604192 KiB.
+
+All six pilots' original `make check` commands also return zero after their
+final mesh manifests. Exact frozen-input commands and results are in
+`build/lod-v4/original-checks.json`; batch peak child RSS is 1358048 KiB.
+A subsequent preservation audit finds all 501 original delivery/docs files
+byte-identical. No source or tool edit occurred during this validation.
