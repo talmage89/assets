@@ -37,6 +37,9 @@ include ../kit/checkpoint_rules.mk
 BP += -t 2
 export BLENDER
 export PYTHONDONTWRITEBYTECODE := 1
+# Completed frames have individual image/source receipts. Preserve them when
+# a shared-machine render batch is interrupted; the driver validates reuse.
+.PRECIOUS: $(CHECKPOINT_RENDER_OUTPUTS)
 
 build/native.stamp: src/native_build.py src/dependencies.py $(wildcard ../shed/src/*.py) $(wildcard ../utility/src/*.py) $(wildcard ../playground/src/*.py)
 	@mkdir -p build $(TMPDIR)
