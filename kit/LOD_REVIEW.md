@@ -2290,3 +2290,22 @@ The unused cold diagnostic variants remain archived; they are not adopted or
 reported as completed tests. The canonical pickup rebuild is queued, followed
 by its full check and a separately scoped geometry/field audit if the far image
 check fails. The full failed image result is preserved.
+
+## Pass 60 — second frozen-tool adopter at its intended size
+
+Opened all nine fresh WoodPrivacy native strips, six module construction views
+and three contact sheets. Section A/B retain 248/664 triangles each (37.35%);
+the gate retains 230/712 (32.30%). The complete three-config `make check-lod`
+passes. Native values and grain stay consistent; plank seams sharpen slightly,
+with worst mean .00593, p95 .02985, local .02708, alpha .03222 and silhouette
+loss .03357 across all kinds/views, inside unchanged limits. Source dog-ear
+profiles and bevels become square/coarse in the deliberately closer construction
+views; that limitation is visible and is not described as close-view equivalence.
+At the 9% switches the boards, rails and gate still read correctly. Existing
+20-triangle posts remain LOD0-only.
+
+Both family rebuild/render/check sequences return zero, and every literal
+`sha256sum -c build/lod-freeze.sha256` entry matches, including the recipe.
+The tool was not edited during adoption. The assembled-joint proof and all
+post-build original checks remain pending; passing isolated modules is not
+reported as proof of their assembled support contacts.

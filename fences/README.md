@@ -412,11 +412,19 @@ Load these files as alternatives and configure Godot visibility ranges, Unity LO
 
 Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
 
-Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/section-a/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/section-a/check.json` and `export/lod/section-a/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/section-a/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/section-a/check.json` and `export/lod/section-a/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/Section_A/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
 
 Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048.
 
 Selected placement roots: `Section_A`. LOD0 triangles, materials and draws describe those modules; its load bytes, maps and mesh allocation describe the complete unchanged original container. Extraction savings are separate from reduction. Retain child transforms when replacing a selected root placement.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 2,348 | 1 | 9 | 19,576,336 | 16.2137 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 1 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
 
 <!-- LOD checkpoint section-a: end -->
 
@@ -441,11 +449,19 @@ Load these files as alternatives and configure Godot visibility ranges, Unity LO
 
 Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
 
-Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/section-b/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/section-b/check.json` and `export/lod/section-b/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/section-b/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/section-b/check.json` and `export/lod/section-b/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/Section_B/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
 
 Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048.
 
 Selected placement roots: `Section_B`. LOD0 triangles, materials and draws describe those modules; its load bytes, maps and mesh allocation describe the complete unchanged original container. Extraction savings are separate from reduction. Retain child transforms when replacing a selected root placement.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 2,348 | 1 | 9 | 19,576,336 | 16.2137 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 1 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
 
 <!-- LOD checkpoint section-b: end -->
 
@@ -470,12 +486,20 @@ Load these files as alternatives and configure Godot visibility ranges, Unity LO
 
 Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
 
-Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/gate-bay/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/gate-bay/check.json` and `export/lod/gate-bay/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/gate-bay/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/gate-bay/check.json` and `export/lod/gate-bay/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/Gate_Bay/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
 
 Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048.
 
 LOD1 separate moving meshes: `GateMesh`, `LatchMesh`.
 
 Selected placement roots: `Gate_Bay`. LOD0 triangles, materials and draws describe those modules; its load bytes, maps and mesh allocation describe the complete unchanged original container. Extraction savings are separate from reduction. Retain child transforms when replacing a selected root placement.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 2,330 | 1 | 11 | 19,575,493 | 16.2113 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 3 to 3 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
 
 <!-- LOD checkpoint gate-bay: end -->
