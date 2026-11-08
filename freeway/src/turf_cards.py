@@ -11,7 +11,6 @@ import geom as Q
 from textures import rect
 
 def plant(p,parent):
- from roadside import soil_tree
  vertices=[];faces=[]
  for ob in bpy.context.scene.objects:
   if ob.type!='MESH':continue
@@ -25,7 +24,16 @@ def plant(p,parent):
    if ob.data.materials[face.material_index] not in (Q.M['Asphalt'],Q.M['Concrete'],Q.M.get('WheelPolish'),Q.M.get('AsphaltPolish')):continue
    pts=[vertices[offset+i] for i in face.vertices]
    if (pts[1]-pts[0]).cross(pts[2]-pts[0]).z>0:faces.append(tuple(offset+i for i in face.vertices))
- paving=BVHTree.FromPolygons(vertices,faces,all_triangles=True);soil=soil_tree()
+ paving=BVHTree.FromPolygons(vertices,faces,all_triangles=True)
+ # The curved scene's median is a separate graded skin, above its far field.
+ # Sampling only the cut-slope mesh would bury all median cards underneath it.
+ vertices=[];faces=[]
+ bpy.context.view_layer.update()
+ for ob in bpy.context.scene.objects:
+  if ob.type!='MESH' or not ob.name.startswith(('Cut slopes and drainage','WideMedian__Mesh')):continue
+  offset=len(vertices);vertices.extend(ob.matrix_world@v.co for v in ob.data.vertices)
+  ob.data.calc_loop_triangles();faces.extend(tuple(offset+i for i in f.vertices) for f in ob.data.loop_triangles)
+ soil=BVHTree.FromPolygons(vertices,faces,all_triangles=True)
  rng=random.Random(p.seed+919);groups={};count=0
  # Tiles contain many clumps, avoiding one object/draw for each tuft. Eight
  # tile patterns repeat as linked meshes; rotations break their local rhythm.
@@ -52,7 +60,8 @@ def plant(p,parent):
    if rng.random()>density:continue
    x,y,_=p.xyz(s,u);q,normal,_,_=soil.ray_cast(Vector((x,y,30)),Vector((0,0,-1)),60)
    if q is None:continue
-   if any(paving.ray_cast(Vector((x+dx,y+dy,30)),Vector((0,0,-1)),60)[0] is not None for dx,dy in ((0,0),(.8,0),(-.8,0),(0,.8),(0,-.8))):continue
+   probes=((0,0),(1.1,0),(-1.1,0),(0,1.1),(0,-1.1),(.9,.9),(.9,-.9),(-.9,.9),(-.9,-.9))
+   if any(paving.ray_cast(Vector((x+dx,y+dy,30)),Vector((0,0,-1)),60)[0] is not None for dx,dy in probes):continue
    limit=43 if p.kind=='diamond' else 28
    tall=abs(u)>limit
    # Height follows the mowing boundary, with unmown seed drifts rather
