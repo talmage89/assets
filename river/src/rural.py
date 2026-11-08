@@ -7,25 +7,26 @@ from channel import surface_z
 
 
 def add(p,parent,lots):
-    if 'hay' not in G.M:
-        from materials import plain
-        G.M['hay']=plain('River_hay',(.24,.205,.09),.97)
+    # Keep the native lawn's fine stubble normal, with dry harvest color.
+    # Material assignment on actual terrain cannot intersect its own ground.
+    G.M['hay']=G.M['grass'].copy();G.M['hay'].name='River_harvest_stubble'
     ma=G.M['hay'];ma['tiling_vertex_tint']=True
     vc=ma.node_tree.nodes.new('ShaderNodeVertexColor');vc.layer_name='Tint'
     ma.node_tree.links.new(vc.outputs['Color'],ma.node_tree.nodes.get('Principled BSDF').inputs['Base Color'])
     rng=random.Random(p.seed+501);b=G.Batch('FarmRoadsideAndYards',parent,'context')
-    # Dry late-summer hay swaths follow the fields, not an axis-aligned turf
-    # checker. Streamable field ribbons use the existing bank/lawn images.
+    import bpy
+    soil=bpy.context.scene.objects['BedBanksFloodplain']
+    soil.data.materials.append(ma);material_index=len(soil.data.materials)-1
+    tint=soil.data.color_attributes['Tint']
+    for face in soil.data.polygons:
+        x,y,_=face.center
+        edge=max(abs(p.center(y))+p.halfwidth(y)+23,45)
+        if not (49<abs(y)<160 and edge<abs(x)<170):continue
+        face.material_index=material_index
+        row=math.floor((abs(y)-48)/4);value=.97+.035*math.sin(row*2.39)
+        for li in face.loop_indices:tint.data[li].color=(.20*value,.165*value,.078*value,1)
     for side in (-1,1):
         for end in (-1,1):
-            for j in range(36):
-                y=end*(49+j*3.1);c=y+end*3.11
-                edge=max(abs(p.center(y))+p.halfwidth(y)+23,45)
-                for x0,x1 in ((edge,85),(85,135),(135,170)):
-                    if x1<=x0:continue
-                    value=rng.uniform(.92,1.04);col=(.24*value,.205*value,.09*value,1)
-                    pts=[(side*x,yy,surface_z(p,side*x,yy)+.012) for x,yy in ((x0,y),(x1,y),(x1,c),(x0,c))]
-                    b.geom(pts,[(0,1,2,3)],'hay',col,up=True)
             # Post-and-wire field boundary with uneven, supported volunteers.
             for j in range(32):
                 x=side*(40+j*4);y=end*44;z=surface_z(p,x,y)
@@ -46,8 +47,11 @@ def add(p,parent,lots):
         x=(x0+x1)/2;y=(y0+y1)/2;s=1 if y>0 else -1
         road=s*5.0;end=y-s*7
         # Driveway grade to the actual porch/yard elevation.
-        pts=[(xx,yy,surface_z(p,xx,yy)+.04) for xx,yy in ((x-1.65,road),(x+1.65,road),(x+1.65,end),(x-1.65,end))]
-        b.geom(pts,[(0,1,2,3)],'bank',(.92,.89,.80,1),up=True)
+        steps=max(2,math.ceil(abs(end-road)))
+        for j in range(steps):
+            a=road+(end-road)*j/steps;c=road+(end-road)*(j+1)/steps
+            pts=[(xx,yy,surface_z(p,xx,yy)+.025) for xx,yy in ((x-1.65,a),(x+1.65,a),(x+1.65,c),(x-1.65,c))]
+            b.geom(pts,[(0,1,2,3)],'bank',(.92,.89,.80,1),up=True)
         mx=x-2.4;my=s*6.8;z=surface_z(p,mx,my)
         # Small original rural box uses the native mailbox's arch vocabulary.
         b.box((mx,my,z+.53),(.089,.089,1.06),'wood')

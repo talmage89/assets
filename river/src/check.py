@@ -196,7 +196,8 @@ def construction(seed):
             bounds=np.array(corners);lo=bounds.min(axis=0);hi=bounds.max(axis=0)
             along=pts[(pts[:,1]>=lo[1]-1)&(pts[:,1]<=hi[1]+1)]
             assert all(x+1.65<lo[0] or x-1.65>hi[0] for x,y,z in along),('Building over riverwalk',building.name,lo.tolist(),hi.tolist())
-        assert building_walk_checks==48,('Missing building/walk audit',building_walk_checks)
+        town=next(o for o in obs if o.name=='TownContext')
+        assert building_walk_checks==len(json.loads(town['riverfront_lots'])),('Missing building/walk audit',building_walk_checks)
         walk=bvh(next(o for o in obs if o.name=='FloodwallTrailAndAccess'))
         beams=[bvh(o) for o in obs if o.type=='MESH' and o.name.startswith('Girder_')]
         stations=sorted({round(sum((o.matrix_world@v.co).y for v in o.data.vertices)/len(o.data.vertices),5) for o in obs if o.type=='MESH' and o.name.startswith('Girder_')})

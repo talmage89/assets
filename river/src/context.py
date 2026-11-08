@@ -144,6 +144,8 @@ def add(p,parent):
         if p.kind=='downtown':continue
         if side<0 and abs(abs(x-p.center(y))-p.halfwidth(y)-7)<1.4:continue
         ob=instance(native/'shrub.glb','Native bank shrub '+str(i),(x,y,surface_z(p,x,y)-.02),veg,
-                    rng.uniform(0,360),rng.uniform(.75,2.1),category='vegetation')
-        s=ob.scale.x;ob.scale=(s*rng.uniform(.8,1.2),s*rng.uniform(.8,1.15),s*rng.uniform(1.15,1.7))
+                    rng.uniform(0,360),rng.uniform(.75,1.9),category='vegetation')
+        s=ob.scale.x;ob.scale=(s*rng.uniform(1.0,1.6),s*rng.uniform(.9,1.5),s*rng.uniform(.65,1.05))
+        ob.rotation_euler.x=math.radians(rng.uniform(-9,9))
+        ob.rotation_euler.y=math.radians(rng.uniform(-9,9))
     return rt
