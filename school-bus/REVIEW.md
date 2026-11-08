@@ -576,3 +576,47 @@ deliveries contain six planes and all 36 corners; maximum UV distance is
 2.98×10⁻⁸. This proves the intended markings survive, separately from the
 existing source/export serialization check. The shared baked images did
 not change. Regenerate the complete gallery with the corrected fleet.
+
+## Round 2 — look pass 8, final atlas and same-camera repairs
+
+Color/value first: reviewed the complete eighteen-view Cycles set, eight
+source/export photo pairs, Eevee, the historical hero and all seven repair
+pairs at native size. This set exposed the alternate-marking regression
+above; seed 101's final glTF/BIN remain byte-identical after that repair.
+The used-side paint field measures 210/136/33 against the photo's 223/130/1,
+after neutral balance on the white trailer behind its nose. This is rendered
+appearance under different real surroundings, not a calibrated albedo match.
+The snow-balanced first front and stripe-balanced second maker support the
+warmer orange-yellow choice. Roof highlights still become peach under the
+sky; the main sunlit yellow stays saturated and has no clipped channels.
+
+The school hero fills the frame at 44mm, with the canopy beside the bus,
+walk, curb and two queued seeds. Deep shade remains beneath it and inside
+the wheel wells. At full frame, lower splash deposits, leading fender chips
+and dull skirt edges remain visible after baking. Bus-only display luma
+has 30.51% below 25/255; paint median/p99 are .544/.642, with zero clipped
+channels. The masks exclude campus and sky. These support visual judgement
+and do not establish physical albedo or photorealism by themselves.
+
+The front's crown falls toward the recessed mouth; its shoulder sweeps back
+into the cowl without the original yellow plate. Raking-light views and
+five actual section cuts show changing transverse curvature. Both makers'
+photos remain comparisons of construction, not contours to reproduce.
+The clear covers reveal separate reflectors, and the grille has a dark
+return behind its surround. Source-to-bake loss is chiefly fine surface
+relief, rather than the compound silhouette.
+
+The side match uses the long service body and all eight body/wheel anchors:
+23.62 native pixels at 26.84mm, or 16.40px on the 1400px comparison grid.
+The upper/lower window values are now dark, with far-pane light and seat
+silhouettes; rear overcast reflection remains grayer than the service photo.
+Gray lining, coves, modesty panel, rubber floor and yellow nosings separate
+the cabin from the shell. Adult-height daylight reveals crowned upholstery,
+welts, scuffs and two tape patches; the original low camera is brighter too.
+The first step is a shallow folded pan rather than a skirt-height block.
+
+Remaining CG tells: warning and rear lamps have simple optics; controls are
+basic; fine fasteners and lettering soften at this atlas density. Runoff is
+now narrow and broken, but retains some regularity. The cabin is intended
+for exterior views, not close first-person play. Accept this look checkpoint
+subject to the corrected fleet render and final proof audit; defer docs.

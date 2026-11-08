@@ -1,10 +1,10 @@
-# Morrow C75 school bus — form and construction checkpoint
+# Morrow C75 school bus — round 2 look checkpoint
 
 An original late-2000s American Type C conventional, with a 75-child seating
 layout and three fictional district/fleet seeds. Built entirely by scripts
-in Blender 5.2. This delivery stops at the requested **form and construction
-checkpoint**: UVs, preliminary baked materials, external-image glTF and
-exported Cycles evidence. Final coating/wear development remains separate.
+in Blender 5.2. This round develops the compound fiberglass front, cabin,
+glass, enamel and service wear, then checks the external-image glTF under
+Cycles. It stops before final documentation images and a README gallery.
 
 The body has split-sash windows, four pressed rub rails, sheet seams and
 normal-baked fasteners, roof caps, two roof hatches, a genuine entrance and
@@ -45,11 +45,11 @@ the period 2010/2015 NSTSP and 2012 CFR FMVSS 111, 131, 217 and 220–222 basis.
 
 | Allocation | Triangles |
 | --- | ---: |
-| Body, glazing, lamps and chassis, excluding wheels | 37,812 |
-| Six tires, steel wheels, hubs and lugs | 31,200 |
-| Exterior subtotal | **69,012** / 70,000 |
-| Interior | 10,852 |
-| Total, each exported seed | **79,864** / 90,000 |
+| Body, glazing, lamps and chassis, excluding wheels | 43,658 |
+| Six tires, steel wheels, hubs and lugs | 25,632 |
+| Exterior subtotal | **69,290** / 70,000 |
+| Interior | 17,264 |
+| Total, each seed | **86,554** / 90,000 |
 
 Fine sheet fasteners, roof laps, tread, corrosion and scratches are baked
 fields. Geometry carries the six tire silhouettes, graded wheel lips,
@@ -58,22 +58,31 @@ mechanisms. The per-source-mesh and per-pivot counts are in
 `build/model-check.json`; fresh imported mesh counts are in each
 `build/delivery-<seed>.json`.
 
+The hood/fenders share a supported subdivision cage and a 6 mm laminate.
+The dense level-3 mold supplies baked curvature; routed lamp-opening returns
+keep their exact mesh normals. Bowed clear covers sit ahead of formed
+reflectors inside hollow buckets. Actual transverse section cuts and optical
+intersection checks accompany the front renders. Concealed wheel detail pays
+for the front and rounded, crowned cabin upholstery without exceeding either
+triangle allocation. Gray inner lining, rubber coves and folded step pans
+replace the exterior-yellow cabin surfaces.
+
 The same total by exported group (carriers exclude their wheel children):
 
 | Group | Count × triangles | Subtotal |
 | --- | ---: | ---: |
-| Static `SchoolBusMesh`, including cabin | 1 × 45,024 | 45,024 |
+| Static `SchoolBusMesh`, including cabin | 1 × 57,282 | 57,282 |
 | Entrance leaves | 2 × 472 | 944 |
 | Rear emergency door | 1 × 734 | 734 |
 | Side emergency door | 1 × 550 | 550 |
 | Roof hatches | 2 × 228 | 456 |
 | Steering carriers | 2 × 92 | 184 |
-| Front wheels | 2 × 5,392 | 10,784 |
-| Rear outer wheels | 2 × 5,392 | 10,784 |
-| Rear inner wheels | 2 × 4,816 | 9,632 |
+| Front wheels | 2 × 4,656 | 9,312 |
+| Rear outer wheels | 2 × 4,656 | 9,312 |
+| Rear inner wheels | 2 × 3,504 | 7,008 |
 | Stop arm | 1 × 616 | 616 |
 | Crossing arm | 1 × 156 | 156 |
-| Total | 17 mesh groups | **79,864** |
+| Total | 17 mesh groups | **86,554** |
 
 ## Export and runtime use
 
@@ -87,6 +96,9 @@ mesh buffers are separate. Four car-family surfaces distinguish paint,
 opaque fittings/interior, transmissive glass and switchable lamps. Paint needs
 its clearcoat response separately from rubber/vinyl; glass and switchable
 emission account for the other two bindings. All four sample the same images.
+The standard glTF clearcoat roughness also reads ORM green, so deposited dirt
+does not retain the clean coating's narrow highlight. This reuses the existing
+texture and UVs; it adds no image or material.
 
 The car family does not ship a standalone tire/glass image set. This checkpoint
 imports its original tire, glass, paint and lamp generators and atlas methods;
@@ -99,18 +111,20 @@ Fresh imported delivery sizes, in bytes:
 
 | Payload | Seed 101 | Seed 102 | Seed 103 |
 | --- | ---: | ---: | ---: |
-| glTF | 50,546 | 50,548 | 50,546 |
-| BIN | 7,025,912 | 7,025,912 | 7,025,912 |
+| glTF | 53,344 | 53,345 | 53,344 |
+| BIN | 9,182,716 | 9,182,716 | 9,182,716 |
 
-The shared images total **5,010,989 bytes**: BaseColor 1,013,276,
-Normal 1,619,204 and ORM 2,378,509. PNG storage size is distinct from the
-16 MiB GPU estimate. Imported UV coverage is 36.89%, with p5/median/p95
-density 36.94/70.25/127.69 px/m; there are zero overlapping or out-of-bounds
-triangles. This conservative, many-chart pack loses fine fastener and wear
-detail at 2048; its weak density is a checkpoint limitation, not an optimal
-atlas claim.
+The shared images total **5,626,289 bytes**: BaseColor 1,499,157,
+Normal 1,611,875 and ORM 2,515,257. PNG storage size is distinct from the
+16 MiB GPU estimate. All three seeds contain their own six district, fleet
+and plate planes. Imported UV coverage is 35.35%, with p5/median/p95 density
+35.86/65.63/120.93 px/m and zero overlaps or out-of-bounds triangles. The source
+pack covers 37.09%, including all three guarded lettering regions. Entrance
+treads and the first two bench rows receive extra priority in this same atlas.
+Fine fasteners remain softer than the source; this is a conservative many-chart
+pack, not an optimal utilization claim.
 
-| Seed | Fleet | District | Age / preliminary wear |
+| Seed | Fleet | District | Age / wear |
 | --- | --- | --- | --- |
 | 101 | 218 | Cedar Vale Schools | 3 years / .46 |
 | 102 | 307 | North Creek District | 4 years / .67 |
@@ -152,62 +166,79 @@ make -C school-bus export      # all three glTF/BIN files and shared images
 make -C school-bus render      # exported gallery, source/export photo pairs and Eevee
 ```
 
-The lane presentation reads the existing native `school/export/Campus-101.gltf`
-and its relative payloads. That school delivery is a prerequisite presentation
-input; the bus builder, UV, bake and exporter do not depend on it.
+The hero reads native `school/export/Campus-102.gltf` and its relative payloads.
+The original single-socket fit proof also reads `Campus-101.gltf`. These are
+read-only presentation/check inputs; the bus builder, UV, bake and exporter
+do not depend on either. Additional native tree instances share their original
+data. Procedural distant understory candidates are rejected by actual ground
+rays on roads, walks and roofs. No school payload is edited or re-exported.
 
 Every Cycles bake/render uses the kit's shared GPU lock. Scratch files remain
 under this worktree's `build/`. The Makefile includes the shared checkpoint
 rules, imports the sedan's chart-repair finalizer and uses its frozen-coordinate
-bake preparation. The front grille imports the hatchback's open-web method.
+bake preparation. The original grille has a recessed surround and open webs.
 No shared kit or car generator is changed.
 CPU construction/import/camera audits run before one serial GPU render batch;
 photo-pair composition runs after that batch releases the lock. A calibration
-change refreshes only the six photographic comparisons in a separate GPU turn;
+change refreshes only the eight photographic comparisons in a separate GPU turn;
 the verified gallery stays cached.
 
 | Generated evidence | Contents |
 | --- | --- |
-| `renders/checkpoint/hero.png` | Eye-height 40mm Cycles view of the export in native school 101's lane |
+| `renders/checkpoint/hero.png` | Eye-height 44mm Cycles view in native school 102's loading lane, with two queued seeds |
 | `renders/checkpoint/turnaround.jpg` | Front, side, rear, top |
 | `renders/checkpoint/front_detail.png` | Hood, recessed grille, sealed lamps and supported mirrors |
-| `renders/checkpoint/entrance.png`, `interior.png`, `aisle.png` | Open leaves, steps, driver view through the door, separate cabin view |
+| `renders/checkpoint/entrance.png`, `interior.png`, `aisle.png`, `aisle_daylight.png`, `side_interior.png` | Steps, door and side-pane interior views, original aisle camera and adult-height daylight aisle |
 | `renders/checkpoint/warning.png` | Deployed arms and red warning state |
 | `renders/checkpoint/emergency.png`, `roof.png` | Rear exit and open roof lids |
 | `renders/checkpoint/scale.png`, `fleet.png` | 1.8m adult and 1.1m child; three actual seed exports |
 | `renders/checkpoint/contact.jpg` | Complete review contact sheet |
-| `renders/matches/`, `renders/source-matches/` | Three neutral-balanced Commons photographic pairs at calibrated cameras |
+| `renders/matches/`, `renders/source-matches/` | Four neutral-balanced service-photo pairs, including two makers' fronts and a used long body's side |
+| `renders/round2-repairs/` | Native same-camera before/after comparisons; originals remain archived |
+| `renders/round2-front-final/` | Actual five-station transverse triangle cuts |
 | `renders/seethrough/` | Six imported-delivery magenta tests, envelope masks and counts |
 | `renders/eevee/hero.png` | Eevee transmission preview |
 
-The native school sockets reserve 11m buses at 12m centers. This 40ft vehicle
-fits the first straight-curb position. Two parked buses need at least **12.5m center
-spacing**; deployed crossing loops need **14.35m** for a 0.2m game-scene gap.
-Blindly using both original sockets would overlap their bumpers.
-The school files are unchanged. Actual lane contact rays are in `build/school-fit.json`.
+The legacy school-101 sockets reserve 11m buses at 12m centers; blindly using
+both would overlap this 40ft vehicle's bumpers. Parked buses need at least
+**12.5m centers**; deployed crossing loops need **14.35m** for a 0.2m game-scene
+gap. The school-102 presentation uses 12.6m longitudinal spacing, with the
+rear bus angled into the actual east transition. All 18 tires meet native
+asphalt, and 27 transformed body-envelope probes stay inside the corridor
+(maximum measured offset 3.3282m; corridor half-width 3.6576m). Original socket
+and actual staged-fleet proofs are separate: `build/school-fit.json` and
+`build/school-stage.json`.
 
 `build/checkpoint-check.json` gathers the independent reports. Construction
-checks measure the actual surfaces: 146 supported joints, 48 walking-surface
+checks measure the actual surfaces: 153 supported joints, 48 walking-surface
 probes, a 0.614m minimum seat/back clearance, and 508 sampled poses across
 16 mechanisms. The only motion exceptions are the two intentional spindle
 interfaces. Fresh imports separately verify all 17 mesh groups, zero duplicate
-or bad-normal faces, the UV layout and 169,903 bidirectional vertex samples
-per seed with zero vertex/pivot displacement. Those import comparisons prove
+or bad-normal faces, the UV layout and 178,639 bidirectional vertex samples
+per seed, with zero vertex/pivot displacement. A separate check measures all
+36 marking corners against the intended source variant's positions and UVs.
+Those import comparisons prove
 serialization; they do not substitute for the construction measurements.
-Six direct magenta views report zero resolved leaks. All 56 pre-existing
-native school payloads in the preservation manifest retain their hashes.
+Six direct magenta views report zero resolved leak pixels. All 335 other assets' delivery
+and documentation files in the round's preservation manifest retain their
+hashes, including the 56 pre-existing native school payloads.
 
-The quick 4096 bake checks 5,530,394 interior atlas texels per channel, with
+The 4096 bake checks 5,211,610 interior atlas texels per channel, with
 zero unfilled base texels, missing alpha or reversed normal hemispheres.
+The 6,198-triangle hood receives normals from an independent 86,612-triangle
+dense mold: 99.882% measured surface projection coverage, with exact mesh
+normals retained on narrow routed returns. Missing projection beyond 1% fails
+the bake. Independent builds compare 1,155 objects' exact geometry, canonical
+oriented topology, bindings, transforms and metadata; the measured maximum
+smooth-normal component rounding is 1.19×10⁻⁷ against a 10⁻⁶ tolerance.
 Presentation receipts identify actual delivery hashes, pose deltas and scale
 heights; `src/review.py` rejects stale or incorrectly posed evidence.
 
-The remaining weaknesses are visible in [REVIEW.md](REVIEW.md): a broad,
-upright cowl transition, basic lamp optics and driver controls, overly uniform
-seat vinyl, weak fine fastener detail, and wear/age variation that is still
-too subtle at fleet distance. The roof's broad pale highlight and the less
-saturated yellow in the cloudy comparisons need coating calibration. These
-are checkpoint findings for the next stage, not final appearance acceptance.
+The remaining CG tells are described in [REVIEW.md](REVIEW.md): simple
+warning/taillamp optics and driver controls, softened lettering and fine
+fastener relief in the shared atlas, and some regularity in the roof runoff.
+The cabin supports exterior views rather than a fully playable interior.
+These are look-checkpoint limitations; final documentation remains deferred.
 
 No checkpoint image is committed as final documentation. Review images and
 build products regenerate from scripts. Procedural sun/sky supplies all light;
