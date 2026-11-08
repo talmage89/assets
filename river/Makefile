@@ -2,12 +2,13 @@ CHECKPOINT_BLEND := build/river.blend
 CHECKPOINT_OUTPUTS := build/river.blend build/manifest.json export/RiverCrossing-101.gltf export/RiverCrossing-202.gltf export/RiverModules.gltf
 PIECES := TypeIII_Girder18 DeckPanel6 Parapet6 PierColumns PierWall Abutment GuardrailTerminal
 CHECKPOINT_OUTPUTS += export/RiverCrossing-101.bin export/RiverCrossing-202.bin export/RiverModules.bin $(foreach p,$(PIECES),export/pieces/$(p).gltf export/pieces/$(p).bin)
-CHECKPOINT_DEPS := $(wildcard src/*.py) textures/checkpoint/.stamp build/preservation.json build/dependencies.json
+MODEL_SCRIPTS := build plan geometry channel bridge freeway_bridge site age weather plaques context background urban rural materials package
+CHECKPOINT_DEPS := $(addprefix src/,$(addsuffix .py,$(MODEL_SCRIPTS))) textures/checkpoint/.stamp build/preservation.json build/dependencies.json
 CHECKPOINT_DEPS += build/town/manifest.json
 CHECKPOINT_DEPS += $(addprefix ../freeway/src/,pieces.py geom.py plan.py graphics.py)
 CHECKPOINT_CHECK = $(BP) --python src/check.py
-CHECKPOINT_REVIEW = $(PYTHON) src/matches.py --compose && $(PYTHON) src/review.py --gate && $(PYTHON) src/report.py && $(PYTHON) src/resources.py
-CHECKPOINT_RENDER_ARGS := --seeds 101 202 --modules --matches
+CHECKPOINT_REVIEW = $(PYTHON) src/matches.py --compose && $(PYTHON) src/review.py --gate && $(PYTHON) src/report.py && $(PYTHON) src/resources.py && $(PYTHON) src/evidence.py && $(PYTHON) src/checkpoint_report.py
+CHECKPOINT_RENDER_ARGS := --seeds 101 202 --modules --matches --with-baseline
 WIDTH ?= 1280
 SAMPLES ?= 32
 include ../kit/checkpoint_rules.mk
@@ -32,6 +33,9 @@ build/photo-calibration.json: build/manifest.json src/matches.py
 build/town/manifest.json: src/native_town.py
 	$(BP) --python src/native_town.py
 $(CHECKPOINT_RENDER_OUTPUTS): build/photo-calibration.json
+$(CHECKPOINT_RENDER_OUTPUTS): src/views.py src/materials.py build/accepted-rebuild/river/export/RiverCrossing-101.gltf
+build/accepted-rebuild/river/export/RiverCrossing-101.gltf: src/baseline.py
+	$(PYTHON) src/baseline.py --prepare --build
 
 .PHONY: match repeat
 match: render

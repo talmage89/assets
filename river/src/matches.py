@@ -47,8 +47,8 @@ def definitions():
     under=definition('under-concrete-sc.jpg','Concrete I-girder underside / FHWA 2008',[
         ((x-1.10,half,cap_top),1065/2816,1366/2112),
         ((x-1.10,half,cap_top-1.10),1065/2816,1717/2112),
-        ((x-.60,.60,cap_top-1.10),1429/2816,1700/2112),
-        ((x-.60,-.60,cap_top-1.10),1747/2816,1682/2112)],
+        ((x-.60,p.deck_width*.29+.60,cap_top-1.10),1429/2816,1700/2112),
+        ((x-.60,p.deck_width*.29-.60,cap_top-1.10),1747/2816,1682/2112)],
         (-15,0,1.2),(x,0,4),24)
     return dict(urban=(101,urban),bank=(202,bank),under=(101,under))
 
@@ -69,7 +69,7 @@ def prepare():
         # Original photographs remain untouched. The neutral gains are
         # recorded separately from the fitted geometry and not baked into art.
         result[name]['construction_status']='type comparison, not reconstruction'
-        result[name]['shot']['exposure']=1.0 if name=='under' else -.4
+        result[name]['shot']['exposure']=1.6 if name=='under' else -.4
         if name=='under':result[name]['reference_optics']='Estimated virtual lens from four support landmarks; different pile/bearing layout and new age. Four anchors do not certify full girder alignment.'
         if name=='bank':result[name]['reference_optics']='99mm-equivalent photographic EXIF is not imposed on the unsurveyed authored reach. Estimated virtual optics fit its four shore anchors.'
         result[name]['white_balance']=dict(original=original,neutral_patch_xyxy=neutral[name],

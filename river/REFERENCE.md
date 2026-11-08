@@ -13,7 +13,7 @@ replicas or engineered hydraulic/structural designs. Photos are viewed only.
 | Main structure | FDOT 2010 index 20130, drawing revised 2005: standard AASHTO Type III, 45in / 1.143m deep, 16in / .4064m top flange, 22in / .5588m bottom flange, 7in / .1778m web. Bottom-to-top vertical zones 7 / 7.5 / 19 / 4.5 / 7in; ¾in bottom-foot chamfers. Traditional AASHTO section retained in the period; the current publication does not date our fictional bridge. |
 | Spans | Downtown 3 × 60ft / 18.288m; edge 2 × 80ft / 24.384m. Five girders per span, elastomer pads on concrete plinths/steel seating plates, chamfered caps, three 1.2m columns or a 1.3m wall with rounded upstream/downstream noses. Authored arrangement within the standard girder class. |
 | Deck | Downtown 39ft / 11.8872m; edge 35ft / 10.668m. Two 11ft / 3.3528m lanes, 2% crown, 193–260mm concrete deck, 60mm asphalt, 152.4mm raised walks at the road edge. Five girders give 2.497 / 2.192m spacing and .95m deck overhang to exterior girder centerlines. Widths are art choices; Ground's measured materials and paint charts are reused. |
-| Bearing stack | Bottom to top: .20m plinth, .02m steel seating plate, .08m elastomer. Plinth .56 × .70m; plate .4964 × .6103m; pad .4327 × .5205m. Adapted from the landed freeway's native bearing layers; fresh-import ray casts measure actual girder/pad and plinth/support contact. No load rating is implied. |
+| Bearing stack | Bottom to top: .20m plinth, .02m steel seating plate, .064m elastomer with two visible laminations, .016m sole plate. Plinth .56 × .70m; seat plate .4964 × .6103m; pad .4327 × .5205m. Added keeper angles, four anchors and nuts retain the accepted .30m stack height. Adapted from the landed freeway's native layers; fresh-import rays measure actual girder/sole and plinth/support contact. No load rating is implied. |
 | Other bridge construction | Expansion gaps, joint seals/steel retainers, diaphragms, approach slabs, backwalls, flared wingwalls, curb-mounted 32in parapets, W-beam approach rail/terminals, scuppers and supported utility conduits. FDOT indexes 20500, 20900, 21100 and 21210 establish the construction vocabulary. |
 | Period assembly drawing | Tennessee DOT STD-4-4: designed 1989, issued 1992, revised 1996. Interior/exterior I-beam deck interfaces, overhang and end diaphragm construction. Our permanent concrete silhouette retains the haunch and diaphragms; hidden reinforcing and temporary erection supports are omitted. |
 | Inventory / era | FHWA 1995 Recording and Coding Guide, Items 42/43: highway/pedestrian over waterway; prestressed concrete, stringer/multi-beam/girder. Fictional 1974 downtown and 1968 county bridges, maintained in 2010. |
@@ -23,8 +23,8 @@ pier type, street width and the town's land use. They do not share a plan with
 different decoration. Floodplain maples come from `trees/`; no new tree species
 are introduced. Willow is omitted under the owner's no-new-species rule.
 
-Final photo neutral patches: Huron's concrete cap (the green steel is not a
-neutral), Raisin's gray bridge parapet and the 2008 Huron bank photograph's
+Current photo neutral patches: FHWA's exposed concrete cap,
+Raisin's gray bridge parapet and the 2008 Huron bank photograph's
 weathered gray dock decking. Earlier rejected studies used Morrison's pale
 concrete trail wall and Stockport's gray asphalt. These are assumed neutrals,
 not color cards. Photo comparison reports retain fit residuals and

@@ -7,7 +7,7 @@ import geometry as G
 import context
 import bpy
 import bmesh
-from channel import surface_z
+from channel import surface_z,water_normal
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
@@ -18,7 +18,7 @@ def water_reach(p,parent,side,ground):
     This remains presentation context, separate from the 300m game reach.
     Matching the boundary cross-section avoids a flat painted water seam.
     """
-    ys=sorted(side*(p.reach/2+i*10) for i in range(66));nx=20;stride=nx+1
+    ys=sorted(side*(p.reach/2+i*10) for i in range(66));nx=28;stride=nx+1
     rows=[]
     for y in ys:
         l,r=p.water_edges(y)
@@ -60,8 +60,8 @@ def join_water(p,parent):
     # Geometric end-cap normals must not bend the water's tangent frame.
     normal=Vector((0,.0006,1)).normalized();normals=[]
     for f in core.data.polygons:
-        surface=f.normal.z>.5 and all(abs(core.data.vertices[i].co.z-p.water_z(core.data.vertices[i].co.y))<.015 for i in f.vertices)
-        normals.extend([normal if surface else f.normal]*len(f.loop_indices))
+        surface=f.normal.z>.5 and all(abs(core.data.vertices[i].co.z-p.water_z(core.data.vertices[i].co.y))<.08 for i in f.vertices)
+        normals.extend([water_normal(p,core.data.vertices[i].co.x,core.data.vertices[i].co.y) if surface else f.normal for i in f.vertices])
     core.data.normals_split_custom_set(normals)
     core['core_reach_limits_y_m']=[-p.reach/2,p.reach/2]
     core['presentation_reach_limits_y_m']=[-800,800]
@@ -125,6 +125,12 @@ def add(p,parent):
         if p.kind=='downtown' and abs(abs(x)-front)<22:continue
         context.instance(context.REPO/'trees/export/RedMaple.glb','Distant floodplain maple '+str(i),
                          (x,y,seat(x,y)-.04),rt,rng.uniform(0,360),rng.uniform(.75,1.15),category='vegetation')
+    for end in (-1,1):
+        for side in (-1,1):
+            for j in range(40):
+                y=end*(174+j*14);x=p.center(y)+side*(p.halfwidth(y)+rng.uniform(1.5,7))
+                context.instance(context.REPO/'trees/export/RedMaple.glb',f'Continuing bank canopy {end} {side} {j}',
+                                 (x,y,seat(x,y)-.04),rt,rng.uniform(0,360),rng.uniform(.75,1.25),category='vegetation')
     for i in range(28 if p.kind=='downtown' else 16):
         side=(-1,1)[i%2];y=side*(163+(i//2)*24);x=(-1 if i%3 else 1)*62
         if p.kind=='downtown':

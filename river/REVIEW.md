@@ -398,3 +398,76 @@ and unbatched; no final engine performance claim is made. Stop here before
 look-dev, as briefed. Nothing is needed from the lead to reproduce the checkpoint.
 A future shared bridge-factory API with section, cap and bearing parameters
 would replace the local compatibility adapter without duplicating factories.
+
+## Pass 9 — rejected handoff, form before appearance
+
+Color/value first: opened the handoff contact, both 1280px heroes/aerials,
+bearing, pier, abutment and riffle, and the photo contact at native size.
+Compared directly with Raisin and Riverside Park photographs, using the
+recorded parapet and gray dock neutrals. The concrete shadows are cyan;
+the water shares that sky color across nearly its whole surface. Riverside
+has olive/brown body color between interrupted blue reflections. Its sunlit
+bank grass is much lighter than the black-green card masses in our hero.
+These are appearance failures despite the passing construction receipts.
+
+The city aerial is a repeated six-building block beside a straight lawn
+channel. The rural reach has isolated crowns over an unworked field.
+Neither reads as its requested place. Preserve the accepted Type III section,
+generators, exports' paths and shared canonical images; move unique native
+rear elevations toward working river alleys, and add a continuous rural
+maple/shrub strip, agriculture and occupied road frontage.
+
+The cap's pointed runoff polygons and the bearings' blank stack fail close
+inspection. Replace the former with alpha texture masks in the existing
+512 sheet, and articulate the latter without changing the seat datum.
+The abutment inspection needs a bank view showing the complete wingwall and
+stone slope. HEC-23 DG14.8–11 informs its wrap/toe coverage; no hydraulic
+stone-sizing calculation is claimed. Cutbank retreat, sod breaks, root
+exposure and a steeper riffle must alter form before material tuning.
+
+The full-size handoff is preserved under `build/round2-before/`. The bank's
+hard 99mm lens constraint is rejected for this unsurveyed authored channel.
+The old steel underside is replaced by FHWA's 2008 concrete I-beam photo.
+Four measured support landmarks fit framing, not the whole beam system.
+Subsequent export controls must decide whether the new light, water and age
+actually work; these changes are not accepted merely because they build.
+
+## Pass 10 — 960px exported controls, rejected details
+
+Color/value first: opened all sixteen new crossing frames and all three
+composed photo pairs at native size. Concrete is now neutral/warm gray and
+the sky has depth. Grass is visible and yellow-green rather than black.
+Compared with the neutral-balanced dock and concrete photos, water is still
+far too silver: the desaturated lighting sky dominates its reflections.
+The cap's salt patch is too pale/opaque and its grime reads stamped. Reduce
+salt opacity, restore the blue visible sky to glossy rays, and drive the
+normal/roughness continuously from the exported flow vectors.
+
+The city now has different native rear walls, escapes, doors and dumpsters
+beside the river. Its aerial still opens onto empty lawns outside the first
+rows. Add independently seeded opposite block faces across Main Street.
+The farm has a convincing denser bank strip, but the hay swaths look like
+painted warning stripes, and old random trees stand in the fields. Fill the
+stubble field with close-value harvest rows and move those trees to fencerows.
+Correct the houses' orientation toward their road/driveways.
+
+The section and girder lower flanges read under raking light. The downtown
+bearing and abutment controls fail: their low cameras lie in the newly added
+stone/soil. Raise them from the actual bank profile and gate camera/rock
+clearance. The rural bearing is legible but too low to inspect the anchors.
+The rural abutment shows the stem and armored slope; keep that bank context.
+
+The riffle has obvious broad triangular slabs and opaque floating white
+sticks. Reject both. Use a denser still-budgeted water grid, modest physical
+relief, continuous analytic surface normals and alpha foam at the actual
+surface. The raw flow remains game data; its continuous shading coefficients
+will be documented alongside the existing volume reconstruction.
+
+The four-point underside fit of .61px is rejected despite its number: its
+camera looks into the cap. The photographed visible column is the near end
+column, not the center column. Correcting that correspondence gives 10.93px
+with a camera on the low bank outside the structure. The urban 12.69px and
+bank 11.57px framing remain. The new fit still needs an exposed render to
+prove visibility. No low RMS is accepted as appearance or camera-clearance
+proof. Controls are retained at `renders/pass10/`; their photograph frames
+are archived before the next render batch.

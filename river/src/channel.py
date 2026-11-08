@@ -9,6 +9,17 @@ import geometry as G
 BED_TREE=None
 
 
+def water_surface(p,x,y):
+    u=(x-p.center(y))/p.halfwidth(y)
+    return p.water_z(y)+.018*math.sin(x*1.8+y*2.0)*math.exp(-((y-p.riffle_y)/5.5)**2)*max(0,1-u*u)
+
+
+def water_normal(p,x,y):
+    d=.005;dx=(water_surface(p,x+d,y)-water_surface(p,x-d,y))/(2*d)
+    dy=(water_surface(p,x,y+d)-water_surface(p,x,y-d))/(2*d)
+    return Vector((-dx,-dy,1)).normalized()
+
+
 def surface_z(p,x,y):
     if BED_TREE is not None:
         hit=BED_TREE.ray_cast(Vector((x,y,100)),Vector((0,0,-1)),120)[0]
@@ -29,7 +40,7 @@ def terrain(p,parent):
     BED_TREE=None
     rt=G.root('RiverReach',parent=parent)
     b=G.Batch('BedBanksFloodplain',rt,'reach')
-    us=[-8,-6,-4,-3,-2.3,-1.8,-1.5,-1.3,-1.15,-1.08,-1,-.94,-.87,-.78,-.66,-.5,-.3,0,.3,.5,.66,.78,.87,.94,1,1.05,1.10,1.16,1.25,1.4,1.7,2.3,3,4,6,8]
+    us=[-8,-6,-4,-3,-2.3,-1.8,-1.5,-1.3,-1.15,-1.10,-1.06,-1.03,-1,-.94,-.87,-.78,-.66,-.5,-.3,0,.3,.5,.66,.78,.87,.94,1,1.03,1.06,1.10,1.15,1.25,1.4,1.7,2.3,3,4,6,8]
     ys=[-p.reach/2+i*2 for i in range(round(p.reach/2)+1)]
     rows=[]
     for y in ys:
@@ -38,9 +49,8 @@ def terrain(p,parent):
         xs += [s*(p.length/2+off) for s in (-1,1) for off in (-.01,.01,.89,.90,1.02,1.03)]
         xs += [-170,-155,155,170]
         if p.kind=='downtown':
-            xs += [left-off for off in (.74,.76,1,1.12,4.2,4.44,4.46)]
-            right=p.center(y)+p.halfwidth(y)
-            xs += [right+off for off in (5,11,11.2,13.6)]
+            for side in (-1,1):
+                xs += [p.center(y)+side*(p.halfwidth(y)+off) for off in (.74,.76,1,1.12,4.2,4.44,4.46,4.6,7,11.5)]
         rows.append([(x,y,p.bed(x,y)) for x in sorted(xs)])
     for row0,row1 in zip(rows,rows[1:]):
         for j in range(len(row0)-1):
@@ -68,9 +78,9 @@ def terrain(p,parent):
         if z>p.water_z(y)-.32:stone(rocks,x,y,z,rng.uniform(.035,.14),rng)
     # Armored, keyed slope and toe at both abutments and each pier.
     for side in (-1,1):
-        for i in range(460):
-            x=side*rng.uniform(p.width*.40,p.length/2+3.0);y=rng.uniform(-9,9)
-            if abs(x)>p.length/2-.8 and abs(y)<7:continue
+        for i in range(780):
+            x=side*rng.uniform(p.width*.39,p.length/2+7.0);y=rng.uniform(-13,13)
+            if abs(x)>p.length/2-.8 and abs(y)<6.8:continue
             z=surface_z(p,x,y);stone(rocks,x,y,z+.04,rng.uniform(.16,.39),rng)
     for j in range(1,p.spans):
         xx=-p.length/2+j*p.span
@@ -85,6 +95,29 @@ def terrain(p,parent):
         y=p.bar_y-20+j*2.3;x=p.center(y)+p.halfwidth(y)*1.11;z=p.bed(x,y)
         for k in range(3):
             debris.tube([(x+.3,y,z+.15),(x-.10,y+.2,z-.2),(x-.45-k*.10,y+.2+k*.23,z-.9)],.018/(k+1),'wood',5)
+    if p.kind=='edge':
+        sod=G.Batch('ErodedSodAndFloodWrack',rt,'reach')
+        for i in range(42):
+            y=rng.uniform(p.bar_y-27,p.bar_y+28);side=p.outside
+            # Waterline recession exposes a steep soil face with separate
+            # fallen turf slabs, rather than merely darkening an even ramp.
+            x=p.center(y)+side*p.halfwidth(y)*rng.uniform(1.015,1.07)
+            z=surface_z(p,x,y);w=rng.uniform(.24,.65);h=rng.uniform(.35,.95)
+            pts=[(xx,yy,surface_z(p,xx,yy)+.035) for xx,yy in ((x-w,y-h),(x+w,y-h*.7),(x+w*.6,y+h),(x-w*.8,y+h*.6))]
+            sod.geom(pts,[(0,1,2,3)],'grass',(.75,.76,.46,1),up=True)
+            for j in range(2):
+                a=(x,y,z+.08);c=(x-side*rng.uniform(.3,.8),y+rng.uniform(-.4,.4),z-rng.uniform(.2,.6))
+                debris.tube([a,((a[0]+c[0])/2,a[1]+.1,a[2]-.12),c],rng.uniform(.013,.027),'wood',5)
+        for i in range(220):
+            y=rng.uniform(-146,146);side=rng.choice((-1,1))
+            lo=p.halfwidth(y);hi=lo+10
+            for _ in range(20):
+                mid=(lo+hi)/2
+                if p.bed(p.center(y)+side*mid,y)-p.water_z(y)>.8:hi=mid
+                else:lo=mid
+            x=p.center(y)+side*(lo+hi)/2;z=surface_z(p,x,y)
+            debris.tube([(x,y,z+.018),(x+rng.uniform(-.10,.10),y+rng.uniform(.1,.45),z+.03)],rng.uniform(.005,.014),'wood',4)
+        sod.finish()
     for j in range(1,p.spans):
         xx=-p.length/2+j*p.span
         tx,ty=p.tangent(0);cross=(ty,-tx)
@@ -104,14 +137,20 @@ def terrain(p,parent):
 
 
 def water(p,parent):
-    b=G.Batch('WaterSurface',parent,'water');ny=240;nx=20
+    b=G.Batch('WaterSurface',parent,'water');ny=360;nx=28
     rows=[]
     for i in range(ny+1):
         y=-p.reach/2+i*p.reach/ny;l,r=p.water_edges(y)
-        rows.append([(l+(r-l)*j/nx,y,p.water_z(y)+.006*math.sin(j*.9+y*.7)*math.exp(-((y-p.riffle_y)/10)**2)) for j in range(nx+1)])
+        rows.append([(l+(r-l)*j/nx,y,water_surface(p,l+(r-l)*j/nx,y)) for j in range(nx+1)])
     vs=[v for row in rows for v in row]
     fs=[(i*(nx+1)+j,i*(nx+1)+j+1,(i+1)*(nx+1)+j+1,(i+1)*(nx+1)+j) for i in range(ny) for j in range(nx)]
-    b.geom(vs,fs,'water',smooth=True,up=True);ob=b.finish()
+    for f in fs:
+        coords=[vs[k] for k in f];x=sum(v[0] for v in coords)/4;y=sum(v[1] for v in coords)/4
+        speed=p.speed(x,y)
+        tx,ty=p.tangent(y)
+        uv=[((vx*ty-vy*tx)/3.7,(vx*tx+vy*ty)/2.2) for vx,vy,vz in coords]
+        b.geom(coords,[(0,1,2,3)],'water',uv=uv,smooth=True,up=True)
+    ob=b.finish()
     flow=ob.data.attributes.new('_FLOW',type='FLOAT_VECTOR',domain='POINT')
     for v,a in zip(ob.data.vertices,flow.data):
         tx,ty=p.tangent(v.co.y);speed=p.speed(v.co.x,v.co.y);a.vector=(tx*speed,ty*speed,max(0,p.water_z(v.co.y)-surface_z(p,v.co.x,v.co.y)))
@@ -139,8 +178,23 @@ def water(p,parent):
         tx,ty=p.tangent(v.co.y);speed=p.speed(v.co.x,v.co.y)
         a.vector=(tx*speed,ty*speed,max(0,p.water_z(v.co.y)-surface_z(p,v.co.x,v.co.y)))
     foam=G.Batch('RiffleBrokenFoam',parent,'water');rng=random.Random(p.seed+31)
-    for j in range(160):
+    for j in range(950):
         y=rng.gauss(p.riffle_y,3.5);l,r=p.water_edges(y);x=rng.uniform(l+.7,r-.7)
-        length=rng.uniform(.07,.5);w=rng.uniform(.008,.028)
-        foam.geom([(x-length/2,y,p.water_z(y)+.013),(x+length/2,y+.06,p.water_z(y)+.013),(x+length*.30,y+.06+w,p.water_z(y)+.014),(x-length*.4,y+w,p.water_z(y)+.014)],[(0,1,2,3)],'foam')
+        length=rng.uniform(.12,.85);w=rng.uniform(.016,.10)
+        coords=[(x-length/2,y),(x+length/2,y+.06),(x+length*.30,y+.06+w),(x-length*.4,y+w)]
+        uv=foam_chart(j%4)
+        foam.geom([(xx,yy,water_surface(p,xx,yy)+.003) for xx,yy in coords],[(0,1,2,3)],'foam',uv=uv)
+    # Intermittent curling foam/eddy lines in the sheltered pier wakes.
+    for i in range(1,p.spans):
+        xx=-p.length/2+i*p.span
+        for j in range(75):
+            t=rng.uniform(0,math.tau);radius=rng.uniform(.7,2.5)
+            x=xx+math.cos(t)*radius;y=p.deck_width/2+1.2+math.sin(t)*radius*.7
+            if not p.water_edges(y)[0]<x<p.water_edges(y)[1]:continue
+            foam.geom([(x,y,p.water_z(y)+.003),(x+.12*math.sin(t),y-.12*math.cos(t),p.water_z(y)+.003),(x+.12*math.sin(t)+.025,y-.12*math.cos(t),p.water_z(y)+.003)],[(0,1,2)],'foam',uv=foam_chart(j%4)[:3])
     foam.finish()
+
+
+def foam_chart(k):
+    u=(k%2)*.25;v=.625-(k//2)*.125
+    return [(u+.002,v+.002),(u+.248,v+.002),(u+.248,v+.123),(u+.002,v+.123)]

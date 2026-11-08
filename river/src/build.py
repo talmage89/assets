@@ -12,6 +12,7 @@ import materials
 import bridge
 import channel
 import age
+import weather
 import plaques
 import site as builtin_site
 import importlib.util
@@ -63,7 +64,7 @@ def crossing(seed):
     reach=channel.terrain(p,rt);channel.water(p,reach)
     br=bridge.assemble(p,rt);plaques.add(p,br)
     site.road(p,rt);site.fixtures(p,rt);site.plants(p,rt);age.add(p,rt)
-    context.add(p,rt);background.add(p,rt);context.clear_templates()
+    weather.add(p,rt);context.add(p,rt);background.add(p,rt);context.clear_templates()
     # Curves also remain natively editable in the construction scene. Export
     # sockets carry the same sampled paths in extras for stock glTF consumers.
     for ob in list(rt.children_recursive):

@@ -21,13 +21,22 @@ def setup(width,samples):
     sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.4
     sc.world=bpy.data.worlds.new('Procedural clear late-afternoon sky');sc.world.use_nodes=True
     nodes=sc.world.node_tree.nodes;links=sc.world.node_tree.links
-    sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(23);sky.sun_rotation=math.radians(224);sky.sun_disc=False
-    sky.altitude=100;sky.air_density=1
-    sat=nodes.new('ShaderNodeHueSaturation');sat.inputs['Saturation'].default_value=1.15
-    links.new(sky.outputs[0],sat.inputs['Color']);links.new(sat.outputs[0],nodes.get('Background').inputs[0]);nodes.get('Background').inputs[1].default_value=.16
-    light=bpy.data.lights.new('Low raking sun','SUN');light.energy=4.5;light.angle=math.radians(.65)
+    sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(18);sky.sun_rotation=math.radians(224);sky.sun_disc=False
+    sky.altitude=100;sky.air_density=.8
+    # Neutral diffuse sky fill preserves gray concrete in shade. A separate
+    # camera-ray strength retains the clear sky's deeper photographic value.
+    sat=nodes.new('ShaderNodeHueSaturation');sat.inputs['Saturation'].default_value=.55
+    grade=nodes.new('ShaderNodeMixRGB');grade.blend_type='MULTIPLY';grade.inputs[0].default_value=1;grade.inputs[2].default_value=(1.18,1.04,.80,1)
+    links.new(sky.outputs[0],sat.inputs['Color']);links.new(sat.outputs[0],grade.inputs[1])
+    bg=nodes.get('Background');links.new(grade.outputs[0],bg.inputs[0]);bg.inputs[1].default_value=.30
+    visible=nodes.new('ShaderNodeBackground');links.new(sky.outputs[0],visible.inputs[0]);visible.inputs[1].default_value=.035
+    lp=nodes.new('ShaderNodeLightPath');mix=nodes.new('ShaderNodeMixShader')
+    ray=nodes.new('ShaderNodeMath');ray.operation='MAXIMUM'
+    links.new(lp.outputs['Is Camera Ray'],ray.inputs[0]);links.new(lp.outputs['Is Glossy Ray'],ray.inputs[1])
+    links.new(ray.outputs[0],mix.inputs[0]);links.new(bg.outputs[0],mix.inputs[1]);links.new(visible.outputs[0],mix.inputs[2]);links.new(mix.outputs[0],nodes.get('World Output').inputs[0])
+    light=bpy.data.lights.new('Low raking sun','SUN');light.energy=3.7;light.color=(1,.88,.73);light.angle=math.radians(.65)
     sun=bpy.data.objects.new(light.name,light);sc.collection.objects.link(sun)
-    direction=Vector((-.67,-.64,.39));sun.rotation_euler=(-direction).to_track_quat('-Z','Y').to_euler()
+    direction=Vector((-.69,-.66,.31));sun.rotation_euler=(-direction).to_track_quat('-Z','Y').to_euler()
     cam=bpy.data.objects.new('Review camera',bpy.data.cameras.new('Review camera'));sc.collection.objects.link(cam);sc.camera=cam
     cam.data.clip_end=2500;cam.data.clip_start=.04;cam.data.sensor_width=36;cam.data.sensor_fit='HORIZONTAL'
     return sc,cam
@@ -37,12 +46,36 @@ def restore_water():
     # glTF cannot carry a node volume closure. Its documented material extras
     # contain only the river's original uniform absorption color and density.
     from materials import volume_from_extras
+    for ob in bpy.context.scene.objects:
+        if ob.type=='MESH' and ob.name=='WaterSurface':
+            assert ob.data.attributes.get('_FLOW') is not None,'Imported water lost its flow field'
     for ma in bpy.data.materials:
         if not ma.use_nodes or 'River_water' not in ma.name:continue
         out=ma.node_tree.nodes.get('Material Output')
         if not out:out=next(n for n in ma.node_tree.nodes if n.type=='OUTPUT_MATERIAL')
         if out.inputs['Volume'].is_linked:continue
         volume_from_extras(ma)
+        if 'river_flow_speed_range' not in ma:continue
+        nodes=ma.node_tree.nodes;links=ma.node_tree.links
+        attr=nodes.new('ShaderNodeAttribute');attr.attribute_name=ma['river_flow_attribute']
+        xy=nodes.new('ShaderNodeVectorMath');xy.operation='MULTIPLY';xy.inputs[1].default_value=(1,1,0)
+        links.new(attr.outputs['Vector'],xy.inputs[0])
+        speed=nodes.new('ShaderNodeVectorMath');speed.operation='LENGTH';links.new(xy.outputs[0],speed.inputs[0])
+        normal=next(n for n in nodes if n.type=='NORMAL_MAP');bs=nodes.get('Principled BSDF')
+        for socket,key in ((normal.inputs['Strength'],'river_flow_normal_range'),(bs.inputs['Roughness'],'river_flow_roughness_range')):
+            value=nodes.new('ShaderNodeMapRange');value.clamp=True
+            value.inputs['From Min'].default_value=ma['river_flow_speed_range'][0];value.inputs['From Max'].default_value=ma['river_flow_speed_range'][1]
+            value.inputs['To Min'].default_value=ma[key][0];value.inputs['To Max'].default_value=ma[key][1]
+            links.new(speed.outputs['Value'],value.inputs['Value']);links.new(value.outputs[0],socket)
+
+
+def restore_native_leaves():
+    # Reuse freeway's existing adapter to the native tree family's thin-leaf
+    # response. It reads only the imported baked images, never source meshes.
+    import importlib.util
+    spec=importlib.util.spec_from_file_location('_river_native_leaf_response',REPO/'freeway/src/foliage_adapter.py')
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    return module.install()
 
 
 def shot(sc,cam,definition,path,source,width,samples):
@@ -54,21 +87,37 @@ def shot(sc,cam,definition,path,source,width,samples):
     bpy.ops.render.render(write_still=True)
     path.with_suffix('.json').write_text(json.dumps(dict(source=str(source),bundle_sha256=bundle(source),
         stage='fresh external glTF import / quick PBR form checkpoint',camera=definition,
-        engine='CYCLES',samples=samples,width=width,water='imported normal and uniform absorption extras',
-        sun_elevation_degrees=23,exposure=sc.view_settings.exposure),indent=2)+'\n')
+        engine='CYCLES',samples=samples,width=width,water='imported normal, interpolated _FLOW response and uniform absorption extras',
+        sun_elevation_degrees=18,exposure=sc.view_settings.exposure),indent=2)+'\n')
 
 
 def render(seed,out,width,samples,names):
     bpy.ops.wm.read_factory_settings(use_empty=True);source=Path('export')/f'RiverCrossing-{seed}.gltf'
-    bpy.ops.import_scene.gltf(filepath=str(source.resolve()));restore_water();sc,cam=setup(width,samples)
+    bpy.ops.import_scene.gltf(filepath=str(source.resolve()));restore_water();restore_native_leaves();sc,cam=setup(width,samples)
     exported=next(o['plan'] for o in bpy.context.scene.objects if o.name==f'Crossing_{seed}')
     plan=Plan(**dict(exported));definitions=views(seed,plan)
     for name in names:shot(sc,cam,definitions[name],out/str(seed)/(name+'.png'),source,width,samples)
 
 
+def baseline(seed,width,samples):
+    import importlib.util
+    folder=Path('build/accepted-rebuild/river')
+    spec=importlib.util.spec_from_file_location('_river_accepted_renderer',folder/'src/render.py')
+    old=importlib.util.module_from_spec(spec);spec.loader.exec_module(old)
+    bpy.ops.wm.read_factory_settings(use_empty=True);source=folder/'export'/f'RiverCrossing-{seed}.gltf'
+    bpy.ops.import_scene.gltf(filepath=str(source.resolve()));restore_water();sc,cam=old.setup(width,samples)
+    definitions=views(seed)
+    for name in ('under','bearings','abutment','riffle','bar'):
+        path=Path('renders/fixes/before')/str(seed)/(name+'.png')
+        old.shot(sc,cam,definitions[name],path,source,width,samples)
+        meta=json.loads(path.with_suffix('.json').read_text());meta.update(accepted_revision='9b1c8bc',comparison='accepted exported asset and light, regenerated with revised camera')
+        path.with_suffix('.json').write_text(json.dumps(meta,indent=2)+'\n')
+
+
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--source');ap.add_argument('--out',type=Path,default=Path('renders/checkpoint'));ap.add_argument('--seeds',nargs='+',type=int,default=[101,202]);ap.add_argument('--width',type=int,default=1280);ap.add_argument('--samples',type=int,default=32);ap.add_argument('--shots',nargs='+',default=list(views(101)));ap.add_argument('--matches',action='store_true');ap.add_argument('--modules',action='store_true');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
-    for seed in a.seeds:render(seed,a.out,a.width,a.samples,a.shots)
+    ap=argparse.ArgumentParser();ap.add_argument('--source');ap.add_argument('--out',type=Path,default=Path('renders/checkpoint'));ap.add_argument('--seeds',nargs='+',type=int,default=[101,202]);ap.add_argument('--width',type=int,default=1280);ap.add_argument('--samples',type=int,default=32);ap.add_argument('--shots',nargs='+',default=list(views(101)));ap.add_argument('--matches',action='store_true');ap.add_argument('--modules',action='store_true');ap.add_argument('--comparison-cameras',action='store_true');ap.add_argument('--with-baseline',action='store_true');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+    if not a.comparison_cameras:
+        for seed in a.seeds:render(seed,a.out,a.width,a.samples,a.shots)
     if a.modules:
         bpy.ops.wm.read_factory_settings(use_empty=True);source=Path('export/RiverModules.gltf')
         bpy.ops.import_scene.gltf(filepath=str(source.resolve()));sc,cam=setup(a.width,a.samples)
@@ -89,11 +138,21 @@ def main():
     if a.matches:
         for name,row in json.loads(Path('build/photo-calibration.json').read_text()).items():
             bpy.ops.wm.read_factory_settings(use_empty=True);source=Path('export')/f'RiverCrossing-{row["seed"]}.gltf'
-            bpy.ops.import_scene.gltf(filepath=str(source.resolve()));restore_water();sc,cam=setup(a.width,a.samples)
+            bpy.ops.import_scene.gltf(filepath=str(source.resolve()));restore_water();restore_native_leaves();sc,cam=setup(a.width,a.samples)
             # Match view direction/shape; daylight differs by photographic view.
             # Huron is deep under-deck shade; bank and river photos are in sun.
             definition=row['shot'];definition['aspect']=(row['crop'][2]-row['crop'][0])/(row['crop'][3]-row['crop'][1])
             shot(sc,cam,definition,Path('renders/checkpoint-matches')/(name+'.png'),source,a.width,a.samples)
+    if a.comparison_cameras:
+        for seed in a.seeds:
+            bpy.ops.wm.read_factory_settings(use_empty=True);source=Path('export')/f'RiverCrossing-{seed}.gltf'
+            bpy.ops.import_scene.gltf(filepath=str(source.resolve()));restore_water();sc,cam=setup(a.width,a.samples)
+            for name in a.shots:
+                receipt=Path('build/round2-before/renders/checkpoint')/str(seed)/(name+'.json')
+                definition=json.loads(receipt.read_text())['camera']
+                shot(sc,cam,definition,Path('renders/fixes/after')/str(seed)/(name+'.png'),source,a.width,a.samples)
+    if a.with_baseline:
+        for seed in a.seeds:baseline(seed,a.width,a.samples)
 
 
 if __name__=='__main__':main()

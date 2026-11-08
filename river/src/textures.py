@@ -35,16 +35,45 @@ def generate(folder=Path('textures/checkpoint')):
     Image.fromarray(np.uint8((normal*.5+.5)*255)).save(folder/'T_RiverBank_Normal.png')
     orm=np.zeros((n,n,3),np.uint8);orm[:,:,0]=255;orm[:,:,1]=220
     Image.fromarray(orm).save(folder/'T_RiverBank_ORM.png')
-    # Reed/grass silhouette sheet: sixteen independently generated clumps.
+    # Eight bank colonies occupy the lower half. The upper half carries the
+    # plaques and four alpha maintenance masks; no extra image allocation.
     im=Image.new('RGBA',(512,512));d=ImageDraw.Draw(im)
-    for j in range(16):
-        ox=j%4*128;oy=j//4*128
-        for k in range(28):
-            base=ox+rng.uniform(30,98);h=rng.uniform(28,116);bend=rng.uniform(-31,31)
-            pts=[(base,oy+126),(base+bend*.40,oy+126-h*.55),(base+bend,oy+126-h)]
-            col=(int(rng.uniform(49,90)),int(rng.uniform(61,100)),int(rng.uniform(24,43)),255)
-            d.line(pts,fill=col,width=int(rng.integers(1,4)))
-            if j in (2,3) and k%5==0:d.line([pts[2],(pts[2][0]+1,pts[2][1]-14)],fill=(63,43,24,255),width=4)
+    for j in range(4):
+        ox=j%2*128;oy=128+j//2*64
+        for k in range(120):
+            px=rng.uniform(3,124);py=31+math.sin(px*.083+j)*rng.uniform(2,13)+rng.normal(0,6)
+            r=rng.uniform(.5,2.5);alpha=int(rng.uniform(70,230))
+            d.ellipse((ox+px-r,oy+py-r*.55,ox+px+r,oy+py+r*.55),fill=(202,205,181,alpha))
+    for j in range(8):
+        ox=j%4*128;oy=256+j//4*128
+        for k in range(23):
+            base=ox+rng.uniform(25,103);h=rng.uniform(34,110);bend=rng.uniform(-38,38)
+            pts=[(base,oy+126),(base+bend*.30,oy+126-h*.52),(base+bend*.72,oy+126-h*.86),(base+bend,oy+126-h)]
+            value=rng.uniform(.75,1.12)
+            col=tuple(int(v*value) for v in ((110,142,62) if k%6 else (154,144,81)))+(255,)
+            d.line(pts,fill=col,width=int(rng.integers(2,4)))
+            if j>=6 and k%4==0:
+                tip=pts[-1];d.line([tip,(tip[0]+1,tip[1]-14)],fill=(104,76,43,255),width=4)
+            elif k%6==0:
+                tip=pts[-1]
+                for n in range(5):
+                    yy=tip[1]+n*2;d.line([(tip[0]-5+n,yy+3),(tip[0],yy),(tip[0]+5-n,yy+3)],fill=(158,150,91,255),width=1)
+    # Streak masks: gravity fingers are softened, interrupted and broad at
+    # their source. Patches follow irregular chipped outlines, never spikes.
+    for j in range(4):
+        py,px=np.mgrid[:128,:128]/127;mask=np.zeros((128,128))
+        if j<2:
+            for k in range(18):
+                cx=rng.uniform(.08,.92);width=rng.uniform(.010,.065);length=rng.uniform(.15,1.0)
+                mask=np.maximum(mask,np.exp(-((px-cx-.012*np.sin(py*19+k))/width)**2)*np.clip((length-py)*7,0,1)*np.clip((1-py)*3,0,1))
+            mask*=.55+.45*rng.random((128,128))
+        else:
+            q=((px-.5)/.45)**2+((py-.5)/.39)**2
+            boundary=.90+.13*np.sin(px*24+py*17)+.07*np.sin(py*39-px*33)
+            mask=np.clip((boundary-q)*8,0,1)*(.65+.35*rng.random((128,128)))
+        col=(90,91,80) if j==0 else (211,207,183) if j==1 else (156,154,138) if j==2 else (178,173,155)
+        rgba=np.zeros((128,128,4),np.uint8);rgba[:,:,:3]=col;rgba[:,:,3]=np.uint8(mask*(120 if j==1 else 165))
+        im.paste(Image.fromarray(rgba),(256+j%2*128,j//2*128))
     # Two tiny plaque legends reuse this same image, outside all plant charts.
     font=find_font('DejaVu Sans','Book')
     for y,year in ((0,1974),(60,1968)):

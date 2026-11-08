@@ -158,7 +158,8 @@ def bearing(batch,x,y,z):
         batch.box((x,yy+side*.027,z+.256),(.48,.010,.072),'zinc')
         for dx in (-.19,.19):
             batch.cylinder((x+dx,yy,z+.245),.012,.055,'steel',6)
-            batch.cylinder((x+dx,yy,z+.244),.022,.014,'zinc',6)
+            batch.cylinder((x+dx,yy,z+.2315),.025,.003,'zinc',6)
+            batch.cylinder((x+dx,yy,z+.240),.022,.014,'zinc',6)
     # Two recessed reinforcement laminations are visible on the pad edge.
     for dz in (.24,.262):
         batch.box((x,y,z+dz),(.433,.521,.002),'steel')

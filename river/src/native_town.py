@@ -22,7 +22,7 @@ def main():
     if not link.exists():link.symlink_to(os.path.relpath(REPO/'downtown/textures/ship',link.parent),target_is_directory=True)
     os.chdir(out)
     rows=[]
-    for seed in (811,812,813,814):
+    for seed in range(811,819):
         row=build_block(seed,'midwest',12,context=True)
         block=Path('build/context/blocks')/('midwest-'+str(seed))/'block.json'
         rows.append(dict(seed=seed,block=str(block),buildings=row['buildings']))

@@ -10,17 +10,20 @@ def add(p,parent,lots):
     if 'hay' not in G.M:
         from materials import plain
         G.M['hay']=plain('River_hay',(.24,.205,.09),.97)
+    ma=G.M['hay'];ma['tiling_vertex_tint']=True
+    vc=ma.node_tree.nodes.new('ShaderNodeVertexColor');vc.layer_name='Tint'
+    ma.node_tree.links.new(vc.outputs['Color'],ma.node_tree.nodes.get('Principled BSDF').inputs['Base Color'])
     rng=random.Random(p.seed+501);b=G.Batch('FarmRoadsideAndYards',parent,'context')
     # Dry late-summer hay swaths follow the fields, not an axis-aligned turf
     # checker. Streamable field ribbons use the existing bank/lawn images.
     for side in (-1,1):
         for end in (-1,1):
             for j in range(36):
-                y=end*(49+j*3.1);c=y+end*2.1
+                y=end*(49+j*3.1);c=y+end*3.11
                 edge=max(abs(p.center(y))+p.halfwidth(y)+23,45)
                 for x0,x1 in ((edge,85),(85,135),(135,170)):
                     if x1<=x0:continue
-                    col=(.81,.68,.36,1) if j%4 else (.64,.55,.32,1)
+                    value=rng.uniform(.92,1.04);col=(.24*value,.205*value,.09*value,1)
                     pts=[(side*x,yy,surface_z(p,side*x,yy)+.012) for x,yy in ((x0,y),(x1,y),(x1,c),(x0,c))]
                     b.geom(pts,[(0,1,2,3)],'hay',col,up=True)
             # Post-and-wire field boundary with uneven, supported volunteers.

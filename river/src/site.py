@@ -81,7 +81,7 @@ def plants(p,parent):
     rng=random.Random(p.seed+18);templates=[]
     for k in range(16):
         b=G.Batch('BankColonyTemplate_'+str(k),parent,'vegetation')
-        a=(k%4)/4;c=(k//4%2)/4
+        a=(k%4)/4;c=(1-k//4%2)/4
         uv=[(a+.002,c+.002),(a+.248,c+.002),(a+.248,c+.248),(a+.002,c+.248)]
         for j in range(3):
             angle=j*math.pi/3+k*.19;dx=math.cos(angle)*.40;dy=math.sin(angle)*.40

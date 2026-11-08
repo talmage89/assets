@@ -94,7 +94,7 @@ def construction(seed):
         if ob.type!='MESH':continue
         ob.data.calc_loop_triangles();key=ob.get('river_category','context');counts[key]=counts.get(key,0)+len(ob.data.loop_triangles)
     assert counts==meta['triangles'],(counts,meta['triangles'])
-    assert counts['bridge']<80000 and counts['reach']<150000
+    assert counts['bridge']<80000 and counts['reach']+counts['water']<150000
     pads=[bvh(o) for o in obs if o.type=='MESH' and o.name.startswith('BearingStation')]
     supports=[bvh(o) for o in obs if o.type=='MESH' and o.name.startswith(('Pier_','Abutment_'))]
     gaps=[];seat_gaps=[];lengths=[]
@@ -210,7 +210,27 @@ def construction(seed):
                 assert heights,('No overhead beam at walk',x,y)
                 headroom.append(min(heights))
         assert min(headroom)>2.3,('Walk headroom',min(headroom))
-    return dict(categories=counts,bearing_surface_samples=len(gaps),max_girder_pad_gap_m=max(gaps),
+    from views import views
+    from plan import Plan
+    cameras=views(seed,Plan(**meta['plan']));camera_clearance={}
+    rock_tree=bvh(next(o for o in obs if o.name=='BarCobbleAndScourRiprap'))
+    for name in ('bearings','abutment'):
+        point=Vector(cameras[name]['location']);heights=[]
+        for soil in (tree,rock_tree):
+            hit=soil.ray_cast(point+Vector((0,0,100)),Vector((0,0,-1)),200)[0]
+            if hit is not None:heights.append(point.z-hit.z)
+        assert heights and min(heights)>.65,('Inspection camera buried/too low',name,heights)
+        camera_clearance[name]=min(heights)
+    photo_camera={}
+    calibration=Path('build/photo-calibration.json')
+    if seed==101 and calibration.exists():
+        point=Vector(json.loads(calibration.read_text())['under']['shot']['location'])
+        distance=min(t.find_nearest(point)[3] for t in supports)
+        assert distance>.10,('Photo camera against support',distance)
+        soil=tree.ray_cast(point+Vector((0,0,100)),Vector((0,0,-1)),200)[0]
+        assert soil is not None and point.z-soil.z>.65,('Photo camera in bank',point,soil)
+        photo_camera=dict(nearest_support_surface_m=distance,ground_clearance_m=point.z-soil.z)
+    return dict(categories=counts,inspection_camera_ground_clearance_m=camera_clearance,under_photo_camera_clearance=photo_camera,bearing_surface_samples=len(gaps),max_girder_pad_gap_m=max(gaps),
                 plinth_support_samples=len(seat_gaps),max_plinth_support_gap_m=max(seat_gaps),girder_lengths_m=sorted(set(round(x,5) for x in lengths)),water_width_samples=samples,
                 riverwalk_headroom_samples=len(headroom),minimum_sampled_riverwalk_headroom_m=min(headroom) if headroom else None,
                 gameplay_socket_surface_gaps_m=socket_gaps,building_walk_bounds_checks=building_walk_checks,

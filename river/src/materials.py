@@ -50,6 +50,7 @@ def palette(repo):
     for role,c,r,m in [('steel',(.26,.285,.28),.44,1),('rubber',(.012,.014,.011),.87,0),
                          ('wood',(.10,.068,.035),.95,0),('algae',(.065,.075,.026),.9,0),
                          ('rust',(.13,.058,.024),.95,0),('foam',(.48,.49,.40),.7,0),
+                         ('hay',(.24,.205,.09),.97,0),
                          ('yellow',(.60,.39,.036),.7,0),('white',(.58,.58,.49),.8,0)]:
         G.M[role]=plain('River_'+role,c,r,m)
     plants=plain('River_bank_cards',(.1,.13,.035));plants.use_backface_culling=False
@@ -58,14 +59,27 @@ def palette(repo):
     plants.node_tree.links.new(tex.outputs['Color'],b.inputs['Base Color'])
     plants.node_tree.links.new(tex.outputs['Alpha'],b.inputs['Alpha']);plants.surface_render_method='DITHERED'
     G.M['plants']=plants
-    water=plain('River_water',(.80,.86,.64),.12)
+    foam=plants.copy();foam.name='River_foam';foam.node_tree.nodes.get('Principled BSDF').inputs['Roughness'].default_value=.66
+    G.M['foam']=foam
+    maintenance=plants.copy();maintenance.name='River_maintenance';maintenance['tiling_vertex_tint']=True
+    maintenance.surface_render_method='DITHERED'
+    nodes=maintenance.node_tree.nodes;links=maintenance.node_tree.links
+    bs=nodes.get('Principled BSDF');bs.inputs['Roughness'].default_value=.92
+    image=next(n for n in nodes if n.type=='TEX_IMAGE');vc=nodes.new('ShaderNodeVertexColor');vc.layer_name='Tint'
+    mix=nodes.new('ShaderNodeMixRGB');mix.blend_type='MULTIPLY';mix.inputs[0].default_value=1
+    links.new(image.outputs['Color'],mix.inputs[1]);links.new(vc.outputs['Color'],mix.inputs[2]);links.new(mix.outputs[0],bs.inputs['Base Color'])
+    G.M['maintenance']=maintenance
+    water=plain('River_water',(.49,.48,.26),.075)
     b=water.node_tree.nodes.get('Principled BSDF');b.inputs['Transmission Weight'].default_value=1
     b.inputs['IOR'].default_value=1.333
     tex=water.node_tree.nodes.new('ShaderNodeTexImage')
     tex.image=bpy.data.images.load(str(Path('textures/checkpoint/T_RiverWater_Normal.png').resolve()),check_existing=True);tex.image.colorspace_settings.name='Non-Color'
-    nm=water.node_tree.nodes.new('ShaderNodeNormalMap');nm.inputs['Strength'].default_value=.85
+    nm=water.node_tree.nodes.new('ShaderNodeNormalMap');nm.inputs['Strength'].default_value=.5
     water.node_tree.links.new(tex.outputs['Color'],nm.inputs['Color']);water.node_tree.links.new(nm.outputs['Normal'],b.inputs['Normal'])
-    water['river_volume_color']=[.50,.55,.20];water['river_volume_density']=.70
-    water['river_scatter_color']=[.30,.31,.11];water['river_scatter_density']=.35;water['river_scatter_anisotropy']=.20
+    water['river_volume_color']=[.48,.45,.19];water['river_volume_density']=1.55
+    water['river_scatter_color']=[.24,.24,.075];water['river_scatter_density']=.65;water['river_scatter_anisotropy']=.20
     water['river_flow_attribute']='_FLOW';G.M['water']=water
+    water['river_flow_speed_range']=[.15,1.15]
+    water['river_flow_normal_range']=[.12,1.15]
+    water['river_flow_roughness_range']=[.065,.23]
     volume_from_extras(water)

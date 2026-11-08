@@ -101,7 +101,7 @@ def add(p,parent):
         for i in range(12):
             x=(-1 if i%2 else 1)*(58+(i//4)*29);y=(-1 if i%4<2 else 1)*rng.uniform(25,38)
             style='houses-ranch.glb' if i%2 else 'houses-cape.glb'
-            instance(native/style,'Floodplain neighbor '+str(i),(x,y,surface_z(p,x,y)-.025),rt,90 if x>0 else -90)
+            instance(native/style,'Floodplain neighbor '+str(i),(x,y,surface_z(p,x,y)-.025),rt,0 if y>0 else 180)
             lots.append((x-12,x+12,y-12,y+12))
         instance(native/'furniture.glb','Fishing bench',(-25,34,2.15),rt,90,select='Bench')
         from rural import add as rural
@@ -118,6 +118,8 @@ def add(p,parent):
     for i in range(310 if p.kind=='edge' else 30):
         y=rng.uniform(-160,165);side=-1 if i%2 else 1
         near=i<250;x=p.center(y)+side*(p.halfwidth(y)+(rng.uniform(3,17) if near else rng.uniform(30,95)))
+        if p.kind=='edge' and not near:
+            y=rng.choice((-1,1))*rng.uniform(41,46);x=side*rng.uniform(48,157)
         if abs(y)<12:continue
         if any(a<x<b and c<y<d for a,b,c,d in lots):continue
         if p.kind=='downtown' and front+1<abs(x)<front+12:continue
@@ -141,6 +143,7 @@ def add(p,parent):
         x=p.center(y)+side*(p.halfwidth(y)+rng.uniform(1.9,15.5))
         if p.kind=='downtown':continue
         if side<0 and abs(abs(x-p.center(y))-p.halfwidth(y)-7)<1.4:continue
-        instance(native/'shrub.glb','Native bank shrub '+str(i),(x,y,surface_z(p,x,y)-.02),veg,
-                 rng.uniform(0,360),rng.uniform(.75,2.1),category='vegetation')
+        ob=instance(native/'shrub.glb','Native bank shrub '+str(i),(x,y,surface_z(p,x,y)-.02),veg,
+                    rng.uniform(0,360),rng.uniform(.75,2.1),category='vegetation')
+        s=ob.scale.x;ob.scale=(s*rng.uniform(.8,1.2),s*rng.uniform(.8,1.15),s*rng.uniform(1.15,1.7))
     return rt
