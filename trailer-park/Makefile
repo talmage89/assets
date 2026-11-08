@@ -25,8 +25,10 @@ HOME_VIEWS := hero front side back top skirt entry scale
 CHECKPOINT_RENDER_OUTPUTS := $(CHECKPOINT_OUT)/provenance.json $(CHECKPOINT_OUT)/Park-202/eevee.png $(foreach s,Park-101 Park-202,$(foreach v,$(PARK_VIEWS),$(CHECKPOINT_OUT)/$(s)/$(v).png)) $(foreach s,SingleWide-120 DoubleWide-228,$(foreach v,$(HOME_VIEWS),$(CHECKPOINT_OUT)/$(s)/$(v).png)) $(foreach s,Deck Carport UtilityService EntranceSign Modules HomeForms SupportFrame,$(CHECKPOINT_OUT)/$(s)/detail.png) $(CHECKPOINT_OUT)/SupportFrame/piers.png renders/source/provenance.json
 CHECKPOINT_RENDER_OUTPUTS += $(foreach f,Park-101/single-2009 Park-101/street-2007 Park-101/aerial-2015 Park-202/newer-row-2024,$(CHECKPOINT_OUT)/matches/$(f).png renders/source/matches/$(f).png)
 ifneq ($(wildcard build/round4-before/export/Park-101.gltf),)
+ifeq ($(wildcard renders/finish-pass4/provenance.json),)
 CHECKPOINT_RENDER_OUTPUTS += renders/finish-before/provenance.json renders/finish-before/Park-101/hero.png renders/finish-before/Park-101/row.png renders/finish-before/Park-202/hero.png renders/finish-before/matches/Park-101/street-2007.png
 FINISH_CROPS = $(PYTHON) src/finish_crops.py --after $(CHECKPOINT_OUT) &&
+endif
 endif
 ifneq ($(wildcard renders/finish-pass4/provenance.json),)
 FINISH_CROPS = $(PYTHON) src/finish_crops.py --before renders/finish-pass4 --after $(CHECKPOINT_OUT) --out renders/last-round-fixes --before-label '5a3935d / same camera and light' &&

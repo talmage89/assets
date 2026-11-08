@@ -124,7 +124,7 @@ def main():
         if a.delivery:
             source=['--out','renders/source',*base[2:],'--only',stem,'--shots','none','--cameras',str(path),'--source-finish']
             run_job(a.out.name+'-source-'+name,source,[(stem,name)],camera=path)
-    if before_frames(a.out,a.width):
+    if not Path('renders/finish-pass4/provenance.json').exists() and before_frames(a.out,a.width):
         args=['--out','renders/finish-before','--width',str(a.width),'--samples',str(a.samples),'--only','Park-101','--shots','none','--cameras',str(street)]
         run_job(a.out.name+'-before-street',args,[('Park-101','street-2007')],Path('build/round4-before/export'),street)
     print('SERIAL BATCH COMPLETE',a.out,flush=True)
