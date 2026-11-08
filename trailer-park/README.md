@@ -12,6 +12,12 @@ The delivery remains exterior-only, without interiors or collision meshes.
 No `docs/` images or final gallery are produced at this gate. Image critiques
 and their remaining weaknesses are recorded in [REVIEW.md](REVIEW.md).
 
+The latest completion gate is **rejected**: sparse rust and a level street
+camera have improved, but the older hero still looks too clean and the lawn
+clumps expose their cards. Current 1440 px evidence is in
+`renders/finish-pass4/`; same-camera crops are in `renders/finish-fixes/`.
+The final view set, gallery and docs remain withheld.
+
 `make` regenerates the ignored checkpoint evidence. `build/metrics.md`
 contains the complete six-home, 69-lot, module and park budget tables;
 render receipts keep presentation cars, vegetation and town separate.

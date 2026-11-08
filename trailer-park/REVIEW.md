@@ -843,3 +843,49 @@ All four frames and before geometry/images have archived-source verification.
 the color regression was added to its scope. No docs or gallery are released.
 
 Delivery gate: REJECTED
+
+## Completion pass 4 — level camera; age and lawn still fail
+
+**Color and value first.** Opened all four current native frames in
+`renders/finish-pass4/`, the same-camera comparisons in `renders/finish-fixes/`,
+the complete older hero, the level street/photo pair and the checkpoint
+contact sheet. The concrete-balanced 2009/2015 references remain the lawn
+value comparators; the street reference uses its white PVC post. Restored
+teal/gray paint and deep under-deck shade now survive export. Older hero
+display-value p5/p95 is 0.071/0.780, with 0.000773% near clipping; the row is
+0.039/0.835. These support tonal judgment, not an albedo measurement.
+
+The periodic orange bars are gone. Selected roof/hood sources and window
+corners now have unequal tapered runs, and the blue roof repair clears the
+hood. But the siding, awnings and skirt remain too uniformly fresh beside
+the used-home photograph. Most of the useful dirt is too quiet or occluded
+at lane distance. The full older hero still fails to establish the requested
+uneven decades of upkeep. Do not accept the age gate from the presence of
+individual features or passing construction checks.
+
+The lawn is lighter/yellower, mottled, dry in places, bare on approaches,
+with taller edge growth. Its bright clipped clumps now expose rectangular
+cards against the broad planar field. Reusing the garden's atlas/blade method
+has not reproduced its accepted look here. Reject the lawn, rather than
+calling the more numerous cards sufficient. Their scale, minification and
+relationship to the base turf need another visual solution.
+
+Overbands are wider, black and branching, and the physical edges join their
+gravel fringe without gaps. Fine fatigue cracking still looks like a diagram.
+This is improved road construction, with a remaining appearance weakness.
+The accepted oil/patch fields, traffic colors, tree variation and plans remain.
+
+The replacement street is now visibly upright: zero pitch, zero roll, lens
+rise 0.165700, 20 mm, 11.53 native px lane-anchor RMS. The before/current
+camera and light match; Blender's independently projected before camera
+agrees with calibration within 0.000625 px. Both use the same matrix and
+optics. Inferred lane depths and the 2024 type-comparison photo remain labeled.
+
+`make check` passes all 21 exports including the new finish-color check,
+1,000 plans, 1,365 static pairs and 936 home hinge poses. Independent GPU
+rebake passes at 4K and shipping size within 1/255 maximum; source fields and
+coverage are exact. The current same-camera crop panels are at least 800 px
+wide and their archived source/image identities verify. Full delivery `make`,
+the final view set, README gallery and docs remain withheld. No docs JPGs exist.
+
+Delivery gate: REJECTED
