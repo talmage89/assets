@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy,numpy as np
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(Path(__file__).resolve().parent),str(ROOT)]
 from kit import export
-from kit.gltf import GLB
+from kit.gltf import GLB,stabilize_tangents
 
 def main():
     parser=argparse.ArgumentParser(add_help=False);parser.add_argument('--out',required=True);parser.add_argument('--report',required=True);parser.add_argument('--variant',type=int,default=101)
@@ -21,7 +21,9 @@ def main():
     old_source=sys.argv[index];sys.argv[index]=str(staged)
     try:export.main()
     finally:sys.argv[index]=old_source
-    path=Path(a.out);glb=GLB(path);d=glb.json
+    from tangent_rounding import for_seed
+    path=Path(a.out);stabilized=stabilize_tangents(path,for_seed(a.variant))
+    glb=GLB(path);d=glb.json
     root=next(n for n in d['nodes'] if n['name']=='SchoolBus');root.setdefault('extras',{})['seed']=a.variant
     from spec import SEEDS,COAT_FACTORS
     root['extras'].update(SEEDS[a.variant])
@@ -34,7 +36,7 @@ def main():
             # ORM can dull the top lobe over causal deposits without a new map.
             coat['clearcoatRoughnessFactor']=1
             coat['clearcoatRoughnessTexture']=dict(mat['pbrMetallicRoughness']['metallicRoughnessTexture'])
-    d['asset']['extras']=dict(checkpoint='round 2 look development',seed=a.variant,
+    d['asset']['extras']=dict(stage='Baked C75 delivery',seed=a.variant,
         age_variation='Shared baked wear; seed-specific causal vertex deposits and enamel coat loss')
     shared=path.parent/'shared';shared.mkdir(exist_ok=True);image_views=[];image_hashes={}
     source_hash=hashlib.sha256(b''.join((path.parent.parent/'textures/2k'/f'T_SchoolBus_{c}.png').read_bytes() for c in ['BaseColor','Normal','ORM'])).hexdigest()
@@ -75,6 +77,6 @@ def main():
             accessor_index=len(d['accessors']);d['accessors'].append(dict(bufferView=view_index,componentType=5126,count=len(rgb),type='VEC4'));prim['attributes']['COLOR_0']=accessor_index
     d['bufferViews']=views;binpath=path.with_suffix('.bin');binpath.write_bytes(payload);d['buffers']=[dict(uri=binpath.name,byteLength=len(payload))]
     gltf=path.with_suffix('.gltf');gltf.write_text(json.dumps(d,separators=(',',':')))
-    report=json.loads(Path(a.report).read_text());report.update(external_gltf=gltf.name,external_bytes=gltf.stat().st_size+binpath.stat().st_size,shared_images=image_hashes)
+    report=json.loads(Path(a.report).read_text());report.update(external_gltf=gltf.name,external_bytes=gltf.stat().st_size+binpath.stat().st_size,shared_images=image_hashes,tangent_rounding_stabilized_corners=stabilized)
     Path(a.report).write_text(json.dumps(report,indent=2));print('BUS_EXTERNAL',gltf,report['external_bytes'],flush=True)
 if __name__=='__main__':main()

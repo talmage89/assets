@@ -44,7 +44,7 @@ textures/2k/T_SchoolBus_BaseColor.png textures/2k/T_SchoolBus_Normal.png texture
 	$(PYTHON) $(KIT)/downsample.py --source textures/4k --out textures/2k --asset SchoolBus --size 2048 --alpha-mode independent
 
 define EXPORT_SEED
-export/C75-$(1).gltf export/C75-$(1).bin build/export-$(1).json &: build/finalized.blend textures/2k/T_SchoolBus_BaseColor.png textures/2k/T_SchoolBus_Normal.png textures/2k/T_SchoolBus_ORM.png src/export.py src/config.py
+export/C75-$(1).gltf export/C75-$(1).bin build/export-$(1).json &: build/finalized.blend textures/2k/T_SchoolBus_BaseColor.png textures/2k/T_SchoolBus_Normal.png textures/2k/T_SchoolBus_ORM.png src/export.py src/config.py src/tangent_rounding.py
 	@mkdir -p export
 	$$(BP) --python src/export.py -- --source build/finalized.blend --textures textures/2k --asset SchoolBus --out export/C75-$(1).glb --report build/export-$(1).json --config src/config.py --variant $(1)
 endef

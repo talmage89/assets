@@ -514,6 +514,28 @@ def fittings(b):
             b.box(name+' sheet '+str(sign),(sign*1.2215,y,z),(.005,w,h),'yellow',r=.004)
             b.box(name+' latch '+str(sign),(sign*1.230,y+w*.35,z),(.012,.040,.030),'aluminum',r=.003)
 
+def stable_crossview_faces(ob):
+    """BMesh's spherical traversal can reorder equal-priority mirror faces."""
+    if not ob.name.startswith('Convex crossview '):return
+    old=ob.data
+    if old.has_custom_normals:raise ValueError('Crossview canonicalization expects geometric smooth normals')
+    faces=[]
+    for p in old.polygons:
+        loops=list(p.loop_indices);start=min(range(len(loops)),key=lambda i:old.loops[loops[i]].vertex_index)
+        loops=loops[start:]+loops[:start]
+        faces.append((tuple(old.loops[i].vertex_index for i in loops),p.material_index,p.use_smooth,loops))
+    faces.sort(key=lambda row:row[:3])
+    mesh=bpy.data.meshes.new(old.name+' stable')
+    mesh.from_pydata([v.co[:] for v in old.vertices],[],[row[0] for row in faces])
+    for mat in old.materials:mesh.materials.append(mat)
+    for p,row in zip(mesh.polygons,faces):p.material_index=row[1];p.use_smooth=row[2]
+    for layer in old.uv_layers:
+        new=mesh.uv_layers.new(name=layer.name);new.active_render=layer.active_render
+        for p,row in zip(mesh.polygons,faces):
+            for dst,src in zip(p.loop_indices,row[3]):new.data[dst].uv=layer.data[src].uv
+    mesh.update();ob.data=mesh
+    if old.users==0:bpy.data.meshes.remove(old)
+
 def finish_scene(b,out):
     from interior_shapes import paint_reverse_faces
     bpy.context.view_layer.update();counts={};parts={}
@@ -537,6 +559,7 @@ def finish_scene(b,out):
             bmesh.ops.reverse_faces(bm,faces=list(bm.faces))
         bm.to_mesh(ob.data);bm.free()
         ob.data.update()
+        stable_crossview_faces(ob)
         if not printed:paint_reverse_faces(b,ob)
         attr=ob.data.attributes.new('VehicleRest','FLOAT_VECTOR','POINT')
         for row,v in zip(attr.data,ob.data.vertices):row.vector=ob.matrix_world@v.co

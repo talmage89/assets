@@ -142,6 +142,20 @@ and exclude print planes from lining. The new material audit passes with no
 damaged prints, including `Bus print emergency` on that label. This is source
 evidence; inspect the next baked rear view before calling the label repaired.
 
+### Exact-delivery repeat repair
+
+Independent exports exposed spherical crossview-mirror triangle storage order
+that varied while the oriented geometry stayed identical. That changed the
+UV pack. Sort those two mirrors' oriented triangles and preserve all vertices,
+materials, smoothing and authored UVs. The repeated pack is now exact.
+Three tangent corners then straddled the exporter's fourth-decimal boundary.
+Use the existing kit's guarded stabilization, with exact position/normal/UV
+signatures and its one-rounding-step bound; changed geometry fails the guard.
+All 29 deterministic files now match byte for byte across independent source,
+UV, marking and three-seed export builds. GPU bakes remain separate inputs;
+the diagnostic used a held texture set and is not a visual delivery. Clear
+those temporary outputs and run the default build, with a fresh bake, next.
+
 This is the requested stop before look development. Quick surfaces are baked
 and judged on the export later in this log; this is not final game-ready acceptance.
 
