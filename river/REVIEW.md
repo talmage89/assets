@@ -652,3 +652,49 @@ import of the preceding export. A fresh corrected import then measured
 crop cells. Construction and 628-file preservation checks pass, with the same
 triangle counts and image allocations. Its full-size appearance check remains
 pending; these measurements establish material continuity alone.
+
+## Pass 16 — completed export checkpoint
+
+Color/value first: reviewed the final 24 export frames, three photo pairs,
+both contacts and all twenty 1280px-per-side comparisons at native size.
+The photo neutrals remain the urban concrete parapet, weathered gray dock
+and underside cap; their measured gains are retained in the calibration.
+Concrete is now neutral/warm with deep cavities, the sky is clear and deeper,
+and the river has an olive/brown body between sky reflections. Reed blades
+and seed heads have sunny yellow-green variation. Neither hero carries the
+previous overall cyan cast. Bank water remains darker and smoother than
+the wind-roughened autumn photograph.
+
+The full-size overhead confirms the crop teeth are gone. All 8,273 paired
+terrain cells pass the imported material-continuity check, with 20 valid
+collapsed singles and zero divided crop cells. Rows now stay continuous.
+The dense linked bank strip, occupied yards, drives, field boundaries and
+sagging utility conductors give the rural reach its requested setting.
+The town has distinct native rear elevations and working service courts
+against the riverwalk, with streets and additional buildings continuing it.
+The overhead still exposes a regular rhythm of footprints and roof systems.
+
+Girder flanges, cap ends and seats read below the overhang. Bearing macros
+resolve laminated pads, plates, keepers and outboard anchors. The bank views
+expose abutment stems and wingwalls against seated riprap. Drips are texture
+masks rather than spikes, but broad cap repairs and blank wall expanses still
+lack the fine stain hierarchy of the photographs. Quarry stones remain too
+faceted in macros; bank cards retain visible pixel edges and simple clump shapes.
+Riffle foam and pier wakes remain static analytic approximations. The stock
+glTF water fallback needs the documented engine shader for depth/flow response.
+
+Final RMS is urban **12.69px**, bank **11.57px**, concrete underside **10.93px**.
+Independent Blender projection disagrees by at most .00428px. These are selected
+landmark fits. The underside's four cap anchors do not match its full interior
+beam arrangement; the exported view is an exterior fascia comparison.
+
+`make`, `make check`, the exact **41-output** repeat and the independent photo
+projection check completed successfully. The five-image CPU regeneration
+receipt remains exact, and all **628** existing delivery inputs are unchanged.
+The final render process ended with SIGTERM after four valid frames, without
+a Blender diagnostic. The remaining six views and bank pair were resumed
+serially under the shared lock and completed. Bundle/camera/image gates verify
+the complete set; no partial or stale frame is accepted and no job survives.
+Per-piece and per-category costs are regenerated in `build/checkpoint-report.md`.
+This is the requested checkpoint, with the appearance limits above retained.
+No kit change, docs images, README gallery or top-level index edit is included.
