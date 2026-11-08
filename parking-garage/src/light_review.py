@@ -10,13 +10,17 @@ import bpy
 from mathutils import Vector
 
 
-def lighting(elevation=18,azimuth=-135,interior=False):
+def lighting(elevation=18,azimuth=-135,interior=False,matched=False):
+    # Keep accepted interior and photo illumination. Public exterior daylight
+    # has a low oblique sun, a clean atmosphere and less diffuse sky fill.
+    exterior=not interior and not matched
+    if exterior:elevation,azimuth=12,-158
     sc=bpy.context.scene;world=bpy.data.worlds.new('Clear sky with daylight bounce');world.use_nodes=True;sc.world=world
     nodes=world.node_tree.nodes;links=world.node_tree.links
     sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(elevation);sky.sun_rotation=math.radians(azimuth);sky.sun_disc=False
-    sky.altitude=100;sky.air_density=1;sky.aerosol_density=.35
-    links.new(sky.outputs[0],nodes.get('Background').inputs['Color']);nodes.get('Background').inputs['Strength'].default_value=.50 if interior else .22
-    light=bpy.data.lights.new('Low raking daylight','SUN');light.energy=4.5;light.color=(1,.91,.79);light.angle=math.radians(.65)
+    sky.altitude=100;sky.air_density=1;sky.aerosol_density=.08 if exterior else .35
+    links.new(sky.outputs[0],nodes.get('Background').inputs['Color']);nodes.get('Background').inputs['Strength'].default_value=.50 if interior else .085 if exterior else .22
+    light=bpy.data.lights.new('Low raking daylight','SUN');light.energy=5.3 if exterior else 4.5;light.color=(1,.88,.70) if exterior else (1,.91,.79);light.angle=math.radians(.53 if exterior else .65)
     ob=bpy.data.objects.new(light.name,light);sc.collection.objects.link(ob)
     sun=Vector((math.cos(math.radians(elevation))*math.cos(math.radians(azimuth)),math.cos(math.radians(elevation))*math.sin(math.radians(azimuth)),math.sin(math.radians(elevation))))
     ob.rotation_euler=(-sun).to_track_quat('-Z','Y').to_euler()
@@ -30,7 +34,7 @@ def lighting(elevation=18,azimuth=-135,interior=False):
             oo.location=socket.matrix_world@Vector((socket.get('uplight_x',.15),0,socket.get('uplight_z',.065)) if upward else (0,0,-socket.get('downlight_offset',.015)))
             oo.rotation_euler=socket.matrix_world.to_euler()
             if upward:oo.rotation_euler.rotate_axis('X',math.pi)
-    sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=.65 if interior else -.75
+    sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=.65 if interior else -.65 if exterior else -.75
     sc.cycles.diffuse_bounces=7;sc.cycles.glossy_bounces=5;sc.cycles.transmission_bounces=10;sc.cycles.max_bounces=12
 
 

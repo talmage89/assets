@@ -671,3 +671,35 @@ CG tells. Oil, connector rust, salts and roost marks resolve in the detail
 views; each is not independently identifiable at full hero framing. The upper
 deck's sealer history is still subtle. These are checkpoint limitations, not
 claims of a finished photographic match. Stop before the README gallery/docs.
+
+## Delivery pass 7 — checkpoint diagnosis before the final corrections
+
+Color/value first: opened the two 1280px checkpoint heroes, the municipal
+aisle, the commercial top deck and the 2400px tower comparison at native size.
+The heroes' pale horizon and broad facade fill suppress the difference between
+sunlit spandrels, shaded shafts and deep openings. A numeric unclipped range
+does not excuse that low local contrast. Retain the accepted interior practical
+lighting and photo-pair presets; revise only the public exterior daylight.
+Use the facade photograph's bare cement for the new value comparison, rather
+than its temporary fence sheet. No photograph contributes texture pixels.
+
+The new eight-way car-color selection will use the original family palette
+for its five principal colors, anchored to DuPont's 2010 North American white,
+black, silver and red shares. Other shares are explicitly authored, not a
+used-fleet measurement. Four native model geometries and independent per-stall
+choices should break the identical dark frontage. The commercial surface row
+needs a driveway/sight gap at the entry, not a different hero camera.
+
+The age source contains seven regularly spaced rivulets per stamp. Delete
+that construction of the coverage field. Wet joints should feed irregular
+plumes, with crystalline salts at their margins and terminal deposits. Most
+panel fields should remain dry. The aisle needs broad accumulated tire traffic
+and larger dispersed engine leaks; the top lane needs visibly abraded sealer.
+Retain the actual tee/seat sections, clearances, towers, turf and fitted pairs.
+
+The floor's blue squares lack their surface ISA. Access Board chapter 5
+requires stall and access-aisle markings but specifies no marking color.
+Use blue diagonal hatches inside the retained clear aisles and a small blue
+ISA background in each stall, with a white symbol and the existing elevated
+signs. No full stall is a solid blue panel. These changes remain unjudged
+until the exported candidate is opened from the unchanged cameras.

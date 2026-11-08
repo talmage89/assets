@@ -27,7 +27,7 @@ def main():
         if a.source_finish:
             from atlas_binding import source_finish
             source_finish()
-        lighting(elevation={'precast':20,'pleasant':8,'harmon':35}[name],azimuth={'precast':60,'pleasant':145,'harmon':-120}[name],interior=name=='precast')
+        lighting(elevation={'precast':20,'pleasant':8,'harmon':35}[name],azimuth={'precast':60,'pleasant':145,'harmon':-120}[name],interior=name=='precast',matched=True)
         sky=next(n for n in bpy.context.scene.world.node_tree.nodes if n.type=='TEX_SKY')
         if name=='pleasant':
             sky.aerosol_density=1.0
