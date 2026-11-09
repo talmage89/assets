@@ -13,7 +13,13 @@ from delivery import counts,consolidate,publish
 def make_building(p):
     a=station(p) if p['program']=='station' else hall(p)
     from aging import walls
-    walls(a,p);return a
+    walls(a,p)
+    # Concrete-balanced pairs show that the stock atlas's untinted brick is
+    # too light for these decades-old municipal facades. Recalibrate pigment
+    # reflectance, independently of the caused weather. Native PNGs stay exact.
+    from geo import masonry_value
+    masonry_value(a,.35 if p['program']=='station' else .65)
+    return a
 
 
 def center(a,off=None):

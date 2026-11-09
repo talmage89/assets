@@ -3,7 +3,7 @@ import json,math,hashlib
 from pathlib import Path
 import bpy
 from mathutils import Vector
-from geo import Assembly,root,text
+from geo import Assembly,root,text,masonry_value
 from parts import wall_bay,window,cornice,column,front_door,steps
 from station import overhead,tower
 from services import equipment,bollard,gear,drains
@@ -29,7 +29,7 @@ def build():
         ('RoofPanel',lambda a:roof_panel(a)),
         ('HoseTower',lambda a:tower(a,{},0,0))]
     for j,(name,fn) in enumerate(specs):
-        a=Assembly('Module_'+name);fn(a);meta=counts(a.root.children_recursive)
+        a=Assembly('Module_'+name);fn(a);masonry_value(a,.35 if name=='HoseTower' else .65);meta=counts(a.root.children_recursive)
         rows.append(dict(name=name,**meta));consolidate(a);a.root.location=((j%4-1.5)*9,(j//4)*9,0)
         objects += [a.root]+list(a.root.children_recursive)
     report=publish('CivicPieces',objects);report['modules']=rows

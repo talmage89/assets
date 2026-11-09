@@ -134,7 +134,7 @@ def repairs(a,p):
     m.finish()
 
 
-def rust(a,p,name):
+def rust(a,p,name,length=.48):
     x,y,z=p
-    patch(a,name,(x-.15,y-.06,z),(1,0,0),(0,1,0),.30,.48,(.24,.058,.012),
+    patch(a,name,(x-.15,y-.06,z),(1,0,0),(0,1,0),.30,length,(.24,.058,.012),
         lambda s,t:.56*math.exp(-((s-.5)/(.10+.18*t))**2)*(1-t)**.8,nx=3,ny=4)

@@ -51,7 +51,7 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,default=Path('renders/checkpoint'));ap.add_argument('--width',type=int,default=1400);ap.add_argument('--samples',type=int,default=40);ap.add_argument('--shots',default='all');ap.add_argument('--seeds',default='101,202');ap.add_argument('--buildings-only',action='store_true');ap.add_argument('--matches',action='store_true');ap.add_argument('--sheets',action='store_true');ap.add_argument('--engine',default='CYCLES');args=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
     if args.matches:
         recipes=json.loads(Path('build/matched-cameras.json').read_text())
-        jobs=[(name,str(row['seed']),(row['shot']['location'],row['shot']['target'],row['shot']['lens']),row) for name,row in recipes.items()]
+        jobs=[(name,str(row['seed']),(row['shot']['location'],row['shot']['target'],row['shot']['lens']),row) for name,row in recipes.items() if args.shots=='all' or name in args.shots.split(',')]
     else:jobs=[(name,seed,spec,None) for seed in args.seeds.split(',') for name,spec in SHOTS[seed].items() if args.shots=='all' or name in args.shots.split(',')]
     rows=[]
     for name,seed,spec,match in jobs:

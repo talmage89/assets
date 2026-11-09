@@ -142,6 +142,18 @@ class Assembly:
         ob=root(self.root.name+'__Socket_'+name,self.root,p);ob['socket_kind']=kind;return ob
 
 
+def masonry_value(a,value):
+    """Municipal brick reflectance, independent of weather and native maps."""
+    a.root['masonry_value_scale']=value
+    for ob in a.objects:
+        tint=ob.data.color_attributes.get('Tint')
+        if not tint:continue
+        for face in ob.data.polygons:
+            if ob.data.materials[face.material_index].name!='Civic_Veneer':continue
+            for li in face.loop_indices:
+                c=tint.data[li].color;tint.data[li].color=(c[0]*value,c[1]*value,c[2]*value,c[3])
+
+
 def orient(m,p,yaw):
     r=math.radians(yaw);c,s=math.cos(r),math.sin(r)
     m.props['uv_origin_z']=p[2]

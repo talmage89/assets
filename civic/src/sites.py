@@ -114,7 +114,7 @@ def build_site(sp,building,off):
     for j,pole in enumerate(sp['flags']):
         flag(a,(*pole,0),'Flagpole_'+str(j),national=j==0)
         from aging import rust
-        rust(a,(*pole,.122),'FlagpoleFootRust_'+str(j))
+        rust(a,(*pole,.122),'FlagpoleFootRust_'+str(j),length=.22)
     for j,(xx,yy) in enumerate(sp['trees']):place(ROOT/'trees/export'/('PinOak.glb' if j%3==0 else 'RedMaple.glb'),'SiteTree_'+str(j),(xx,yy,-.02),j*61,parent=a.root)
     for j in range(7):
         at=([(-19.4,-9.9,-.012),(-17.2,-9.9,-.012),(-15,-9.9,-.012),(-12.8,-9.9,-.012),(1.2,-9.9,-.012),(3.4,-9.9,-.012),(5.6,-9.9,-.012)][j]) if sp['kind']=='downtown' else (14.0,-4+j*1.1,-.012)
