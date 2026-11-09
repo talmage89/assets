@@ -1,5 +1,8 @@
 # Asset toolkit
 
+Opt-in LOD region protection and its triangle cost are described in
+[Fixed UV regions](LOD.md#fixed-uv-regions-opt-in). Existing level policies are unchanged.
+
 A compact Blender 5.2 pipeline, proven on [Field 3](../gas-grill/README.md)
 and the [Bellford hydrant](../fire-hydrant/README.md).
 Meters, +Z up, −Y front; deterministic scripted geometry, original material

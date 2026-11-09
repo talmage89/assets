@@ -20,7 +20,7 @@ from kit.lod_io import Document, digest, distance, residency, shared_material_bi
 
 
 def tool_digests():
-    names=('lod_shading.py','lod_constraints.py','lod_shared.py','lod_shells.py','lod.py','lod_io.py','lod_foliage.py','lod_mesh.py','lod_scene.py','lod_layout.py','lod_gpu.py','lod_atlas.py','lod_transfer.py','lod_impostor_fit.py','lod_impostor.py','lod_render.py','foliage.py',
+    names=('lod_shading.py','lod_constraints.py','lod_shared.py','lod_regions.py','lod_shells.py','lod.py','lod_io.py','lod_foliage.py','lod_mesh.py','lod_scene.py','lod_layout.py','lod_gpu.py','lod_atlas.py','lod_transfer.py','lod_impostor_fit.py','lod_impostor.py','lod_render.py','foliage.py',
            'detachable_textures.py','detachable_verify.py','image_io.py','downsample.py')
     return {name:digest(ROOT/'kit'/name) for name in names}
 
@@ -45,6 +45,11 @@ def configuration(path):
         raise ValueError('Levels need positive ratios and screen heights below one')
     if any(b['ratio']>a['ratio'] or b['screen_height']>=a['screen_height'] for a,b in zip(levels,levels[1:])):
         raise ValueError('Levels must be ordered from near to far')
+    for level in levels:
+        if 'preserve_uv_regions' in level:
+            if type(level['preserve_uv_regions']) is not bool:raise ValueError('preserve_uv_regions must be a boolean')
+            if level['preserve_uv_regions'] and (not cfg.get('screen_space') or level.get('proxy') or level.get('rebake') or level.get('leaf_cards') or level.get('impostor')):
+                raise ValueError('preserve_uv_regions requires a shared-map screen-space level')
     source=(root/cfg['source']).resolve();out=(root/cfg.get('output','export/lod')).resolve()
     if out==source.parent or source.is_relative_to(out):raise ValueError('Output must not contain LOD0')
     return cfg,root,source,out
@@ -153,6 +158,7 @@ def build(config):
                 from kit.lod_scene import capture_geometry,restore_geometry
                 retained=capture_geometry(doc,retain)
                 from kit.lod_shared import meshes
+                from kit.lod_regions import policy as uv_region_policy
                 from kit.lod_shells import backface_policy,refinement_policy,powered_policy
                 guard=spec.get('backface_guard',cfg.get('backface_guard',True))
                 powered=spec.get('powered_protection',cfg.get('powered_protection','component'))
@@ -161,10 +167,11 @@ def build(config):
                 reflective=spec.get('reflective_surface_pixels',cfg.get('reflective_surface_pixels'))
                 size=max((max(image['size']) for image in doc.stats()['images']),default=2048)
                 materials=[doc.data['materials'][i] for i in sorted({p.get('material',0) for _,_,p in doc.primitives()})]
-                with powered_policy(powered),backface_policy(guard,materials),refinement_policy(spec['ratio'],pixels,size,
+                with uv_region_policy(spec.get('preserve_uv_regions',False)),powered_policy(powered),backface_policy(guard,materials),refinement_policy(spec['ratio'],pixels,size,
                         source=doc,reflective_surface_pixels=reflective,enabled=sliding):
                     reports=meshes(doc,spec['ratio'],meters_per_pixel,cfg.get('feature_pixels',1.5),pixels,seam_sliding=sliding)
                 assembly.update(backface_guard=guard,source_skin_refinement=sliding and guard,powered_protection=powered)
+                if spec.get('preserve_uv_regions'):assembly['preserve_uv_regions']=True
                 if retained:assembly['retained_source_geometry']=restore_geometry(doc,retained)
                 if reflective is not None:assembly['reflective_surface_pixels']=reflective
             else:

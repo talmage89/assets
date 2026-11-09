@@ -2653,3 +2653,30 @@ limits; no engine benchmark or continuous motion proof is claimed. Nothing
 needs installing or input from the lead. Future kit work should focus on
 powered proxy optical transfer and source-layer ordering before attempting
 further reductions of those failed controls. The checkpoint stops here.
+
+## Fixed UV domains — reduction regression, 2026-11-09
+
+`preserve_uv_regions` is a per-level opt-in for shared-map reductions. It pins
+source chart/material boundaries, UV folds and inherited flat-UV triangles,
+vetoes unmatched-wedge extrapolation and checks orientation/area after FLOAT
+storage. Normal-only splits do not create regions. Component and exported-file
+audits compare boundary records; a deliberate changed exported UV is rejected.
+No proxy baker, renderer, transfer code, original material or image changes.
+
+The concave, holed, two-layer atlas-seam fixture reduces 62 to 34 triangles;
+the old reducer reaches 11 but changes its domain boundary. The 23-triangle
+increment is the measured cost of this conservative fixture policy, not a claim
+of optimality. Fold, FLOAT-flattening, tangent, cache isolation, public-option
+validation and exception-reset cases are covered by `test_lod_regions.py`.
+
+All 35 kit test files pass serially from fresh fixtures, including six GPU
+files under the shared lock. The final fold refinement is additionally rerun
+in the region fixture. Logs: `build/lod-uv/tests/{cpu-passed,gpu}.json` and
+`build/lod-uv/regions-final.log`. The default cone (626/436), hydrant (3524)
+and bench (2360) rebuild byte-identical glTF/BIN/PNG payloads. Their complete
+manifest measurements match too; only tool provenance hashes necessarily
+change. Comparison receipt: `build/lod-uv/compatibility.json`. Existing source
+deliveries, maps and docs are protected by `build/lod-uv/originals.json`.
+
+Family adoptions require their own frozen-tool images and checks. This fixture
+does not approve a pole, signal or sign, or predict its retained triangle cost.

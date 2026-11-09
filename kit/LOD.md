@@ -421,6 +421,27 @@ describe the selected modules. Extraction savings are distinct from reduction.
 
 ## Targets, switches and texture residency
 
+### Fixed UV regions (opt-in)
+
+A shared-map screen-space level may request `"preserve_uv_regions": true`.
+This pins the geometric endpoints of every source UV/material chart boundary,
+including open boundaries, holes, UV folds and trim-cell seams. Normal-only splits do
+not define regions. Source boundary positions and UVs stay exact; interior
+edges may still collapse. Unmatched wedges cannot extrapolate into another
+chart. Each affected UV triangle retains its orientation and nonzero area
+after float32 storage, and candidate tangents must retain a valid length.
+Inherited flat-UV triangles are pinned individually rather than allowing a
+new flat triangle against an aggregate count of old ones.
+
+Component checks compare complete boundary multisets; the exported-accessor
+audit independently rejects newly introduced boundary records. Whole subpixel
+construction islands may still be pruned under the existing feature policy.
+No charts, images or material settings change. The cost is extra triangles
+along every chart edge, particularly on densely split or faceted construction;
+measure that cost against the cheaper rejected trial. The default remains
+false, and the policy resets between levels and on exceptions. Region-aware
+cache entries include the guard implementation and cannot reuse legacy entries.
+
 | Kind | LOD1 | LOD2 | Last level | Intermediate / far maps |
 | --- | --- | --- | --- | --- |
 | Small prop | 40% @ .25 (270px) | 15% @ .09 (97px) | none | LOD0 / none |
