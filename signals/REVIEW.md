@@ -763,3 +763,25 @@ door controls in `Cabinet-state-routing.json`. No new motion-clearance or
 engine-light simulation is claimed. Measured selected tables/contact are
 `build/lod-rollout/signals/report/`; the original .25 cost trial remains
 archived in `cabinet-pass1/`.
+
+### LOD critique 5: span wires at native size
+
+Opened both whole construction views and the contact, then all seven
+unscaled native original/LOD/difference pages under
+`build/lod-rollout/signals/span-native/`. These cover every horizontal span
+of the three comparison frames, including near/far poles, wires and heads.
+Color/value, powered indications, messenger/tether runs and pole coverage
+remain consistent. The six aiming heads and eighteen lens controls remain
+separate. Close construction still exposes coarse fittings and head rims.
+The .4 request gives 7764/17456 triangles (44.48%), above 6982. Every image
+gate passes: worst mean .00483, local .04677, alpha .01852 and IoU .02893.
+
+The first full check was interrupted with observed exit 143 after geometry
+passed and before the independent normal audit finished; no own Blender
+remained. That interruption is preserved, not called a pass. The directly
+monitored full retry passes both checks; exact receipt is
+`build/lod-rollout/signals/span-set-pass1-check-retry.json`. Config, outputs,
+checks, payload hashes and native images are archived in `span-set-pass1/`
+before a lower .25 request is tested at the same .25 switch. No tool or image
+gate changed. New geometry uses 25 draws versus the original 27, with the
+original three materials/maps; these are measured color-pass submissions.
