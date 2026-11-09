@@ -204,3 +204,17 @@ nodes must continue passing their existing exact checks. Families with private
 native-car/host caches or immutable library-car receipts need those inputs and
 receipts refreshed after the fix, followed by their own repeat check. None of
 those guards, caches, receipts or family deliveries was changed here.
+
+### Additional H120 byte-identity obstacle
+
+`hatch_detail.py` stores the input **blend-container** SHA-256 in scene
+`form_source_sha256`; the original finalization/export retains it in the GLB's
+scene extras. The three original one-thread H120 form builds have identical
+mesh arrays but three different blend-file hashes, recorded in
+`build/cars-determinism/hatch-container-hashes.json`. The accepted GLB currently
+contains `6443725b18cc77d01825c713c075ef3f1cf8d2d14314040064c2ce020fc5ec81`.
+Fixing mesh repeat alone therefore does not establish complete GLB byte repeat:
+the delivery must omit this serialization receipt or replace it with a stable
+scene-content receipt, while preserving binary provenance separately for audits.
+The trial removed it from the finalized scene only; that production change
+was also reverted when the geometry workaround failed preservation.
