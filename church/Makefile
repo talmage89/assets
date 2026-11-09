@@ -10,7 +10,7 @@ CHECKPOINT_DEPS := $(addprefix src/,build.py geometry.py surfaces.py architectur
 CHECKPOINT_CHECK = $(PYTHON) src/check.py && $(BP) --python src/construction_check.py && $(BP) --python src/site_check.py
 CHECKPOINT_OUT := renders/checkpoint
 CHECKPOINT_REVIEW = $(PYTHON) src/present.py
-CHECKPOINT_RENDER_ARGS := --full
+CHECKPOINT_RENDER_ARGS := --full --resume
 include ../kit/checkpoint_rules.mk
 BP := $(BLENDER) -b -t 4 --factory-startup --python-exit-code 1
 $(CHECKPOINT_RENDER_OUTPUTS): build/matched-cameras.json src/render_batch.py

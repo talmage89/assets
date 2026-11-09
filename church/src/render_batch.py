@@ -1,15 +1,46 @@
 """One GPU-lock acquisition per serial export review set."""
-import argparse,json,sys
+import argparse,hashlib,json,struct,sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE),str(HERE.parents[1])]
-from render import render_file,render_modules,shots
+import render as renderer
+from render import render_modules,shots
+
+_render_file=renderer.render_file
+RESUME=False
+PACKAGES={}
+
+
+def render_file(source,out,name,spec,width,samples,engine):
+    png=out/(name+'.png');receipt=out/(name+'.json')
+    if RESUME and png.exists() and receipt.exists():
+        d=json.loads(receipt.read_text());raw=png.read_bytes();i=8;meta={}
+        while i+12<=len(raw):
+            length,kind=struct.unpack_from('>I4s',raw,i);chunk=raw[i+8:i+8+length];i+=length+12
+            if kind==b'tEXt':
+                key,_,value=chunk.partition(b'\0');meta[key.decode()]=value.decode()
+        count=int(meta.get('cycles.ViewLayer.samples',d.get('capture_samples',-1)))
+        if source not in PACKAGES:PACKAGES[source]=renderer.digest(source)
+        recipe=hashlib.sha256(Path(renderer.__file__).read_bytes()).hexdigest()
+        normalized=json.loads(json.dumps(spec))
+        if 'photo_size' in spec:
+            sw,sh=spec['photo_size'];factor=max(1,round(width/sw));size=[sw*factor,sh*factor]
+        else:size=[width,round(width/spec.get('aspect',1.5))]
+        if (count==samples and d.get('source')==str(source) and d.get('package_sha256')==PACKAGES[source]
+                and d.get('render_recipe_sha256')==recipe and d.get('engine')==engine
+                and all(d.get(k)==v for k,v in normalized.items())
+                and d['resolution']==size and list(struct.unpack_from('>II',raw,16))==size):
+            print('REUSE verified capture',png,flush=True);return
+    _render_file(source,out,name,spec,width,samples,engine)
+    d=json.loads(receipt.read_text());d['capture_samples']=samples;receipt.write_text(json.dumps(d,indent=2))
 
 
 def main(argv=None):
     p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=Path('renders/look-a'))
     p.add_argument('--width',type=int,default=1000);p.add_argument('--samples',type=int,default=20)
     p.add_argument('--shots',default='hero,above,window,window_dusk');p.add_argument('--matches',action='store_true')
-    p.add_argument('--source-matches',action='store_true');p.add_argument('--range',action='store_true');p.add_argument('--full',action='store_true');a=p.parse_args(argv if argv is not None else sys.argv[sys.argv.index('--')+1:])
+    p.add_argument('--source-matches',action='store_true');p.add_argument('--range',action='store_true');p.add_argument('--full',action='store_true');p.add_argument('--resume',action='store_true');a=p.parse_args(argv if argv is not None else sys.argv[sys.argv.index('--')+1:])
+    global RESUME
+    RESUME=a.resume;renderer.render_file=render_file
     if a.full:a.shots='hero,above,doors,window,window_dusk,tower,wing,sign,scale,age,north_roof';a.matches=True;a.source_matches=True;a.range=True
     for seed in (101,202):
         for name in filter(None,a.shots.split(',')):

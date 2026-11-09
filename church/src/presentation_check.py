@@ -35,7 +35,9 @@ def main(require_before=True):
         assert data['render_recipe_sha256']==recipe,(p,'stale renderer')
         im=Image.open(p);assert im.size==tuple(data['resolution'])
         assert im.width>=(720 if 'modules' in p.parts else 800)
-        receipts.append(dict(path=str(p),source=str(source),package_sha256=hashes[source],size=im.size))
+        samples=int(im.info.get('cycles.ViewLayer.samples',data.get('capture_samples',0)))
+        assert samples>0,(p,'missing actual sample receipt')
+        receipts.append(dict(path=str(p),source=str(source),package_sha256=hashes[source],size=im.size,samples=samples))
     tones={}
     for seed in (101,202):
         p=Path(f'renders/checkpoint/{seed}/hero.png');rgb=np.asarray(Image.open(p).convert('RGB')).astype(float)
