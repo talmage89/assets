@@ -3,7 +3,7 @@
 Fresh-process adapter writes only church/build. The original brick, trim,
 roofing and sign maps stay read-only, and no complete block repeats in view.
 """
-import json,os,sys
+import argparse,json,os,sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1]
 sys.path[:0]=[str(ROOT/'downtown/src'),str(ROOT)]
@@ -16,7 +16,9 @@ from kit.tiling import export
 
 
 def main():
-    out=ROOT/'church/build/hosts';out.mkdir(parents=True,exist_ok=True)
+    ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,default=Path('build/hosts'))
+    args=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
+    out=args.out.resolve();out.mkdir(parents=True,exist_ok=True)
     os.chdir(ROOT/'downtown')
     for i in range(6):
         bpy.ops.wm.read_factory_settings(use_empty=True)

@@ -73,7 +73,7 @@ def build(p):
         rows += [(61,3,-90,24),(61,28,-90,24)]
     else:
         for i,(x,y) in enumerate(((26.6,-21),(36.8,-22),(48.2,-21),(-2,51),(8.5,51),(19,51))):
-            instance(G.ROOT/f'church/build/hosts/town-{i}.glb',f'Distinct town building {i}',(x,y,0),actor='town')
+            instance(Path(f'build/hosts/town-{i}.glb'),f'Distinct town building {i}',(x,y,0),actor='town')
         pad('Shared rear alley',(-22,55,44.3,50.4),'asphalt',.002)
         pad('Alley side connection',(53,58,-23,50.4),'asphalt',.002)
         rows=[(-45,y,90,23) for y in (-10,14,38)]+[(x,-49,180,24) for x in (-13,11,38)]+[(-17,65,0,23)]

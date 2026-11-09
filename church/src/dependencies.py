@@ -18,7 +18,7 @@ def main():
     rows={s:hashlib.sha256((ROOT/s).read_bytes()).hexdigest() for s in required}
     recipe=ROOT/'church/src/context_hosts.py'
     if any(not Path(f'build/hosts/town-{i}.glb').exists() or Path(f'build/hosts/town-{i}.glb').stat().st_mtime<recipe.stat().st_mtime for i in range(6)):
-        subprocess.run(['blender','-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(ROOT/'church/src/context_hosts.py')],check=True)
+        subprocess.run(['blender','-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(ROOT/'church/src/context_hosts.py'),'--','--out',str(host.parent.resolve())],check=True)
     Path('build/dependencies.json').write_text(json.dumps(rows,indent=2))
 
 
