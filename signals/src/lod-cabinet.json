@@ -1,0 +1,15 @@
+{
+  "kind": "standard prop: signal controller cabinet",
+  "name": "Cabinet",
+  "source": "export/parts/Cabinet.gltf",
+  "output": "export/lod/cabinet",
+  "renders": "renders/lod/cabinet",
+  "readme_key": "cabinet",
+  "readme_title": "Controller cabinet LODs",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "levels": [
+    {"ratio": 0.4, "screen_height": 0.25}
+  ]
+}

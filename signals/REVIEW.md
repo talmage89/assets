@@ -678,3 +678,25 @@ memory remain 2048/1024/512 × 256 and 17.5 MiB. Per-part/per-intersection
 triangles, material counts, bytes and first-use memory are in README and the
 generated budget report. Nothing is needed from the lead to complete this
 delivery. The appearance limitations in pass 5 remain.
+
+## LOD rollout, 2026-11-09
+
+Frozen tool/recipe revision `55b6288`; literal receipt:
+`build/lod-rollout/signals/freeze.sha256`. The original `make check` passes
+with `-o build/delivery.json -o ../ground/export/ArterialSites.glb`; exact
+command/exit/resource receipt is `build/lod-rollout/signals/original-before.json`.
+
+### LOD critique 1: controller cabinet
+
+Opened all three native original/preceding/new/difference strips, both
+construction views and contact. Color/value first: metal body, dark vents,
+door reveals and concrete retain the original response at 25% / 6.97m.
+The service fixture's shaft retains coverage. Close inspection reveals a
+simpler louver form and coarser circular lamp, without a native switch fault.
+Both `Controller__Door__Fixed` and `Controller__PoliceDoor__Fixed` stay
+separate under their original pivots. All image and independent UV/frame,
+topology and re-import checks pass. However 2238/2964 triangles retain
+75.51%, missing 1186, with unchanged three draws and one material. This is
+a cost trial, not yet a selected family level. Complete config, payload,
+hashes, comparisons and checks are archived in
+`build/lod-rollout/signals/cabinet-pass1/`; the next equipment trial is the mast.
