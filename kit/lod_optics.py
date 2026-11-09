@@ -36,7 +36,8 @@ def split_transmission(doc, original):
     glass['extras'] = {'lod_transmission_partition': True}
     if solid.get('extras', {}).get('lamp_strength'):
         glass['extras']['lamp_strength'] = solid['extras']['lamp_strength']
-    glass['extensions'].pop('KHR_materials_clearcoat', None)
+    if not any(m.get('extensions', {}).get('KHR_materials_clearcoat', {}).get('clearcoatFactor', 0) > 0 for m in native):
+        glass['extensions'].pop('KHR_materials_clearcoat', None)
     glass['extensions']['KHR_materials_ior'] = {'ior': next(iter(iors))}
     threshold = .5 * min(m['extensions']['KHR_materials_transmission']['transmissionFactor'] for m in native)
     probes = np.array([[1,0,0], [0,1,0], [0,0,1], [.5,.5,0], [.5,0,.5], [0,.5,.5], [1/3]*3])

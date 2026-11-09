@@ -89,6 +89,12 @@ class TransmissionPartition(unittest.TestCase):
             'KHR_materials_ior':dict(ior=1.52)})]
         before = copy.deepcopy(doc.data['materials'][0])
         images = copy.deepcopy(doc.data['images'])
+        coated = copy.deepcopy(doc)
+        coated_source = copy.deepcopy(source)
+        coated_source.data['materials'][0]['extensions']['KHR_materials_clearcoat']={'clearcoatFactor':.3}
+        split_transmission(coated,coated_source)
+        self.assertEqual(coated.data['materials'][1]['extensions']['KHR_materials_clearcoat'],
+                         before['extensions']['KHR_materials_clearcoat'])
         result = split_transmission(doc,source)
         self.assertEqual(result['glass_triangles'],1)
         self.assertEqual(result['mixed_or_opaque_triangles'],2)
