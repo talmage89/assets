@@ -238,3 +238,26 @@ Whole default chain:
 Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 3 to 3 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
 
 <!-- LOD checkpoint: end -->
+# LOD round 2 — closed-door levels with an original interaction hold
+
+The accepted 1264-triangle, 2082780-byte original is present and matches the
+README exactly. Its family make check passes with existing accepted scenes and
+the GLB explicitly frozen. A separate clean source/bake/export/check rebuild
+runs under build/lod-round2/mailbox/rebuild/ without overwriting the accepted
+delivery or docs. Tool revision 773822c and 103 literal hashes are frozen before
+the new proof; source-frozen.json hashes the immutable original.
+
+The new proof distinguishes permitted poses: LOD0 supplies the full 0–105-degree
+door sweep; reduced doors may draw only at rest. All levels still require the
+flag's complete 0–90-degree sweep with no contact exceptions. The interaction
+controller must select LOD0 before changing the door angle and keep it until
+the door returns to rest. This addresses round 1's reduced open-door failures
+without pretending every reduced door must animate safely. The updated
+src/check_lod_motion.py measures those actual imported surfaces and verifies
+that translating Mailbox moves every mesh by the same amount. include_nodes
+keeps the merged static shell under that placement root.
+
+Start with a .3 near / .08 far target witness at the established .25/.09
+switches. Keep the previous .6/.12 payloads, config and native comparisons in
+build/lod-round2/mailbox/prior/. No public LOD hook is added until the chain
+passes its own images, normals, permitted poses, original check and receipts.
