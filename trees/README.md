@@ -293,12 +293,6 @@ Stored counts include the full immutable source container once and every default
 
 ## Pin oak / summer delivery
 
-### Additional LODs
-
-No pin oak LOD chain is adopted yet.
-The original has been rebuilt and passes its delivery checks; LOD review is next.
-[Rebuild receipt and evidence](REVIEW.md#pin-oak--accepted-delivery-rebuild-2026-11-09).
-
 ![Pin oak, exported GLB in Cycles](docs/oak-hero.jpg)
 
 ![Leaves, bark, pins, backlight, roots, scale, family and Eevee](docs/oak-details.jpg)
@@ -378,7 +372,7 @@ gives individual blades more independent lighting.
 Local mass blend remains .48 low / .28 upper. Keep those custom normals and
 port `src/leaf_material.py` into the engine; ordinary glTF MASK PBR approximates
 this two-sided/glancing response. The GLB retains linear **_WIND**, using the
-channel convention above. Wind, LODs and impostors remain engine integration.
+channel convention above. Wind and runtime LOD selection remain engine integration.
 
 Original warm gray-brown bark has flat interlacing ridges nominally 2–5 cm wide
 and 10–40 cm long. Meter-scaled brown channels have finite floors and sloping
@@ -504,3 +498,52 @@ Its source arrays, four packed PNG inputs and growth JSON are exact; its existin
 source/delivery files and three docs JPGs remain untouched. Final preservation
 proof is in `build/bark-polish/preservation-final.json` and
 `maple-fresh-finalized-comparison.json` beside it. No kit changes.
+
+<!-- LOD checkpoint oak: begin -->
+### Additional LODs
+
+`make SPECIES=oak lod` builds additional core glTF/BIN files and a manifest under `export/lod/oak/`; `make SPECIES=oak check-lod` checks them; plain `make check-lod` checks both species. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 24,816 / — | 2 / 2 | 2,906,366 | 8,795,834 | 11,702,200 | 16.000 + 2.7674 | near |
+| LOD1 | 12,408 / 12,408 | 2 / 2 | 1,825,732 | 8,795,834 | 10,621,566 | 16.000 + 1.7371 | 8.0% / 183.43 m |
+| LOD2 | 4,962 / 4,963 | 2 / 2 | 732,590 | 8,795,834 | 9,528,424 | 16.000 + 0.6947 | 3.0% / 489.14 m |
+| LOD3 | 8 / 8 | 1 / 1 | 3,674 | 222,235 | 225,909 | 0.333 + 0.0008 | 1.5% / 978.29 m |
+| LOD3 camera-facing | 2 / 2 | 1 / 1 | 3,075 | 2,060,267 | 2,063,342 | 2.667 + 0.0002 | 1.5% / 978.29 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **21.533 MiB**, versus LOD0 alone **18.767 MiB**. Unique textures 16.333 MiB = 16.000 MiB original + 0.333 MiB proxy/impostor; all meshes 5.1999 MiB. Increase over LOD0 2.766 MiB = 0.333 MiB far maps + 2.4326 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded. Replacing the fixed far level with camera-facing gives **23.866 MiB** for that complete alternative chain (2.667 MiB new far maps).
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Intermediate levels reduce branches and retain fewer, enlarged source leaf cards. Their source UVs, bent normals and Wind fields remain; the last impostor freezes wind and lighting.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod-oak/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/oak/check.json` and `export/lod/oak/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/PinOak/simplification.json` and manifest assembly receipts. [Oak critique and rejected switch](REVIEW.md#oak-lod-critique-pass-1--reject-the-middle-coverage-jump).
+
+Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048; LOD2: 3 × 2048×2048; LOD3: 1 × 1024×256; LOD3 camera-facing: 1 × 2048×1024.
+
+LOD1/2 retain fewer, enlarged source leaf cards, their original UVs, bent normals and Wind fields; wood simplifies separately. LOD3 is four fixed crossed planes / eight triangles, one material and one draw, fitted jointly to 32 renders of this tree. It works without an engine controller. The separate camera-facing alternative has two triangles and a 32-sector atlas. `kit/lod_impostor.py:pose` is its reference controller. Both impostors freeze lighting and wind; overhead views, changing sun and continuous angular blending remain limitations.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 42,194 | 3 | 7 | 23,282,265 | 21.5334 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 2 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+
+Only the middle switch differs from the maple: 3.2% failed the original .05 coverage gate, while 3.0% passes every original and adjacent gate. The image limits are unchanged. No moving parts or armature; near Wind data is retained, and both far choices freeze wind and lighting.
+
+Both species' default chains together store **82,458 triangles**, six material
+resources, fourteen primitive placements and **39,051,409 payload bytes**.
+Their combined residency is **42.738 MiB**: 32.667 MiB textures and 10.071 MiB
+mesh buffers. Each original container and canonical image counts once; optional
+camera-facing alternatives are excluded. Draw only one chosen level per tree.
+
+<!-- LOD checkpoint oak: end -->
