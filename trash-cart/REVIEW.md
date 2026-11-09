@@ -174,3 +174,16 @@ and game paths. Stop after this asset, as required by the phase brief.
 Merged `main`'s `wp/integrate` at 3e8dc84. Main's `policy.py`, canonical density dictionary and SHIP_SIZE path control UVs, bake/downsample/export verification and invalidation. Ported only variant selection/staging, source budgets, delivery-envelope verification, WebP references and interior bake diagnostics; no competing density resolver remains. Fixed the pre-existing Blender Vector-minus-float fallback in finalize separately (55a0585). `python3 -m unittest kit.test_delivery`, Python compilation and Blender `kit/test_policy.py` pass.
 
 Ran `make -C trash-cart clean`, then `make -C trash-cart` and `make -C trash-cart check` to successful exit 0, resuming incomplete bakes after transient server interruptions. All five 4096 bake channels have zero missed interior samples across 8,327,739 checked texels; BaseColor has zero black interior samples. Rebuilt all 13 exported-GLB shots, opened each individually and the contact sheet, and found no visual regression. Both delivery checks, atlas byte-identity, four moving/static mesh objects, footprint and pivot checks pass. Triangles remain 5,556 / 5,776. The unified exporter preserves the asset tag correctly, adding eight bytes to each GLB: 2,387,504 / 2,409,624. Shared 1024 texture sizes and measured dimensions remain unchanged. Updated final docs from the rebuilt exports.
+
+## LOD rollout — 2026-11-09
+
+Merged current main (already up to date). Freeze revision `7e266d5` and 103
+literal tool hashes: `build/lod-rollout/trash-cart/freeze*`. The original check
+passes before adoption with explicit `-o build/lookdev.blend`,
+`-o build/game-audit.blend`, `-o build/finalized.blend`,
+`-o export/TrashCart.glb`, `-o export/TrashCartRecycling.glb` inputs;
+`original-before.{json,log}` records the complete command. Variant preflight
+`variant-routing.json` measures identical original image hashes but different
+lid UV/vertex data, so each gets its own config/proof. Near chains retain
+Lid/Wheel_Left/Wheel_Right frames and use one canonical texture pool. No
+accepted source/map/docs image is changed. No result yet approves either kind.
