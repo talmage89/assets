@@ -20,8 +20,8 @@ def package(path):
 def main(require_before=True):
     recipe=sha(Path('src/render.py'));paths=[]
     shots='hero,above,doors,window,window_dusk,tower,wing,sign,scale,age,north_roof'.split(',')
-    for seed in (101,202):paths += [Path(f'renders/checkpoint/{seed}/{s}.png') for s in shots]
-    paths.append(Path('renders/checkpoint/range.png'))
+    for seed in (101,202):paths += [Path(f'renders/final/{seed}/{s}.png') for s in shots]
+    paths.append(Path('renders/final/range.png'))
     paths += [Path('renders/modules')/(p.stem+'.png') for p in Path('export/modules').glob('*.gltf')]
     paths += [Path(f'renders/{folder}/{name}.png') for folder in ('matches','source-matches') for name in ('gothic','modern','window')]
     paths += [Path(f'renders/eevee/{seed}/hero.png') for seed in (101,202)]
@@ -40,7 +40,7 @@ def main(require_before=True):
         receipts.append(dict(path=str(p),source=str(source),package_sha256=hashes[source],size=im.size,samples=samples))
     tones={}
     for seed in (101,202):
-        p=Path(f'renders/checkpoint/{seed}/hero.png');rgb=np.asarray(Image.open(p).convert('RGB')).astype(float)
+        p=Path(f'renders/final/{seed}/hero.png');rgb=np.asarray(Image.open(p).convert('RGB')).astype(float)
         lum=rgb@np.array([.2126,.7152,.0722]);clipped=float(np.mean(np.any(rgb>=254,axis=2)))
         assert clipped<.001,(p,clipped)
         tones[str(seed)]=dict(display_luma_p1_p50_p99=np.percentile(lum,[1,50,99]).tolist(),clipped_pixel_fraction=clipped,scope='Display-domain frame statistics include sky; not physical surface albedos')

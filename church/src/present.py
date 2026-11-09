@@ -10,9 +10,11 @@ def main():
         subprocess.run([sys.executable,str(tool),'compose','--calibration','build/matched-cameras.json',
             '--renders',f'renders/{folder}','--out',f'renders/{folder}'],check=True)
     previous=Path('renders/before-look/checkpoint/101/hero.png').exists()
-    if previous:comparisons.main()
+    if previous:comparisons.main('renders/final')
     else:print('Cold build: previous-revision captures are unavailable; current exports are audited')
     resources.main();review.main();presentation_check.main(require_before=previous)
+    from last_evidence import main as evidence
+    evidence()
 
 
 if __name__=='__main__':main()

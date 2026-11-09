@@ -15,11 +15,16 @@ def sheet(paths,out,columns=3,width=480):
 
 
 def main():
-    for folder in ('checkpoint','modules','matches','source-matches','eevee','pass1','pass2','pass3'):
+    for folder in ('final','checkpoint','modules','matches','source-matches','eevee'):
         root=Path('renders')/folder
         paths=sorted(root.rglob('*.png')) if 'matches' not in folder else sorted(root.glob('*-pair.jpg'))
         sheet(paths,root/'contact.jpg',4 if folder=='modules' else 3)
-    print('Contact sheets rebuilt; checkpoint docs remain uncommitted')
+    all_frames=[*sorted(Path('renders/final').rglob('*.png')),
+                *sorted(Path('renders/modules').glob('*.png')),
+                *sorted(Path('renders/eevee').rglob('*.png')),
+                *sorted(Path('renders/matches').glob('*-pair.jpg'))]
+    sheet(all_frames,Path('renders/final/contact.jpg'),4)
+    print('Final export and module contacts rebuilt')
 
 
 if __name__=='__main__':main()

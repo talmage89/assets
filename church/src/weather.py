@@ -41,7 +41,9 @@ def color(point,role,col,props):
         end=math.exp(-max(0,z-.45)/.78)
         exposed=math.exp(-((abs(y)-l/2-.55)/.45)**2)*.25
         amount=min(.94,(end*1.35+exposed)*wear)
-        gray=(.19,.205,.20)
+        # Vertex tint counteracts the warm manufacture strip: these gains
+        # produce neutral gray wood, rather than multiplying brown by gray.
+        gray=(.35,.70,1.70)
         col=tuple(c*(1-amount)+g*amount for c,g in zip(col,gray))
     if role in ('slate','shingle'):
         # Site north is -X. Moss persists below overlapping north eave/slates.

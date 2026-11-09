@@ -1,6 +1,6 @@
-# Form/construction checkpoint: existing native deliveries are read-only inputs.
+# Complete external-image delivery; native inputs remain read-only.
 WIDTH ?= 1400
-SAMPLES ?= 32
+SAMPLES ?= 64
 CHECKPOINT_BLEND := build/family.blend
 CHECKPOINT_OUTPUTS := build/family.blend build/metrics.json export/Church-101.gltf export/Church-202.gltf export/ChurchSite-101.gltf export/ChurchSite-202.gltf export/Range.gltf
 CHECKPOINT_OUTPUTS += $(patsubst %.gltf,%.bin,$(filter %.gltf,$(CHECKPOINT_OUTPUTS)))
@@ -8,7 +8,7 @@ CHURCH_MAPS := $(foreach set,Craft Glass,$(foreach map,BaseColor Normal ORM,text
 CHURCH_MAPS += $(foreach map,BaseColor Normal ORM,textures/ship/T_GardenLawn_$(map).png)
 CHECKPOINT_DEPS := $(addprefix src/,build.py geometry.py surfaces.py architecture.py buildings.py modern.py windows.py hardware.py details.py plan.py package.py siteworks.py library.py neighborhood.py weather.py maintenance.py turf.py) build/dependencies.json $(CHURCH_MAPS)
 CHECKPOINT_CHECK = $(PYTHON) src/check.py && $(BP) --python src/construction_check.py && $(BP) --python src/site_check.py
-CHECKPOINT_OUT := renders/checkpoint
+CHECKPOINT_OUT := renders/final
 CHECKPOINT_REVIEW = $(PYTHON) src/present.py
 CHECKPOINT_RENDER_ARGS := --full --resume
 include ../kit/checkpoint_rules.mk
@@ -40,3 +40,9 @@ eevee: model
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --seeds 101 --shots hero --engine BLENDER_EEVEE --out renders/eevee --width $(WIDTH) --samples $(SAMPLES)
 repeat: model
 	$(PYTHON) src/repeat.py
+.PHONY: check-texture-repeat docs
+check-texture-repeat: model
+	$(PYTHON) src/texture_repeat.py
+docs: render review
+	$(PYTHON) src/delivery.py
+all: docs
