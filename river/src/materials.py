@@ -32,14 +32,22 @@ def palette(repo):
     # Complete importer settings group before tiling creates its AO socket.
     from io_scene_gltf2.blender.com.material_helpers import create_settings_group
     if not bpy.data.node_groups.get('glTF Material Output'):create_settings_group('glTF Material Output')
-    for role,key in [('concrete','Concrete'),('asphalt','Asphalt'),('grass','Lawn')]:
+    for role,key in [('asphalt','Asphalt'),('grass','Lawn')]:
         G.M[role]=tiling.material(key,repo/'ground/textures/ship',tint=True)
     for role,key in [('bridge_concrete','FreewayConcrete'),('zinc','FreewayZinc')]:
         G.M[role]=tiling.material(key,repo/'freeway/textures/ship',tint=True)
+    G.M['concrete']=G.M['bridge_concrete']
     bank=tiling.material('RiverBank',Path('textures/checkpoint'),tint=True)
     bank.use_backface_culling=False;G.M['bank']=bank
+    silt=bank.copy();silt.name='River_silt_bank'
+    mix=next(n for n in silt.node_tree.nodes if n.type=='MIX')
+    for link in list(mix.inputs[6].links):silt.node_tree.links.remove(link)
+    mix.inputs[6].default_value=(.065,.052,.035,1)
+    next(n for n in silt.node_tree.nodes if n.type=='NORMAL_MAP').inputs['Strength'].default_value=.12
+    G.M['silt']=silt
     # Quarry faces use the existing fine mineral field, never the bed's clasts.
     G.M['riprap']=G.M['bridge_concrete'].copy();G.M['riprap'].name='River_quarry_stone'
+    G.M['bark']=G.M['bridge_concrete'].copy();G.M['bark'].name='River_drift_bark'
     for role,color in [('paint_yellow',(.9,.66,.08)),('paint_white',(1,1,1))]:
         ma=tiling.material('GroundTrim',repo/'ground/textures/ship',alpha=True,tint=False)
         ma.name='River_'+role
@@ -50,7 +58,7 @@ def palette(repo):
         G.M[role]=ma
     G.M['decal']=tiling.material('GroundTrim',repo/'ground/textures/ship',alpha=True,tint=False)
     for role,c,r,m in [('steel',(.26,.285,.28),.44,1),('rubber',(.012,.014,.011),.87,0),
-                         ('wood',(.10,.068,.035),.95,0),('algae',(.065,.075,.026),.9,0),
+                         ('wood',(.10,.068,.035),.95,0),('wood_end',(.14,.11,.065),.95,0),('algae',(.065,.075,.026),.9,0),
                          ('rust',(.13,.058,.024),.95,0),('foam',(.48,.49,.40),.7,0),
                          ('hay',(.24,.205,.09),.97,0),
                          ('yellow',(.60,.39,.036),.7,0),('white',(.58,.58,.49),.8,0)]:

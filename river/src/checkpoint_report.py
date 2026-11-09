@@ -74,6 +74,18 @@ def main():
             data=json.loads(path.read_text())
             if 'passed' in data:status='passed' if data['passed'] else 'FAILED'
         lines.append(f'- `{path}`: {status}')
+    latest=Path('build/last-evidence.json')
+    if latest.exists():
+        evidence=json.loads(latest.read_text())
+        lines += ['', '## Last round / 56cce73 controls', '',
+                  '[Native-size identical-camera comparisons](../renders/last-fixes/contact.jpg).',
+                  f'{len(evidence["panels"])} panels; 1280 native pixels per side. Appearance status and unresolved',
+                  'misses are in the README’s Known flaws section and REVIEW passes 29 onward.',
+                  'The light, exposure and camera are checked against the original handoff.', '']
+        for seed in (101,202):
+            coverage=check['crossings'][str(seed)]['construction'].get('abutment_apron_surface_coverage',[])
+            for row in coverage:
+                lines.append(f'- {seed} apron {row["side"]}: {row["exposed_stone_probes"]}/{row["bed_surface_probes"]} rays expose stone above the bed ({row["exposed_stone_fraction"]:.1%}). Soil/fines in the other rays remain a visual judgment.')
     Path('build/checkpoint-report.md').write_text('\n'.join(lines))
 
 

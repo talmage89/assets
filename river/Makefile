@@ -3,12 +3,13 @@ BLENDER ?= blender -t 1
 CHECKPOINT_OUTPUTS := build/river.blend build/manifest.json export/RiverCrossing-101.gltf export/RiverCrossing-202.gltf export/RiverModules.gltf
 PIECES := TypeIII_Girder18 DeckPanel6 Parapet6 PierColumns PierWall Abutment GuardrailTerminal
 CHECKPOINT_OUTPUTS += export/RiverCrossing-101.bin export/RiverCrossing-202.bin export/RiverModules.bin $(foreach p,$(PIECES),export/pieces/$(p).gltf export/pieces/$(p).bin)
-MODEL_SCRIPTS := build plan geometry channel bridge freeway_bridge site age weather plaques context background urban rural materials package storage wall_details
+MODEL_SCRIPTS := build plan geometry channel bed drift bridge freeway_bridge site age weather concrete_age plaques context background urban rural materials package storage wall_details
 CHECKPOINT_DEPS := $(addprefix src/,$(addsuffix .py,$(MODEL_SCRIPTS))) textures/checkpoint/.stamp build/preservation.json build/dependencies.json
 CHECKPOINT_DEPS += build/town/manifest.json
 CHECKPOINT_DEPS += $(addprefix ../freeway/src/,pieces.py geom.py plan.py graphics.py)
 CHECKPOINT_CHECK = $(BP) --python src/check.py
-CHECKPOINT_REVIEW = $(PYTHON) src/matches.py --compose && $(PYTHON) src/review.py --gate && $(PYTHON) src/resources.py && $(PYTHON) src/report.py && $(PYTHON) src/evidence.py && $(PYTHON) src/checkpoint_report.py && $(PYTHON) src/values.py
+CHECKPOINT_REVIEW = $(PYTHON) src/matches.py --compose && $(PYTHON) src/review.py --gate && $(PYTHON) src/resources.py && $(PYTHON) src/report.py && $(PYTHON) src/evidence.py
+CHECKPOINT_REVIEW += && $(PYTHON) src/last_baseline.py && $(PYTHON) src/last_evidence.py && $(PYTHON) src/checkpoint_report.py && $(PYTHON) src/values.py
 CHECKPOINT_REVIEW += && $(PYTHON) src/matches.py --compose --folder renders/source-matches
 CHECKPOINT_CHECK += && $(PYTHON) src/storage_check.py
 CHECKPOINT_RENDER_ARGS := --seeds 101 202 --modules --matches --with-baseline --eevee
@@ -27,7 +28,7 @@ refs: river-refs
 river-refs:
 	$(PYTHON) src/fetch_refs.py
 
-textures/baked/.stamp: src/textures.py src/bank_fields.py ../kit/flat_bake.py ../kit/image_io.py
+textures/baked/.stamp: src/textures.py src/bed_fields.py src/bank_fields.py ../kit/flat_bake.py ../kit/image_io.py
 	@mkdir -p build $(TMPDIR)
 	$(PYTHON) src/bank_fields.py prepare
 	$(KIT)/with_gpu.sh $(BP) --python src/bank_fields.py -- bake

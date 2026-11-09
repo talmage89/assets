@@ -972,3 +972,29 @@ shipped images with zero maximum/RMS byte error. All 633 existing delivery
 files remain unchanged. The repository check reports zero errors, and the
 final render/bundle/image receipts are current. No Blender worker or GPU
 lease remains from this build. Kit and the top-level index were not edited.
+
+## Pass 29 — last-round concrete rejection and revised surface sampling
+
+Color/value first: opened the seven requested 56cce73 close views at their
+native 1280px width before modeling. The concrete reads warm cream, despite
+referencing the freeway maps. Checked the concrete-balanced urban and FHWA
+underside pairs: the map's narrow 133–139 sRGB red range supplies mineral
+grain, but the river bypasses the freeway's placed age. Keep the accepted
+16-degree lighting, exposure, green-brown water and photo cameras.
+
+Opened four fresh 1280px exported probes: 101 pier, bearings and floodwall,
+and 202 abutment. The neutral gray tint, form seams and ties improve the
+construction read. Reject their broad surfaces as still too smooth. Strengthen
+meter-scale paste/pour variation and add an air-pore/paste layer in the existing
+repair chart. Preserve narrow cap leakage, and add height-driven basal dampness.
+The bright bearing exposure still makes its sunlit faces pale; this is a
+remaining appearance risk, not proof that the first gray correction landed.
+
+The first surface grid also adds too many wall triangles. Reduce wall sampling
+to vertical color stations, retain its existing joints/ties, and spend geometry
+on supports that need it. Packed riprap replaces isolated placements; sparse
+rounded cobbles and the rounded gravel normal field replace most bar chips.
+The first cellular texture probe looked like polygonal mosaic and was rejected;
+the revised crowns use rounded radial relief and fines between them. Neither
+probe is a final appearance approval. All five last-round fixes still require
+complete exported views, budget checks and a second critique before docs.

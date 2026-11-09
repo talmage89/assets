@@ -31,11 +31,16 @@ def generate(folder=Path('textures/checkpoint')):
         v=np.minimum(1,np.maximum(0,1-q)*3);h=r*.20*v
         rgb[mask,:3]=tint+v[mask,None]*.008+grain[mask,None]*.025
         height=np.maximum(height,h)
+    # Keep the later accepted plant/weather RNG sequence, while replacing
+    # isolated angular clasts with a continuous bed of water-rounded gravel.
+    from bed_fields import gravel
+    color,height,occlusion,rough=gravel(n)
+    rgb[:,:,:3]=color
     Image.fromarray(np.uint8(np.clip(rgb,0,1)*255)).save(folder/'T_RiverBank_BaseColor.png')
     dy,dx=np.gradient(height,2/n)
     normal=np.stack((-dx,-dy,np.ones_like(dx)),axis=2);normal/=np.linalg.norm(normal,axis=2)[:,:,None]
     Image.fromarray(np.uint8((normal*.5+.5)*255)).save(folder/'T_RiverBank_Normal.png')
-    orm=np.zeros((n,n,3),np.uint8);orm[:,:,0]=255;orm[:,:,1]=220
+    orm=np.zeros((n,n,3),np.uint8);orm[:,:,0]=np.uint8(occlusion*255);orm[:,:,1]=np.uint8(rough*255)
     Image.fromarray(orm).save(folder/'T_RiverBank_ORM.png')
     # Eight bank colonies occupy the lower half. The upper half carries the
     # plaques and four alpha maintenance masks; no extra image allocation.
@@ -92,6 +97,16 @@ def generate(folder=Path('textures/checkpoint')):
             mask=np.clip((boundary-q)*8,0,1)*(.65+.35*rng.random((128,128)))
         col=(90,91,80) if j==0 else (211,207,183) if j==1 else (156,154,138) if j==2 else (178,173,155)
         rgba=np.zeros((128,128,4),np.uint8);rgba[:,:,:3]=col;rgba[:,:,3]=np.uint8(mask*(120 if j==1 else 165))
+        if j==2:
+            # Entrained air and uneven paste on form faces. Reuse the repair
+            # chart; 128px resolves small pores without a new texture set.
+            pores=np.random.default_rng(4419);yy,xx=np.mgrid[:128,:128]
+            alpha=7+8*np.sin(xx*.16+yy*.11)**2+4*pores.random((128,128))
+            for _ in range(95):
+                cx,cy=pores.uniform(2,126,2);rx=pores.uniform(.18,.55);ry=rx*pores.uniform(.6,1.1)
+                q=((xx-cx)/rx)**2+((yy-cy)/ry)**2
+                alpha=np.maximum(alpha,np.clip((1-q)*2,0,1)*pores.uniform(65,115))
+            rgba[:,:,:3]=(71,74,73);rgba[:,:,3]=np.uint8(alpha)
         im.paste(Image.fromarray(rgba),(256+j%2*128,j//2*128))
     # Two tiny plaque legends reuse this same image, outside all plant charts.
     font=find_font('DejaVu Sans','Book')

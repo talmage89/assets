@@ -180,6 +180,21 @@ def construction(seed):
     assert closure_clearances and min(closure_clearances)>.50,('Visible water closing interface',min(closure_clearances))
     crop_audit=crop_cells(bed) if seed==202 else None
     quarry=quarry_dimensions(next(o for o in obs if o.name=='BarCobbleAndScourRiprap'))
+    # Appearance still needs the bank view. These rays independently measure
+    # how much of the abutment apron actually exposes stone above its bed.
+    rock_surface=bvh(next(o for o in obs if o.name=='BarCobbleAndScourRiprap'))
+    apron=[];plan=meta['plan'];length=plan['spans']*plan['span'];width=plan['deck_width']
+    for side in (-1,1):
+        probes=0;covered=0
+        for x in np.arange(length/2-6.5,length/2-.9,.28):
+            for y in np.arange(-width/2-4,width/2+4,.28):
+                point=Vector((side*float(x),float(y),50))
+                soil=tree.ray_cast(point,Vector((0,0,-1)),100)[0]
+                stone=rock_surface.ray_cast(point,Vector((0,0,-1)),100)[0]
+                if soil is None:continue
+                probes+=1;covered+=int(stone is not None and stone.z>soil.z+.008)
+        apron.append(dict(side=side,bed_surface_probes=probes,exposed_stone_probes=covered,
+                          exposed_stone_fraction=covered/probes))
     rail_gaps=[];ladder_clearance=None
     for rail in [o for o in obs if o.type=='MESH' and o.name.startswith('ApproachRail_')]:
         tips=rail.data.attributes.get('_GROUND_TIP');assert tips is not None,('No post-tip semantics',rail.name)
@@ -305,7 +320,7 @@ def construction(seed):
         assert soil is not None and point.z-soil.z>.65,('Photo camera in bank',point,soil)
         photo_camera=dict(nearest_support_surface_m=distance,ground_clearance_m=point.z-soil.z)
     return dict(categories=counts,minimum_ladder_bench_surface_distance_m=ladder_clearance,
-                quarry_dimensions=quarry,water_floor_centroid_samples=len(closure_clearances),
+                quarry_dimensions=quarry,abutment_apron_surface_coverage=apron,water_floor_centroid_samples=len(closure_clearances),
                 minimum_water_floor_below_bed_m=min(closure_clearances),crop_cell_audit=crop_audit,inspection_camera_ground_clearance_m=camera_clearance,under_photo_camera_clearance=photo_camera,bearing_surface_samples=len(gaps),max_girder_pad_gap_m=max(gaps),
                 plinth_support_samples=len(seat_gaps),max_plinth_support_gap_m=max(seat_gaps),girder_lengths_m=sorted(set(round(x,5) for x in lengths)),water_width_samples=samples,
                 riverwalk_headroom_samples=len(headroom),minimum_sampled_riverwalk_headroom_m=min(headroom) if headroom else None,

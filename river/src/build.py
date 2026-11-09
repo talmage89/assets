@@ -13,6 +13,7 @@ import bridge
 import channel
 import age
 import weather
+import concrete_age
 import plaques
 import site as builtin_site
 import importlib.util
@@ -49,6 +50,7 @@ def library():
                     ('PierColumns',bridge.pier),('PierWall',lambda n:bridge.pier(n,kind='wall')),
                     ('Abutment',bridge.abutment),('GuardrailTerminal',bridge.guardrail)]:
         ob=fn(name);ob.parent=rt
+        concrete_age.apply(ob)
         row=save('pieces/'+name,ob,dict(module=name))
         tris=sum(row['triangles'].values());limit=8000 if name.startswith(('Pier','Abutment')) else 2000
         if tris>limit:raise ValueError((name,tris,limit))
@@ -64,7 +66,8 @@ def crossing(seed):
     reach=channel.terrain(p,rt);channel.water(p,reach)
     br=bridge.assemble(p,rt);plaques.add(p,br)
     site.road(p,rt);site.fixtures(p,rt);site.plants(p,rt);age.add(p,rt)
-    weather.add(p,rt);context.add(p,rt);background.add(p,rt);context.clear_templates()
+    weather.add(p,rt);concrete_age.apply(rt,p)
+    context.add(p,rt);background.add(p,rt);context.clear_templates()
     # Curves also remain natively editable in the construction scene. Export
     # sockets carry the same sampled paths in extras for stock glTF consumers.
     for ob in list(rt.children_recursive):

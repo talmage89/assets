@@ -15,8 +15,9 @@ BED_TREE=None
 def wave_lanes(p):
     """Finite rough-bed chutes; each has its own crest spacing and start."""
     result=[]
-    for i,(u,width,offset,spacing) in enumerate(((-.58,.055,-1.8,1.45),
-            (-.16,.075,1.0,1.67),(.25,.05,-.7,1.92),(.62,.065,2.4,1.54))):
+    for i,(u,width,offset,spacing) in enumerate(((-.83,.115,-1.8,1.45),
+            (-.56,.135,-.7,1.73),(-.29,.14,.5,1.57),(-.02,.13,-.4,1.81),
+            (.25,.14,1.0,1.67),(.52,.12,-.7,1.92),(.79,.12,1.8,1.54))):
         result.append((p.center(p.riffle_y)+u*p.halfwidth(p.riffle_y),
                        p.width*width,offset+.18*math.sin(p.seed+i),spacing,i))
     return tuple(result)
@@ -29,11 +30,11 @@ def water_surface(p,x,y):
     for cx,width,offset,spacing,phase in wave_lanes(p):
         cross=(x-cx)/width;envelope=math.exp(-cross*cross)
         if envelope<.002:continue
-        for crest in range(3):
+        for crest in range(4):
             station=offset+crest*spacing+.15*crest*crest
             bow=.28*math.sin(cross*1.6+phase)+.11*cross*cross
             along=y-p.riffle_y-station-bow
-            amplitude=.09*.76**crest
+            amplitude=.135*.78**crest*(.86+.14*math.sin(phase*2.7))
             height+=envelope*amplitude*(math.exp(-(along/.43)**2)
                      -.42*math.exp(-((along-.62)/.63)**2))
     return p.water_z(y)+height*max(0,1-u*u)
@@ -52,11 +53,12 @@ def foam_streaks(p):
     the local standing-wave activity; individual tails advect downstream.
     """
     rng=random.Random(p.seed+31);result=[]
-    for _ in range(15):
-        cx,width,offset,spacing,phase=rng.choice(wave_lanes(p)[1:3])
-        y=p.riffle_y+offset+rng.gauss(.3,1.3)
-        x=cx+rng.gauss(0,width*.65)
-        result.append((x,y,rng.uniform(1.8,6.2),rng.uniform(.28,.65)))
+    for i in range(57):
+        cx,width,offset,spacing,phase=wave_lanes(p)[i%len(wave_lanes(p))]
+        crest=i//len(wave_lanes(p))%4
+        y=p.riffle_y+offset+crest*spacing+.15*crest*crest+rng.uniform(-.12,.32)
+        x=cx+rng.gauss(0,width*.35)
+        result.append((x,y,rng.uniform(2.7,7.8),rng.uniform(.35,.85)))
     return result
 
 
@@ -93,10 +95,20 @@ def stone(b,x,y,z,r,rng,role='riprap',water_z=0):
         local.append(point)
     # Grade by the actual fragment radius, not a plane's offset: nearly
     # parallel fractures must never produce meter-long shards from a 0.3m rock.
-    radius=max(point.length for point in local);vertices=[]
-    for point in local:
-        point=rotation@Vector((point.x*sx,point.y*sy,point.z*.75))/radius
+    scaled=[rotation@Vector((point.x*sx,point.y*sy,point.z*.75)) for point in local]
+    radius=max(point.length for point in scaled);vertices=[]
+    for point in scaled:
+        point=point/radius
         vertices.append((x+r*point.x,y+r*point.y,z+r*point.z))
+    # Eight extreme fracture corners retain the irregular silhouette. The
+    # densely packed blanket should not pay for every small corner cleavage.
+    directions=[Vector(v) for v in ((1,0,0),(-1,0,0),(0,1,0),(0,-1,0),
+                                    (0,0,1),(0,0,-1),(1,1,.4),(-1,-1,.6))]
+    center=Vector((x,y,z));chosen=[]
+    for direction in directions:
+        point=max(vertices,key=lambda v:(Vector(v)-center).dot(direction))
+        if point not in chosen:chosen.append(point)
+    vertices=chosen
     if BED_TREE is not None:
         for vx,vy,vz in vertices:
             hit=BED_TREE.ray_cast(Vector((vx,vy,100)),Vector((0,0,-1)),120)[0]
@@ -110,7 +122,7 @@ def stone(b,x,y,z,r,rng,role='riprap',water_z=0):
         point=vertex.co
         hit=BED_TREE.ray_cast(Vector((point.x,point.y,100)),Vector((0,0,-1)),120)[0] if BED_TREE is not None else None
         floors[vertex]=hit.z if hit is not None else z-.04
-    v=rng.uniform(.42,.68);brown=rng.random()
+    v=rng.uniform(.26,.65);brown=rng.random()
     faces=[]
     for face in bm.faces:
         if all(vertex.co.z<=floors[vertex]+.01 for vertex in face.verts):continue
@@ -122,7 +134,9 @@ def stone(b,x,y,z,r,rng,role='riprap',water_z=0):
     # exported indices and the per-fracture mineral variation across runs.
     for points in sorted(faces):
         variation=rng.uniform(.96,1.04)
-        tint=(v*(1+.20*brown)*variation,v*1.04*variation,v*(1.13-.30*brown)*variation,1)
+        # Fines stay in low fracture hollows and buried edges; exposed upper
+        # cleavage planes keep the original gray/brown mineral response.
+        tint=(v*(.96+.12*brown)*variation,v*variation,v*(1.08-.22*brown)*variation,1)
         b.geom(points,[tuple(range(len(points)))],role,tint)
     bm.free()
 
@@ -156,7 +170,19 @@ def terrain(p,parent):
                 v=.61+.13*math.sin(y*.067+u*1.7)+.07*math.sin(y*.31-u*.9)
                 color=(v*.91,v,v*.72,1)
             else:color=(wet,wet*.98,wet*.90,1)
-            b.geom(vs,[(0,1,2,3)],role,color,smooth=True,up=True)
+            onbar=(abs(y-p.bar_y)<29 and -.99<u*p.outside<-.48)
+            uv=None
+            if onbar and role=='bank':
+                dry=.58+.42*min(1,max(0,z-p.water_z(y))/.19)
+                color=(dry,dry*.99,dry*.96,1)
+                # Finer sorted material in the downstream lee.
+                coverage=2 if y<p.bar_y+8 else .95
+                uv=[(v[0]/coverage,v[1]/coverage) for v in vs]
+            elif role=='bank' and z-p.water_z(y)>-.04:
+                # Gravel sorts into the bed/bar; retain exposed silt and mud
+                # on the other banks rather than paving the entire valley.
+                role='silt'
+            b.geom(vs,[(0,1,2,3)],role,color,uv=uv,smooth=True,up=True)
     bed=b.finish()
     bm=bmesh.new();bm.from_mesh(bed.data)
     bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-6)
@@ -164,31 +190,15 @@ def terrain(p,parent):
     bm.to_mesh(bed.data);bm.free();bed.data.update()
     BED_TREE=BVHTree.FromPolygons([v.co for v in bed.data.vertices],[list(f.vertices) for f in bed.data.polygons],all_triangles=True)
     rng=random.Random(p.seed);rocks=G.Batch('BarCobbleAndScourRiprap',rt,'reach')
-    for i in range(800):
-        y=rng.uniform(p.bar_y-26,p.bar_y+27);x=p.center(y)+p.outside*p.halfwidth(y)*rng.uniform(-1.04,-.49)
-        z=surface_z(p,x,y)
-        if z>p.water_z(y)-.32:stone(rocks,x,y,z,rng.uniform(.035,.14),rng,water_z=p.water_z(y))
-    # Armored, keyed slope and toe at both abutments and each pier.
-    for side in (-1,1):
-        for i in range(390):
-            if i<275:
-                x=side*rng.uniform(p.length/2-4,p.length/2+6.5)
-                y=rng.choice((-1,1))*rng.uniform(p.deck_width/2-.3,p.deck_width/2+6)
-            else:
-                x=side*rng.uniform(p.length/2-7,p.length/2-2)
-                y=rng.uniform(-p.deck_width/2,p.deck_width/2)
-            if abs(x)>p.length/2-.8 and abs(y)<6.8:continue
-            z=surface_z(p,x,y);stone(rocks,x,y,z+.04,rng.uniform(.16,.45),rng,water_z=p.water_z(y))
-    for j in range(1,p.spans):
-        xx=-p.length/2+j*p.span
-        for i in range(125):
-            x=xx+rng.uniform(-2.0,2.0);y=rng.uniform(-p.deck_width*.48,p.deck_width*.48)
-            z=surface_z(p,x,y);stone(rocks,x,y,z+.06,rng.uniform(.15,.33),rng,water_z=p.water_z(y))
+    from bed import armor,cobbles,seedlings
+    cobbles(p,rocks);armor(p,rocks);seedlings(p,rt)
     stones=rocks.finish();colors=stones.data.color_attributes['Tint']
     for loop,attribute in zip(stones.data.loops,colors.data):
         point=stones.data.vertices[loop.vertex_index].co;level=point.z-p.water_z(point.y)
         wet=.62+.38*min(1,max(0,level)/.45);algae=max(0,1-max(0,level)/.16)
-        c=attribute.color;attribute.color=(c[0]*wet*(1-.16*algae),c[1]*wet,c[2]*wet*(1-.24*algae),c[3])
+        exposed=max(0,min(1,(point.z-surface_z(p,point.x,point.y))/.16))
+        dirt=.52+.48*exposed
+        c=attribute.color;attribute.color=(c[0]*wet*dirt*(1-.16*algae),c[1]*wet*dirt,c[2]*wet*dirt*(1-.24*algae),c[3])
     # Cutbank roots and flood debris are dead wood, not new tree species.
     debris=G.Batch('CutbankExposedRootsAndDrift',rt,'reach')
     for j in range(18):
@@ -225,14 +235,15 @@ def terrain(p,parent):
         if p.pier=='columns':nx,ny=xx-tx*.60,-p.deck_width*.29-ty*.60
         else:nx,ny=xx-tx*p.deck_width*.83/2,-ty*p.deck_width*.83/2
         cx,cy=nx-tx*.115,ny-ty*.115
-        pts=[(cx+a*cross[0]-tx*slack,cy+a*cross[1]-ty*slack,p.water_z(cy)+z)
-             for a,slack,z in ((-.9,.04,.05),(0,0,.04),(.8,.03,.02))]
-        debris.tube(pts,.13,'wood',9)
-        for k in range(8):
-            a=rng.uniform(-.78,.78);run=rng.uniform(.25,.85);sweep=rng.uniform(-.38,.38)
-            x=cx+a*cross[0];y=cy+a*cross[1]
-            debris.tube([(x,y,p.water_z(y)+.05),(x-tx*run+cross[0]*sweep,y-ty*run+cross[1]*sweep,p.water_z(y)+rng.uniform(-.01,.065))],rng.uniform(.012,.028),'wood',5)
-    debris.finish()
+        from drift import add as snag
+        snag(p,debris,cx,cy,tx,ty)
+    wood=debris.finish();tints=wood.data.color_attributes['Tint']
+    for face in wood.data.polygons:
+        if wood.data.materials[face.material_index]!=G.M['bark']:continue
+        for li in face.loop_indices:
+            v=wood.data.vertices[wood.data.loops[li].vertex_index].co
+            wet=.40+.60*min(1,max(0,v.z-p.water_z(v.y))/.14)
+            c=tints.data[li].color;tints.data[li].color=(c[0]*wet,c[1]*wet,c[2]*wet,1)
     G.path('FlowCenterline',[(p.center(y),y,p.water_z(y)) for y in ys],rt,'flow',flow_direction='+Y',nominal_speed_m_s=.38)
     return rt
 
