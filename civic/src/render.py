@@ -7,6 +7,10 @@ HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];sys.path[:0]=[str(HERE
 from kit import gpu
 
 
+def context_signature():
+    return hashlib.sha256(b''.join((HERE/n).read_bytes() for n in ('town.py','actors.py','library.py','sites.py','geo.py'))).hexdigest()
+
+
 def light():
     sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable()
     sc.cycles.use_denoising=True;sc.cycles.max_bounces=8;sc.cycles.transparent_max_bounces=12
@@ -20,7 +24,7 @@ def light():
 
 SHOTS={
     '101':dict(hero=((24,-46,1.72),(-6,-4,4.0),38),above=((77,-101,77),(-1,0,0),48),entry=((-1,-21,1.72),(-6,-9,2.7),45),cornice=((-4,-17,1.72),(-6,-11.5,8.3),50),police=((-36,34,1.72),(-14,18,2.2),42),scale=((-2,-23,1.72),(-6,-10,2.0),40)),
-    '202':dict(hero=((23,-53,1.72),(-6,-2,2.8),42),above=((84,-94,72),(0,0,1),48),bays=((-18,-33,1.72),(-12,-5,2.5),45),interior=((-15,-9,1.72),(-15,2,2),35),tower=((-37,32,1.72),(-17,14,7),40),scale=((15,-21,1.72),(-6,-5,2),38))}
+    '202':dict(hero=((23,-53,1.72),(-6,-2,2.8),42),above=((84,-94,72),(0,0,1),48),bays=((-18,-33,1.72),(-12,-5,2.5),45),interior=((-16,-7,1.72),(-13,5,2.9),28),tower=((-3,34,1.72),(-17,14,7),40),scale=((15,-21,1.72),(-6,-5,2),38))}
 
 
 def camera(spec,width):
@@ -68,13 +72,17 @@ def main():
         light();sc=bpy.context.scene;sc.render.engine=args.engine;sc.cycles.samples=args.samples;cam=camera(spec,args.width)
         if match:
             sc.render.resolution_y=round(args.width/match['shot']['aspect']);cam.rotation_euler.rotate_axis('Z',match['shot']['roll'])
+            estimates={'hall-street':((-.45,.60,-.72),3.4,.23),'station-bay':((.72,.50,-.50),3.0,.22),'entry-order':((.55,.40,-.65),2.6,.24)}
+            direction,power,sky=estimates[name];sun=bpy.data.objects['Low front raking sun'];sun.rotation_euler=Vector(direction).to_track_quat('-Z','Y').to_euler();sun.data.energy=power;sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=sky
         if name=='interior':open_bay()
         if name=='scale':
             from kit.studio import human
-            for ob in human():ob.location+=Vector((-6,-13,.15))
+            desired=Vector((-6,-15.4,.145) if seed=='101' else (3.7,-9,.145))
+            for ob in human():ob.location+=desired-Vector((-1.03,.24,0))
         out=args.out/(name+'.png') if args.matches else args.out/seed/(name+'.png');out.parent.mkdir(parents=True,exist_ok=True)
         sc.render.image_settings.file_format='PNG';sc.render.filepath=str(out.resolve());bpy.ops.render.render(write_still=True)
         row=dict(image=str(out),source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),camera=spec,width=args.width,samples=args.samples,engine=args.engine,exposure=sc.view_settings.exposure)
+        if not building_only or match:row['context_recipe_sha256']=context_signature()
         out.with_suffix('.json').write_text(json.dumps(row,indent=2)+'\n');rows.append(row)
     args.out.mkdir(parents=True,exist_ok=True);(args.out/'render-receipts.json').write_text(json.dumps(rows,indent=2)+'\n')
     if args.sheets:

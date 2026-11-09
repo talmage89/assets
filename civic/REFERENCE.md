@@ -12,8 +12,8 @@ Two original buildings, depicted in 2010: Briar Glen City Hall (1928, police win
 | Police wing | 14.63 × 12.19m, one story | Authored 1976 addition, changed brick and aluminum sash; at-grade later vestibule |
 | Station room | 3 bays, 5.4864m centers × 18.288m deep | 18ft centers/60ft depth, more room than the 1989 guide's roughly 15×40ft single bay |
 | Bay door | 4.2672 × 4.2672m clear | 14×14ft, period-compatible larger door; cross-check Tubac guide; USFA 2018 recommends taller 16ft |
-| Station apron | 17m deep, 1.2% street fall | Authored maneuvering slab, trench drainage and lane-specific wheel tracks |
+| Station apron | 26.856m deep, about .57% street fall | Authored maneuvering slab to the lowered sidewalk, trench drainage and lane-specific wheel tracks |
 | Station tower | 3.66m square × 12.8m | Authored hose-drying/training tower; louvers, landing, ladders and guardrails |
-| Later walking route | ≥1.524m wide, ≤1:20 | ADA reference; level entries, marked parking aisle and continuous front/lot paths |
+| Later walking route / ramps | 1.8m clear; measured ramps 7.4% / 6.73% | ADA distinguishes ≤1:20 walking surfaces from ≤1:12 ramps; later landings and continuous front/lot paths; selected geometry checks only |
 
 The HABS web viewers return intermittent 403 responses; the Library's direct image service supplied all three sheets. They are inspected in `refs/`: MA-995 sheet 1 has a 0–20ft elevation scale; LA-1127 sheet 2 labels the historic station's 40ft4in frontage and separate engine/watch/mess rooms; NJ-357 sheet 1 includes half-size cornice and pilaster-cap sections. These buildings predate our examples and inform construction hierarchy, not a claim that the new fictional envelopes are HABS dimensions. Modern bay clearances come from the separately cited service guides.

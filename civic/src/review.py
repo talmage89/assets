@@ -7,17 +7,33 @@ ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from kit.contact import contact,review_sheet
 
 
+def receipt(path):
+    data=json.loads(path.with_suffix('.json').read_text())
+    sources=data.get('sources',[dict(path=data.get('source'),sha256=data.get('source_sha256'))])
+    for row in sources:
+        source=Path(row['path'])
+        if not source.exists():source=ROOT/source
+        assert source.is_file(),(path,source)
+        assert hashlib.sha256(source.read_bytes()).hexdigest()==row['sha256'],(path,'Stale exported subject',source)
+    if data.get('context_recipe_sha256'):
+        source=Path(__file__).parent
+        current=hashlib.sha256(b''.join((source/n).read_bytes() for n in ('town.py','actors.py','library.py','sites.py','geo.py'))).hexdigest()
+        assert current==data['context_recipe_sha256'],(path,'Stale town/actor recipe')
+    return sources
+
+
 def main():
     folder=Path('renders/checkpoint');images=sorted(folder.glob('*/*.png'))+sorted(folder.glob('*.png'))
     assert images,'Render the exports first'
     rows=[]
     for path in images:
         pix=np.asarray(Image.open(path).convert('RGB'))/255;y=pix@np.array((.2126,.7152,.0722))
-        row=dict(image=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),display_y_percentiles=np.percentile(y,[1,10,50,90,99]).tolist(),fraction_below_01=float((y<.01).mean()),fraction_any_channel_above_995=float((pix.max(2)>.995).mean()))
+        row=dict(image=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),export_sources=receipt(path),display_y_percentiles=np.percentile(y,[1,10,50,90,99]).tolist(),fraction_below_01=float((y<.01).mean()),fraction_any_channel_above_995=float((pix.max(2)>.995).mean()))
         assert row['fraction_below_01']<.85,(path,'Rejected near-black frame')
         rows.append(row)
     contact(images,folder/'contact.jpg',width=2000,title='Civic / form and construction checkpoint / exported glTF and shared maps',captions={str(p):str(p.relative_to(folder).with_suffix('')) for p in images})
     pairs=sorted(Path('renders/matches').glob('*-pair.jpg'))
+    for pair in pairs:receipt(pair.with_name(pair.name.replace('-pair.jpg','.png')))
     if pairs:review_sheet([[p] for p in pairs],Path('renders/matches/contact.jpg'),width=2200,title='Civic / photographic type comparisons / fit residuals retained')
     family=json.loads(Path('build/family.json').read_text());checks=json.loads(Path('build/check.json').read_text());modules=json.loads(Path('build/modules.json').read_text())
     lines=['# Measured checkpoint resources','', '| Export | Placed triangles | Materials | glTF + BIN bytes |', '| --- | ---: | ---: | ---: |']
