@@ -307,3 +307,27 @@ afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
 additional mesh buffers total 0.0409 MiB.
 Final native evidence: `renders/lod/no-parking-both/`; archived recipe and proof:
 `build/lod-uv/archive/street-signs/no-parking-both-final/`.
+
+
+### oneway-r critique 1 — native values and face coverage
+
+Opened every 0/55/145-degree native strip at each retained switch, with source,
+preceding, new and difference panes. Values agree for white arrow and ONE WAY, dark field, gray back and zinc support.
+Measured LOD1 490/93 at 9% / 23.464 m, from 618 source triangles.
+Worst mean 0.0001096, local 0.001123, silhouette loss
+0.000000 pass the unchanged gates. Targets remain unmet.
+
+### oneway-r critique 2 — construction and independent fields
+
+Opened all close views and contact, then revisited the right arrow point, thin horizontal blank and mounting seats; arrow and ONE WAY retain source legibility.
+Tiny source print remains limited by original texel/mip resolution; no new
+lettering loss or detached member appears at the switches. Coarse small
+fittings remain visible up close; no close-view equivalence is claimed.
+Exact accessor records find zero new flat UV faces and zero new invalid
+tangent records, while identifying inherited unprinted-metal defects separately
+(`build/lod-uv/sign-fields-oneway-r.json`). Serialized domains, normals,
+source fields and re-import pass. Original `make check set-check` passes
+afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
+additional mesh buffers total 0.0399 MiB.
+Final native evidence: `renders/lod/oneway-r/`; archived recipe and proof:
+`build/lod-uv/archive/street-signs/oneway-r-final/`.
