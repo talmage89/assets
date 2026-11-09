@@ -2551,3 +2551,8 @@ choices. Immutable glTF SHA-256:
 `1127ddc65eec070e7110a62fc57151916def0e3e6a8d66d1d30a47bc3701ef9e`;
 BIN: `748b85fdfd534d260796b3c4c7b3dfa5dc3ef3b8d8a5ddf0527e35d65122294b`.
 The builder additionally freezes every canonical image dependency.
+The frozen original `make TYPE=cape check` returns 0 in 161.69 s, including
+both older types, physical construction/motion, actual delivery surfaces,
+UVs/normals, imported frames and canonical images. Nested direct/recursive
+make arguments are recorded in `build/houses-lod/cape-nested-make.jsonl`;
+the 136-file preservation check also passes.
