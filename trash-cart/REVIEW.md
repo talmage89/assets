@@ -305,3 +305,49 @@ Whole default chain:
 Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 4 to 4 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
 
 <!-- LOD checkpoint trash: end -->
+# LOD round 2 — recycling and the interaction hold
+
+Both original GLBs were already present in this worktree. Their measured
+5556/5776 triangles and 2387504/2409624 bytes match the README exactly; no
+original is overwritten to satisfy a from-scripts rebuild. The original family
+make check passes with its accepted scenes and exports explicitly frozen.
+The new source receipt and exact commands live in build/lod-round2/trash-cart/.
+The tool revision 968a3eb and 103 hashes were frozen before this trial.
+
+## Recycling LOD critique 1 — native closed views
+
+Built the previously missing recycling chain with the frozen tool. Opened all
+six native switch strips and all three 960-pixel construction views. Color/value
+first: the blue lid, charcoal body and light stamp keep their original values;
+no broad gray wash appears. The wheels, grip and front lifting recess remain.
+LOD2's construction view shows an uneven skirt and separated bead, while the
+97-pixel switch views remain within the unmodified numeric limits. Counts are
+5776 -> 3214 -> 2208, versus goals 2310/866, at .25/.09 (3.81/10.57 m).
+These image passes alone are not adoption. Generic check-lod passes both stages.
+
+## Recycling LOD critique 2 — permitted poses and real joints
+
+The intended runtime policy restores LOD0 before any lid or wheel angle departs
+from rest; reduced levels only draw closed, stationary carts. The independent
+src/check_lod_motion.py tests that selector and all actual mesh pairs: original
+111 lid / 73 per-wheel samples, reduced levels at rest. It exempts only finite
+source pin/axle volumes plus 0.5 mm, never a complete body/part pair. This
+separates intended filled bearing contacts from other interference. The raw
+unfiltered round-1 results remain valid and unchanged.
+
+Wheel sweeps now pass outside the finite axle region. The original lid still
+intersects a rear handle support by 16.625 mm at -67 degrees, at measured point
+(-.263000, .424442, 1.017375) m, outside the pin volume. Reduced closed lids
+measure 9.660 / 14.575 mm interference, against .2 mm tolerance. Opened every
+new native joint close-up and its sheet in
+build/lod-round2/trash-cart/joint-views/. Color/value remains stable; the open
+original's rotating strap visibly enters the support, and the reduced closed
+skirts separate from their sealing bead. Holding LOD0 resolves reduced open
+poses, but cannot repair that original joint. No accepted delivery is changed.
+
+Stop this family on this physical blocker. A cheaper target witness and further
+trash trial are deferred because there is no verified animatable hold level.
+This does not claim that every reduced part must sweep through every pose.
+Both configs stay unwired; all trial payloads are archived outside export/lod.
+The original make check measures serialization/kinematics, not swept clearance.
+Its passing result cannot approve this failed physical audit.

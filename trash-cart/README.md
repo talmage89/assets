@@ -123,5 +123,5 @@ in this repository. DejaVu Sans uses its open font license; the recycling symbol
 is a standard mark. Reference photographs remain copyrighted measurement aids,
 ignored by Git and absent from the textures and documentation images.
 
-No LOD chain yet. Reduced lids need verified hinge clearance and acceptable distant silhouettes.
+No LOD chain yet. The lid meets its rear support while opening; reduced lids also interfere when closed.
 See [the LOD review](REVIEW.md).
