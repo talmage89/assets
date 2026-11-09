@@ -115,7 +115,7 @@ docs: finals
 	$(PYTHON) src/finals.py --docs
 
 # Only independently checked, adopted kinds enter the opt-in targets.
-LOD_CONFIGS := src/lod-cabinet.json src/lod-mast-arm.json
+LOD_CONFIGS := src/lod-cabinet.json src/lod-mast-arm.json src/lod-span-set.json
 include ../kit/lod_rules.mk
 .PHONY: check-lod-state
 check-lod: check-lod-state

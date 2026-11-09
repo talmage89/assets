@@ -1031,3 +1031,32 @@ Saving 978 triangles is modest (11.96%); the 3270 goal remains unmet. Fields,
 names and rest appearance are proved, not flexible-cable motion or engine
 phase timing. Original 52-file receipt is unchanged. Final evidence:
 `build/lod-uv/archive/signals/mast-arm-final/`, native `renders/lod/mast-arm/`.
+
+### Span set critique 1 — native color, wires and indications
+
+Opened all three .25 / 31.177 m native strips, construction views and contact;
+reopened the wide 0/55-degree strips at original pixel size. Yellow cases,
+red/green indications and gray supports retain source values. The six heads,
+upper span and lower tether remain; the 145-degree view is nearly end-on and
+cannot prove the whole span. The 13754/17456 result misses 6982, costing 8062
+more triangles than the rejected 5692 trial. All unchanged image gates pass.
+Two independent native-image samplings address thin members: top-wire alpha
+coverage ratios are 1.00026/1.00009; 1298/2082 thin-run bands including the
+lower tether give .99847/.99854. Raw source/level pixel samples are in
+`build/lod-uv/signals-span-{wire-coverage,all-thin-bands}.json`. These measure
+sampled image coverage, not every diameter or continuous cable motion.
+
+### Span set critique 2 — trim domains and state routing
+
+Revisited the hanging joints and head outlines against the unchanged source.
+Close-up construction retains the source's coarse macro detail; no new exposed
+trim patch or missing hanger appears. The family's own `make check` includes
+the new span file and passes: the old 121 crossings and outside-domain vertex
+are gone. Serialized boundary, UV-area, tangent, normals and re-import gates
+pass. The state audit measures 18 source lens nodes with identical flags,
+material memberships and world frames (`build/lod-span-set-state.json`).
+This does not certify engine phase timing or flexible-wire deflection.
+The saving is 3702 triangles (21.21%), with 25 active primitive placements
+instead of 27 and no new texture. The original 52-file receipt is unchanged.
+Final native evidence: `renders/lod/span-set/`; archived recipe and checks:
+`build/lod-uv/archive/signals/span-set-final/`.
