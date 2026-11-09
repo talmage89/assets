@@ -2465,3 +2465,19 @@ LOD0 alone. Only one level draws: ten submissions near, one at the proxy.
 No intermediate image is added. The two near buffers would cost 9.4697 MiB
 for negligible benefit. The useful far replacement will be proved separately;
 an engine must hold LOD0 while any door/slider differs from rest.
+
+The scratch rebuild driver initially replaced the inherited GPU lock with a
+worktree-local fallback. That affected only its first ignored material rebake;
+the accepted maps were not published. Corrected it to retain the supplied
+shared lock, and queued a fresh source/4096-map rebuild. The adoption bake and
+all switch renders used the supplied shared lock. The recorded descriptor
+audit confirms the corrected scratch wrapper uses that same lock; it has no
+leftover own holder.
+
+The original-check wrapper was also extended before Cape adoption: its legacy
+check invokes `make` directly from Python, in addition to `$(MAKE)` recursion.
+A local PATH wrapper appends the explicit `-o` list to both forms and logs
+every full nested argv. Dry checks of the family check graph and a direct
+nested ranch export return 0 with no publication scheduled. This changes no
+Makefile or kit file. The wrapper, complete inputs, commands and dry output
+remain in `build/houses-lod/`; the original 136 digests still match.
