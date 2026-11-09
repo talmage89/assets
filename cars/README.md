@@ -390,8 +390,16 @@ are generated only after the native audit.
 | Delivery materials | Four; existing family exception |
 | Shared maps | 2048² BaseColor RGBA / OpenGL +Y Normal RGB / ORM RGB |
 | Compressed memory, including mipmaps | About 16 MiB |
-| GLB | 7,892,240 bytes |
+| GLB | 7,892,160 bytes |
 | UV coverage / painted-panel density | 40.96% / 177.3–221.7 px/m |
+
+The H120 receipt is now
+`4cdbafe2a1436f031eb58caf8fbd3a80b6a4e2eed65842fe0c293e2ff62baeb9`.
+Only the varying form `.blend` file hash was removed from GLB Scene metadata;
+the audit counts retain that receipt. All 59,852 triangles, the binary mesh
+payload and the three embedded maps keep their accepted bytes. Three exports
+with three different cold form receipts give this same GLB. See
+[the consumer and metadata proof](CONSUMERS.md); docs were not rerendered.
 
 The original package sits between Toyota's
 [MY2019 Corolla hatchback specification](https://newsroom.toyota.eu/download/647310/2019-toyota-corolla-dpl-en-983710.pdf)

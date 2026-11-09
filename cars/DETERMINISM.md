@@ -1,4 +1,9 @@
-## Cold-build investigation — subdivision parameter charts
+# Round-one evidence: subdivision parameter charts
+
+Round two fixes consumer thread counts without changing the car geometry.
+See [the current consumer inventory and proof](CONSUMERS.md). The stopped
+geometry trials below are historical; their preservation failures remain
+evidence for using the original one-thread operation.
 
 **No production fix adopted.** The changing operation is Blender 5.2.3's
 threaded subdivision UV interpolation. Script workarounds made the mesh repeat,
