@@ -602,6 +602,62 @@ photograph is committed or sampled into an asset.
 
 ---
 
+<!-- LOD checkpoint ranch-12: begin -->
+### Additional LOD — ranch seed 12
+
+`make TYPE=ranch lod` builds a far replacement under `export/lod/ranch-12-proxy/`;
+`make TYPE=ranch check-lod` checks it. Only representative seed 12 has this
+authored chain. Default `make` and `make check` retain their original graph.
+The requested 30%/12% levels are deferred: fixed UV domains leave only about
+2% triangle savings and larger buffers. [Review and measured trial](REVIEW.md).
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 55,228 / — | 6 / 10 | 4,906,874 | 7,277,844 | 12,184,718 | 27.334 + 4.6657 | near |
+| LOD1 | 1,800 / 1,800 | 1 / 1 | 97,954 | 403,132 | 501,086 | 1.333 + 0.0900 | 4.5% / 110.18 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **33.423 MiB**, versus LOD0 alone **31.999 MiB**.
+Unique textures are 28.667 MiB: 27.334 MiB original and 1.333 MiB proxy maps.
+Both mesh buffers total 4.7558 MiB. The increase is 1.423 MiB: 1.333 MiB maps
+and .0900 MiB mesh. No intermediate images or meshes are loaded. Original
+family images still share their canonical external resources; each proxy has
+its own four-map set. Engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load LOD0 and the proxy as alternatives, using Godot visibility ranges, Unity
+LODGroup renderers, or Unreal mesh/component LODs. [Engine integration](../kit/LOD.md).
+
+Use LOD0 until the 4.5% switch. The proxy merges every part in its rest pose;
+retained hinge/socket nodes are placement metadata and cannot move its shell.
+Hold LOD0 whenever `FrontDoor`, `ServiceDoor` or `PatioDoor` differs from rest.
+The closed garage remains as delivered. New charts are baked only from the
+immutable glTF and its maps. Fine masonry and shingles blur, and the entry
+roof has a crease at close range; this replacement is for the stated far switch.
+
+Native strips, differences and close views: `renders/lod/ranch-12-proxy/`
+(`contact.jpg`, `metrics.json`). Raw checks: `export/lod/ranch-12-proxy/check.json`
+and `normals-vs-lod0.json`; construction decisions:
+`build/lod/HearthfieldRanch-12/simplification.json`. [Two critique passes](REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 6 × 512×512, 7 × 1024×1024, 3 × 2048×2048; LOD1: 4 × 512×512.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 57,028 | 7 | 11 | 12,685,804 | 33.4229 |
+
+Stored counts include the immutable source once and the far replacement.
+Physical files count once by path. One level draws per instance: ten original
+submissions or one proxy submission per color pass. Repeated placements of
+seed 12 reuse these same resources. These are stored costs, not a frame-time claim.
+
+<!-- LOD checkpoint ranch-12: end -->
+
 ## Third type: postwar Cape Cod
 
 The 1940–1955 one-and-a-half-story Cape is delivered as six independent

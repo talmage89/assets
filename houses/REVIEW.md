@@ -2493,3 +2493,39 @@ against the accepted maps, within the family's documented GPU repeat bound.
 Per-map maximum and RMS code errors are in
 `build/houses-lod/ranch-rebaked-maps.json`. All accepted source PNG hashes are
 unchanged; the source-repeat variation is not baked into a replacement LOD0.
+
+### Ranch LOD critique pass 2 — direct far switch and final adoption
+
+The optional cost question received no answer during continued work. Proceeded
+with the stated economical choice: omit the near buffers, retain LOD0 for
+interaction, and prove the same far construction as the sole additional level.
+This is a partial adoption of the requested four-level chain; the near targets
+remain blocked by cost, not approved through an exception or lower image gate.
+
+Fresh `make lod LOD_CONFIG=src/lod-ranch.json LOD_THREADS=4` returns 0 in
+310.10 s; `make check-lod` with that override returns 0 in 4.21 s. Opened all
+three fresh native source/new/preceding strips and differences through six
+unscaled raw-PNG pages, both construction views and the contact. Color/value,
+entry posts, window rhythm, hip outline and deep eave shading remain consistent
+at 4.5%. The rear service/room highlights change slightly but do not become
+large bright blocks. Masonry blur and the close-view hood/roof crease remain
+visible weaknesses. No near-view equivalence is claimed for this shell.
+
+The fresh proxy's position/normal/UV/index arrays match the earlier reviewed
+proxy exactly. Three rebaked image hashes differ, so acceptance uses the fresh
+images, not a file-identity claim. Native reference mean/p95/local maxima are
+.012447/.053304/.078390, alpha/IoU .016807/.018141; all unchanged gates pass.
+The final proxy is 1,800/1,800 triangles, one material/draw, 97,954 geometry
+bytes and 403,132 PNG bytes (four 512-square maps). Its cold load is 501,086
+bytes. Whole storage: 57,028 triangles, seven material resources, eleven
+primitive placements and 12,685,804 distinct payload bytes; active draws are
+ten or one. Resident cost is 33.4229 MiB versus 31.9995 MiB for LOD0: only
+1.3334 MiB maps and .0900 MiB mesh are added. The two wasteful near meshes
+are absent from this manifest and the Make hooks.
+
+The post-build frozen `make TYPE=ranch check` returns 0 in 70.41 s, including
+the recursive colonial check. All 136 original files and every literal kit/
+recipe freeze entry match. Current evidence is
+`renders/lod/ranch-12-proxy/`, `export/lod/ranch-12-proxy/`, and
+`build/houses-lod/ranch-final-report/`; the original/trial receipts remain
+alongside. The README table is generated from this final serialized manifest.

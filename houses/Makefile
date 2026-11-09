@@ -141,7 +141,11 @@ include src/ranch_rules.mk
 include src/cape_rules.mk
 include src/split_rules.mk
 
-# Optional colonial seed-27 LOD pilot.
+# Optional checked chains. Explicit LOD_CONFIG still selects one chain.
 ifeq ($(TYPE),builder_colonial)
+LOD_CONFIGS := src/lod.json src/lod-ranch.json
+include ../kit/lod_rules.mk
+else ifeq ($(TYPE),ranch)
+LOD_CONFIG ?= src/lod-ranch.json
 include ../kit/lod_rules.mk
 endif
