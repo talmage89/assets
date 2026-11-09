@@ -477,3 +477,63 @@ evidence is retained under the worktree's ignored build/church-handoff
 archive; final correction crops compare directly with the c655bb4 handoff.
 Proceed to clean export, all finals and delivery checks. No more form or
 place redesign is authorized by this critique.
+
+## Final round J — all 61 current export/source captures, delivery judgement
+
+Color and value first: opened every current full-size capture: 22 site views,
+the four-church range, all 30 modules, both Eevee controls and all six export/
+source matched renders. Also opened the three composed photographic pairs
+and the 11 native-size correction panels. The reference balance is unchanged:
+MDAH concrete entry steps, Connecticut unmarked gray drive, NCPTT white-painted
+storm bar. Historic and modern hero display-luma p1/p50/p99 are
+.715/114.643/190.810 and 2.571/112.027/173.244 out of 255. Each has one
+near-clipped pixel, fraction .000000766. These full-frame readings include
+the sky; they do not establish physical albedo or photographic realism.
+
+The same-camera panels make the judgement clear. Fix 1 is partial: damp at
+grade, separate wall values and the tower's ledge washes are visible, but
+large upper brick fields and much of the trim remain too even. The A-frame's
+low front masonry barely changes. Beam ends are cooler; checked end grain
+is not achieved, and surviving fascia paint remains thick rectangular tabs.
+Fix 2 is partial: slate variation and correct asphalt courses improve the
+roof read, and growth is grouped rather than dotted. The algae still forms
+long straight columns; moss looks like flat green brush marks. Ridge/eave
+granule loss and flat-roof ponding remain weak. Lighter replacement packets
+lose contrast in the exported modern comparison relative to its source.
+Do not hide that local export loss behind the small whole-frame difference.
+
+Fix 3 lands: the A-frame keeps its original eye-height 38mm camera, with a
+deeper clear sky, opposite-side low sun, lit brick wing, beam/mullion shadows
+and a clear foreground road. The downtown's accepted 35mm composition and
+light are retained. Fix 4 is partial: the lawn is darker, patchier and less
+uniform, but its coarse interpolation and planar tile remain obvious above;
+mulch beds are dark strips and shade variation is only approximately placed.
+Fix 5 is partial: actual tread hollows measure approximately 11.2mm at their
+midpoints against the shoulders, using fresh-import rays. Their darker bands
+are faceted and rectangular, patch repairs under-read, door finish loss is
+too restrained, and rust feet resemble orange collars. Geometry and successful
+motion checks prove construction and serialization, not realistic wear.
+
+The accepted glass is kept: muted behind storm glazing by day, a pale memorial
+field and border at dusk, and clear modern glazing around the small faceted
+cross. The NCPTT plastic is visibly cloudier than ours; buff surrounding brick
+is not a hue target for our red brick. Fits remain 17.72/24.32/4.44 native px,
+with the existing active lens bounds. These original buildings differ from
+the photographed structures. Source/export mean RGB byte differences are
+.153/.081/.076; that overall preservation does not prove that every repair
+patch survives with its source contrast.
+
+The native neighbors, curbs, lots and occupancy are retained. Reduced house
+roofs remain torn/coarse from above and in the Eevee background; the district
+beyond the blocks is sparse. The sign and small metal parts expose repeated
+edge marks; minor fixtures underfill some isolated module frames. Eevee has
+stronger glass grain and flatter reflections than Cycles. The simple mapped
+memorials, exact construction edges and flat maintenance layers still read
+as CG. Static batching, culling and engine LOD remain game integration work.
+
+Capture wrappers received SIGTERM interruptions without a Blender traceback.
+Completed captures were admitted only against current package, embedded GLB,
+renderer, camera, dimensions and sample receipts. Fresh serial workers now
+inherit the GPU lease and are reaped on interruption. The complete 61-image
+audit passes. This is the final delivery judgement; ship with the limitations
+above, then complete the deterministic rebuild and repository receipts.

@@ -434,7 +434,8 @@ pack was downloaded or adapted.
   damp slopes. Algae still retains straight column boundaries in the north
   roof close-up. Growth reads flat and patterned; this is not
   convincing thick moss or individual lichen. Ridge/eave granule loss and
-  flat-roof ponding remain weak.
+  flat-roof ponding remain weak. Replacement packets lose contrast in the
+  exported modern comparison relative to the source.
 - **A-frame light is changed, with limits.** The opposite-side low sun and
   deeper sky distinguish it from the downtown hero. The dim nave and flat
   backing still simplify the glass response, and specular grain remains.
