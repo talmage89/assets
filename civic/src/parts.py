@@ -21,6 +21,7 @@ def window(a,name,p,w=1.3716,h=2.4384,yaw=0,modern=False):
         for s in (-1,1):m.box((s*w/6,.018,h/2),(.024,.040,h-.13),'Trim',(.60,.59,.53),r=0)
         for j in (1,2,4,5):m.box((0,.016,h*j/6),(w-.10,.045,.025),'Trim',(.60,.59,.53),r=0)
     orient(m,p,yaw);ob=m.finish()
+    ob['weather_origin_m']=p;ob['weather_width_m']=w;ob['weather_yaw_degrees']=yaw
     # Switchable dim room layer sits behind the blinds and real glazing.
     import bpy
     ma=bpy.data.materials.get('CivicRoomGlow')
@@ -67,7 +68,7 @@ def column(a,name,p,height=5.0292,diameter=.6096,pilaster=False):
         levels=[(.14*diameter,.64),(.18*diameter,.64),(.22*diameter,.60),
             (.26*diameter,.57),(.30*diameter,.55),(.34*diameter,.57),
             (.39*diameter,.57),(base,.50)]
-        for t in (0,.18,.34,.52,.72,1):
+        for t in (.18,.34,.52,.72,1):
             levels.append((base+(height-base-cap)*t,.50-.085*t+.019*math.sin(t*math.pi)))
         levels += [(height-cap+.025*diameter,.415),(height-.40*diameter,.46),
             (height-.36*diameter,.46),(height-.33*diameter,.42),
@@ -108,17 +109,44 @@ def front_door(a,name,p,width=.9652,height=2.4384,yaw=0):
 
 
 def steps(a,p,width=8.6,count=6,rise=.1524,going=.3302):
-    m=a.mesh('EntryStoneStair',kind='StoneStair',weather=True)
+    m=a.mesh('EntryStoneStair',kind='StoneStair',weather=True,authored_winding=True)
     for j in range(count):
         y=-going*(count-j-.5)
-        m.box((0,y,(j+1)*rise/2),(width,going-.006,(j+1)*rise),'Concrete',r=.006)
+        # Worn centers lower actual nosings 5–14mm, with the ends retained.
+        # Fine tooling stays in the shared normal; no displaced shader is used.
+        nx=16;ny=2;vs=[];height=(j+1)*rise
+        def wear(x,t):
+            lanes=math.exp(-((x-1.05)/.72)**2)+math.exp(-((x+1.05)/.72)**2)
+            return (.009+.004*math.sin(j*1.4)**2)*lanes*(.6+.4*(1-t))
+        for row in range(ny+1):
+            for i in range(nx+1):
+                x=-width/2+width*i/nx;t=row/ny
+                vs.append((x,y+(t-.5)*(going-.006),height-wear(x,t)))
+        fs=[]
+        for row in range(ny):
+            for i in range(nx):
+                k=row*(nx+1)+i;fs.append((k,k+1,k+nx+2,k+nx+1))
+        m.geom(vs,fs,'Concrete',(.36,.345,.298))
+        for row in (0,ny):
+            for i in range(nx):
+                aa=vs[row*(nx+1)+i];bb=vs[row*(nx+1)+i+1]
+                m.geom([aa,bb,(bb[0],bb[1],0),(aa[0],aa[1],0)],[(3,2,1,0) if row==0 else (0,1,2,3)],'Concrete',(.28,.274,.239))
+        for side in (-1,1):m.box((side*width/2,y,height/2),(.008,going-.006,height),'Concrete',r=0)
     for s in (-1,1):
         m.box((s*(width/2+.20),-count*going/2,count*rise/2),(.4,count*going,count*rise),'Concrete')
         m.box((s*(width/2+.20),-count*going/2,count*rise+.055),(.47,count*going+.08,.11),'Concrete')
     orient(m,p,0);m.finish()
+    from aging import rust
+    for x in (-width/2+.16,0,width/2-.16):
+        for j in (0,2,4):
+            yy=-count*going+(j+.5)*going;zz=(j+1)*rise-wear(x,.5)
+            rust(a,(p[0]+x,p[1]+yy,p[2]+zz+.003),'RailingAnchorRust')
     rail=a.mesh('StairHandrails',kind='Handrail',trim_strip=2)
     for x in (-width/2+.16,0,width/2-.16):
         pts=[(x,-count*going-.30,.88),(x,-count*going,.88),(x,-.05,count*rise+.88),(x,.25,count*rise+.88)]
         rail.tube(pts,.021,'Trim',(.045,.050,.044),sides=8)
-        for j in (0,2,4):rail.tube([(x,-count*going+j*going,j*rise),(x,-count*going+j*going,j*rise+.88)],.019,'Trim',sides=8)
+        for j in (0,2,4):
+            yy=-count*going+(j+.5)*going;zz=(j+1)*rise-wear(x,.5)
+            top=.88+(yy+count*going)/(count*going-.05)*count*rise
+            rail.tube([(x,yy,zz),(x,yy,top)],.019,'Trim',sides=8)
     orient(rail,p,0);return rail.finish()

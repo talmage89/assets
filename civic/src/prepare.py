@@ -39,6 +39,7 @@ def main():
         run([blender,'-b','-t','4','--factory-startup','--python-exit-code','1','--python',ROOT/'downtown/src/build.py','--','--seed','411','--region','midwest','--count','5','--out','build/town.blend'],town,out/'context-town.log')
     for kind,script,args in (
         ('house',ROOT/'school/src/neighborhood_build.py',['houses','--house-type','ranch','--seed','41']),
+        ('house-cape',ROOT/'school/src/neighborhood_build.py',['houses','--house-type','cape','--seed','53']),
         ('utility',ROOT/'school/src/neighborhood_build.py',['utility']),
         ('furniture',ROOT/'skatepark/src/context_build.py',['furniture'])):
         target=context/(kind+'.glb')
@@ -49,6 +50,12 @@ def main():
     before=json.loads(receipt.read_text());after=snapshot()
     changed=[p for p,h in before.items() if after.get(p)!=h]
     assert not changed,changed
+    # Exactly the accepted garden/trailer July recipe, stored privately. Its
+    # normal/ORM remain byte-identical Ground maps and resolve canonically.
+    import importlib.util
+    spec=importlib.util.spec_from_file_location('_civic_july',ROOT/'community-garden/src/groundcover.py')
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    module.maps(ROOT,LOCAL/'textures/lawn')
     (out/'dependencies.json').write_text(json.dumps(dict(preserved_files=len(before),passed=True),indent=2)+'\n')
 
 

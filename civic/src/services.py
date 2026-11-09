@@ -53,29 +53,21 @@ def gear(a,name,p):
 
 def bollard(a,p,name='Bollard'):
     m=a.mesh(name,kind='Bollard',trim_strip=5,weather=True)
-    x,y,z=p;m.tube([(x,y,z),(x,y,z+1.0)],.0825,'Trim',(.64,.38,.020),sides=12)
-    m.tube([(x,y,z+.90),(x,y,z+.98)],.086,'Trim',(.24,.24,.17),sides=12);return m.finish()
+    x,y,z=p;m.tube([(x,y,z+zz) for zz in (0,.12,.18,.25,.32,.39,.47,.64,.83,1)],.0825,'Trim',(.64,.38,.020),sides=12)
+    m.tube([(x,y,z+.90),(x,y,z+.98)],.086,'Trim',(.24,.24,.17),sides=12);ob=m.finish()
+    tint=ob.data.color_attributes['Tint']
+    for loop in ob.data.loops:
+        q=ob.data.vertices[loop.vertex_index].co
+        scuff=max(0,math.sin((q.z-z)*42+(x%3)*7))**12 if .15<q.z-z<.64 else 0
+        if q.y<y:scuff*=.8
+        else:scuff*=.2
+        c=tint.data[loop.index].color;tint.data[loop.index].color=(*(c[i]*(1-scuff)+(.16,.15,.12)[i]*scuff for i in range(3)),1)
+    return ob
 
 
 def flagpole(a,p,name):
-    x,y,z=p;m=a.mesh(name,kind='Flagpole',trim_strip=2,weather=True)
-    m.box((x,y,.06),(.48,.48,.12),'Concrete',(.32,.31,.27))
-    m.tube([(x,y,z),(x,y,z+9.1)],.044,'Trim',(.48,.49,.46),sides=16)
-    m.tube([(x-.04,y,1.3),(x-.04,y,8.9)],.004,'Trim',(.32,.30,.24),sides=4)
-    m.tube([(x+.04,y,1.3),(x+.04,y,8.9)],.004,'Trim',(.32,.30,.24),sides=4)
-    m.finish();a.pivot(name+'_Flag',(x,y,8.8),axis='Z',limits=(-180,180))
-    f=a.mesh(name+'_Cloth',part=name+'_Flag',kind='Flag',trim_strip=4,allow_boundary=True)
-    vs=[];nx,ny=10,6
-    for j in range(ny+1):
-        for i in range(nx+1):
-            u=i/nx;v=j/ny;vs.append((x+u*1.5,y+.14*math.sin(u*8-v*3)*u,8.8-v*.85-.15*u*u))
-    fs=[(j*(nx+1)+i,j*(nx+1)+i+1,(j+1)*(nx+1)+i+1,(j+1)*(nx+1)+i) for j in range(ny) for i in range(nx)]
-    f.geom(vs,fs,'Trim',(.08,.15,.21));ob=f.finish()
-    import bpy
-    cloth=bpy.data.materials.get('CivicFlagCloth')
-    if not cloth:cloth=a.materials[4].copy();cloth.name='CivicFlagCloth';cloth.use_backface_culling=False
-    ob.data.materials.clear();ob.data.materials.append(cloth)
-    for face in ob.data.polygons:face.material_index=0;face.use_smooth=True
+    from flags import pole
+    return pole(a,p,name)
 
 
 def back_service(a,p):

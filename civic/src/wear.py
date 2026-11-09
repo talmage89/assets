@@ -33,15 +33,18 @@ def decal(a,name,p,size,kind,seed=0,yaw=0,vertical=False,color=None):
 
 def apron_wear(a,sp):
     p=sp['building'];x,y,_=sp['building_at'];w,d=p['width'],p['depth'];rng=random.Random(sp['seed'])
+    from aging import patch
+    front=y-d/2;grade=.1524/(front+32)
     for j in range(p['bays']):
         xx=x-w/2+.4572+(j+.5)*p['bay_width'];front=y-d/2
         for side in (-1,1):
-            for k in range(7):
-                yy=front-1.3-k*2.6;zz=.1524*(yy+32)/(front+32)+.003
-                decal(a,f'Bay{j+1}_WheelLane_{side}_{k}',(xx+side*.94+rng.uniform(-.07,.07),yy,zz),(.24+rng.uniform(0,.09),1.8+rng.uniform(0,.7)),'scuff',j*100+k,rng.uniform(-3,3))
-        for k in range(4):
-            yy=front-2.3-k*3.8;zz=.1524*(yy+32)/(front+32)+.003
-            decal(a,f'Bay{j+1}_OilStanding_{k}',(xx+rng.uniform(-.28,.28),yy,zz),(1.0,1.3+rng.random()),'oil',j*31+k)
+            phase=rng.uniform(0,7);length=front+31.40
+            ob=patch(a,f'Bay{j+1}_RubberWheelLane_{side}',(xx+side*.94-.19,-31.8,grade*.2+.003),(1,0,0),(0,1,grade),.38,length,(.028,.029,.023),
+                lambda s,t,ph=phase:.44*math.sin(s*math.pi)**2*(.40+.25*math.sin(t*17+ph)+.19*math.sin(t*43+ph)**2)*math.sin(t*math.pi)**.25,nx=4,ny=80)
+            for vertex in ob.data.vertices:vertex.co.x+=.045*math.sin((vertex.co.y-front)*.42+phase)
+        yy=front-15;phase=rng.uniform(0,7)
+        patch(a,f'Bay{j+1}_EngineOilTravel',(xx-.38,yy,grade*(yy+32)+.004),(1,0,0),(0,1,grade),.76,13.8,(.025,.026,.020),
+            lambda s,t,ph=phase:.39*math.sin(s*math.pi)**4*math.sin(t*math.pi)**.3*(.25+.65*math.exp(-((t-.89)/.13)**2)+.14*math.sin(t*53+ph)**6),nx=6,ny=50)
     # Drain belongs at the low street end, perpendicular to the apparatus exits.
     m=a.mesh('ApronTrenchDrain',kind='TrenchDrain',trim_strip=2)
     for j in range(round(p['bayblock']/.15)):

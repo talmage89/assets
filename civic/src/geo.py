@@ -100,6 +100,17 @@ class Mesh(H.Mesh):
                     top=self.props.get('top',9);fall=max(0,top-q.z)
                     joint=abs((q[a]+.3)%2.4384-1.2192)
                     factor-=.24*math.exp(-(joint/.15)**2)*math.exp(-fall/.65)
+                    kind=self.props.get('kind')
+                    if kind in ('TuscanColumn','Pilaster'):
+                        base=self.props.get('uv_origin_z',0);height=top-base
+                        splash=.48*math.exp(-max(0,q.z-base)/.24)
+                        shelter=.19*math.exp(-abs(top-.15-q.z)/.14)
+                        chalk=.94+.045*math.cos(q.x*3+q.y*2)
+                        factor=chalk*(1-splash-shelter)
+                    elif role=='Concrete':
+                        # Stone in sheltered molding returns retains soot;
+                        # exposed upward ledges wash lighter under rainfall.
+                        factor*=.74 if f.normal.z<-.4 else .93
                 if role=='Veneer':
                     origin=self.props.get('uv_origin_z',0)
                     strip=self.props.get('brick_strip',0);k=math.floor((low-origin+1e-6)/1.2192)

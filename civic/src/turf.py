@@ -20,8 +20,17 @@ def finish(a,sp,cuts):
         for loop in ob.data.loops:
             x,y=ob.data.vertices[loop.vertex_index].co[:2]
             dry=min(.65,sum(.48*math.exp(-((x-tx)**2+(y-ty)**2)/12) for tx,ty in trees))
-            col=attr.data[loop.index].color
-            col[0]*=1+.36*dry;col[1]*=1-.14*dry;col[2]*=1-.28*dry
+            # Same July albedo/normal repeat as the garden and trailer park.
+            # Moisture, mower turns, walk margins and root competition act at
+            # their real locations, rather than a uniform green overlay.
+            margin=min([min(abs(x-aa),abs(x-bb)) if cc<y<dd else 99 for aa,bb,cc,dd in cuts]+
+                [min(abs(y-cc),abs(y-dd)) if aa<x<bb else 99 for aa,bb,cc,dd in cuts])
+            dry=min(.85,dry+.22*math.exp(-(margin/.38)**2)*(.55+.45*math.sin(x*.7+y*.9)**2))
+            moisture=.88+.08*math.sin(x*.21+y*.13+sp['seed'])+.04*math.sin(y*.51-x*.32)
+            shade=min(.42,sum(.25*math.exp(-((x-tx-1.7)**2+(y-ty-1.2)**2)/22) for tx,ty in trees))
+            grain=.94+.04*math.sin(x*2.3+y*.77)+.02*math.sin(y*3.1-x*.9)
+            rgb=(.57*(1+dry*.44),.76*(1-dry*.42),.75*(1-dry*.36))
+            attr.data[loop.index].color=(*(c*moisture*grain*(1-shade) for c in rgb),1)
         ob.data.update()
     def grass(x,y):
         return l+.01<x<r-.01 and f+.01<y<k-.01 and not any(aa-.005<x<bb+.005 and cc-.005<y<dd+.005 for aa,bb,cc,dd in cuts)
@@ -46,7 +55,7 @@ def finish(a,sp,cuts):
                     faces.extend([(i,i+1,i+2),(i,i+2,i+3)])
                     col,row=rng.randrange(4),rng.randrange(2);ua=.25+col*.0625+.00075;ub=ua+.061
                     va=row*.125+.00075;vb=va+.1235;uv=[(ua,va),(ub,va),(ub,vb),(ua,vb)]
-                    charts.extend([uv[j] for j in (0,1,2,0,2,3)]);colors.extend([(.68,.73,.52,1)]*4)
+                    charts.extend([uv[j] for j in (0,1,2,0,2,3)]);colors.extend([(.94,.99,.71,1)]*4)
     me=bpy.data.meshes.new('NativeGroundMownEdges');me.from_pydata(verts,[],faces);me.update()
     ob=bpy.data.objects.new(a.root.name+'__MownGrassEdges',me);bpy.context.collection.objects.link(ob);ob.parent=a.root
     from wear import decal
@@ -59,3 +68,34 @@ def finish(a,sp,cuts):
     for i,c in enumerate(colors):tint.data[i].color=c
     ob['module_kind']='NativeGroundMownEdges';ob['cause']='mower leaves short blades at slab margins'
     a.objects.append(ob)
+    # A habitual corner cut from the sidewalk to the entry route. Its narrow
+    # irregular soil core feathers into drought-stressed grass, rather than a
+    # drawn rectangular dirt strip. The accepted path curves stay unchanged.
+    from aging import patch
+    start,end=((7.7,-28.6),(1.1,-16.3)) if sp['kind']=='downtown' else ((8.7,-28.9),(5.0,-12.3))
+    delta=Vector((end[0]-start[0],end[1]-start[1],0));direction=delta.normalized();across=Vector((-direction.y,direction.x,0))
+    width=.72;origin=Vector((*start,.021))-across*width/2
+    trail=patch(a,'PedestrianCornerCut',origin,across,direction,width,delta.length,(.16,.106,.042),
+        lambda s,t:.50*math.sin(t*math.pi)**.35*max(0,1-abs((s-.5)/(.27+.055*math.sin(t*27))))**1.2,nx=6,ny=55)
+    for vertex in trail.data.vertices:
+        p=vertex.co;t=((p-origin).dot(direction))/delta.length
+        vertex.co+=across*(.065*math.sin(t*17)+.025*math.sin(t*49))
+        if not grass(p.x,p.y):
+            for loop in trail.data.loops:
+                if loop.vertex_index==vertex.index:trail.data.color_attributes['Tint'].data[loop.index].color[3]=0
+
+
+def beds(a,sp):
+    """Mulch retained beneath the foundation boxwoods; sparse real wood relief."""
+    rng=random.Random(sp['seed']+2501)
+    areas=[(-20.7,-11.7,-10.9,-9.02),(.2,6.7,-10.9,-9.02)] if sp['kind']=='downtown' else [(13.2,14.85,-4.8,3.4)]
+    for index,(l,r,f,k) in enumerate(areas):
+        m=a.mesh('FoundationMulch_'+str(index),kind='FoundationMulch',trim_strip=0,authored_winding=True)
+        m.geom([(l,f,.004),(r,f,.004),(r,k,.004),(l,k,.004)],[(0,1,2,3)],'Trim',(.061,.033,.014))
+        for j in range(round((r-l)*(k-f)*8)):
+            x,y=rng.uniform(l,r),rng.uniform(f,k);theta=rng.uniform(0,math.tau)
+            length=rng.uniform(.035,.095);width=rng.uniform(.009,.024);cs,sn=math.cos(theta),math.sin(theta)
+            pts=[(x+cs*u-sn*v,y+sn*u+cs*v,z) for u,v,z in [(-length/2,0,.005),(length/2,0,.005),(0,width,.012)]]
+            m.geom(pts,[(0,1,2)],'Trim',(.085*rng.uniform(.7,1.2),.043,.019))
+        m.finish()
+    return areas

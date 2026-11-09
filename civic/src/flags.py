@@ -59,7 +59,13 @@ def pole(a,p,name,national=True):
     m.box((x,y,z+.06),(.48,.48,.12),'Concrete',(.32,.31,.27))
     m.tube([(x,y,z+.12),(x,y,z+9.1)],.044,'Trim',(.48,.49,.46),sides=16)
     m.tube([(x,y,z+9.05),(x,y,z+9.15)],.071,'Trim',(.34,.35,.32),sides=12)
-    m.tube([(x,y,z+9.16),(x,y,z+9.25)],.073,'Trim',(.52,.35,.11),sides=12)
+    vs=[];n=12
+    for zz in (-.065,-.045,0,.045,.065):
+        radius=math.sqrt(.075**2-zz**2)
+        vs.extend([(x+radius*math.cos(j*math.tau/n),y+radius*math.sin(j*math.tau/n),z+9.22+zz) for j in range(n)])
+    fs=[tuple(reversed(range(n))),tuple(range(len(vs)-n,len(vs)))]
+    fs += [(row*n+j,row*n+(j+1)%n,(row+1)*n+(j+1)%n,(row+1)*n+j) for row in range(4) for j in range(n)]
+    m.geom(vs,fs,'Trim',(.52,.35,.11))
     # Two tensioned halyard falls and a cleat fixed to the shaft.
     for side in (-1,1):
         m.tube([(x+side*.053,y-.016,z+8.99),(x+side*.055,y-.014,z+1.34)],.0032,'Trim',(.38,.35,.27),sides=4)

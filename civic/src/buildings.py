@@ -67,7 +67,7 @@ def hall(p):
     a=Assembly(p['program'].title()+'_'+str(p['seed']));w,d=p['width'],p['depth'];floor=p['floor'];top=floor+p['stories']*p['story_pitch']
     shell(a,'Main',(-w/2,w/2,-d/2,d/2),top,floor,p['bay_width'],p['stories'],p['brick'],replaced=p['replaced_windows'])
     for side in (-1,1):
-        q=a.mesh('CornerQuoins_'+str(side),kind='QuoinPier')
+        q=a.mesh('CornerQuoins_'+str(side),kind='QuoinPier',weather=True,top=top)
         for j in range(round((top-floor)/.42)):
             q.box((side*(w/2-.24),-d/2-.07,floor+.20+j*.42),(.68 if j%2 else .50,.15,.40),'Concrete',r=.002)
         q.finish()

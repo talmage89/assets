@@ -7,15 +7,30 @@ from geo import ROOT,LOCAL
 
 
 def counts(obs):
-    bpy.context.view_layer.update();rows=[];lo=np.full(3,np.inf);hi=-lo;materials=set();unique={}
+    bpy.context.view_layer.update();rows=[];lo=np.full(3,np.inf);hi=-lo;materials=set();unique={};image_cache={};all_images={}
+    def images_for(names):
+        images={}
+        for name in names:
+            material=bpy.data.materials[name]
+            if not material.use_nodes:continue
+            for node in material.node_tree.nodes:
+                if node.type!='TEX_IMAGE' or not node.image:continue
+                im=node.image
+                if im.name not in image_cache:
+                    data=bytes(im.packed_file.data) if im.packed_file else Path(bpy.path.abspath(im.filepath)).read_bytes()
+                    w,h=im.size;key=hashlib.sha256(data).hexdigest()
+                    image_cache[im.name]=(key,dict(name=im.name,width=w,height=h,bytes=len(data),gpu_mib=w*h*4/3/1048576))
+                key,row=image_cache[im.name];images[key]=row
+        return images
     for ob in obs:
         if ob.type!='MESH':continue
         me=ob.data;me.calc_loop_triangles();n=len(me.loop_triangles);unique[me.name]=n
         xyz=np.array([ob.matrix_world@v.co for v in me.vertices])
         if len(xyz):lo=np.minimum(lo,xyz.min(0));hi=np.maximum(hi,xyz.max(0))
         used={ob.material_slots[f.material_index].material.name for f in me.polygons if ob.material_slots}
-        materials.update(used);rows.append(dict(name=ob.name,kind=ob.get('module_kind','context'),triangles=n))
-    return dict(triangles=sum(r['triangles'] for r in rows),unique_triangles=sum(unique.values()),materials=len(materials),material_names=sorted(materials),bounds_min=lo.tolist(),bounds_max=hi.tolist(),size_m=(hi-lo).tolist(),pieces=rows)
+        images=images_for(used);all_images.update(images)
+        materials.update(used);rows.append(dict(name=ob.name,kind=ob.get('module_kind','context'),triangles=n,materials=len(used),material_names=sorted(used),image_gpu_mib=sum(v['gpu_mib'] for v in images.values())))
+    return dict(triangles=sum(r['triangles'] for r in rows),unique_triangles=sum(unique.values()),materials=len(materials),material_names=sorted(materials),bounds_min=lo.tolist(),bounds_max=hi.tolist(),size_m=(hi-lo).tolist(),image_gpu_mib=sum(v['gpu_mib'] for v in all_images.values()),images=list(all_images.values()),pieces=rows)
 
 
 def consolidate(assembly):

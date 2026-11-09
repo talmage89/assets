@@ -10,7 +10,10 @@ from station import station
 from delivery import counts,consolidate,publish
 
 
-def make_building(p):return station(p) if p['program']=='station' else hall(p)
+def make_building(p):
+    a=station(p) if p['program']=='station' else hall(p)
+    from aging import walls
+    walls(a,p);return a
 
 
 def center(a,off=None):

@@ -4,16 +4,18 @@ import bpy
 from mathutils import Vector
 from geo import Assembly,ROOT,LOCAL,root
 from library import place,clear
-from services import flagpole,bollard,back_service
+from services import bollard,back_service
 
 
 def ground(a,name,rect,kind='Lawn',z=0,slope=None,grade=None):
     from kit.tiling import material,world_uv
     ma=bpy.data.materials.get('CivicGround_'+kind)
-    if not ma:ma=material(kind,ROOT/'ground/textures/ship',tint=True);ma.name='CivicGround_'+kind
+    if not ma:
+        ma=material('GardenLawn' if kind=='Lawn' else kind,LOCAL/'textures/lawn' if kind=='Lawn' else ROOT/'ground/textures/ship',tint=True);ma.name='CivicGround_'+kind
     l,r,f,k=rect;m=a.mesh(name,kind='Site'+kind,authored_winding=True,allow_boundary=True)
     height=lambda u,v:grade(u,v) if grade else slope(v) if slope else z
-    nx=max(1,min(40,math.ceil((r-l)/3.048)));ny=max(1,min(40,math.ceil((k-f)/3.048)))
+    step=.85 if kind=='Lawn' and r-l<150 else 3.048
+    nx=max(1,min(100,math.ceil((r-l)/step)));ny=max(1,min(100,math.ceil((k-f)/step)))
     for j in range(ny):
         for i in range(nx):
             x=l+i*(r-l)/nx;xx=l+(i+1)*(r-l)/nx;y=f+j*(k-f)/ny;yy=f+(j+1)*(k-f)/ny
@@ -89,6 +91,8 @@ def build_site(sp,building,off):
     a=Assembly('CivicSite_'+str(sp['seed']));a.root['seed']=sp['seed'];p=sp['building'];pos=sp['building_at'];building.root.parent=a.root;building.root.location=Vector(pos)+off
     l,r,f,k=sp['parcel'];w,d=p['width'],p['depth'];x,y,_=pos
     excluded=[(x-w/2,x+w/2,y-d/2,y+d/2)]+[lot['rect'] for lot in sp['lots']]+sp['walks']+[q['rect'] for q in sp['ramps']]+sp['drives']+sp['service_pads']
+    from turf import beds
+    excluded+=beds(a,sp)
     apron=None
     if sp['kind']=='arterial':
         apron=(x-w/2-.5,x-w/2+p['bayblock']+.5,-32,y-d/2);excluded.append(apron)
@@ -107,7 +111,10 @@ def build_site(sp,building,off):
     for j,q in enumerate(sp['drives']):ground(a,'VehicleConnection_'+str(j),q,'Asphalt',-.003)
     for j,q in enumerate(sp['service_pads']):ground(a,'RearServicePad_'+str(j),q,'Concrete',-.003)
     from flags import pole as flag
-    for j,pole in enumerate(sp['flags']):flag(a,(*pole,0),'Flagpole_'+str(j),national=j==0)
+    for j,pole in enumerate(sp['flags']):
+        flag(a,(*pole,0),'Flagpole_'+str(j),national=j==0)
+        from aging import rust
+        rust(a,(*pole,.122),'FlagpoleFootRust_'+str(j))
     for j,(xx,yy) in enumerate(sp['trees']):place(ROOT/'trees/export'/('PinOak.glb' if j%3==0 else 'RedMaple.glb'),'SiteTree_'+str(j),(xx,yy,-.02),j*61,parent=a.root)
     for j in range(7):
         at=([(-19.4,-9.9,-.012),(-17.2,-9.9,-.012),(-15,-9.9,-.012),(-12.8,-9.9,-.012),(1.2,-9.9,-.012),(3.4,-9.9,-.012),(5.6,-9.9,-.012)][j]) if sp['kind']=='downtown' else (14.0,-4+j*1.1,-.012)

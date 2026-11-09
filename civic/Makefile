@@ -8,7 +8,7 @@ export TMPDIR := $(abspath ../build/tmp)
 export ASSETS_GPU_LOCK ?= $(abspath ../build/locks/gpu.lock)
 WIDTH ?= 1400
 SAMPLES ?= 40
-SOURCE := $(addprefix src/,build.py buildings.py delivery.py door_motion.py flags.py geo.py library.py order.py parts.py plans.py services.py sheets.py sites.py station.py turf.py wear.py)
+SOURCE := $(addprefix src/,aging.py build.py buildings.py delivery.py door_motion.py flags.py geo.py library.py order.py parts.py plans.py services.py sheets.py sites.py station.py turf.py wear.py)
 BUILD_IDS := 101 202 303 404 505 606 707
 MODEL := build/family.json build/modules.json $(foreach s,$(BUILD_IDS),export/Civic-$(s).gltf export/Civic-$(s).bin build/review/Civic-$(s).glb) $(foreach s,101 202,export/Site-$(s).gltf export/Site-$(s).bin build/review/Site-$(s).glb) export/CivicPieces.gltf export/CivicPieces.bin build/review/CivicPieces.glb
 .PHONY: all refs dependencies model render matches review check repeat clean

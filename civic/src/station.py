@@ -24,13 +24,34 @@ def overhead(a,name,x,y,z,w=4.2672,h=4.2672):
                 xx=-w/2+.022+k*(w-.044)/5
                 m.box((xx,y+.07,z+j*ph+ph/2),(.044,.055,ph-.012),'Trim',color,r=0)
             for zz in (j*ph+.024,(j+1)*ph-.024):m.box((0,y+.07,z+zz),(w,.065,.048),'Trim',color,r=0)
+        elif j<2:
+            # Gauged steel panel, with shallow localized impact dents in the
+            # bottom two sections. The edge/roller envelope remains unchanged.
+            nx=8;ny=2;vs=[]
+            for back in (False,True):
+                for row in range(ny+1):
+                    for col in range(nx+1):
+                        u=col/nx;v=row/ny
+                        dent=.018*math.sin(u*math.pi)**4*math.exp(-((u-.32-.13*j)/.14)**2)*math.sin(v*math.pi)**2
+                        vs.append(((u-.5)*w,y+.105 if back else y+.035+dent,z+j*ph+.006+v*(ph-.012)))
+            fs=[];offset=(nx+1)*(ny+1)
+            for row in range(ny):
+                for col in range(nx):
+                    k=row*(nx+1)+col;face=(k,k+1,k+nx+2,k+nx+1);fs.extend([face,tuple(i+offset for i in reversed(face))])
+            border=list(range(nx+1))+[row*(nx+1)+nx for row in range(1,ny+1)]+[ny*(nx+1)+col for col in range(nx-1,-1,-1)]+[row*(nx+1) for row in range(ny-1,0,-1)]
+            fs += [(aa,bb,bb+offset,aa+offset) for aa,bb in zip(border,border[1:]+border[:1])]
+            m.geom(vs,fs,'Trim',color)
         else:m.box((0,y+.07,z+j*ph+ph/2),(w,.07,ph-.012),'Trim',color,r=.006)
         # Skin relief belongs to normal charts; hinges/rollers change silhouette.
         for xx in (-w/2+.055,w/2-.055):
             m.tube([(xx-.04,y+.20,z+j*ph+.04),(xx+.04,y+.20,z+j*ph+.04)],.027,'Trim',(.42,.43,.40),sides=8)
             m.box((xx,y+.17,z+j*ph+.08),(.06,.14,.12),'Trim',(.40,.42,.39),r=0)
             m.tube([(xx-.04,y+.24,z+j*ph+.018),(xx+.04,y+.24,z+j*ph+.018)],.012,'Trim',(.38,.40,.38),sides=6)
-        m.v=[(vx+x,vy,vz) for vx,vy,vz in m.v];m.finish()
+        m.v=[(vx+x,vy,vz) for vx,vy,vz in m.v];ob=m.finish()
+        tint=ob.data.color_attributes['Tint']
+        for loop in ob.data.loops:
+            q=ob.data.vertices[loop.vertex_index].co;fac=.84+.14*math.sin((q.x+x)*.66+j*.43)**2
+            c=tint.data[loop.index].color;tint.data[loop.index].color=(*(c[i]*fac+(.038,.019,.014)[i]*(1-fac) for i in range(3)),1)
     track=a.mesh(name+'_Tracks',kind='BayDoorTrack',trim_strip=2)
     for xx in (x-w/2-.07,x+w/2+.07):
         pts=[(xx,y+.22,z),(xx,y+.22,z+h+.10)]
