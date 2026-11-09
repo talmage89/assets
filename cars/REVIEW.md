@@ -2314,6 +2314,49 @@ the exact CLI config also in `build/lod-hatch-near-rejected.json`. The failed
 production config was removed. LOD2 is deferred under this car's budget;
 its proxy is tested separately as an optical diagnostic below.
 
+## H120 proxy critique 1 — second material at 4%
+
+The real-car opt-in glass partition completes at 2,498 / 2,500 target triangles,
+two materials and two color-pass draws. Three pure transmission faces move
+to glass; mixed paint/glass faces retain the coverage decoder. Geometry and
+UVs stay fixed. Opened both construction views, every native strip and contact
+at `renders/lod/hatch-glass-04/`. Color/value first: the cabin band becomes
+dark angular coverage, lamps grow bright jagged returns, and windows change
+response. Front RGB improves from the earlier .0605 to .0510, but .051010 /
+.031837 / .031670 still exceed .02. P95/local limits also fail; silhouette
+and alpha pass. `check` rejects only images; independent normals and ten fresh
+imports of all five paints on LOD0/proxy with both lamp states pass.
+
+The eight 512 maps allocate 2,796,416 compressed full-mip bytes, including
+the factory map's 349,552 bytes. Glass adds no image. Proxy mesh allocation
+is 157,388 bytes; its package is 863,220 bytes. Keeping it beside LOD0 would
+allocate 19,573,712 texture and 4,181,108 mesh bytes. None is adopted.
+
+## H120 proxy critique 2 — move the same payload farther
+
+Moved only the camera, retaining identical dependency hashes, 512 samples,
+three azimuths and all kit limits. Native contacts/strips at
+`renders/lod/hatch-glass-distance-{025,015,010}/` were opened. At 2.5%, 1.5%
+and 1% height (52.14 / 86.89 / 130.34 m), mean RGB ranges remain .03046–.05085,
+.02870–.04999 and .02715–.05708. Window/cabin and lamp color shifts persist;
+even the 11-pixel-tall control fails. Defer the proxy. Geometry or coverage
+reconstruction needs further work; a second material alone is insufficient.
+The exact config, payload and maps stay in `cars/build/lod-hatch-glass-04*`;
+no production Make target builds it. Distance evidence is optical diagnosis,
+not a substitute adoption manifest. One wrapper exited 143 after both first
+distance metrics completed; their renderer/script/dependency/file hashes are
+audited directly. The additional 1% command completes with exit 0.
+
+Final closeout: original `make check` passes for S240, X220 and H120, with
+explicit immutable generated inputs. The earlier S240 budget stop above
+describes its adoption attempt; its original check was completed afterwards.
+`build/car-lod/round2/final-audit.json` checks all 36 passing clean kit tests,
+the unchanged kit freeze, maple repeats, cone/fixed-tree opt-out payloads,
+all diagnostic image hashes and all 2,996 unchanged original files. Measured
+original and rejected diagnostic costs are in the adjacent `costs.json`.
+No new car level is shipped, no rejection becomes a target exception, and
+the lead's pickup full-baseline skip remains in force.
+
 ## Factory proxy adapter, 2026-11-09
 
 The adapter closes factory routing, but does not close the native appearance
