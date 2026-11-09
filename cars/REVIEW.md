@@ -2275,6 +2275,45 @@ longer contains this rejected config. All original delivery/map/image bytes
 remain unchanged. Source mirrors stay on the doors and wipers stay static,
 as in the immutable LOD0; no independent pivot is claimed.
 
+## H120 near LOD critique 1 — rest views
+
+Merged the advanced rollout `main` in `d812384` before this car. The family's
+`make -C cars BODY=hatch model` found its script-generated original warm;
+the original `make check` passed before and after the trial. Immutable input
+and tool receipts are `build/car-lod/round2/hatch-input.json` and the adjacent
+`hatch-freeze-revision.txt`; the source remains 59,852 triangles and SHA-256
+`86104add5c3aaa7bf909af12fc666f9a0ef87f635df2b0e7ce7639c247f1136e`.
+
+Color/value first: opened the three native strips, both construction views and
+contact at `renders/lod/hatch/`. Atlantic blue, dark rubber/cavities, the pale
+cabin band and powered white/red lamps remain. Reduced nose edges and local
+reflective detail change; the close nose acquires dark angular discontinuities.
+The 27-minute near build yields 40,401 triangles at 25% height / 5.21 m, versus
+32,918 requested (`target_met: false`). Means .004252/.002076/.002159 pass,
+but local patches .090135/.083558 at azimuths 55/145 exceed .08. Their native
+8x8 origins are (579,542)/(1157,495). Full `check-lod` rejects only the image
+gate; the independent normal audit passes. No gate or target is raised.
+
+## H120 near LOD critique 2 — articulation
+
+Opened both native posed strips after an interrupted probe was restarted
+and completed (first command exit 143; retry exit 2). Matching pivot poses
+retain doors, hood, liftgate and wheels. The open rear reveals changed fine
+reflections; patch means are .078472/.145516, so the rear still fails .08.
+These sampled views do not prove swept clearance. Mirrors remain on their
+source doors and parked wipers remain static; independent pivots are absent
+from immutable LOD0. Ten fresh imports pass all five presets on LOD0/1 with
+both lamp states. Canonical four materials, 36 color-pass draws and the three
+2048 maps are retained; no intermediate image allocation is added.
+
+The diagnostic level stores 6,672,719 package bytes and draws 2,806,038 mesh
+bytes plus 16,777,296 compressed full-mip texture bytes. Keeping LOD0/1 would
+store 6,829,758 resident mesh bytes. It is not adopted: config, payload and
+rejection receipt are retained under `build/car-lod/round2/hatch-near/`, with
+the exact CLI config also in `build/lod-hatch-near-rejected.json`. The failed
+production config was removed. LOD2 is deferred under this car's budget;
+its proxy is tested separately as an optical diagnostic below.
+
 ## Factory proxy adapter, 2026-11-09
 
 The adapter closes factory routing, but does not close the native appearance

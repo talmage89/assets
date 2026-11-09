@@ -801,4 +801,5 @@ S240 uses its original LOD0; a reduced chain is deferred.
 
 X220 currently uses its original LOD0. [LOD review](REVIEW.md).
 
-H120 currently uses its original LOD0. [LOD review](REVIEW.md).
+H120 currently uses its original LOD0.
+[LOD review](REVIEW.md#h120-near-lod-critique-1--rest-views).
