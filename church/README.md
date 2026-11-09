@@ -362,11 +362,17 @@ bounded gallery JPGs above are the only committed images.
 - [Modules/contact](renders/modules/contact.jpg),
   [four-church range](renders/final/range.png), and
   [both Eevee heroes](renders/eevee/contact.jpg).
-- Native-size same-camera before/after: [101 hero](renders/before-after/101-hero.jpg),
-  [101 above](renders/before-after/101-above.jpg),
-  [202 hero](renders/before-after/202-hero.jpg),
-  [202 above](renders/before-after/202-above.jpg), plus each church's day/dusk
-  glass in `renders/before-after/`. Each panel remains 1400px wide.
+- Native-size same-camera last-round crops: [masonry 101](renders/last-fixes/01-masonry-101.jpg),
+  [masonry 202](renders/last-fixes/01-masonry-202.jpg),
+  [slate](renders/last-fixes/02-roof-101.jpg),
+  [shingles](renders/last-fixes/02-roof-202.jpg),
+  [A-frame light](renders/last-fixes/03-aframe-light.jpg),
+  [lawns 101](renders/last-fixes/04-lawn-101.jpg) /
+  [202](renders/last-fixes/04-lawn-202.jpg), and
+  [entry 101](renders/last-fixes/05-entry-101.jpg) /
+  [202](renders/last-fixes/05-entry-202.jpg).
+  Every crop is at least 1000px wide per panel; both complete heroes retain
+  1400px per panel. `renders/last-fixes/receipts.json` proves equal optics.
 - [Photo pairs/contact](renders/matches/contact.jpg): color MDAH street,
   Connecticut A-frame and NCPTT storm-glazing photographs.
   [Source comparisons](renders/source-matches/contact.jpg)
@@ -384,18 +390,10 @@ reference on a white-painted exterior storm bar. The NCPTT crop isolates the
 left light of a larger paired opening; its shared tracery is visibly different. Full
 critiques, corrections and remaining differences are in [REVIEW.md](REVIEW.md).
 
-The churches now carry local repairs, damp/salt at grade, oxidized copper,
-course runoff, rail-foot deposits, broken north-pitch/step growth and exposed
-timber/fascia wear. The roofs and entries have dedicated inspection views.
-Remaining weaknesses are even-looking entry stone and door panels, a simple
-mapped memorial composition, specular grain in the modern glazing, flat fine
-moss, coarse fascia paint patches, weak beam-end gray, coarse reduced
-neighboring roofs and a sparse district beyond the
-authored blocks. Cross rust and fine ledge/bird deposits still under-read;
-roof-repair and flat-roof ponding history is weaker than the masonry repairs.
-Eevee reflections differ from Cycles. The many unbatched static primitives
-remain an export-performance task. No final shipping optimization or
-photographic-finish approval is claimed at this checkpoint.
+The churches carry local repairs, damp/salt at grade, oxidized copper,
+course runoff, rail-foot deposits, north-pitch/step growth and exposed timber
+wear. The roofs and entries have dedicated inspection views. The final
+critiques distinguish passing construction checks from visual realism.
 
 ## Credits
 
@@ -406,3 +404,36 @@ the installed open-license DejaVu Sans Bold through `kit/fonts.py`.
 Names, dates, inscriptions and signs are fictional; only plain crosses are
 used. Lighting is procedural. No existing model, scan, texture, HDRI or asset
 pack was downloaded or adapted.
+
+## Known flaws
+
+- **Wall age is partial.** Lower walls, separate wall values and sheltered
+  washes read better, but large upper brick areas and long buff moldings
+  retain a procedural regularity. Some runoff follows a recognizable atlas
+  kernel; it is pigment on flat sheets rather than eroded masonry.
+- **Roof age is partial.** Shingle chart addressing now preserves its courses,
+  slate values vary and repairs are lighter. Eave colonies and algae follow
+  damp slopes. Growth still reads flat and patterned close up; this is not
+  convincing thick moss or individual lichen. Ridge/eave granule loss and
+  flat-roof ponding remain weak.
+- **A-frame light is changed, with limits.** The opposite-side low sun and
+  deeper sky distinguish it from the downtown hero. The dim nave and flat
+  backing still simplify the glass response, and specular grain remains.
+- **Lawns remain planar.** Darker yellow-green patches, walk-edge wear and
+  shaded areas improve the distance values. Coarse vertex interpolation,
+  repeated fine blades and limited tree-specific shade remain visible;
+  mulch beds are dark geometric strips.
+- **Entry age is partial.** Treads have shallow center hollows and darker
+  traffic zones, chipped nosings, door touch/kick wear and rust at anchor
+  shoes. The stone is still too precisely manufactured, and patch repairs
+  and irregular door-finish loss are weaker than decades of real use.
+- Beam ends are grayer, but checks and fascia paint loss remain simplified.
+  Cross rust and fine bird/ledge deposits under-read. Memorial glass is
+  deliberately simple; it does not approach historical pictorial craft.
+  Native reduced neighboring roofs are coarse from above; the district
+  beyond the authored blocks is sparse. Eevee reflections differ from Cycles.
+
+The static module hierarchy still needs engine batching, culling and LOD.
+There are no collision hulls or playable interiors. Sampled motion and route
+checks do not establish continuous collision freedom or code certification.
+No kit or top-level index files were changed.
