@@ -21,3 +21,24 @@ SHOTS={
  'scale':dict(location=(2.6,-4.8,2.1),target=(-.35,0,.88),lens=67,aspect=1.25,human=True),
 }
 for shot in SHOTS.values():shot['hide_assemblies']=['AtlasBlueLid']
+
+# Source-part sweeps distinguish filled pin/hub bores from other construction.
+MOTIONS = []
+for node, variant in [('Lid', 'trash'), ('AtlasBlueLid', 'recycling')]:
+ MOTIONS.append(dict(node=node, axis='X', range=[-110, 0], step=1,
+  tolerance_m=.0002, allow=[
+   dict(moving=variant+' hinge '+part, fixed='Body hinge pin',
+        reason='Filled source bore in the molded rotating knuckle')
+   for part in ('barrel', 'strap')]))
+for side in ('Left', 'Right'):
+ MOTIONS.append(dict(node='Wheel_'+side, axis='X', range=[0, 360], step=5,
+  tolerance_m=.0002, allow=[dict(moving='Wheel '+side+' hub', fixed='Steel axle',
+   reason='Filled source hub bore on the steel axle')]))
+
+CONTACTS = []
+for suffix in ('', '.001'):
+ support = 'Rear handle support'+suffix
+ CONTACTS.extend([
+  ('Stationary hinge knuckle'+suffix, support, .0002),
+  (support, 'Integral rear carry grip', .0002),
+  (support, 'Rotomolded hollow body and recessed lift channel', .0002)])

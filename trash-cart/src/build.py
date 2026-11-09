@@ -12,6 +12,9 @@ from kit import model as G
 from kit.materials import surface
 from finishes import polyethylene
 
+HINGE_Y = .388925  # + footprint offset = 430 mm, behind the body rim.
+HINGE_Z = 1.010    # Below the rear skirt: opening lifts it away from the rim.
+
 
 def outline(w,d,r,recess=0,grip=0,n=4):
  pts=[]
@@ -87,8 +90,12 @@ def main():
   add(G.box('Sealed lift bar journal',(s*.133,-.335,.535),(.035,.059,.056),black,.012,3 if high else 1))
  # Body-integral rear grip with real clearance below its crossbar.
  for s in (-1,1):
-  add(G.box('Rear handle support',(s*.263,.380,1.007),(.064,.140,.054),black,.013,3 if high else 1))
- add(G.cylinder('Integral rear carry grip',(-.265,.43085,1.015),(.265,.43085,1.015),.020,black,24 if high else 12))
+  # The stationary support and its knuckle sit inboard of the rotating strap.
+  # Their outer X face is 224 mm; the rotating barrel starts at 227 mm.
+  add(G.box('Rear handle support',(s*.192,.380,.976),(.064,.140,.068),black,.009,3 if high else 1))
+  add(G.cylinder('Stationary hinge knuckle',(s*.200,HINGE_Y,HINGE_Z),
+                 (s*.224,HINGE_Y,HINGE_Z),.014,black,24 if high else 12))
+ add(G.cylinder('Integral rear carry grip',(-.265,.43085,.976),(.265,.43085,.976),.020,black,24 if high else 12))
  add(G.cylinder('Steel axle',(-.331,.27385,.127),(.331,.27385,.127),.0079375,steel,20 if high else 10))
  for s in (-1,1):
   add(G.box('Rear axle journal gusset',(s*.22,.252,.225),(.066,.081,.19),black,.012,3 if high else 1))
@@ -115,7 +122,7 @@ def main():
     ob.rotation_euler.x=th;add(ob,pivot)
  # Lid is a thin crowned shell with a peripheral skirt and returns.
  for variant,mat,offset,name in [('trash',lidblack,0,'Lid'),('recycling',blue,1.25,'AtlasBlueLid')]:
-  pivot=G.pivot(name,(offset,.350,1.032),'X',(-110,0));pivot.parent=root
+  pivot=G.pivot(name,(offset,HINGE_Y,HINGE_Z),'X',(-110,0));pivot.parent=root
   pivot['delivery_variant']=variant
   if offset:pivot['atlas_staging_offset']=(offset,0,0);pivot['delivery_name']='Lid'
   def lidadd(ob):
@@ -124,15 +131,15 @@ def main():
   path=[(1.018,.75165,.812,.080),(1.038,.75565,.820,.082),
         (1.048,.727,.797,.085),(1.075,.605,.666,.105),
         (1.078,.35,.410,.105),(1.079,.10,.16,.04)]
-  lidloops=[[(x,y-.04085,z) for x,y in G.rounded_rectangle(w,d,r,ns)] for z,w,d,r in path]
-  lidloops += [[(x,y-.04085,z-.005) for x,y in G.rounded_rectangle(w-.008,d-.008,max(.01,r-.004),ns)] for z,w,d,r in reversed(path)]
+  lidloops=[[(x,y-.035,z) for x,y in G.rounded_rectangle(w,d,r,ns)] for z,w,d,r in path]
+  lidloops += [[(x,y-.035,z-.005) for x,y in G.rounded_rectangle(w-.008,d-.008,max(.01,r-.004),ns)] for z,w,d,r in reversed(path)]
   ln=len(lidloops[0]);lv=[v for ring in lidloops for v in ring]
   lf=[(j*ln+i,j*ln+(i+1)%ln,((j+1)%len(lidloops))*ln+(i+1)%ln,((j+1)%len(lidloops))*ln+i)
       for j in range(len(lidloops)) if j!=len(path)-1 for i in range(ln)]
   lf.extend([tuple(range((len(path)-1)*ln,len(path)*ln)),tuple(reversed(range(len(path)*ln,(len(path)+1)*ln)))])
   lidadd(G.smooth(G.mesh(variant+' crowned lid skin',lv,lf,mat),45))
   # Raised perimeter bead leaves a visible stepped sealing reveal.
-  rimloops=[[(x,y-.04085,z) for x,y in G.rounded_rectangle(w,d,r,ns)]
+  rimloops=[[(x,y-.035,z) for x,y in G.rounded_rectangle(w,d,r,ns)]
             for z,w,d,r in [(1.044,.727,.793,.083),(1.053,.727,.793,.083),
                             (1.056,.698,.764,.080),(1.044,.698,.764,.080)]]
   lidadd(G.smooth(G.ring_loft(variant+' raised perimeter sealing bead',rimloops,mat),45))
@@ -142,9 +149,14 @@ def main():
   for y in (-.20,.0):lidadd(G.box(variant+' lid cross rib',(0,y,1.084),(.454,.026,.019),mat,.009,3 if high else 1))
   lidadd(G.box(variant+' front hand tab',(0,-.426,1.041),(.171,.049,.018),mat,.008,3 if high else 1))
   for s in (-1,1):
-   lidadd(G.box(variant+' hinge strap',(s*.263,.309,1.046),(.061,.151,.022),mat,.008,3 if high else 1))
-   lidadd(G.cylinder(variant+' hinge barrel',(s*.263-.036,.350,1.032),(s*.263+.036,.350,1.032),.022,mat,24 if high else 12))
-   if not offset:add(G.cylinder('Body hinge pin',(s*.263-.042,.350,1.032),(s*.263+.042,.350,1.032),.008,steel,16 if high else 8))
+   # A bent molded strap drops behind the sealing skirt to the external pin.
+   profile=[(.2335,1.035),(.371,1.035),(.380,.999),
+            (.396,.999),(.396,1.020),(.382,1.057),(.2335,1.057)]
+   strap=G.profile(variant+' hinge strap',profile,s*.263-.0305,
+                   s*.263+.0305,mat,radius=.003,segments=3 if high else 1)
+   lidadd(G.smooth(strap,45))
+   lidadd(G.cylinder(variant+' hinge barrel',(s*.263-.036,HINGE_Y,HINGE_Z),(s*.263+.036,HINGE_Y,HINGE_Z),.014,mat,24 if high else 12))
+   if not offset:add(G.cylinder('Body hinge pin',(s*.198,HINGE_Y,HINGE_Z),(s*.305,HINGE_Y,HINGE_Z),.008,steel,16 if high else 8))
   if variant=='recycling':
    # The large identification mark retains a compact molded silhouette in game.
    curve=bpy.data.curves.new('Molded standard recycling symbol','FONT')
