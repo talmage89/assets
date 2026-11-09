@@ -54,13 +54,15 @@ def main():
     for path in files:
         accepted=ASSET/path.relative_to(stage)
         if path.suffix=='.json':
-            candidate=json.dumps(relocated(json.loads(path.read_text())),sort_keys=True,separators=(',',':')).encode()
-            baseline=json.dumps(json.loads(accepted.read_text()),sort_keys=True,separators=(',',':')).encode()
+            original=json.loads(path.read_text());normalized=relocated(original)
+            candidate=(json.dumps(normalized,indent=2).encode()
+                       if normalized!=original else path.read_bytes())
+            baseline=accepted.read_bytes()
         else:candidate=path.read_bytes();baseline=accepted.read_bytes()
         same=candidate==baseline
         compared.append(dict(file=str(path.relative_to(stage)),bytes=path.stat().st_size,exact=same))
         if not same:errors.append(str(accepted))
-    receipt=dict(passed=not errors,scope='All church, site, range and module glTF/BIN/metadata, plans, metrics, calibration and analytic maps; glTF image URIs relocated to canonical directory, JSON keys canonicalized. Native actors are immutable original inputs. Blend containers and Cycles sampling excluded.',files=compared,errors=errors)
+    receipt=dict(passed=not errors,scope='All church, site, range and module glTF/BIN/metadata, plans, metrics, calibration and analytic maps; only image URIs and resulting package-byte ledgers relocated to canonical directory. Native actors are immutable original inputs. Blend containers and Cycles sampling excluded.',files=compared,errors=errors)
     (ASSET/'build/repeat.json').write_text(json.dumps(receipt,indent=2))
     assert not errors,errors
     print('PASS',len(compared),'deterministic geometry/map payloads,',sum(r['bytes'] for r in compared),'bytes')

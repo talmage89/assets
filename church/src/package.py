@@ -58,7 +58,7 @@ def publish(rt,stem,known,subdir=''):
     folder=Path('export')/subdir;review=Path('build/glb')/subdir;review.mkdir(parents=True,exist_ok=True)
     obs=objects(rt);meta=counts(obs);path=review/(stem+'.glb');tiling.export(path,obs)
     # Native MikkTSpace corners can straddle the exporter's fourth-decimal
-    # rounding boundary. Exact position/normal/UV signatures guard these five
+    # rounding boundary. Exact position/normal/UV signatures guard these
     # accepted corners; the kit permits at most one tangent rounding step.
     anchors=json.loads(Path(__file__).with_name('tangent_rounding.json').read_text())
     if stem in anchors:stabilize_tangents(path,anchors[stem])
