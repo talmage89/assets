@@ -15,7 +15,7 @@ def current(path,width,samples):
     if not path.exists() or not path.with_suffix('.json').exists():return False
     d=json.loads(path.with_suffix('.json').read_text())
     if d.get('width')!=width or d.get('samples')!=samples:return False
-    for key,file in [('render_recipe_sha256','render.py'),('sheet_recipe_sha256','sheets.py')]:
+    for key,file in [('render_recipe_sha256','render.py'),('sheet_recipe_sha256','sheets.py'),('source_recipe_sha256','source_matches.py')]:
         if key in d and d[key]!=hashlib.sha256(Path('src',file).read_bytes()).hexdigest():return False
     sources=d.get('sources',[dict(path=d.get('source'),sha256=d.get('source_sha256'))])
     for row in sources:
@@ -28,12 +28,12 @@ def current(path,width,samples):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',default='renders/final');p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=40);p.add_argument('--matches',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--out',default='renders/final');p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=40);p.add_argument('--matches',action='store_true');p.add_argument('--source-matches',action='store_true');a=p.parse_args()
     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
-    common=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python','src/render.py','--','--out',a.out,'--width',str(a.width),'--samples',str(a.samples)]
+    common=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python','src/source_matches.py' if a.source_matches else 'src/render.py','--','--out',a.out,'--width',str(a.width),'--samples',str(a.samples)]
     jobs=[]
-    if a.matches:
-        for name in json.loads(Path('build/matched-cameras.json').read_text()):jobs.append(([Path(a.out)/(name+'.png')],['--matches','--shots',name]))
+    if a.matches or a.source_matches:
+        for name in json.loads(Path('build/matched-cameras.json').read_text()):jobs.append(([Path(a.out)/(name+'.png')],([] if a.source_matches else ['--matches'])+['--shots',name]))
     else:
         for seed,names in SHOTS.items():
             for name in names.split(','):jobs.append(([Path(a.out)/seed/(name+'.png')],['--seeds',seed,'--shots',name]))

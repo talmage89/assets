@@ -30,7 +30,7 @@ matches: model refs
 	../kit/with_gpu.sh $(PYTHON) src/render_batch.py --matches --out renders/matches --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) ../kit/photo_match.py compose --calibration build/matched-cameras.json --renders renders/matches --out renders/matches
 source-matches: matches
-	../kit/with_gpu.sh $(BP) --python src/source_matches.py
+	../kit/with_gpu.sh $(PYTHON) src/render_batch.py --source-matches --out renders/source-matches --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) ../kit/photo_match.py compose --calibration build/matched-cameras.json --renders renders/source-matches --out renders/source-matches
 changes:
 	$(PYTHON) src/compare.py
