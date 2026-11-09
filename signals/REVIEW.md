@@ -732,3 +732,34 @@ independent mesh/material bindings. This proves serialized state routing,
 not live phase timing, flexible-cable updates or a new swept-motion audit.
 The cheaper 2849-triangle visible-failure control remains archived. Measured
 selected-level table/contact: `build/lod-rollout/signals/mast-report/`.
+
+### LOD critique 4: select the useful cabinet distance
+
+Omit the weak .25 cabinet row and retain one shared-map level at the existing
+far starting point, .09 / 19.36m. Its 1482 triangles retain 50% of 2964,
+against the unchanged 445-triangle goal. Opened all three native strips,
+both construction views and contact. Gray body/vent values, door reveals and
+the small service-post coverage agree at the switch. The closer construction
+view exposes a polygonal service lamp, simplified louver and panel corners;
+those do not read as faults at .09. All image/field/raw checks pass.
+
+Explicitly tested this exact 1482-triangle export at the old .25 / 6.97m
+distance. Opened all three native controls in
+`build/lod-rollout/signals/cabinet-original-switch/`: the lamp turns visibly
+polygonal and vent response changes. Front/side local errors .15375/.12741
+fail .08; the rear passes. These failed old-distance comparisons and passing
+new-distance comparisons establish the farther switch without changing gates.
+
+Also opened all three 440-triangle ordinary-collapse goal controls at .09 in
+`build/lod-rollout/signals/cabinet-goal-control/`. The lamp turns dark, the
+vent loses its response and bright borders appear on the cabinet. Front
+mean/p95/local .02873/.15687/.25460 and side p95/local .10196/.16268 fail;
+the rear passes. This deliberate unguarded control uses the original maps
+and is never a delivery. Its script/receipt record actual source, selected
+and candidate dependencies and tool hashes. The selected 1482 is the lowest
+reviewed passing count, not a global geometric minimum; `target_met: false`
+remains. Both door meshes/pivots are retained, with matching serialized
+door controls in `Cabinet-state-routing.json`. No new motion-clearance or
+engine-light simulation is claimed. Measured selected tables/contact are
+`build/lod-rollout/signals/report/`; the original .25 cost trial remains
+archived in `cabinet-pass1/`.
