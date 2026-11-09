@@ -2,6 +2,7 @@
 import math
 import random
 import itertools
+from functools import lru_cache
 import bpy
 import bmesh
 from mathutils import Vector
@@ -10,21 +11,53 @@ import geometry as G
 BED_TREE=None
 
 
+@lru_cache(maxsize=32)
+def wave_lanes(p):
+    """Finite rough-bed chutes; each has its own crest spacing and start."""
+    result=[]
+    for i,(u,width,offset,spacing) in enumerate(((-.58,.055,-1.8,1.45),
+            (-.16,.075,1.0,1.67),(.25,.05,-.7,1.92),(.62,.065,2.4,1.54))):
+        result.append((p.center(p.riffle_y)+u*p.halfwidth(p.riffle_y),
+                       p.width*width,offset+.18*math.sin(p.seed+i),spacing,i))
+    return tuple(result)
+
+
 def water_surface(p,x,y):
-    u=(x-p.center(y))/p.halfwidth(y)
-    # Stationary transverse crests over the downstream lip of the shoal;
-    # narrow, uneven channels carry longer foam tails in +Y.
-    activity=.30+.70*(.5+.5*math.sin(x*.48+.9*math.sin(y*.63)))
-    band=math.exp(-((y-p.riffle_y-1.4)/4.2)**2)*max(0,1-u*u)*activity
-    phase=(y-p.riffle_y)*math.tau/1.65+.60*math.sin(x*.72)+.23*math.sin(x*1.9)
-    crest=math.sin(phase)+.32*math.sin(2*phase+.5)
-    return p.water_z(y)+.075*crest*band
+    u=(x-p.center(y))/p.halfwidth(y);height=0.
+    # Short bowed crests decay through each chute. A single sinusoid spanning
+    # the channel creates the regular transverse bars of an artificial weir.
+    for cx,width,offset,spacing,phase in wave_lanes(p):
+        cross=(x-cx)/width;envelope=math.exp(-cross*cross)
+        if envelope<.002:continue
+        for crest in range(3):
+            station=offset+crest*spacing+.15*crest*crest
+            bow=.28*math.sin(cross*1.6+phase)+.11*cross*cross
+            along=y-p.riffle_y-station-bow
+            amplitude=.09*.76**crest
+            height+=envelope*amplitude*(math.exp(-(along/.43)**2)
+                     -.42*math.exp(-((along-.62)/.63)**2))
+    return p.water_z(y)+height*max(0,1-u*u)
 
 
 def water_normal(p,x,y):
     d=.005;dx=(water_surface(p,x+d,y)-water_surface(p,x-d,y))/(2*d)
     dy=(water_surface(p,x,y+d)-water_surface(p,x,y-d))/(2*d)
     return Vector((-dx,-dy,1)).normalized()
+
+
+def foam_streaks(p):
+    """Convergent foam lanes behind the shoal, with continuous start stations.
+
+    Fixed transverse rows make a ladder in an elevated view. Chutes follow
+    the local standing-wave activity; individual tails advect downstream.
+    """
+    rng=random.Random(p.seed+31);result=[]
+    for _ in range(15):
+        cx,width,offset,spacing,phase=rng.choice(wave_lanes(p)[1:3])
+        y=p.riffle_y+offset+rng.gauss(.3,1.3)
+        x=cx+rng.gauss(0,width*.65)
+        result.append((x,y,rng.uniform(1.8,6.2),rng.uniform(.28,.65)))
+    return result
 
 
 def surface_z(p,x,y):
@@ -254,25 +287,23 @@ def water(p,parent):
         a.vector=(vx,vy,max(0,p.water_z(v.co.y)-surface_z(p,v.co.x,v.co.y)))
     water_tree=BVHTree.FromPolygons([v.co for v in ob.data.vertices],[list(f.vertices) for f in ob.data.polygons],all_triangles=True)
     foam=G.Batch('RiffleBrokenFoam',parent,'water');rng=random.Random(p.seed+31)
-    for j in range(110):
-        # Ribbons follow local flow, seeded behind wave crests on the shoal.
-        y=p.riffle_y+rng.choice((-.9,.75,2.4,4.05))+rng.uniform(-.20,.20)
-        l,r=p.water_edges(y);x=rng.uniform(l+1.0,r-1.0)
-        length=rng.uniform(1.6,4.8);width=rng.uniform(.08,.19);segments=9
+    for j,(x,y,length,width) in enumerate(foam_streaks(p)):
+        segments=24
         tx,ty=p.tangent(y)
         for k in range(segments):
             t0=k/segments;t1=(k+1)/segments
-            if rng.random()<.12:continue
+            if rng.random()<.08:continue
             coords=[]
             for t,sign in ((t0,-1),(t0,1),(t1,1),(t1,-1)):
-                wobble=.055*math.sin(t*8+j);w=width*(.25+.75*math.sin(math.pi*t))
-                xx=x+tx*length*t+ty*(wobble+sign*w)
+                wobble=.44*math.sin(t*(4+j%3)+j*.71)+.12*math.sin(t*13+j)
+                w=width*(.12+.88*math.sin(math.pi*t))*(.7+.3*math.sin(t*17+j))
                 yy=y+ty*length*t-tx*(wobble+sign*w)
+                xx=x+p.center(yy)-p.center(y)+ty*(wobble+sign*w)
                 hit=water_tree.ray_cast(Vector((xx,yy,p.water_z(yy)+1)),Vector((0,0,-1)),3)[0]
                 if hit is None:break
                 coords.append((xx,yy,hit.z+.004))
             if len(coords)!=4:continue
-            foam.geom(coords,[(0,1,2,3)],'foam',uv=foam_chart(j%4))
+            foam.geom(coords,[(0,1,2,3)],'foam',uv=foam_chart(j%4,t0,t1))
     # Intermittent curling foam/eddy lines in the sheltered pier wakes.
     for i in range(1,p.spans):
         xx=-p.length/2+i*p.span
@@ -284,6 +315,7 @@ def water(p,parent):
     foam.finish()
 
 
-def foam_chart(k):
+def foam_chart(k,t0=0,t1=1):
     u=(k%2)*.25;v=.625-(k//2)*.125
-    return [(u+.002,v+.002),(u+.248,v+.002),(u+.248,v+.123),(u+.002,v+.123)]
+    a=v+.002+.121*t0;b=v+.002+.121*t1
+    return [(u+.002,a),(u+.248,a),(u+.248,b),(u+.002,b)]

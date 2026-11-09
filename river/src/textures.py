@@ -49,11 +49,19 @@ def generate(folder=Path('textures/checkpoint')):
             rng.uniform(1.5,4.5);rng.uniform(125,255)
         py,px=np.mgrid[:64,:128];t=py/63
         center=63+7*np.sin(t*5+j)+3*np.sin(t*13+j*.3)
-        width=25+6*np.sin(t*7+j)
+        width=39+9*np.sin(t*7+j)
         profile=np.clip(1-((px-center[:,0,None])/width[:,0,None])**2,0,1)
-        bubbles=.45+.55*foam_rng.random((64,128))
+        # Porous islands and necks, resolved at several scales. White solid
+        # ribbons become a wire ladder in the elevated river-bank view.
+        field=np.zeros((64,128))
+        for size,weight in ((8,.55),(16,.30),(32,.15)):
+            coarse=Image.fromarray(foam_rng.random((size,size)).astype(np.float32))
+            field+=weight*np.asarray(coarse.resize((128,64),Image.Resampling.BICUBIC))
+        pores=np.clip((field-.43)*7,0,1)
+        bubbles=pores*(.55+.45*foam_rng.random((64,128)))
+        taper=np.minimum(1,np.minimum(t*12,(1-t)*12))
         rgba=np.zeros((64,128,4),np.uint8);rgba[:,:,:3]=(188,194,179)
-        rgba[:,:,3]=np.uint8(profile*bubbles*205)
+        rgba[:,:,3]=np.uint8(profile*bubbles*taper*175)
         im.paste(Image.fromarray(rgba),(ox,oy))
     for j in range(8):
         ox=j%4*128;oy=256+j//4*128

@@ -848,3 +848,54 @@ Remaining CG cues in these controls are hard low-poly stone edges, very regular
 analytic wave spacing and simple snagged wood. The previews prove the local
 corrections, not the complete places: final approval still requires freshly
 imported complete crossings, both heroes and photographic comparisons.
+
+## Pass 23 — complete clean build, elevated foam rejected
+
+Color/value first: opened all 25 complete export frames at 1280px, the
+concrete-balanced bank/urban controls and the photographic pairs. The side
+sun separates parapet, lip, web and flange, lights the walk and backs, and
+retains deep underside cavities. Calm water reflects sky and banks with a
+muted green-brown transmitted bed. The bar's false bright strips are gone.
+Both Eevee controls remain paler around the waterline than Cycles.
+
+Reject the elevated bank comparison: despite acceptable low riffle views,
+the foam and transverse crests form a ladder across the shoal. A completed
+clean make and an independent five-image texture repeat with zero byte error
+do not establish appearance. Archive this set in the worktree's
+`build/river-review-history/pass23/`; create no docs from it.
+
+Four additional wall macro controls expose ties, panel seams, flood residue,
+weep holes, the open outfall and ladder hardware. The accepted bench blocks
+the new west ladder. Move the ladder four meters upstream, preserving the
+bench, and check nearest actual imported bench/ladder surfaces. Smooth the
+outfall barrel's radial shading without adding triangles. Remaining CG cues
+include hard stone edges, pixel-stepped macro bank cards, repeated block
+rhythms, analytic water and Eevee's weaker transmission/occlusion.
+
+## Pass 24 — localized crests, solid ribbons still rejected
+
+Color/value first: the partial export controls preserve the muted surface
+and blue sky reflection; native trees/context are absent, so this is only a
+shape control. Opened both low riffles and both elevated controls at 1280px.
+Independent bowed crest trains improve the wave silhouette, but solid narrow
+foam ribbons still look like wires. Reject this probe. Broaden the streaks,
+introduce multiscale porous necks and holes, taper their opacity, reduce their
+count and vary their start stations. Keep them confined to the shoal chutes.
+Final full-scene comparisons remain required.
+
+## Pass 25 — curved porous streaks, ready for the complete scene
+
+Color/value first: opened all four revised 1280px partial-export controls.
+The muted water and sky reflection remain; do not assess bank color without
+the complete trees and town. The low views now show small standing trains
+with curved downstream foam tails. Elevated inspection separates two broken
+chutes instead of a regular wire ladder spanning the reach. Keep this shape
+for the full exported comparison. The short analytic crests remain visibly
+more orderly than turbulent water in the concrete-balanced Huron photograph.
+
+The atlas preview initially appeared solid because the image display ignored
+its alpha. Independent pixel inspection confirms transparent pores and
+0–174 alpha values, so there was no image serialization failure. The actual
+fixes are wider variable strips, curved paths, discontinuities, a continuous
+UV chart per strip and multiscale porous coverage. No docs have been made;
+judge both complete crossings and the matched-light bank view next.
