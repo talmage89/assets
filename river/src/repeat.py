@@ -13,6 +13,8 @@ def hashes():
     paths += [p for p in Path('build/town').rglob('*') if p.is_file() and p.suffix in ('.json','.gltf','.bin','.png') and not p.is_symlink()]
     paths += sorted(Path('build/bank-fields').rglob('*.png'))
     paths += [Path('build/photo-calibration.json')]+sorted(Path('build/photo-balanced').glob('*.png'))
+    if Path('build/delivery.json').exists():
+        paths += [Path('build/delivery.json')]+sorted(Path('docs').glob('*.jpg'))
     return {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths if p.is_file()}
 
 
@@ -25,6 +27,8 @@ def main():
             '--python','src/native_town.py'],stdout=f,stderr=subprocess.STDOUT,check=True)
         subprocess.run(shlex.split(os.environ.get('BLENDER','blender -t 1'))+['-b','--factory-startup','--python-exit-code','1',
             '--python','src/build.py','--','--out','build/repeat.blend'],stdout=f,stderr=subprocess.STDOUT,check=True)
+        if Path('build/delivery.json').exists():
+            subprocess.run(['python3','src/delivery.py'],stdout=f,stderr=subprocess.STDOUT,check=True)
     after=hashes();changed=[p for p in sorted(set(before)|set(after)) if after.get(p)!=before.get(p)]
     Path('build/repeat.json').write_text(json.dumps(dict(passed=not changed,files=len(before),changed=changed),indent=2)+'\n')
     if changed:raise ValueError(('Repeat mismatch',changed))
