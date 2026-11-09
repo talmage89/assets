@@ -57,3 +57,13 @@ repeat: check-scene build/finalized.blend
 	$(PYTHON) src/check_repeat.py
 	$(BP) --python $(KIT)/finalize.py -- --source build/repeat/game.blend --config $(CONFIG) --out build/repeat/finalized.blend --report build/repeat/uv-report.json --size $(SHIP_SIZE) --target-density $(UV_TARGET_DENSITY) --margin $(UV_MARGIN)
 	$(BP) --python src/check_repeat_fields.py
+
+LOD_CONFIGS := src/lod-trash.json src/lod-recycling.json
+include ../kit/lod_rules.mk
+
+.PHONY: check-lod-joints
+check-lod: check-lod-joints
+check-lod-joints:
+	@set -e; for lod_config in $(LOD_CONFIGS); do \
+		$(BP) --threads $(LOD_THREADS) --python src/check_lod_motion.py -- --config "$$lod_config"; \
+	done

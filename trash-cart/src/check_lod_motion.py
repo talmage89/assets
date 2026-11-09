@@ -104,6 +104,19 @@ def main():
         manifest = json.loads((output/'manifest.json').read_text())
         assert baseline == manifest['baseline']
         paths += [output/r['path'] for r in manifest['levels'][1:]]
+    # Exercise nonzero requested LODs too: testing only the geometry poses below
+    # would test all non-rest angles with requested=0, which cannot prove a hold.
+    selector_cases = []
+    for requested in range(len(cfg['levels'])+1):
+        for name in NAMES:
+            values = [-110, -67, -.0001, 0] if name == 'Lid' else [0, .0001, 73, 360]
+            for angle in values:
+                angles = dict.fromkeys(NAMES, 0.)
+                angles[name] = angle
+                chosen = selected_level(requested, angles)
+                assert chosen == (0 if angle else requested)
+                selector_cases.append(dict(requested=requested, node=name,
+                                           degrees=angle, selected=chosen))
     rows = []
     for level, path in enumerate(paths):
         bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -157,6 +170,7 @@ def main():
     result = dict(passed=all(r['passed'] for r in rows), levels=rows,
         tolerance_m=TOLERANCE, config_sha256=digest(Path(args.config)),
         script_sha256=digest(Path(__file__)), source_only=args.source_only,
+        selector_cases=selector_cases, interaction_hold_level=0,
         scope='Original full sampled sweep; reduced levels at rest only; finite source bearing volumes')
     suffix = '-source-motion.json' if args.source_only else '-motion.json'
     dest = family/'build'/('lod-'+cfg['readme_key']+suffix)
