@@ -45,17 +45,47 @@ def palette():
 
 class Mesh(H.Mesh):
     def geom(self,vs,fs,role='Trim',color=None):
+        if not hasattr(self,'face_directions'):self.face_directions=[]
+        # These roles contain convex masonry/roof solids. Split charts before
+        # triangulation while retaining each solid's actual outward direction;
+        # disconnected clipped faces cannot infer it from the scene origin.
+        if role in ('Veneer','Shingles'):
+            center=sum((Vector(v) for v in vs),Vector())/len(vs);fixed=[]
+            for face in fs:
+                pts=[Vector(vs[i]) for i in face];normal=(pts[1]-pts[0]).cross(pts[2]-pts[0])
+                if normal.dot(sum(pts,Vector())/len(pts)-center)<0:face=tuple(reversed(face))
+                fixed.append(face)
+            fs=fixed
         if role=='Veneer':
             for f in fs:
                 for poly,uv in DS.masonry_faces([tuple(vs[i]) for i in f],self.props.get('brick_strip',0)):
                     super().geom(poly,[tuple(range(len(poly)))],role,color)
-        else:super().geom(vs,fs,role,color)
+                    self.face_directions.append(tuple((Vector(poly[1])-Vector(poly[0])).cross(Vector(poly[2])-Vector(poly[0]))))
+        elif role=='Shingles':
+            for face in fs:
+                poly=[tuple(vs[i]) for i in face];normal=(Vector(poly[1])-Vector(poly[0])).cross(Vector(poly[2])-Vector(poly[0]))
+                axis=max(range(3),key=lambda k:abs(normal[k]));bb=[(1,2),(0,2),(0,1)][axis][1]
+                low=min(p[bb] for p in poly);high=max(p[bb] for p in poly)
+                for j in range(math.floor(low),math.floor(high-1e-8)+1):
+                    chunk=DS.clip_height(DS.clip_height(poly,j,True,bb),j+1,False,bb)
+                    if len(chunk)>=3:
+                        super().geom(chunk,[tuple(range(len(chunk)))],role,color);self.face_directions.append(tuple(normal))
+        else:
+            super().geom(vs,fs,role,color);self.face_directions.extend([None]*len(fs))
 
     def finish(self):
         ob=super().finish()
         if not ob:return
         ob['asset_set']='Civic';ob['module_kind']=self.props.get('kind',self.name.split('__')[-1])
         me=ob.data;uv=me.uv_layers.active
+        for f,direction in zip(me.polygons,self.face_directions):
+            if direction and f.normal.dot(Vector(direction))<0:f.flip()
+        me.update()
+        if self.props.get('authored_winding'):
+            for f,indices in zip(me.polygons,self.f):
+                pts=[Vector(self.v[i]) for i in indices];normal=(pts[1]-pts[0]).cross(pts[2]-pts[0])
+                if f.normal.dot(normal)<0:f.flip()
+            me.update()
         attr=me.color_attributes.get('Tint');values=[tuple(c.color[:3]) for c in attr.data]
         me.color_attributes.remove(attr);attr=me.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER');me.color_attributes.active_color=attr
         for f in me.polygons:
@@ -80,7 +110,10 @@ class Mesh(H.Mesh):
                 else:
                     n=8 if role=='Trim' else 4
                     strip=self.props.get('trim_strip',1) if role=='Trim' else 2 if role=='Shingles' else self.props.get('stone_strip',0)
-                    uv.data[li].uv=(q[a]/4,strip/n+8/2048+(q[b]-low)/max(span,1e-6)*(1/n-16/2048))
+                    if role=='Trim' and self.props.get('kind')=='TurnoutGearRack':
+                        strip=4 if c[0]>.15 and c[1]<c[0]*.9 and c[2]>.05 else 5 if max(c)-min(c)>.1 else 1 if max(c)<.06 else strip
+                    phase=(q[b]-math.floor(low+1e-6)) if role=='Shingles' else (q[b]-low)/max(span,1e-6)
+                    uv.data[li].uv=(q[a]/4,strip/n+8/2048+phase*(1/n-16/2048))
                 attr.data[li].color=(*(max(0,min(1,v*factor)) for v in c),1)
         bm=bmesh.new();bm.from_mesh(me);bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(me);bm.free();me.update()
         return ob
@@ -101,6 +134,7 @@ class Assembly:
 def orient(m,p,yaw):
     r=math.radians(yaw);c,s=math.cos(r),math.sin(r)
     m.props['uv_origin_z']=p[2]
+    m.face_directions=[(q[0]*c-q[1]*s,q[0]*s+q[1]*c,q[2]) if q else None for q in m.face_directions]
     m.v=[(p[0]+x*c-y*s,p[1]+x*s+y*c,p[2]+z) for x,y,z in m.v];return m
 
 

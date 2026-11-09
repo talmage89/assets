@@ -48,6 +48,29 @@ def embed(path,out):
     out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes(struct.pack('<III',0x46546c67,2,12+len(payload))+payload)
 
 
+def preserve_native_oak_tangent(path):
+    """Use the existing signature-bound guard for the accepted oak corner.
+
+    Blender's MikkTSpace re-encoding occasionally rounds this single component
+    by .0001. The original oak is read only; no geometry/UV/normal can change.
+    """
+    if not path.stem.startswith('Site-'):return
+    from kit.gltf import GLB,stabilize_tangents
+    original=GLB(ROOT/'trees/export/PinOak.glb');pr=original.json['meshes'][1]['primitives'][0]
+    signature={key:original.accessor(pr['attributes'][semantic])[10180].tolist() for key,semantic in [('position','POSITION'),('normal','NORMAL'),('uv','TEXCOORD_0'),('tangent','TANGENT')]}
+    doc=json.loads(path.read_text());binary=(path.parent/doc['buffers'][0]['uri']).read_bytes();raw=object.__new__(GLB);raw.json=doc;raw.binary=binary;anchors=[]
+    for mi,mesh in enumerate(doc['meshes']):
+        if not mesh['name'].startswith('Trunk and branches'):continue
+        for pi,primitive in enumerate(mesh['primitives']):
+            at=primitive['attributes'];mask=np.ones(doc['accessors'][at['POSITION']]['count'],dtype=bool)
+            for key,semantic in [('position','POSITION'),('normal','NORMAL'),('uv','TEXCOORD_0')]:mask &= np.all(raw.accessor(at[semantic])==np.asarray(signature[key],dtype=np.float32),axis=1)
+            for vertex in np.flatnonzero(mask):anchors.append(dict(mesh=mi,primitive=pi,vertex=int(vertex),**signature))
+    assert len(anchors)==1,('Native oak signature changed',path,len(anchors))
+    stage=Path('build/tangent-stage.glb');wrapped=copy.deepcopy(doc);wrapped['buffers'][0].pop('uri');js=json.dumps(wrapped,separators=(',',':')).encode();js+=b' '*(-len(js)%4);data=binary+b'\0'*(-len(binary)%4)
+    payload=struct.pack('<II',len(js),0x4e4f534a)+js+struct.pack('<II',len(data),0x004e4942)+data;stage.write_bytes(struct.pack('<III',0x46546c67,2,12+len(payload))+payload)
+    stabilize_tangents(stage,anchors);(path.parent/doc['buffers'][0]['uri']).write_bytes(GLB(stage).binary[:len(binary)]);stage.unlink()
+
+
 def publish(stem,objects):
     from PIL import Image
     bpy.ops.object.select_all(action='DESELECT')
@@ -73,7 +96,7 @@ def publish(stem,objects):
         for pr in mesh['primitives']:
             ma=doc['materials'][pr['material']]
             if ma.get('extras',{}).get('tiling_vertex_tint') is not True:pr['attributes'].pop('COLOR_0',None)
-    path.write_text(json.dumps(doc,separators=(',',':'))+'\n');embed(path,Path('build/review')/(stem+'.glb'))
+    path.write_text(json.dumps(doc,separators=(',',':'))+'\n');preserve_native_oak_tangent(path);embed(path,Path('build/review')/(stem+'.glb'))
     result=dict(gltf=str(path),sha256=bundle(path),gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,images=images,materials=len(doc.get('materials',[])))
     result['placed_triangles']=sum(doc['accessors'][p['indices']]['count']//3 for n in doc.get('nodes',[]) if 'mesh' in n for p in doc['meshes'][n['mesh']]['primitives'])
     print('CIVIC EXPORT',stem,result['placed_triangles'],flush=True);return result

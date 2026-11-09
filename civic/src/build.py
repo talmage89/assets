@@ -1,10 +1,10 @@
-"""Build six civic programs and two separate seeded places."""
-import argparse,json,sys
+"""Build seven civic examples and two separate seeded places."""
+import argparse,json,sys,os
 from pathlib import Path
 import bpy
 from mathutils import Vector
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE),str(HERE.parents[1])]
-from plans import cases,site
+from plans import cases,site,building
 from buildings import hall
 from station import station
 from delivery import counts,consolidate,publish
@@ -25,9 +25,17 @@ def center(a,off=None):
 
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--buildings-only',action='store_true');ap.add_argument('--seeds',default='101,202');args=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
+    ap=argparse.ArgumentParser();ap.add_argument('--buildings-only',action='store_true');ap.add_argument('--seeds',default='101,202')
+    ap.add_argument('--program',choices=('hall','station','post_office','library'));ap.add_argument('--seed',type=int,default=919)
+    ap.add_argument('--bays',type=int);ap.add_argument('--bay-width',type=float);ap.add_argument('--stories',type=int);ap.add_argument('--style');ap.add_argument('--order');ap.add_argument('--roof');ap.add_argument('--no-wings',action='store_true');ap.add_argument('--directory',type=Path,default=Path('build/custom'))
+    args=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
+    selected=cases()
+    if args.program:
+        selected=[building(args.seed,args.program,args.style,args.bays,args.bay_width,args.stories,args.order,args.roof,not args.no_wings)]
+        target=args.directory.resolve();assert target.is_relative_to(HERE.parent),'Custom products must stay inside civic/'
+        target.mkdir(parents=True,exist_ok=True);os.chdir(target);args.buildings_only=True
     report={};Path('build').mkdir(exist_ok=True)
-    for p in cases():
+    for p in selected:
         bpy.ops.wm.read_factory_settings(use_empty=True);a=make_building(p)
         source=counts(a.root.children_recursive);off=center(a);p['origin_offset_m']=list(off)
         bpy.ops.wm.save_as_mainfile(filepath=str(Path('build',f"Civic-{p['seed']}-source.blend").resolve()))

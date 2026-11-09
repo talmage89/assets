@@ -111,9 +111,14 @@ def station(p):
     for side in (-1,1):
         cornice(a,'StationFascia_'+str(side),(x0+p['bayblock']/2,side*d/2,6.08),p['bayblock'],0 if side<0 else 180,True)
     if p['office']:
-        shell(a,'CrewOffice',(x0+p['bayblock'],w/2,y,y+12.192),3.95,z,3.6576,p['stories'],1,True,True)
+        office_top=z+p['stories']*3.7976
+        shell(a,'CrewOffice',(x0+p['bayblock'],w/2,y,y+12.192),office_top,z,3.6576,p['stories'],1,True,True)
         text(a,'FireLetters','FIRE - RESCUE',(x0+p['bayblock']+p['office']/2,y-.035,3.42),.31,(.64,.64,.57))
+    if p['roof']=='hip':
+        from buildings import hip
+        hip(a,'StationHipRoof',(x0,x0+p['bayblock'],y,d/2),6.25,2.0)
     tower(a,p,x0+2.6,d/2+1.45);interior(a,p,x0,y)
     from services import equipment,drains
-    equipment(a,(w/2-2,1,4.4));drains(a,(x0,x0+p['bayblock'],y,d/2),6.0)
+    if p['office']:equipment(a,(w/2-2,1,office_top+.45))
+    drains(a,(x0,x0+p['bayblock'],y,d/2),6.0)
     a.socket('PublicWalk',(w/2-5,y-2,.15),'walk');return a

@@ -7,21 +7,30 @@ from library import place,clear
 from services import flagpole,bollard,back_service
 
 
-def ground(a,name,rect,kind='Lawn',z=0,slope=None):
+def ground(a,name,rect,kind='Lawn',z=0,slope=None,grade=None):
     from kit.tiling import material,world_uv
     ma=bpy.data.materials.get('CivicGround_'+kind)
     if not ma:ma=material(kind,ROOT/'ground/textures/ship',tint=True);ma.name='CivicGround_'+kind
-    l,r,f,k=rect;m=a.mesh(name,kind='Site'+kind)
+    l,r,f,k=rect;m=a.mesh(name,kind='Site'+kind,authored_winding=True,allow_boundary=True)
+    height=lambda u,v:grade(u,v) if grade else slope(v) if slope else z
     nx=max(1,min(40,math.ceil((r-l)/3.048)));ny=max(1,min(40,math.ceil((k-f)/3.048)))
     for j in range(ny):
         for i in range(nx):
             x=l+i*(r-l)/nx;xx=l+(i+1)*(r-l)/nx;y=f+j*(k-f)/ny;yy=f+(j+1)*(k-f)/ny
-            pts=[(x,y,z),(xx,y,z),(xx,yy,z),(x,yy,z)]
-            if slope:pts=[(u,v,slope(v)) for u,v,_ in pts]
+            pts=[(u,v,height(u,v)) for u,v in ((x,y),(xx,y),(xx,yy),(x,yy))]
             m.geom(pts,[(0,1,2,3)],'Concrete')
+    if kind=='Concrete' and (z>.02 or slope or grade):
+        corners=[(u,v,height(u,v)) for u,v in ((l,f),(r,f),(r,k),(l,k))]
+        for aa,bb in zip(corners,corners[1:]+corners[:1]):
+            m.geom([aa,(aa[0],aa[1],-.035),(bb[0],bb[1],-.035),bb],[(0,1,2,3)],'Concrete')
     ob=m.finish();ob.data.materials.clear();ob.data.materials.append(ma)
     for face in ob.data.polygons:face.material_index=0
     world_uv(ob,6.096 if kind=='Asphalt' else 3.048)
+    for face in ob.data.polygons:
+        if abs(face.normal.z)>.5:continue
+        axis=max(range(3),key=lambda k:abs(face.normal[k]));aa,bb=[(1,2),(0,2),(0,1)][axis]
+        for li in face.loop_indices:
+            q=ob.data.vertices[ob.data.loops[li].vertex_index].co;ob.data.uv_layers.active.data[li].uv=(q[aa]/3.048,q[bb]/3.048)
     c=ob.data.color_attributes['Tint']
     for li,loop in enumerate(ob.data.loops):
         q=ob.data.vertices[loop.vertex_index].co
@@ -48,12 +57,13 @@ def parking(a,lot):
         for j in range(n):
             if across:
                 x=l+(j+.5)*(r-l)/n;y=f+2.9 if row==0 else k-2.9;yaw=0 if row==0 else 180
-                for s in (-1,1):paint.box((x+s*(r-l)/n/2,y,.007),(.075,5.4864,.012),'Trim',(.67,.66,.57),r=0)
+                for s in ((-1,1) if j==0 else (1,)):decal(a,'ParkingPaint_'+lot['id']+f'_{row}_{j}_{s}',(x+s*(r-l)/n/2,y,0),(.075,5.4864),'paint',j+row*7)
             else:
                 x=l+3.1;y=f+(j+.5)*(k-f)/n;yaw=-90
-                for s in (-1,1):paint.box((x,y+s*(k-f)/n/2,.007),(5.4864,.075,.012),'Trim',(.67,.66,.57),r=0)
+                for s in ((-1,1) if j==0 else (1,)):decal(a,'ParkingPaint_'+lot['id']+f'_{row}_{j}_{s}',(x,y+s*(k-f)/n/2,0),(5.4864,.075),'paint',j+row*7)
             node=a.socket(lot['id']+f'_Stall_{row}_{j}',(x,y,.015),'parked_car');node.rotation_euler.z=math.radians(yaw)
-            node['occupied']=((j*7+row*3+a.root.get('seed',0))%10)<8;node['police']=lot['id']=='Police';slots.append((x,y,yaw))
+            reserved=(lot['id']=='Staff' and j==0) or (lot['id']=='Public' and j==1)
+            node.location.z=-.003;node['occupied']=((j*7+row*3+a.root.get('seed',0))%10)<8 and not reserved;node['police']=lot['id']=='Police';slots.append((x,y,yaw))
             if j%3!=1:decal(a,'EngineDrips_'+lot['id']+str(row)+'_'+str(j),(x,y+1.1,.004),(1.1,2.0),'oil',j+row*20)
     paint.finish()
     if lot['fenced']:
@@ -74,7 +84,7 @@ def parking(a,lot):
 def build_site(sp,building,off):
     a=Assembly('CivicSite_'+str(sp['seed']));a.root['seed']=sp['seed'];p=sp['building'];pos=sp['building_at'];building.root.parent=a.root;building.root.location=Vector(pos)+off
     l,r,f,k=sp['parcel'];w,d=p['width'],p['depth'];x,y,_=pos
-    excluded=[(x-w/2,x+w/2,y-d/2,y+d/2)]+[lot['rect'] for lot in sp['lots']]+sp['walks']
+    excluded=[(x-w/2,x+w/2,y-d/2,y+d/2)]+[lot['rect'] for lot in sp['lots']]+sp['walks']+[q['rect'] for q in sp['ramps']]
     apron=None
     if sp['kind']=='arterial':
         apron=(x-w/2-.5,x-w/2+p['bayblock']+.5,-32,y-d/2);excluded.append(apron)
@@ -87,30 +97,42 @@ def build_site(sp,building,off):
             if any(q[0]<mid[0]<q[1] and q[2]<mid[1]<q[3] for q in excluded):continue
             ground(a,'MunicipalLawn',(aa,bb,cc,dd),'Lawn',-.012)
     for j,q in enumerate(sp['walks']):ground(a,'Walk_'+str(j),q,'Concrete',.145)
+    for j,q in enumerate(sp['ramps']):
+        aa,bb,_,_=q['rect'];ground(a,'AccessibleRamp_'+str(j),q['rect'],'Concrete',grade=lambda u,v,l=aa,r=bb:q['high']+(q['low']-q['high'])*(u-l)/(r-l))
     for lot in sp['lots']:ground(a,'Lot_'+lot['id'],lot['rect'],'Asphalt',-.003);parking(a,lot)
     for j,pole in enumerate(sp['flags']):flagpole(a,(*pole,0),'Flagpole_'+str(j))
     for j,(xx,yy) in enumerate(sp['trees']):place(ROOT/'trees/export'/('PinOak.glb' if j%3==0 else 'RedMaple.glb'),'SiteTree_'+str(j),(xx,yy,-.02),j*61,parent=a.root)
     for j in range(7):
-        at=(x-w/2+1+j*2.3,y-d/2-1.2,0) if sp['kind']=='downtown' else (12.4,-4+j*1.1,0)
+        at=([(-19.4,-9.9,-.012),(-17.2,-9.9,-.012),(-15,-9.9,-.012),(-12.8,-9.9,-.012),(1.2,-9.9,-.012),(3.4,-9.9,-.012),(5.6,-9.9,-.012)][j]) if sp['kind']=='downtown' else (14.0,-4+j*1.1,-.012)
         place(ROOT/'shrubs/export/Shrubs.glb','FoundationBoxwood_'+str(j),at,j*47,'Boxwood',a.root)
-    benches=[(x-7,-17,.145),(x+7,-17,.145)] if sp['kind']=='downtown' else [(12,-11,.145),(13.3,-7,.145)]
+    benches=[(x-7,-17,.145),(x+7,-17,.145)] if sp['kind']=='downtown' else [(11.8,-10.3,.145),(13.2,-12.5,.145)]
     for j,at in enumerate(benches):place(LOCAL/'build/context/furniture.glb','EntryBench_'+str(j),at,select='Bench',parent=a.root)
-    place(LOCAL/'build/context/furniture.glb','BikeRack',(x+10,-15,.145) if sp['kind']=='downtown' else (12.3,-13,.145),select='BikeRack',parent=a.root)
+    place(LOCAL/'build/context/furniture.glb','BikeRack',(x+10,-15,.145) if sp['kind']=='downtown' else (13.3,-8.5,.145),select='BikeRack',parent=a.root)
     back_service(a,(34,31,0))
     from services import dumpster
     dumpster(a,(29,34,0))
     from services import public_details
-    public_details(a,(12,-7,0) if sp['kind']=='arterial' else (11.5,-.5,.145),sp['kind']=='arterial')
-    if sp['kind']=='arterial':place(LOCAL/'build/context/hydrant.glb','StreetHydrant',(-25,-31.5,0),parent=a.root)
-    path(a,'StreetToEntry',[(x,-29,.145),(x,-15,.145),(x,-13,.145)])
-    if sp['kind']=='downtown':path(a,'ParkingToAccessible',[(23,-2,.015),(20.4,-2,.145),(10.3,-2,.145),(10.3,-.2,.1524)])
-    else:path(a,'ParkingToAccessible',[(17,-2,.015),(12,-2,.145),(7.5,-5,.1524)])
+    public_details(a,(12,-7,.145) if sp['kind']=='arterial' else (11.5,-.5,.145),sp['kind']=='arterial')
+    if sp['kind']=='arterial':place(LOCAL/'build/context/hydrant.glb','StreetHydrant',(-25,-30.7,-.012),parent=a.root)
+    if sp['kind']=='downtown':
+        # Follow a stair lane beside the center handrail to the real leaf.
+        count=round(p['floor']/.1524);lane=x+.50;front=y-d/2-3.45
+        treads=[(lane,front-(count-j-.5)*.3302,(j+1)*.1524) for j in range(count)]
+        path(a,'StreetToEntry',[(lane,-29,.145),(lane,-14.3,.145)]+treads+[(lane,y-d/2-.12,p['floor'])])
+        path(a,'ParkingToAccessible',[(23,-2,.015),(20.4,-2,.145),(10.3,-2,.145),(10.3,-.2,.1524)])
+        path(a,'PoliceLotToDoor',[(-13.3,25,.015),(-13.3,22.10,.015),(-13.3,21.9,.145),(-13.3,20.73,.1524)])
+    else:
+        entry=x-w/2+p['bayblock']+p['office']/2
+        path(a,'StreetToEntry',[(entry,-32,.145),(entry,-7,.145),(entry,y-d/2-.12,.1524)])
+        path(a,'ParkingToAccessible',[(17,-2,.015),(12.8,-2,.145),(12,-2,.145),(12,-7,.145),(entry,-7,.145),(entry,y-d/2-.12,.1524)])
     if apron:
         for j in range(p['bays']):
             xx=x-w/2+.4572+(j+.5)*p['bay_width'];path(a,'ApparatusExit_'+str(j),[(xx,y,0),(xx,-27,.04),(xx,-39,0)],'drive',4.2672)
             for side in (-1,1):bollard(a,(xx+side*2.40,y-d/2-.4,0),'BayBollard')
         from wear import apron_wear
         apron_wear(a,sp)
+    from turf import finish as finish_turf
+    finish_turf(a,sp,excluded)
     from delivery import counts
     veg=[o for o in a.root.children_recursive if o.type=='MESH' and any(k in o.name for k in ('SiteTree_','FoundationBoxwood_'))]
     sp['vegetation']=counts(veg);sp['static_site']=counts([o for o in a.root.children_recursive if o not in veg])

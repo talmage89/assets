@@ -64,13 +64,18 @@ def flagpole(a,p,name):
     m.tube([(x-.04,y,1.3),(x-.04,y,8.9)],.004,'Trim',(.32,.30,.24),sides=4)
     m.tube([(x+.04,y,1.3),(x+.04,y,8.9)],.004,'Trim',(.32,.30,.24),sides=4)
     m.finish();a.pivot(name+'_Flag',(x,y,8.8),axis='Z',limits=(-180,180))
-    f=a.mesh(name+'_Cloth',part=name+'_Flag',kind='Flag',trim_strip=4)
+    f=a.mesh(name+'_Cloth',part=name+'_Flag',kind='Flag',trim_strip=4,allow_boundary=True)
     vs=[];nx,ny=10,6
     for j in range(ny+1):
         for i in range(nx+1):
             u=i/nx;v=j/ny;vs.append((x+u*1.5,y+.14*math.sin(u*8-v*3)*u,8.8-v*.85-.15*u*u))
     fs=[(j*(nx+1)+i,j*(nx+1)+i+1,(j+1)*(nx+1)+i+1,(j+1)*(nx+1)+i) for j in range(ny) for i in range(nx)]
-    f.geom(vs,fs,'Trim',(.08,.15,.21));f.finish()
+    f.geom(vs,fs,'Trim',(.08,.15,.21));ob=f.finish()
+    import bpy
+    cloth=bpy.data.materials.get('CivicFlagCloth')
+    if not cloth:cloth=a.materials[4].copy();cloth.name='CivicFlagCloth';cloth.use_backface_culling=False
+    ob.data.materials.clear();ob.data.materials.append(cloth)
+    for face in ob.data.polygons:face.material_index=0;face.use_smooth=True
 
 
 def back_service(a,p):
@@ -114,6 +119,11 @@ def public_details(a,p,station=False):
     m.box((x,y-.158,z+1.16),(.42,.016,.062),'Trim',(.018,.021,.017))
     m.box((x,y-.17,z+.80),(.30,.025,.37),'Trim',(.29,.31,.28))
     m.box((x,y-.20,z+.87),(.075,.035,.018),'Trim',(.40,.42,.39));m.finish()
+    m=a.mesh('DropPedestal',kind='DropPedestal',trim_strip=2)
+    for xx in (x-.16,x+.16):
+        m.tube([(xx,y+.04,z),(xx,y+.04,z+.43)],.028,'Trim',(.28,.30,.27),sides=8)
+        m.box((xx,y+.04,z+.012),(.12,.14,.024),'Trim',(.26,.28,.25),r=0)
+    m.finish()
     text(a,'DropLabel','DOCUMENT DROP',(x,y-.185,z+1.27),.055,(.65,.65,.60))
     if station:
         m=a.mesh('EmergencyStreetSignal',kind='EmergencySignal',trim_strip=2)

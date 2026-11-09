@@ -1,5 +1,5 @@
 """Exact repeat of deterministic geometry/packages, retaining baked shared maps."""
-import hashlib,json,os,subprocess
+import hashlib,json,os,subprocess,shutil
 from pathlib import Path
 
 
@@ -14,6 +14,9 @@ def snapshot():
 
 def main():
     before=snapshot();log=Path('build/repeat.log')
+    baseline=Path('build/repeat-before');baseline.mkdir(exist_ok=True)
+    for path in Path('export').glob('*'):
+        if path.suffix in ('.gltf','.bin'):shutil.copyfile(path,baseline/path.name)
     with log.open('w') as f:subprocess.run([os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python','src/build.py'],stdout=f,stderr=subprocess.STDOUT,check=True)
     after=snapshot();changed=[p for p,h in before.items() if after.get(p)!=h]
     result=dict(passed=not changed,files=len(before),changed=changed,scope='Exact glTF/BIN and canonical image repeat; geometry rebuilt in a clean Blender scene; shared GPU maps retained, not rebaked')

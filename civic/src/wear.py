@@ -6,7 +6,7 @@ RECTS=dict(paint=(0,.75,.5,1),oil=(.5,.5,.75,.75),stain=(.75,.5,1,.75),
     sediment=(.5,.25,1,.5),scuff=(.125,0,.25,.125),crack=(.5,0,.625,.25),joint=(.625,0,.75,.25))
 
 
-def decal(a,name,p,size,kind,seed=0,yaw=0,vertical=False):
+def decal(a,name,p,size,kind,seed=0,yaw=0,vertical=False,color=None):
     from kit.tiling import material
     ma=bpy.data.materials.get('CivicGround_Decals')
     if not ma:
@@ -21,11 +21,13 @@ def decal(a,name,p,size,kind,seed=0,yaw=0,vertical=False):
     ob=bpy.data.objects.new(a.root.name+'__'+name,me);bpy.context.collection.objects.link(ob);ob.parent=a.root;me.materials.append(ma)
     ob['module_kind']='Placed'+kind;ob['cause']=name;ob['placement_seed']=seed
     uv=me.uv_layers.new(name='UVMap');l,f,r,k=RECTS[kind];g=.001
+    if kind=='paint':
+        step=(r-l)/4;l+=step*(seed%4);r=l+step
     corners=[(l+g,f+g),(r-g,f+g),(r-g,k-g),(l+g,k-g)]
     for loop in me.loops:uv.data[loop.index].uv=corners[loop.vertex_index]
     tint=me.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT');me.color_attributes.active_color=tint
     rng=random.Random(seed);factor=rng.uniform(.60,.95)
-    for row in tint.data:row.color=(factor,factor,factor,1)
+    for row in tint.data:row.color=(*(v*factor for v in (color or (1,1,1))),1)
     return ob
 
 

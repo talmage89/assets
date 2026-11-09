@@ -39,10 +39,18 @@ def shell(a,name,rect,height,floor=.15,pitch=4.18,stories=1,brick=0,doors=True,m
 
 
 def hip(a,name,rect,z,height=2.2,cupola=False):
-    l,r,f,k=rect;cx=(l+r)/2;cy=(f+k)/2;ridge=(r-l-(k-f))*.35
-    v=[(l-.4,f-.4,z),(r+.4,f-.4,z),(r+.4,k+.4,z),(l-.4,k+.4,z),(cx-ridge,cy,z+height),(cx+ridge,cy,z+height)]
+    l,r,f,k=rect;cx=(l+r)/2;cy=(f+k)/2;w,d=r-l,k-f
+    v=[(l-.4,f-.4,z),(r+.4,f-.4,z),(r+.4,k+.4,z),(l-.4,k+.4,z)]
+    if abs(w-d)<1e-6:
+        v.append((cx,cy,z+height));faces=[(0,1,4),(1,2,4),(2,3,4),(3,0,4)]
+    elif w>d:
+        ridge=(w-d)*.35;v.extend([(cx-ridge,cy,z+height),(cx+ridge,cy,z+height)])
+        faces=[(0,1,5,4),(1,2,5),(2,3,4,5),(3,0,4)]
+    else:
+        ridge=(d-w)*.35;v.extend([(cx,cy-ridge,z+height),(cx,cy+ridge,z+height)])
+        faces=[(0,1,4),(1,2,5,4),(2,3,5),(3,0,4,5)]
     m=a.mesh(name,kind='HipRoof')
-    for face in [(0,1,5,4),(1,2,5),(2,3,4,5),(3,0,4)]:m.prism([v[i] for i in face],(0,0,-1),.12,'Shingles')
+    for face in faces:m.prism([v[i] for i in face],(0,0,-1),.12,'Shingles')
     m.finish()
     if cupola:
         m=a.mesh('Cupola',kind='Cupola',trim_strip=5)
@@ -80,9 +88,9 @@ def hall(p):
         for yy in (-d/2+.16,d/2-.16):m.box((0,yy,top+.70),(w,.32,.65),'Veneer',r=0);m.box((0,yy,top+1.04),(w+.10,.45,.11),'Concrete')
         for xx in (-w/2+.16,w/2-.16):m.box((xx,0,top+.70),(.32,d-.64,.65),'Veneer',r=0);m.box((xx,0,top+1.04),(.45,d-.50,.11),'Concrete')
         m.finish()
-    if p['program']=='hall' and p['wings']:
+    if p['wings']:
         shell(a,'Police',(-w/2,-w/2+14.6304,d/2-.34,d/2+11.85),4.42,.1524,3.6576,1,1,True,True,'Rear')
-        label=text(a,'PoliceLetters','BRIAR GLEN POLICE',(-w/2+7.315,d/2+11.88,3.83),.23,(.64,.64,.57));label.rotation_euler.z=math.pi
+        label=text(a,'PoliceLetters','BRIAR GLEN POLICE' if p['program']=='hall' else 'PUBLIC ANNEX',(-w/2+7.315,d/2+11.88,3.83),.23,(.64,.64,.57));label.rotation_euler.z=math.pi
         # 1994 entrance to an internal lift; at grade, beside original stairs.
         x=w/2+1.1;y=1.2
         shell(a,'AccessibleVestibule',(w/2-.34,w/2+3.05,-.2,3.7),3.4,.1524,3.39,1,1,True,True)
