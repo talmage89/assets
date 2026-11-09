@@ -351,3 +351,23 @@ This does not claim that every reduced part must sweep through every pose.
 Both configs stay unwired; all trial payloads are archived outside export/lod.
 The original make check measures serialization/kinematics, not swept clearance.
 Its passing result cannot approve this failed physical audit.
+
+## Clean original rebuild and closing checks
+
+Also ran the family's own `make variants check BLENDER='blender -t 4'` from
+nothing in build/lod-round2/trash-cart/rebuild/trash-cart, using a source copy,
+the unchanged kit and the same shared GPU lock. This exits 0. The source copy
+avoids overwriting any accepted delivery, texture or doc. Both original counts
+match, and every mesh's expanded position-corner multiset matches exactly.
+Fresh GLBs measure 2382728/2404272 bytes, rather than 2387504/2409624.
+Vertex splits and the normal PNG differ; its byte RMSE is 1.8302, maximum 235,
+so this is **not** certified as mere GPU noise or a byte-identical rebuild.
+BaseColor/ORM maximum difference is one byte, RMSE .001128. Full measurements
+are in original-rebuild-confirmation.json and original-rebuild-difference.json.
+Do not substitute these scratch rebuilds for the accepted originals.
+
+The accepted originals' make check passes before and after the LOD trial.
+Their source receipt and all 103 frozen kit hashes pass. A separate actual
+trash-original sweep also reproduces the 16.625 mm lid/support collision;
+source-only reports retain exact payload and script hashes for each variant.
+No cart chain is adopted and no Makefile exposes either rejected config.

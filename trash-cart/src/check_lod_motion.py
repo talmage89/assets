@@ -95,12 +95,15 @@ def contact(a, b, name):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', required=True)
+    parser.add_argument('--source-only', action='store_true')
     args = parser.parse_args(sys.argv[sys.argv.index('--')+1:])
     cfg, family, source, output = configuration(Path(args.config))
     baseline = Document(source).dependencies()
-    manifest = json.loads((output/'manifest.json').read_text())
-    assert baseline == manifest['baseline']
-    paths = [source]+[output/r['path'] for r in manifest['levels'][1:]]
+    paths = [source]
+    if not args.source_only:
+        manifest = json.loads((output/'manifest.json').read_text())
+        assert baseline == manifest['baseline']
+        paths += [output/r['path'] for r in manifest['levels'][1:]]
     rows = []
     for level, path in enumerate(paths):
         bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -148,8 +151,10 @@ def main():
     assert Document(source).dependencies() == baseline
     result = dict(passed=all(r['passed'] for r in rows), levels=rows,
         tolerance_m=TOLERANCE, config_sha256=digest(Path(args.config)),
+        script_sha256=digest(Path(__file__)), source_only=args.source_only,
         scope='Original full sampled sweep; reduced levels at rest only; finite source bearing volumes')
-    dest = family/'build'/('lod-'+cfg['readme_key']+'-motion.json')
+    suffix = '-source-motion.json' if args.source_only else '-motion.json'
+    dest = family/'build'/('lod-'+cfg['readme_key']+suffix)
     dest.write_text(json.dumps(result, indent=2)+'\n')
     assert result['passed'], str(dest)
 
