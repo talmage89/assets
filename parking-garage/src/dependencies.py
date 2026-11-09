@@ -4,14 +4,17 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 
 ROOT=Path(__file__).resolve().parents[2]
 LOCAL=ROOT/'parking-garage'
+sys.path.insert(0,str(ROOT))
+from kit.blender_command import with_threads
 CONTEXT={
     'downtown':(2,'e5c9853c0e95981151e82c7742c73a91332bb3ce65a8061c59b3f9e46afdb0bc'),
     'commercial':(2,'d69066cbc85bb8bd64a82963792354fc3cd5c63afc5eae3ac8275efcff73d471'),
-    'hatchback':(4,'18436abe2fbde7a2bcdcbe1ee45959dc7b48e6f8f291ca94b57250b39da892b4'),
-    'crossover':(4,'a9926128e7b30cb24cdeba4d8203eaab317094b4cc5d24acc73877298f15d6ef'),
+    'hatchback':(1,'60b25083a8e6c8c0fde7f3624517ef326827e1b5e7bca5c1204ffc0d09ecb079'),
+    'crossover':(1,'8c2230440ab2ca3fdec2255a03ef71672203a19d4194b222569827bd09247b1f'),
 }
 
 
@@ -31,13 +34,17 @@ def build_context(kind,folder,reuse=True):
     threads,expected=CONTEXT[kind];out=folder/(kind+'.glb');car=kind in ('hatchback','crossover');attempts=[]
     history_path=folder/(kind+'-history.json')
     history=json.loads(history_path.read_text()) if history_path.exists() else []
+    policy=out.with_suffix('.threads')
     for attempt in range(3 if car else 1):
         audit=len(history)
         valid=reuse and out.exists() and (car or hashlib.sha256(out.read_bytes()).hexdigest()==expected)
+        if car:valid=valid and policy.exists() and policy.read_text()=='1\n'
         if not valid:
             with (folder/f'{kind}-{audit}.log').open('w') as log:
-                subprocess.run(['blender','-t',str(threads),'-b','--factory-startup','--python-exit-code','1',
-                    '--python',str(LOCAL/'src/context_build.py'),'--','--kind',kind,'--out',str(out)],check=True,stdout=log,stderr=subprocess.STDOUT,cwd=LOCAL)
+                command=['blender','-t',str(threads),'-b','--factory-startup','--python-exit-code','1',
+                    '--python',str(LOCAL/'src/context_build.py'),'--','--kind',kind,'--out',str(out)]
+                if car:command=with_threads(command,1)
+                subprocess.run(command,check=True,stdout=log,stderr=subprocess.STDOUT,cwd=LOCAL)
         actual=hashlib.sha256(out.read_bytes()).hexdigest()
         if not car:
             assert actual==expected,('Native town recipe differs',kind,actual,expected)
@@ -54,6 +61,7 @@ def build_context(kind,folder,reuse=True):
         (folder/(kind+'-attempts.json')).write_text(json.dumps(attempts,indent=2)+'\n')
         print('NATIVE INPUT',kind,'ACCEPT' if measured['passed'] else 'REJECT',measured,flush=True)
         if worker.returncode==0 and measured['passed']:
+            policy.write_text('1\n')
             return dict(kind=kind,threads=threads,bytes=out.stat().st_size,history_receipt=str(history_path),attempts=attempts,**measured)
         rejected=folder/'rejected';rejected.mkdir(exist_ok=True)
         out.rename(rejected/f'{kind}-{audit}-{actual}.glb');reuse=False

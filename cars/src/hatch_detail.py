@@ -8,6 +8,12 @@ from build import Build
 import hatch_spec as S
 
 
+def form_source_receipt(scene,source):
+    """Keep varying blend-container provenance out of delivery Scene extras."""
+    if 'form_source_sha256' in scene:del scene['form_source_sha256']
+    return hashlib.sha256(source.read_bytes()).hexdigest()
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True)
     p.add_argument('--wear',type=float,default=.65)
@@ -132,10 +138,12 @@ def main():
     for mat in list(bpy.data.materials):
         if mat.users==0:bpy.data.materials.remove(mat)
     sc=bpy.context.scene;sc['stage']='H120 detail and look development checkpoint';sc['wear']=a.wear
-    sc['form_source_sha256']=hashlib.sha256(source.read_bytes()).hexdigest()
+    # Container bytes vary even when every mesh array is identical.
+    form_receipt=form_source_receipt(sc,source)
     out=Path(a.out);out.parent.mkdir(parents=True,exist_ok=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(out.resolve()))
-    report=dict(triangles=sum(parts.values()),categories=categories,parents=parents,meshes=parts)
+    report=dict(triangles=sum(parts.values()),categories=categories,parents=parents,meshes=parts,
+                form_source_sha256=form_receipt)
     out.with_suffix('.counts.json').write_text(json.dumps(report,indent=2))
     print('H120_DETAIL',json.dumps(categories),sum(parts.values()),flush=True)
 if __name__=='__main__':main()

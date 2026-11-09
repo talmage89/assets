@@ -1155,3 +1155,31 @@ Original `make check` passes again; the 30-file receipt is unchanged. Current
 109-file tool freeze and the complete 37-test proof are recorded in
 [the kit integration closeout](../kit/LOD_REVIEW.md#fixed-uv-integration-closeout-2026-11-09).
 The earlier per-trial archives retain their original `cc6cfee` freeze.
+## Native pickup cache determinism, round two
+
+Only the car job in `src/context.py` now overrides Blender to one thread;
+houses, trees, street light and ground keep four threads. Its car recipe
+signature includes the policy, so older pickup caches regenerate once. The
+manual `context_build.py --role pickup` entry has no repository launcher;
+the production car job uses the private copy of `cars/src/build.py`.
+
+Three cold native pickup sources through the real car command constructor,
+each with a fresh private source/markings folder, give identical stock glTF
+projections: **59,838 triangles**, **2,560,956 bytes**, SHA-256
+`4683c56869223b2b177ea97088f4a80c2254e21de6a64b3ceb445b164b322037`.
+All three also match the accepted C150 source across 472 objects / 454 meshes:
+transforms, hierarchy, vertices, faces, split normals and material names are
+exact. The baked pickup delivery stays at
+`f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+Native source PBR projections and baked delivery GLBs are different formats.
+
+Evidence: `build/cars-determinism/round2/utility-{1,2,3}/`, including each
+`pickup-preservation.json`, and the combined `consumer-proof.json` alongside
+those folders. The six consumer launch/cache tests pass. Raw blend hashes
+remain provenance; exact comparisons use mesh arrays or exported GLBs.
+
+Utility exports, maps and docs images stay unchanged. No whole sites were
+rebuilt; site counts may move by those few car triangles on their next build.
+Existing tolerance guards remain. Exact full-site car checks still need
+refreshed owned baselines/input receipts and a complete site repeat.
+See [the shared inventory and proof](../cars/CONSUMERS.md).

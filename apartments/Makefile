@@ -21,9 +21,9 @@ DEPENDENCY_OUTPUTS := build/dependencies.json build/context/utility.glb $(foreac
 $(DEPENDENCY_OUTPUTS) &: src/dependencies.py src/derive_surfaces.py
 	$(PYTHON) src/dependencies.py
 $(CHECKPOINT_OUTPUTS): $(DEPENDENCY_OUTPUTS)
-build/context/car/source.blend: src/context_build.py $(wildcard ../cars/src/*.py)
+build/context/car/source.blend: src/context_build.py ../kit/blender_command.py $(wildcard ../cars/src/*.py)
 	@mkdir -p build $(TMPDIR)
-	$(BP) --python src/context_build.py -- car > build/context-car.log 2>&1
+	$(PYTHON) ../kit/blender_command.py --threads 1 -- $(BP) --python src/context_build.py -- car > build/context-car.log 2>&1
 build/context/tree/source.blend: src/context_build.py $(wildcard ../trees/src/*.py)
 	@mkdir -p build $(TMPDIR)
 	$(BP) --python src/context_build.py -- tree > build/context-tree.log 2>&1

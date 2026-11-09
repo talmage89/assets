@@ -1321,3 +1321,31 @@ that completed contact too. `make docs` passed again with the complete final
 source recipe (`../build/garage-ruling/docs-final-source.log`); all five
 inspected JPEG hashes repeated exactly. This contact-only cleanup does not
 change any scene frame, module, photo pair, material or map.
+## One-thread native car caches, round two
+
+The native car launches now use one Blender thread, matching the cars' own
+source policy. Three empty-folder builds of each cache are byte-identical:
+
+| Native cache | Triangles, each run | SHA-256, each run |
+| --- | ---: | --- |
+| Hatchback | 58,020 | `60b25083a8e6c8c0fde7f3624517ef326827e1b5e7bca5c1204ffc0d09ecb079` |
+| Crossover | 73,382 | `8c2230440ab2ca3fdec2255a03ef71672203a19d4194b222569827bd09247b1f` |
+
+These replace the expected cache hashes `18436abe...` and `a9926128...` only.
+The original surface baselines and tolerance/retry guards remain unchanged.
+All six runs pass: hatchback is 12 triangles lower (0.02068%), maximum of
+7,020 accepted surface samples 0.832915 mm; crossover is 44 triangles lower
+(0.05993%), maximum of 8,250 samples 0.855972 mm. These are sampled distances,
+not a whole-surface maximum. Town build and guard thread counts stay at two.
+
+Proof: `build/cars-determinism/round2/garage-{1,2,3}/`, with independent GLBs,
+native source blends, logs and unchanged guard receipts; combined receipt
+`build/cars-determinism/round2/garage-proof.json`. Generation calls the real
+`dependencies.build_context(kind, fresh_folder, reuse=False)`, serially under
+the shared lock. Existing caches without a one-thread marker regenerate once.
+
+No complete sites or docs were rebuilt. Site counts may move by these few car
+triangles on their next build. Native cache hashes and context repeat could
+now become exact after replacing old caches; the embedded site guard still
+needs refreshed owned site baselines and a complete site repeat proof.
+See [the consumer inventory](../cars/CONSUMERS.md).

@@ -7700,3 +7700,7 @@ five-colors/turnaround sizes are 110,535 / 102,780 / 187,352 / 195,825 /
 commit after `7d398c9`, so each image appears in one commit. The pickup
 remains 11,530,736 bytes with SHA-256
 `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+
+One-thread consumer fix and H120 metadata proof: [current evidence](CONSUMERS.md).
+
+Round-one subdivision investigation: [reproduction and rejected chart trials](DETERMINISM.md).

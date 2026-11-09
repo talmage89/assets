@@ -766,3 +766,32 @@ set contains 832 files and also passes. No kit or root README changed.
 The visual-review receipt names the current three campus packages and the
 46 inspected image hashes. Documentation may now be generated, inspected
 at full size, byte/width checked and committed last in its own commit.
+## Native car cache determinism, round two
+
+The three native car source builds and the simplified hatchback export now
+use one Blender thread. Every non-car launch retains four threads. Native
+car caches without a one-thread marker regenerate once; the simplified GLB
+also refreshes when its native hatchback source changes.
+
+Three cold cache builds per case give these byte-identical GLBs:
+
+| Native cache | Triangles, each run | SHA-256, each run |
+| --- | ---: | --- |
+| C150 pickup | 50,434 | `8f9f85bbbdd6c15c48f0f1a0ce9e19534ed4e4027ed56ef434f3065b6bab72b3` |
+| X220 crossover | 73,382 | `7ebf13799ec6b70e6c6732358a654e5e1039c9210e8e460d2445ba3c6db58c6f` |
+| H120 hatchback | 58,020 | `f6f9b59db0ce3478c5947e19c22f5f5d9e18cf7a4679b2685c0d6d5accb9209a` |
+| Simplified H120 `car.glb` | 43,179 | `421b26f8fecbdb3156f6791a9b8508f9b1369407e40bdee62c695594cc0b2139` |
+
+The native blend caches come through the real `dependencies.car_cache` path;
+their common stock glTF projections match downtown's corresponding three
+cold exports exactly. The simplified GLBs come through the real
+`context_export.py`. Evidence: `build/cars-determinism/round2/school-{1,2,3}/`
+and `build/cars-determinism/round2/consumer-proof.json`. Raw blend-container
+hashes remain audit receipts; native GLBs differ from baked car deliveries.
+The six consumer launch/cache tests pass.
+
+School's accepted exports, maps and docs images stay unchanged. No complete
+campuses were rebuilt. Site counts may move by those few car triangles on
+their next build. Existing tolerance guards remain; making full site car
+checks exact still needs refreshed owned site baselines/input receipts and a
+complete site repeat. See [the shared proof](../cars/CONSUMERS.md).
