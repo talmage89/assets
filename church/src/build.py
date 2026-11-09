@@ -27,7 +27,7 @@ def main():
                 modules[kind]=publish(cp,kind,known,'modules')
                 for ob in reversed(objects(cp)):bpy.data.objects.remove(ob,do_unlink=True)
         if not args.no_sites:
-            from site import site
+            from siteworks import site
             site_root=site(p,rt)
             save_scene(f'build/site-{seed}.blend');report[f'ChurchSite-{seed}']=publish(site_root,f'ChurchSite-{seed}',known)
         Path(f'build/plan-{seed}.json').write_text(json.dumps(p,indent=2))

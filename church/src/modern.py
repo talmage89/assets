@@ -14,7 +14,8 @@ def glazed_end(parent,p,y,back=False):
     for i in range(cells):
         a=-w/2+i*dx+.04;b=a+dx-.08
         z0=.72 if abs((a+b)/2)>1.2 else 2.43
-        m.geom([(a,-.02,z0),(b,-.02,z0),(b,-.02,top(b)),(a,-.02,top(a))],[(0,1,2,3)],'stained',uv=[[(.50+(a/w+.5)*.49,.02),( .50+(b/w+.5)*.49,.02),(.50+(b/w+.5)*.49,.48),(.50+(a/w+.5)*.49,.48)]])
+        pts=[(a,-.02,z0),(b,-.02,z0),(b,-.02,top(b)),(a,-.02,top(a))]
+        m.geom(pts,[(0,1,2,3)],'stained',uv=[[(.502+(x/w+.5)*.49,.502+z/peak*.49) for x,y,z in pts]])
         m.beam((a,-.10,z0),(a,-.10,top(a)),.065,.10,'iron')
         m.box(((a+b)/2,0,.36),(b-a,.25,.72),'brick')
     for z in (2.43,4.7,7.0,9.3,11.6,13.9):

@@ -11,7 +11,7 @@ def doors(name,parent,point=(0,0,0),yaw=0,modern=False):
     for s in (-1,1):
         pivot=G.root('Door_Left' if s<0 else 'Door_Right',(s*1.005,-.04,.045),rt,
                      pivot_axis='Z',range_degrees=[0,105] if s<0 else [-105,0],moving=True)
-        m=G.Mesh('Door leaf and hardware',pivot,solid=True);cx=-s*.495
+        m=G.Mesh('Door leaf and hardware',pivot,solid=True,door=True);cx=-s*.495
         m.box((cx,0,1.067),(.984,.062,2.1336),'iron' if modern else 'timber')
         for z in (.39,1.22,1.88):
             m.box((cx,-.042,z),(.81,.038,.055),'iron' if modern else 'timber')

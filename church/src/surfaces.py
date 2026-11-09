@@ -11,6 +11,12 @@ D=importlib.util.module_from_spec(spec);spec.loader.exec_module(D)
 ROLES={}
 
 
+def paint_material():
+    if 'paint' in G.MATS:return
+    ma=tiling.material('GroundTrim',G.ROOT/'ground/textures/ship',alpha=True)
+    ma.name='Church_Ground_markings';ma.use_backface_culling=False;G.MATS['paint']=ma
+
+
 def palette():
     # Initialize Blender's complete importer/exporter AO group before tiling.
     from io_scene_gltf2.blender.com.material_helpers import create_settings_group
@@ -32,7 +38,7 @@ def palette():
         ma=bpy.data.materials.new('Church_'+role);ma.use_nodes=True;ma['tiling_vertex_tint']=False
         p=ma.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(*color,1);p.inputs['Roughness'].default_value=rough;p.inputs['Metallic'].default_value=metal
         if role=='glass':p.inputs['Transmission Weight'].default_value=.94;p.inputs['IOR'].default_value=1.49
-        G.MATS[role]=ma
+        ma.use_backface_culling=False;G.MATS[role]=ma
     for role,file,emit in [('stained','T_ChurchGlass_BaseColor.png',.0),('letters','T_ChurchLetters_BaseColor.png',0)]:
         ma=bpy.data.materials.new('Church_'+role);ma.use_nodes=True;ma['tiling_vertex_tint']=False
         ns,ls=ma.node_tree.nodes,ma.node_tree.links;p=ns.get('Principled BSDF')
@@ -41,7 +47,7 @@ def palette():
         if role=='stained':ls.new(tx.outputs['Color'],p.inputs['Emission Color']);p.inputs['Emission Strength'].default_value=emit
         else:
             ls.new(tx.outputs['Alpha'],p.inputs['Alpha']);ma.surface_render_method='DITHERED';ma.use_backface_culling=False
-        G.MATS[role]=ma
+        ma.use_backface_culling=False;G.MATS[role]=ma
 
 
 def charts(points,role):
@@ -60,7 +66,8 @@ def charts(points,role):
 def tint(p,role,col,props):
     x,y,z=p;f=1.
     if role=='iron':col=tuple(v*.037 for v in col)
-    if role=='stone':col=tuple(v*.53 for v in col)
+    if role=='stone':col=tuple(v*.38 for v in col)
+    if role=='timber' and props.get('door'):col=tuple(v*.15 for v in col)
     if role=='brick':
         floor=props.get('floor',.6096);zz=max(0,z-floor)
         reach=.55+.14*math.sin(x*4.9+y*3.2)+.06*math.sin(x*19+y*11)

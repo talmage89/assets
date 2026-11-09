@@ -16,8 +16,8 @@ def camera(loc,target,lens=42,aspect=1.5,ortho=None):
 
 def light(dusk=False):
     scene=bpy.context.scene;world=bpy.data.worlds.new('Procedural clear sky');world.use_nodes=True;scene.world=world
-    ns=world.node_tree.nodes;ls=world.node_tree.links;sky=ns.new('ShaderNodeTexSky');sky.sky_type='NISHITA';sky.sun_elevation=.37;sky.sun_rotation=4.1;sky.sun_disc=False
-    bg=ns.get('Background');ls.new(sky.outputs['Color'],bg.inputs['Color']);bg.inputs['Strength'].default_value=.19 if not dusk else .025
+    ns=world.node_tree.nodes;ls=world.node_tree.links;sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=.37;sky.sun_rotation=4.1;sky.sun_disc=False
+    bg=ns.get('Background');ls.new(sky.outputs['Color'],bg.inputs['Color']);bg.inputs['Strength'].default_value=.06 if not dusk else .025
     data=bpy.data.lights.new('Low raking morning sun','SUN');data.energy=3.5 if not dusk else .08;data.angle=math.radians(.65)
     ob=bpy.data.objects.new(data.name,data);bpy.context.collection.objects.link(ob);ob.rotation_euler=Vector((.55,.85,-.45)).to_track_quat('-Z','Y').to_euler()
     if dusk:
