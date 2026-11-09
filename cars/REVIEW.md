@@ -2287,6 +2287,66 @@ regeneration matches all 94 meshes exactly. Fresh pickup generation and re-expor
 retain all 454 source meshes, 150 GLB accessors, maps and graph; the complete
 11,530,736-byte GLB retains SHA-256
 `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+
+## LOD rollout, 2026-11-09
+
+This family is blocked, not adopted. Frozen tool revision: `1d9d429`;
+`build/lod-rollout/cars/freeze.sha256` records every kit Python/shell/Make source
+and the literal recipe. No kit change is made. The H120's original check
+passes before the experiment with accepted generated inputs frozen by explicit
+`make -o` arguments. Complete command and result are in
+`build/lod-rollout/cars/hatch-original-before-{command,result}.json`.
+
+### LOD critique 1: native far control
+
+Opened all three native strips, including their LOD0/preceding/new/difference
+panels, both 960px construction views, and the contact sheet in
+`renders/lod/hatch-proxy-control/`. Color/value first: the frontal windshield
+loses the source's pale interior band, lamp highlights spread onto the nose,
+and roof/window response changes. The rear keeps red lamps but changes their
+shape and the adjacent dark trim. The 2498/2500-triangle, one-draw shell keeps
+recognizable hatchback proportions at 4% / 43.2px / 32.58m, but cannot be
+accepted on silhouette alone. Mean RGB .05930/.03374/.03873 and p95
+.29020/.17255/.23922 fail unchanged limits. Alpha/IoU pass. Construction views
+expose coarse wheels, smeared nose optics and glass-edge artifacts.
+These are 24-sample diagnostic images, not converged optical-cause isolation.
+No sample or image-limit exception is requested.
+
+### LOD critique 2: factory data and rejection
+
+Reopened native 55/145-degree strips and inspected the actual serialized
+materials. The more decisive failure is independent of sampling: source Paint
+has `paint_decode=reference_plus_coverage_delta`, five tint/metallic tables
+and its dedicated paint binding; the proxy has none. The frozen atlas baker
+constructs `materials=[{}]` for a proxy and transfers ordinary shader Alpha,
+without the car's independent factory-coverage contract. The delivered decoder
+works for all five original presets and raises `StopIteration` for every proxy
+preset in the actual fresh-import probe. Raw receipt:
+`build/lod-rollout/cars/factory-routing.json`; Blender probe/script:
+`build/lod-rollout/cars/decoder-probe.{json,py}`. Repeating the metadata check
+with `src/check_lod_factory_routing.py` returns 1 as expected.
+
+Full `make check-lod LOD_CONFIG=src/lod-hatch-probe.json LOD_THREADS=4`
+returns 2 for rendered differences; geometry/source immutability and the
+independent normal audit pass. The manifest and all failed native evidence
+are retained under `build/lod-rollout-hatch-proxy/` and the render directory.
+Measured README tables/report were generated with the explicit reporting-only
+`--allow-failed` flag. Report/contact: `build/lod-rollout/cars/report/`.
+Original H120 `make check` passes again afterwards (same frozen inputs;
+`hatch-original-after-{command,result}.json`). The control stores 62350 mesh
+triangles, five material resources and 37 primitive placements; draws are 36
+for LOD0 or one for the control. Residency is 19.837 to 22.321 MiB, including
+2.334 MiB new far maps and .1499 MiB extra mesh, with no new intermediate maps.
+
+Stopped the car family under the brief's frozen-tool-defect rule. Preserving
+factory coverage, metallic response and lamp-state routing through the merged
+proxy requires a general adapter with fresh regression/adoption proof; merely
+copying extras cannot recover a paint-only mask. This is not a small rollout
+configuration fix. X220 has the same factory contract, so no untested chain
+is represented as approved. S240's accepted GLB/generated inputs are absent.
+The existing pickup pilot is unchanged. All 1200 original delivery/map/docs
+files still match the session ledger; the literal freeze is checked again at
+family closeout. No replacement docs image is generated or committed.
 No kit changes and no sedan detail/delivery work beyond this checkpoint.
 
 # Alder S240 sedan — source form checkpoint

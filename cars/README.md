@@ -824,3 +824,58 @@ Reference photographs and manufacturer specifications: authors, URLs, licenses
 and exact uses in [refs/SOURCES.md](refs/SOURCES.md). Markings use installed Noto
 Sans under the SIL Open Font License. All geometry, shaders and graphics are
 original scripts; photographs remain comparison material in ignored folders.
+
+## Car rollout status: blocked
+
+The H120 far-only control below is rejected. Its one-material proxy loses the
+factory-color decoder and paint-only binding; the existing delivery decoder
+cannot select any of the five presets on it. The original GLB still supports
+all five. The control also fails its native image comparisons. No H120 or X220
+chain is adopted. The X220 uses the same unsupported decoder convention; its
+chain was stopped at preflight. The accepted S240 GLB and its generated inputs
+are absent from this worktree, so it was not rebuilt or substituted.
+
+Reproduce the diagnostic with `make lod LOD_CONFIG=src/lod-hatch-probe.json
+LOD_THREADS=4`, then the same override for `make check-lod`. Run
+`python3 src/check_lod_factory_routing.py --source export/AlderH120.glb
+--candidate build/lod-rollout-hatch-proxy/AlderH120_LOD1.gltf
+--out build/lod-factory-routing.json` to check the missing binding independently.
+These commands leave the accepted pickup pilot and every LOD0 untouched.
+The control's LOD1 row is the proposed far proxy, tested alone at the intended
+LOD3 switch; it supplies no intermediate levels or interaction proof.
+[Two critique passes and frozen-tool evidence](REVIEW.md#lod-rollout-2026-11-09).
+
+<!-- LOD checkpoint hatch: begin -->
+## H120 LOD trial
+
+`make lod` builds additional core glTF/BIN files and a manifest under `build/lod-rollout-hatch-proxy/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 59,852 / — | 4 / 36 | 4,073,341 | 3,818,907 | 7,892,248 | 16.000 + 3.8373 | near |
+| LOD1 | 2,498 / 2,500 | 1 / 1 | 174,121 | 444,271 | 618,392 | 2.334 + 0.1499 | 4.0% / 32.58 m |
+
+Chain check: False; image check: False; normal check: True.
+
+
+Whole-chain resident GPU estimate: **22.321 MiB**, versus LOD0 alone **19.837 MiB**. Unique textures 18.334 MiB = 16.000 MiB original + 2.334 MiB proxy/impostor; all meshes 3.9873 MiB. Increase over LOD0 2.483 MiB = 2.334 MiB far maps + 0.1499 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. The final proxy merges all moving geometry in its rest pose: its retained transform names are placement/socket metadata, and cannot animate that shell. Keep an animatable level while an interaction pose differs from rest. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/hatch-proxy-control/` (`contact.jpg`, `metrics.json`). Raw checks: `build/lod-rollout-hatch-proxy/check.json` and `build/lod-rollout-hatch-proxy/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 7 × 512×512.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 62,350 | 5 | 37 | 8,510,640 | 22.3209 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 36 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint hatch: end -->
