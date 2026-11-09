@@ -2657,8 +2657,8 @@ further reductions of those failed controls. The checkpoint stops here.
 ## Factory paint adapter control, 2026-11-09
 
 `490b6e8` adds an explicit `factory_paint: true` path for the delivered
-`reference_plus_coverage_delta` convention. It leaves the ordinary proxy path
-disabled by default. The source reference paint/coat/lamp decode is evaluated
+`reference_plus_coverage_delta` convention. The new transfer is disabled by
+default; the ordinary proxy path is unchanged. The source paint/coat/lamp decode is evaluated
 before transfer. One additional linear atlas stores AO / tint coverage / clean
 metallic coverage; a one-material proxy retains the original tint and metallic
 tables. Its runtime metallic decode preserves the nonpaint reference response.
