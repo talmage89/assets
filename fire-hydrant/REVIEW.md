@@ -111,3 +111,51 @@ are .00557/.03137/.07949; alpha/IoU remain below .0089.
 Archived config, complete generated output, checks, payload hashes and every
 native image at `build/lod-rollout/fire-hydrant/pass1/` before further tuning.
 Next: lower the optimization request at the same switch and unchanged gates.
+
+### LOD critique 2: lower request and actual goal-count failure
+
+Opened all three native strips, both construction views and contact for the
+`.15` request at the same .25 switch. Color/value and coverage still pass,
+but it produces 3598 triangles, more than the first candidate's 3524. This
+is a rejected cost choice. Its config, generated payload, hashes and complete
+render set are preserved under `build/lod-rollout/fire-hydrant/pass2/`.
+Saturation alone does not justify a target exception.
+
+Built an independent 2392-triangle negative control using the frozen kit's
+ordinary native collapse, with its shared-map field guards deliberately absent,
+and the original unchanged images. Opened all three native
+original/selected/forced/difference strips. The bonnet turns into alternating
+black/white ribbons, the red barrel gains dark diagonal patches, and cap
+response becomes angular. Mean RGB .06165/.04452/.04279, p95
+.38039/.25882/.25490 and local .56040/.42727/.37269 fail unchanged gates.
+Coverage alone still passes. This rejects hitting the count by ordinary
+collapse without preserving the source charts/frame. It is not an adopted
+configuration, a bypass of any production check, or a proof that no other
+purpose-built mesh could meet the target. Complete script, payload hashes,
+source/selected/tool receipts and native images are in
+`build/lod-rollout/fire-hydrant/goal-control.py` and `goal-control/`.
+
+Selected the lowest reviewed passing count, 3524, with `target_met: false`
+against 2392. Rebuilt the original .4 request: the entire manifest repeats
+byte for byte. Reopened all fresh native strips, both construction views and
+contact; values, cap silhouette and linked-chain coverage agree at the switch.
+The tiny bonnet/flange highlight changes and coarse close-view wire remain
+the limits. Only one useful additional standard-prop level is retained, with
+the original 1024 maps and one material/draw. No far atlas is allocated.
+Fresh `make check-lod LOD_THREADS=4` passes, including the independent
+original UV/frame audit; exact exit/resource receipt is
+`build/lod-rollout/fire-hydrant/final-check.json`. Original source construction
+and serialization checks remain distinct from these rest-distance images.
+
+Closeout: original `make check` passes again with the accepted blends and GLB
+explicitly frozen (`build/lod-rollout/fire-hydrant/original-after.json`). All
+103 literal tool/recipe entries and all 1200 original delivery/map/docs hashes
+match. `python3 kit/repo_check.py` reports 2547 source files, zero errors;
+`git diff --check` passes. The reporter's measured table/contact is under
+`build/lod-rollout/fire-hydrant/report/`, generated without `--allow-failed`
+and opened after generation. Stored cost is 9504 triangles, one canonical
+material, two alternative primitive placements and 8134691 physical payload
+bytes. Runtime draws one level/one primitive: 5980 or 3524 triangles. Both
+levels share the original three 1024 maps (4.000 MiB); mesh buffers add
+.2375 MiB, bringing resident cost from 4.352 to 4.590 MiB. Source shell,
+materials, images and original docs are unchanged; no kit code changed.
