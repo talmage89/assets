@@ -1127,3 +1127,24 @@ outputs are removed from export/lod after archiving.
 
 The checked service-mast control is retained as an unwired source config for
 reproduction; its sockets and dimensions still belong to the original delivery.
+
+### Utility closeout
+
+Plain `make check-lod LOD_THREADS=4` passes all six adopted configs, including
+the separate atlas/support gates. The final original frozen-input `make check`
+passes afterwards (`build/lod-uv/utility-original-final.json`); all 30 original
+delivery/map/docs files and every literal tool hash match. Full six-chain
+tables/contact: `build/lod-uv/utility-final-report/` (opened after generation).
+
+Entire-family accounting additionally includes all five original containers,
+even the four streets without an HLOD: 223482 stored triangles, 13 per-container
+canonical material references, 120 stored primitive placements, 25217111
+distinct payload bytes. Active draws are 1 per adopted part level, and 9–27
+for original containers. Unique original maps allocate 16.0001 MiB once;
+new images zero. Full family residency is 30.0859 MiB versus 28.5235 MiB for
+originals, adding 1.5624 MiB in meshes. The measured union is
+`build/lod-uv/utility-full-costs.json`; the six-config reporter union counts
+only their shared Parts container, a deliberately narrower scope. All six
+triangle goals remain unmet. The guarded policy is conservative, not an
+optimality or engine frame-time claim. Every rejected/uneconomic config is
+unwired and has no live export. Original documentation images are unchanged.
