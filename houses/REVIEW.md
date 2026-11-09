@@ -2556,3 +2556,35 @@ both older types, physical construction/motion, actual delivery surfaces,
 UVs/normals, imported frames and canonical images. Nested direct/recursive
 make arguments are recorded in `build/houses-lod/cape-nested-make.jsonl`;
 the 136-file preservation check also passes.
+
+### Cape near trial — raw failure before native comparisons
+
+The full frozen-tool request produces 34,721 / 34,397 / 1,798 triangles,
+against goals 20,010 / 9,095 / 1,800. Near levels keep original materials,
+`preserve_uv_regions: true`, and separate front/service roots. The two near
+mesh allocations are 3,603,078 / 3,575,502 bytes versus 3,231,894 original:
+only 4.57% / 5.46% triangle savings, larger buffers and the same eight draws.
+All 13,298 geometric static-trim vertices are region-fixed; the per-material
+source inventory is `build/houses-lod/cape-region-inventory.json`.
+
+The build/bake finishes, but `make lod` returns 2 after the comparison renderer
+refuses `Imported LOD triangle/corner order changed` on LOD1. Opened the only
+completed render, `renders/lod/cape-36/close-LOD0.png`; no near switch image
+was produced, so no near visual pass is claimed. Color/value in that source
+view retains the white lap, dark roof/rooms and red entry; it is the immutable
+appearance reference, not a photo-white-balance measurement.
+
+Full `check-lod` returns 2. Each near level has two new degenerate/sliver
+triangles; Blender re-import drops nine triangles (34,712 / 34,388 imported).
+The independent UV/normal field audit passes, which does not waive those raw
+failures. The proxy separately re-imports all 1,798 triangles, with zero
+open/nonmanifold/degenerate/sliver faces and positive volume on all sixteen
+shells. It still needs its own native image proof.
+
+Preserved `src/lod-cape-trial.json`, complete payload dependencies/hashes,
+full checks, failed render log and simplification report before replacing
+the active config. Evidence: `build/houses-lod/cape-trial-*` and
+`export/lod/cape-36/`. The trial is wired to no target. No importer/shading,
+topology or image check is disabled; no kit edit is attempted. These near
+levels are blocked by both serialization/topology and cost. A separate direct
+far configuration is being proved from the original, not from this trial.
