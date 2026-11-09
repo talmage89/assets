@@ -2414,3 +2414,32 @@ and trim retain 23,486 / 18,438 source triangles. Inventory:
 `build/houses-lod/ranch-region-inventory.json`. This explains the cost of the
 conservative domain policy; it does not establish a minimum over other tools
 or approve removing the UV guard. Proxy bake and native review follow.
+
+### Ranch LOD critique pass 1 — exported values and construction
+
+Opened all nine native four-panel strips through unscaled raw-PNG pages
+(`build/houses-lod/inspection/ranch/`), their original/preceding comparisons
+and x6 differences, all four 960-square construction views and the contact.
+Color/value first: the near brick, gray shingles, dark room backings and
+green entry door match the immutable original under identical procedural
+light; no photographic white balance is inferred. Neither near level gains
+the colonial's dark window-to-wall streaks. Normal-map phase, gutter/drop
+coverage, chimney/dish outline and the separate doors remain consistent.
+
+The 1,800-triangle proxy blurs masonry and roof granules and has a dark
+crease beside the entry hood in the elevated construction view. It is not
+suited to that closer view. At 4.5% / 48.6 nominal pixels / 110.18 m, the
+three native comparisons retain the roof/wall values, picture opening,
+entry supports and broad footprint. Maximum reference mean/p95/local are
+.012453/.053376/.078411; alpha/IoU maxima .016807/.018141. Every original
+and adjacent gate passes at its default, with no phase exception.
+
+`make lod LOD_CONFIG=src/lod-ranch.json LOD_THREADS=4` returns 0 (1,820 s
+including two GPU queues). `make check-lod` with the same override returns
+0 (19.32 s), including source charts/regions, normals, fresh re-import,
+pivots/sockets, original hashes and image residency. These rest/data checks
+are separate from the original family's sampled motion check and do not
+establish engine performance. The trial remains unwired pending the cost
+decision: its near mesh buffers are 4,967,832 / 4,961,820 bytes versus the
+original's 4,892,352, for only 2.24% / 2.36% triangle savings. They retain
+ten draws and allocate more geometry memory than LOD0.
