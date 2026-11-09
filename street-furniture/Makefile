@@ -89,3 +89,7 @@ repeat: model
 	$(PYTHON) src/repeat.py
 clean:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('build','textures','export','renders')]"
+
+# Independently placed kinds require their own additive proof.
+LOD_CONFIGS := src/lod-bench.json
+include ../kit/lod_rules.mk

@@ -396,3 +396,15 @@ The replaced mechanism pairs are `reference-{meter,news}-{before,after}.jpg`
 in that directory. The route's actual imported lower edge measures
 2.125699997 m before / 2.133599997 m after, against 2.1336 m. Book comparisons
 remain local in root build/. No downloaded image enters docs or a texture.
+
+## LOD rollout — 2026-11-09
+
+Merged current main (already up to date). Frozen revision `6bea63c` and 103
+literal tool hashes are in `build/lod-rollout/street-furniture/freeze*`.
+The original `make check` passes before adoption. Its full command in
+`original-before.json` explicitly freezes the three accepted source blends,
+manifest, all 32 furniture glTF/BIN files and the nested RoadSigns/Signs inputs;
+the dry run confirms no original generator runs. Start with one static bench
+chain at the standard .4 / .25 switch. Other kinds, especially glazing and
+moving cabinets, need independent config/build/review/check proof; no bench
+result approves them. Original source/map/docs bytes remain immutable.

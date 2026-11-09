@@ -1,0 +1,15 @@
+{
+  "kind": "standard prop: steel strap park bench",
+  "name": "Bench",
+  "source": "export/Bench.gltf",
+  "output": "export/lod/bench",
+  "renders": "renders/lod/bench",
+  "readme_key": "bench",
+  "readme_title": "Bench LODs",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "levels": [
+    {"ratio": 0.4, "screen_height": 0.25}
+  ]
+}
