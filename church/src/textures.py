@@ -41,23 +41,31 @@ def glass(out):
         for row in range(14):
             for col in range(7):
                 x=x0+col*73+(row%2)*36;y=y0+row*37
-                poly=[(x,y-17),(x+36,y),(x,y+19),(x-36,y)]
-                d.polygon(poly,fill=colors[int(rng.integers(6))]);d.line(poly+[poly[0]],fill=(6,7,8),width=3)
+                poly=[(x,y-37),(x+36,y),(x,y+37),(x-36,y)]
+                d.polygon(poly,fill=colors[int(rng.integers(6))]);d.line(poly+[poly[0]],fill=(6,7,8),width=2)
         # An original plain geometric medallion, not religious iconography.
         cx=x0+256;cy=y0+240
         d.ellipse((cx-96,cy-96,cx+96,cy+96),fill=(93,68,31),outline=(8,9,9),width=6)
         for k in range(8):
             a=k*np.pi/4;d.line((cx,cy,cx+96*np.cos(a),cy+96*np.sin(a)),fill=(8,9,9),width=4)
-    im.save(out/'T_ChurchGlass_BaseColor.png')
+    a=np.array(im).astype(float)/255
+    yy,xx=np.mgrid[:n,:n];waver=.96+.04*np.sin(xx*.18+np.sin(yy*.03)*2)*np.sin(yy*.13)
+    a*=waver[:,:,None];Image.fromarray(np.uint8(np.clip(a*255,0,255))).save(out/'T_ChurchGlass_BaseColor.png')
+    lead=np.max(a,axis=2)<.055
+    h=lead*.0014+.00011*np.sin(xx*.09)*np.sin(yy*.13)
+    dy,dx=np.gradient(h);norm=np.stack((-dx*n/3,dy*n/3,np.ones_like(dx)),axis=2);norm/=np.linalg.norm(norm,axis=2,keepdims=True)
+    Image.fromarray(np.uint8((norm*.5+.5)*255)).save(out/'T_ChurchGlass_Normal.png')
+    orm=np.ones((n,n,3));orm[:,:,1]=np.where(lead,.51,.28);orm[:,:,2]=np.where(lead,.65,0)
+    Image.fromarray(np.uint8(orm*255)).save(out/'T_ChurchGlass_ORM.png')
 
 
 def letters(out):
     im=Image.new('RGBA',(1024,512),(255,255,255,0));d=ImageDraw.Draw(im)
-    font=ImageFont.truetype(find_font('DejaVu Sans','Bold'),80);layout={}
+    font=ImageFont.truetype(find_font('DejaVu Sans','Bold'),52);layout={}
     chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&-:.'
     for i,c in enumerate(chars):
         x=(i%16)*64;y=(i//16)*128;d.text((x+32,y+50),c,font=font,anchor='mm',fill=(20,24,21,255),stroke_width=0)
-        layout[c]=(x/1024,1-(y+112)/512,(x+64)/1024,1-y/512)
+        layout[c]=((x+2)/1024,1-(y+88)/512,(x+62)/1024,1-(y+12)/512)
     im.save(out/'T_ChurchLetters_BaseColor.png');Path('build/letters.json').write_text(json.dumps(layout))
 
 

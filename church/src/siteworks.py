@@ -21,9 +21,11 @@ def paving(p,parent):
         pad('Canopy walk',(7.5,36,-11,-7.0),.1524)
         pad('Church entry plaza',(-4.2,10,-22,-14.5),.1524)
         pad('Street to entrance walk',(-1.0,1.0,-40,-22),0)
+        m=G.Mesh('Accessible plaza approach',parent,actor_kind='site')
+        m.prism([(-1,-23.9812,0),(1,-23.9812,0),(1,-22,.1524),(-1,-22,.1524)],(0,0,-.10),'concrete');m.finish()
         pad('Memorial garden walk',(9.0,25.8,-6.8,-4.5),0)
         pad('Memorial garden crosswalk',(13.2,15.1,-4.5,10.2),0)
-        pad('Education route',(25.8,28,-7.0,15.2),.1524)
+        pad('Education route',(25.8,28,-7.0,17.0),.1524)
         p['dropoff_curve']=[(45,-26,0),(43.5,-18,0),(32,-14.5,0),(16,-14.5,0),(9,-17,0),(10,-21,0),(18,-25,0)]
     else:
         pad('Front approach',(-2.16,2.16,-23,-16.4),0)
@@ -35,7 +37,7 @@ def paving(p,parent):
     # Rectangular turf clipping includes construction footprints, so lawns
     # meet paving and foundations without grass polygons through the lot.
     w=p['width'];l=p['length'];cuts.append((-w/2,w/2,-l/2,l/2))
-    if modern:cuts += [(w/2,w/2+21,l/2-2.6,l/2+9.6),(w/2+17.535,w/2+26.065,-10.2,14.2)]
+    if modern:cuts += [(w/2,w/2+21,l/2+1.9,l/2+14.1),(w/2+17.535,w/2+26.065,-10.2,16.8)]
     else:cuts.append((w/2,w/2+10,l/2-11.315,l/2+3.315))
     bounds=(-22.2,60,-39.4,47) if modern else (-22.2,30,-23.4,47)
     xs=sorted({bounds[0],bounds[1],*[max(bounds[0],min(bounds[1],q)) for r in cuts for q in r[:2]],*[x for x in range(math.ceil(bounds[0]),math.floor(bounds[1]),2)]})
@@ -67,6 +69,14 @@ def parking(p,parent,rect):
             occupied=rng.random()<p['occupancy'];stall=G.root(f'Stall_{row}_{j}',(x,y,.01),parent,socket_kind='parked_car',stall_width=pitch,stall_depth=5.4864,occupied=occupied)
             p['stalls'].append(dict(name=stall.name,center=[x,y,.01],yaw=0 if row else 180,occupied=occupied))
             if occupied:car(row*20+j,(x+rng.uniform(-.12,.12),y+rng.uniform(-.16,.16),.012),0 if row else 180)
+    m.finish()
+
+
+def settlement(parent,rect,seed):
+    rng=random.Random(seed+207);a,b,c,d=rect;m=G.Mesh('Lot settlement cracks',parent,actor_kind='site',sheet=True)
+    for i in range(9):
+        x=rng.uniform(a+1,b-1);y=rng.uniform(c+1,d-2);w=rng.uniform(.08,.18);length=rng.uniform(1.4,3.5)
+        m.geom([(x-w,y,.013),(x+w,y,.013),(x+w,y+length,.013),(x-w,y+length,.013)],[(0,1,2,3)],'paint',uv=[[(.502,.005),(.623,.005),(.623,.245),(.502,.245)]])
     m.finish()
 
 
@@ -114,7 +124,7 @@ def town(p,parent):
         points=[(-12,53,0),(15,55,0),(44,54,0),(76,9,0),(-50,-18,90),(-50,12,90),(-7,-69,180),(25,-68,180),(55,-70,180)]
         for i,(x,y,yaw) in enumerate(points):instance(ranch if i%2 else cape,'Arterial neighbor '+str(i),(x,y,0),yaw,actor='town')
     else:
-        host=G.ROOT/'coffee-shop/build/hosts/downtown-opposite.glb'
+        host=G.ROOT/'church/build/hosts/downtown-opposite.glb'
         for i,x in enumerate((-20,-10,0,10,20,30,40)):
             instance(host,'One block from Main Street '+str(i),(x,56,0),actor='town')
         for i,y in enumerate((-12,15,42)):instance(ranch,'Side street house '+str(i),(-51,y,0),90,actor='town')
@@ -137,8 +147,8 @@ def town(p,parent):
 
 
 def site(p,church):
-    rt=G.root('ChurchSite_'+str(p['seed']),seed=p['seed']);church.parent=rt
-    lot=paving(p,rt);parking(p,rt,lot);town(p,rt)
+    rt=G.root('ChurchSite_'+str(p['seed']),seed=p['seed']);church.parent=rt;church.location=p['placement_offset']
+    lot=paving(p,rt);parking(p,rt,lot);settlement(rt,lot,p['seed']);town(p,rt)
     sign(rt,(17,-40 if p['style']=='aframe' else -22,0),p['name'],['CEDAR & BELL' if p['style']=='aframe' else 'GRACE CORNER','WORSHIP 10:30','ALL WELCOME'])
     # Accessible walk paths and drive curves ship as empty-node point lists.
     for row in p['paths']:G.root(row['name'],parent=rt,socket_kind='walk_path',points=row['points'])
@@ -146,9 +156,3 @@ def site(p,church):
     for ob in list(__import__('bpy').context.scene.objects):
         if ob!=rt and ob.parent is None and not ob.name.startswith('Template_'):ob.parent=rt
     clear();return rt
-    # Placement-owned sealed cracks are drawn from Ground's original atlas.
-    m=G.Mesh('Lot settlement cracks',parent,actor_kind='site',sheet=True)
-    for i in range(9):
-        x=rng.uniform(a+1,b-1);y=rng.uniform(c+1,d-2);w=rng.uniform(.08,.18);length=rng.uniform(1.4,3.5)
-        m.geom([(x-w,y,.013),(x+w,y,.013),(x+w,y+length,.013),(x-w,y+length,.013)],[(0,1,2,3)],'paint',uv=[[(.502,.005),(.623,.005),(.623,.245),(.502,.245)]])
-    m.finish()

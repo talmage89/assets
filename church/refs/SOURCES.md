@@ -1,0 +1,45 @@
+# Church references
+
+Accessed 2026-11-08. Images and PDFs are ignored research inputs. No reference
+pixel enters a texture, mesh, decal or lighting rig. All names and inscriptions
+on the generated churches are fictional. HABS sheets are measured by looking
+at their scales, never traced. PDF photo extractions remain ignored in refs/.
+
+| File | Direct image/PDF URL | Author / rights | Use |
+| --- | --- | --- | --- |
+| habs-3.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/il/il0900/il0922/sheet/00003v.jpg | HABS IL-1223, National Park Service / Library of Congress, 2007 Peterson Prize documentation, US federal survey, public domain | First-floor measured plan; nave/entry/wing relationships, bay grid and wall gauge. |
+| habs-5.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/il/il0900/il0922/sheet/00005r.jpg | HABS IL-1223, same survey and rights | South elevation; tower/gable/entry proportions. |
+| habs-9.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/il/il0900/il0922/sheet/00009v.jpg | HABS IL-1223, same survey and rights | Section A-A; roof framing, nave and entry floor datums. |
+| habs-11.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/il/il0900/il0922/sheet/00011v.jpg | HABS IL-1223, same survey and rights | Arched portal, rebates, paired leaves, landing and hardware gauge. |
+| habs-14.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/il/il0900/il0922/sheet/00014v.jpg | HABS IL-1223, same survey and rights | Window frame/reveal depth and relationship of tracery to art glass. |
+| historic-nomination.pdf | https://www.dhr.virginia.gov/wp-content/uploads/2019/02/128-0037_First_Baptist_Church_1990_NRHP_nomination-Delisted.pdf | Virginia Department of Historic Resources / National Register, 1990 public research record; underlying illustrations retain their rights | 1898–1900 brick nave of six bays, slate, front tower, 1936 parish hall; plan and construction, not a replica. |
+| modern-nomination.pdf | https://atlas.thc.texas.gov/NR/pdfs/100007709/100007709.pdf | Texas Historical Commission / National Register, 2022 registration; published research, underlying photos and drawings retain stated rights | Chapel for the Children, 1961: nine-foot brick knee walls, glulam tent roof, glazed ends, flat office and garden. PDF pp44–47 provide exterior/roof/window/courtyard photos. Photos: Bonnie Tipton Wilson, Paul D. Kraus and Karen Kincaid Brady; Jan 2022 unless individually noted. |
+| straight-aframe-nomination.pdf | https://portal.ct.gov/-/media/decd/historic-preservation/06_about_shpo/state-review-board/2024-meetings/september-13/shepherd-of-the-sea-chapel-nr.pdf | Connecticut SHPO, National Register registration, August 2024; public research record, photos Stacey Vairo February 2024, archival postcard Barnes Studio c1966; underlying rights retained | Shepherd of the Sea Chapel: straight, steep roof planes on laminated bents, concrete arch shoes, education wing and arrival drive. PDF p28 Photo1 is the principal modern form comparison. The abandoned 2024 condition is NOT an age target for our maintained 2010 church. |
+| SaintJosephChurch_Lynden.jpg | https://dahp.wa.gov/sites/default/files/SaintJosephChurch_Lynden.jpg | Washington DAHP architectural style guide, photographer uncredited; state publication, underlying rights retained | c1960 wide A-frame, overhang and muted glazing, supplementary proportion reference; 280px original. |
+| SimpsonMethodistChurch_Pullman2.jpg | https://dahp.wa.gov/sites/default/files/SimpsonMethodistChurch_Pullman2.jpg | Washington DAHP architectural style guide, photographer uncredited; state publication, underlying rights retained | 1957 narrow folded/truncated A-frame and low education wing; 280px supplementary reference. |
+| historic-street.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/md/md1800/md1821/photos/387470pv.jpg | James W. Rosenthal, 2007, HABS MD-1298-1, Library of Congress / National Park Service; US federal survey photograph, public domain | St. Mary's Evangelical Lutheran Church: street elevation, tower-to-gable scale, stone arch construction and narrow lawn. Monochrome is a form reference, not brick hue calibration. |
+| historic-entry.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/tn/tn0100/tn0102/photos/153766pv.jpg | HABS TN-145-5, Library of Congress / National Park Service; US federal survey photograph, public domain | Christ Episcopal Church: full-gauge entry, layered storm-protected lancets, roof edge and foundation shrubs. White painted siding is not a brick color target. |
+| historic-habs.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/pa/pa1100/pa1153/color/570205cv.jpg | HABS PA-1725, Church of St. James the Less; US federal survey color transparency, public domain | Supplementary sheltered stone, deep tree shade and planted churchyard; not a camera-match source. |
+
+The PDF-derived `modern-front-44.jpg`, `modern-photo-45.jpg` through
+`modern-photo-47.jpg` and `historic-photo-10.jpg` are extracted from those
+registered PDFs with Poppler. They are not independently downloaded sources.
+
+## Online construction and style sources
+
+- Library of Congress, [HABS IL-1223 catalog](https://www.loc.gov/pictures/item/il0922/): measured documentation of First Congregational Church, Western Springs. The design is Prairie/Gothic and later than the invented 1908 church; use construction evidence, not its identity.
+- PHMC, [Gothic Revival](https://www.phmc.state.pa.us/portal/communities/architecture/styles/gothic-revival.html) and [Romanesque Revival](https://www.phmc.state.pa.us/portal/communities/architecture/styles/romanesque-revival.html): lancets, buttresses, steep roofs versus round arches, heavy walls and towers.
+- Washington DAHP, [A-frame](https://dahp.wa.gov/historic-preservation/historic-buildings/architectural-style-guide/a-frame): 1950s/60s churches with dominant roofs and short sidewalls; examples include 1957 and c1960 churches.
+- US Access Board, [1991 ADAAG](https://www.access-board.gov/guidelines-and-standards/buildings-and-sites/about-the-ada-standards/background/adaag/) §§4.3/4.8/4.13/4.26 and [ramp guide](https://www.access-board.gov/ada/guides/chapter-4-ramps-and-curb-ramps/): the invented 1996 retrofit has landings, a 1:13 slope, 36in rails and 1.524m clear route. These are modeling constraints, not a certification.
+- ICC, [2015 egress training](https://media.iccsafe.org/abmprograms/What-to-look-for-basic-site.pdf), door swing §1010.1.2; [IBC 2018 chapter 10](https://codes.iccsafe.org/content/IBC2018P4/chapter-10-means-of-egress), §1010.1.2.1: outward swing for assembly loads of 50 or more. The later web edition cross-checks the period rule. No interior egress analysis is claimed.
+
+## Wikimedia period photographs consulted
+
+- [Lake Perris church, 2 January 2009](https://commons.wikimedia.org/wiki/File:Lake_Perris_Seventh_day_Adventist_Church,_side_view.jpg), michael h j c, CC BY-SA 2.0: compact church proportions and layered glazing. Direct image: https://upload.wikimedia.org/wikipedia/commons/1/1b/Lake_Perris_Seventh_day_Adventist_Church%2C_side_view.jpg
+- [Flasher church, 12 June 2009](https://commons.wikimedia.org/wiki/File:Flasher,_North_Dakota_-_6175487355.jpg), Andrew Filer, CC BY-SA 2.0: 1959 brick A-frame type in a town setting. Direct image: https://upload.wikimedia.org/wikipedia/commons/6/6c/Flasher%2C_North_Dakota_-_6175487355.jpg
+- [St. Albans church](https://commons.wikimedia.org/wiki/File:St._Albans.jpg), Harfang, CC BY-SA 3.0, cataloged 6 February 2010 (EXIF 2009): supplementary town context. Direct image: https://upload.wikimedia.org/wikipedia/commons/c/cf/St._Albans.jpg
+
+Commons image servers returned HTTP 403/429 during initial retrieval. These
+pages informed type research; they are not claimed as locally inspected
+camera-pair evidence. The HABS and nomination photographs above remain the
+rebuildable local comparison sources. No account or upload was used.

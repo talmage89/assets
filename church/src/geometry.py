@@ -6,6 +6,7 @@ from mathutils import Vector,Matrix
 
 ROOT=Path(__file__).resolve().parents[2]
 MATS={}
+STYLE='gothic'
 
 
 def root(name,point=(0,0,0),parent=None,**props):
@@ -29,6 +30,7 @@ class Mesh:
         self.name=name;self.parent=parent;self.props=props
         self.v=[];self.f=[];self.role=[];self.colors=[];self.uv=[];self.smooth=[]
     def geom(self,vs,fs,role='iron',color=(1,1,1),uv=None,smooth=False):
+        if role=='brick' and STYLE=='chapel':role='siding'
         off=len(self.v);self.v.extend(tuple(v) for v in vs)
         for i,f in enumerate(fs):
             self.f.append(tuple(off+k for k in f));self.role.append(role)
@@ -38,6 +40,15 @@ class Mesh:
         self.geom([(x+i*a,y+j*b,z+k*c) for i,j,k in ((-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1))],
                   [(0,3,2,1),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)],role,color)
     def prism(self,poly,depth,role='stone',color=(1,1,1)):
+        poly=[Vector(p) for p in poly]
+        changed=True
+        while changed and len(poly)>=3:
+            changed=False
+            for i,p in enumerate(poly):
+                a=poly[i-1];b=poly[(i+1)%len(poly)]
+                if (p-a).length<1e-7 or (b-p).length<1e-7 or (p-a).cross(b-p).length<1e-10:
+                    poly.pop(i);changed=True;break
+        if len(poly)<3:return
         n=len(poly);self.geom([*poly,*[Vector(p)+Vector(depth) for p in poly]],
             [tuple(reversed(range(n))),tuple(range(n,2*n)),*[(i,(i+1)%n,(i+1)%n+n,i+n) for i in range(n)]],role,color)
     def loft(self,rings,role='iron',caps=True,smooth=False,color=(1,1,1)):
@@ -81,6 +92,7 @@ class Mesh:
         bm=bmesh.new();bm.from_mesh(me);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(me);bm.free();me.update()
         ob=bpy.data.objects.new(self.name,me);bpy.context.collection.objects.link(ob);ob.parent=self.parent
         ob['asset_set']='Church'
+        if self.props.get('sheet'):ob['allow_boundary']=True
         for k,v in self.props.items():ob[k]=v
         return ob
 

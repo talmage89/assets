@@ -22,6 +22,7 @@ def palette():
     from io_scene_gltf2.blender.com.material_helpers import create_settings_group
     if not bpy.data.node_groups.get('glTF Material Output'):create_settings_group('glTF Material Output')
     specs={'brick':('DowntownMasonry','downtown/textures/ship'),
+           'siding':('HouseSiding','houses/textures/ship'),
            'stone':('DowntownMineralRoof','downtown/textures/ship'),
            'iron':('DowntownFinish','downtown/textures/ship'),
            'shingle':('RanchRoof','houses/textures/ranch-ship'),
@@ -40,7 +41,8 @@ def palette():
         if role=='glass':p.inputs['Transmission Weight'].default_value=.94;p.inputs['IOR'].default_value=1.49
         ma.use_backface_culling=False;G.MATS[role]=ma
     for role,file,emit in [('stained','T_ChurchGlass_BaseColor.png',.0),('letters','T_ChurchLetters_BaseColor.png',0)]:
-        ma=bpy.data.materials.new('Church_'+role);ma.use_nodes=True;ma['tiling_vertex_tint']=False
+        ma=tiling.material('ChurchGlass',G.ROOT/'church/textures/ship') if role=='stained' else bpy.data.materials.new('Church_'+role)
+        ma.name='Church_'+role;ma.use_nodes=True;ma['tiling_vertex_tint']=False
         ns,ls=ma.node_tree.nodes,ma.node_tree.links;p=ns.get('Principled BSDF')
         tx=ns.new('ShaderNodeTexImage');tx.image=bpy.data.images.load(str((G.ROOT/'church/textures/ship'/file).resolve()),check_existing=True)
         ls.new(tx.outputs['Color'],p.inputs['Base Color']);p.inputs['Roughness'].default_value=.35 if role=='stained' else .65
@@ -58,8 +60,18 @@ def charts(points,role):
         return [(points,D.strip_uv(points,0 if role=='stone' else 1,4 if role=='stone' else 8,coverage=2))]
     if role in ('timber','slate','bronze'):
         idx={'timber':0,'slate':1,'bronze':2}[role];a,b=axes;lo=min(p[b] for p in points);hi=max(p[b] for p in points)
+        if role=='slate' and hi-lo>1e-6:
+            # 406mm slate width / 196mm visible gauge. Split at atlas tile
+            # boundaries instead of stretching fourteen courses over a roof.
+            nz=abs(normal.normalized().z);height=2.7432*(max(.1,1-nz*nz)**.5 if b==2 else 1)
+            out=[]
+            for k in range(math.floor(lo/height),math.floor((hi-1e-7)/height)+1):
+                poly=D.clip_height(D.clip_height(points,k*height,True,b),(k+1)*height,False,b)
+                if len(poly)<3:continue
+                out.append((poly,[(p[a]/4.8768,1/3+.008+(p[b]/height-k)*(1/3-.016)) for p in poly]))
+            return out
         return [(points,[(p[a]/2,idx/3+.008+(p[b]-lo)/max(hi-lo,1e-7)*(.333- .016)) for p in points])]
-    cov={'concrete':3.048,'asphalt':6.096,'lawn':6.096,'shingle':1.2192}.get(role,1)
+    cov={'concrete':3.048,'asphalt':6.096,'lawn':6.096,'shingle':4.8768,'siding':1.2192}.get(role,1)
     return [(points,[(p[axes[0]]/cov,p[axes[1]]/cov) for p in points])]
 
 

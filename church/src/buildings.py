@@ -10,7 +10,9 @@ def wing(parent,name,point,size,modern=True):
     rt=G.root(name,point,parent,module_kind='EducationWing' if modern else 'ParishHall');w,l,h=size;t=.3048
     m=G.Mesh('Wing foundation roof and ends',rt,floor=.1524,patch=True)
     m.box((0,0,.15),(w+.12,l+.12,.30),'concrete')
-    for y in (-l/2,l/2):m.box((0,y,h/2),(w,t,h),'brick',(.98,1.05,1.14))
+    m.box((0,l/2,h/2),(w,t,h),'brick',(.98,1.05,1.14))
+    for s in (-1,1):m.box((s*(w/2+1.12)/2,-l/2,h/2),(w/2-1.12,t,h),'brick',(.98,1.05,1.14))
+    m.box((0,-l/2,(h+2.5)/2),(2.24,t,h-2.5),'brick',(.98,1.05,1.14))
     m.box((0,0,h+.04),(w+.35,l+.35,.17),'asphalt')
     for x in (-w/2-.11,w/2+.11):m.box((x,0,h+.20),(.19,l+.5,.17),'stone')
     for y in (-l/2-.11,l/2+.11):m.box((0,y,h+.20),(w+.5,.19,.17),'stone')
@@ -31,7 +33,7 @@ def wing(parent,name,point,size,modern=True):
 
 
 def entrance(parent,p):
-    y=-p['length']/2;f=p['floor'];m=G.Mesh('Entrance landing and measured steps',parent,module_kind='Steps')
+    y=p['tower_xy'][1]-4.57/2 if p['tower']=='center' else -p['length']/2;f=p['floor'];m=G.Mesh('Entrance landing and measured steps',parent,module_kind='Steps')
     m.box((0,y-1.17,f/2),(4.3,2.34,f),'stone')
     count=round(f/.1524)
     for i in range(count):
@@ -71,7 +73,7 @@ def services(parent,p):
     yy=l/2+.55
     for j in range(3):
         x=-3+j*.7;m.box((x,yy,1.25),(.40,.20,.63),'stone',(.7,.75,.74));m.tube([(x,yy,.12),(x,yy,1.0)],.022,'iron',8)
-    for x in (-3.2,1.0):
+    for x in (-3.2,3.3):
         m.box((x,yy+1,.13),(1.5,1.2,.26),'concrete');m.box((x,yy+1,.78),(1.22,.95,1.06),'stone',(.65,.7,.69))
         for i in range(13):m.box((x-.54+i*.09,yy+.51,.78),(.022,.035,.90),'iron')
         m.tube([(x+.58,yy+1,.36),(x+.88,yy+1,.30),(x+.88,yy-.40,.30)],.032,'iron',8)
@@ -79,14 +81,19 @@ def services(parent,p):
 
 
 def build(p):
+    G.STYLE=p['style']
     rt=G.root('Church_'+str(p['seed']),asset_set='Church',static_root=True,seed=p['seed'],style=p['style'])
     w=p['width'];l=p['length'];modern=p['style']=='aframe'
     if modern:
         for i in range(p['bays']+1):
             y=-l/2+i*p['bay'];m=G.Mesh('Laminated bent '+str(i),rt,module_kind='Bent')
+            foot=(p['ridge']-.70-.15)/math.tan(math.radians(p['pitch']))
             for s in (-1,1):
-                m.beam((s*(w/2-.15),y,.15),(0,y,p['ridge']-.20),.24,.62,'timber')
-                m.box((s*(w/2-.15),y,.22),(.43,.76,.44),'stone')
+                m.beam((s*foot,y,.15),(0,y,p['ridge']-.70),.62,.24,'timber')
+                m.box((s*foot,y,.22),(.70,.76,.44),'stone')
+            # Miter the bent against the actual roof underside at the ridge;
+            # a square beam end otherwise pokes through the sloping covering.
+            m.v=[(x,yy,min(z,p['ridge']-abs(x)*math.tan(math.radians(p['pitch']))-.13)) for x,yy,z in m.v]
             m.finish()
         for s in (-1,1):
             m=G.Mesh('Low brick sidewall '+str(s),rt,module_kind='LowWall',floor=.1524);m.box((s*(w-p['wall'])/2,0,p['eave']/2),(p['wall'],l,p['eave']),'brick',(.87,1.02,1.12));m.finish()
@@ -94,11 +101,25 @@ def build(p):
         glazed_end(rt,p,-l/2);glazed_end(rt,p,l/2,True)
     else:
         for s in (-1,1):
-            for i in range(p['bays']):bay('Nave bay '+str(s)+'_'+str(i),rt,p,(s*(w-p['wall'])/2,-l/2+(i+.5)*p['bay'],0),s*90)
-            for i in range(p['bays']+1):buttress(rt,p,(s*w/2,-l/2+i*p['bay'],0),s*90)
+            for i in range(p['bays']):
+                point=(s*(w-p['wall'])/2,-l/2+(i+.5)*p['bay'],0)
+                if s==1 and i==1:
+                    from details import side_exit
+                    side_exit(rt,p,point)
+                else:bay('Nave bay '+str(s)+'_'+str(i),rt,p,point,s*90)
+            if p['style']!='chapel':
+                for i in range(p['bays']+1):buttress(rt,p,(s*w/2,-l/2+i*p['bay'],0),s*90)
         pierced_gable(rt,p,-l/2);pierced_gable(rt,p,l/2-p['wall'],True)
     roof(rt,p);tower(rt,p);services(rt,p)
     if not modern:entrance(rt,p)
     from modern import additions
     additions(rt,p)
-    return rt
+    from details import fittings
+    fittings(rt,p)
+    import bpy
+    bpy.context.view_layer.update()
+    points=[ob.matrix_world@v.co for ob in rt.children_recursive if ob.type=='MESH' for v in ob.data.vertices]
+    center=[(min(q[k] for q in points)+max(q[k] for q in points))/2 for k in (0,1)]
+    wrapper=G.root(rt.name+'_Footprint',asset_set='Church',static_root=True,seed=p['seed'],style=p['style'],nave_offset=[-center[0],-center[1],0])
+    rt.parent=wrapper;rt.location=(-center[0],-center[1],0);p['placement_offset']=[*center,0]
+    return wrapper

@@ -57,7 +57,7 @@ def window(name,parent,width=1.7,stem=2.8,sill=2.5,kind='pointed',point=(0,0,0),
 def bay(name,parent,p,point,yaw,kind=None):
     kind=kind or ('round' if p['style']=='romanesque' else 'pointed')
     rt=G.root(name,point,parent,module_kind='WallBay');rt.rotation_euler.z=math.radians(yaw)
-    w=p['bay'];t=p['wall'];h=p['eave'];r=.60 if p['style']=='chapel' else .89;stem=1.55 if p['style']=='chapel' else 2.65;sill=1.35 if p['style']=='chapel' else 2.72
+    w=p['bay'];t=p['wall'];h=p['eave'];r=.60 if p['style']=='chapel' else .70;stem=1.55 if p['style']=='chapel' else 3.10;sill=1.35 if p['style']=='chapel' else 2.30
     m=G.Mesh('Masonry pierced bay',rt,floor=p['floor'],drips=[-r,r],drip_z=sill,patch=name.endswith('2'))
     for x in (-1,1):m.box((x*(w/2+r)/2,0,h/2),((w/2-r),t,h),'brick')
     m.box((0,0,sill/2),(2*r,t,sill),'brick')

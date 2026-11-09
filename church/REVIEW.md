@@ -36,3 +36,41 @@ a different subtype: our straight A-frame is not a reconstruction of it.
 This is a preliminary diagnostic, not one of the three photographic review
 passes required for acceptance. The pairs, source/ship comparisons and their
 measured camera residuals still have to be completed.
+
+## Construction and street inspection — pass 2
+
+Color/value first: inspected all eight `pass2` images and all ten `pass3`
+images. The overfilled blue roof and pale wood improved with lower sky fill
+and the dark door. The next lighting pass uses a fixed daylight exposure .15,
+4.5-strength warm sun and .06 sky; it must retain front stone detail and dark
+recesses. The church should read as a maintained old building, not pale clay.
+No wear approval is claimed at this form gate. The reference's unmarked gray
+arrival drive supplies the modern neutral; the HABS references are monochrome.
+
+The tower/entry is now articulated, but the side lancets were too broad for
+their height compared with the storm-covered window in HABS TN-145-5.
+Changed them to 1.4m wide, 3.1m stem and a 1.212m pointed head. The standing
+entrance human remains a separate 1.8m presentation figure, with feet moved
+off the stairs. The heroes were in neighboring backyards; moved both onto
+clear across-street sight lines and moved the tower close-up out of foliage.
+
+Construction tests rejected the original door and bell assemblies. Rebuilt
+the hinges with 9mm sleeve bores, 7.5mm pins, 2mm axial knuckle gaps and a
+55mm leaf datum above the threshold. Set the closers' outward stops at 90°.
+Moved the rear condenser out of the exit sweep. Shifted the bell wheel outside
+the bearing planes and raised the campanile crossbeam above its spokes. The
+fresh-import sweeps now pass at 15° samples with no contact exceptions:
+doors 0..90° outward; bells ±30°. Sampled maximum penetration is under 0.1mm,
+below the 1mm tolerance. This is sampled surface testing, not a continuous
+engineering clearance guarantee.
+
+The original straight glulam bars did not actually follow the roof underside.
+Rebuilt them as 620 × 240mm rafters on outboard concrete shoes, with their
+outer face at the roof's underside and miters at the ridge. Moved the rear
+hall beyond the last bent rather than intersecting its feet. The range now
+includes a white clapboard chapel using the native house siding maps.
+
+Slate courses were stretched over an entire roof panel. Their shared chart
+now repeats at 406mm width and 196mm visible gauge, with physical tile cuts.
+The sign atlas's W/M glyphs spilled outside their cells; refit each cell and
+kept the same 1024×512 allocation. Both fixes need the next exported renders.

@@ -29,8 +29,8 @@ def additions(parent,p):
     from buildings import wing
     w=p['width'];l=p['length']
     if p['style']=='aframe':
-        if 'hall' in p['wings']:wing(parent,'Fellowship hall',(w/2+10.5,l/2+3.5,0),(21.0,12.2,4.25))
-        if 'education' in p['wings']:wing(parent,'Education wing',(w/2+21.8,2.0,0),(8.53,24.4,3.5))
+        if 'hall' in p['wings']:wing(parent,'Fellowship hall',(w/2+10.5,l/2+8.0,0),(21.0,12.2,4.25))
+        if 'education' in p['wings']:wing(parent,'Education wing',(w/2+21.8,3.3,0),(8.53,27.0,3.5))
         m=G.Mesh('Covered courtyard connection',parent,module_kind='Canopy')
         y=-l/2+5.0
         m.box((w/2+9.5,y,3.20),(19.0,3.66,.27),'stone',(.75,.79,.77))

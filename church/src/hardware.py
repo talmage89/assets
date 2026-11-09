@@ -5,13 +5,18 @@ import geometry as G
 
 def doors(name,parent,point=(0,0,0),yaw=0,modern=False):
     rt=G.root(name,point,parent,module_kind='DoorPair');rt.rotation_euler.z=math.radians(yaw)
-    m=G.Mesh('Rebated jambs and threshold',rt)
-    for x in (-1.055,1.055):m.box((x,0,1.13),(.115,.24,2.26),'stone')
+    m=G.Mesh(name+'__Frame',rt,component='door_frame')
+    for x in (-1.07,1.07):m.box((x,0,1.13),(.115,.24,2.26),'stone')
+    for s in (-1,1):
+        for z in (.295,1.105,1.905):
+            m.box((s*1.07,-.115,z),(.115,.03,.16),'iron')
+            for dz in (-.067,.067):m.box((s*1.0425,-.145,z+dz),(.09,.045,.020),'iron')
+            m.tube([(s*1.005,-.155,z-.077),(s*1.005,-.155,z+.077)],.0075,'iron',12)
     m.box((0,0,2.26),(2.22,.24,.12),'stone');m.box((0,-.06,.025),(2.22,.36,.05),'stone');m.finish()
     for s in (-1,1):
-        pivot=G.root('Door_Left' if s<0 else 'Door_Right',(s*1.005,-.04,.045),rt,
-                     pivot_axis='Z',range_degrees=[0,105] if s<0 else [-105,0],moving=True)
-        m=G.Mesh('Door leaf and hardware',pivot,solid=True,door=True);cx=-s*.495
+        pivot=G.root('Door_Left' if s<0 else 'Door_Right',(s*1.005,-.155,.055),rt,
+                     pivot_axis='Z',range_degrees=[-90,0] if s<0 else [0,90],moving=True)
+        m=G.Mesh(pivot.name+'__Leaf',pivot,solid=True,door=True,component='door_leaf');cx=-s*.5065
         m.box((cx,0,1.067),(.984,.062,2.1336),'iron' if modern else 'timber')
         for z in (.39,1.22,1.88):
             m.box((cx,-.042,z),(.81,.038,.055),'iron' if modern else 'timber')
@@ -25,7 +30,9 @@ def doors(name,parent,point=(0,0,0),yaw=0,modern=False):
         xx=-s*.86
         m.tube([(xx,-.045,.91),(xx,-.12,.91),(xx,-.12,1.23),(xx,-.045,1.23)],.013,'bronze',8)
         m.box((cx,.065,1.01),(.76,.05,.055),'iron');m.box((-s*.22,.056,2.01),(.23,.08,.055),'iron')
-        for z in (.24,1.05,1.85):m.tube([(0,0,z-.055),(0,0,z+.055)],.016,'iron',8)
+        m.finish()
+        m=G.Mesh(pivot.name+'__Sleeves',pivot,component='door_hinge')
+        for z in (.24,1.05,1.85):m.lathe([(z-.055,.016),(z+.055,.016),(z+.055,.009),(z-.055,.009),(z-.055,.016)],'iron',12)
         m.finish()
     return rt
 
@@ -57,15 +64,25 @@ def bell(parent,point=(0,0,0)):
     m=G.Mesh('Cast bell shell',rt)
     # Both shell faces, thickened sound bow and open mouth, not a solid cone.
     profile=[(-1.23,.57),(-1.19,.60),(-1.11,.54),(-1.03,.45),(-.84,.34),(-.55,.25),(-.38,.23),(-.28,.17),(-.28,.10),(-.38,.16),(-.55,.18),(-.84,.27),(-1.03,.38),(-1.11,.47),(-1.16,.51),(-1.23,.57)]
-    m.lathe(profile,n=48);m.box((0,0,-.16),(.94,.20,.23),'timber');m.tube([(-.75,0,0),(.75,0,0)],.045,'iron',12)
-    for x in (-.60,.60):m.box((x,0,-.05),(.14,.26,.22),'iron')
+    m.lathe(profile,n=48);m.box((0,0,-.16),(.94,.20,.23),'timber');m.tube([(-1.15,0,0),(1.15,0,0)],.045,'iron',12)
+    for x in (-.57,.57):m.box((x,0,-.05),(.12,.26,.22),'iron')
     m.tube([(0,0,-.41),(0,0,-1.12)],.024,'iron',10);m.lathe([(-1.18,.04),(-1.14,.09),(-1.07,.08),(-1.03,.03)],'iron',20)
     m.finish();m=G.Mesh('Bell wheel spokes and rim',rt)
-    points=[(.68,.62*math.sin(k*math.tau/48),.62*math.cos(k*math.tau/48)) for k in range(49)]
+    points=[(1.08,.62*math.sin(k*math.tau/48),.62*math.cos(k*math.tau/48)) for k in range(49)]
     m.tube(points,.023,'timber',8)
     for k in range(8):
-        a=k*math.tau/8;m.beam((.68,0,0),(.68,.60*math.sin(a),.60*math.cos(a)),.035,.035,'timber')
+        a=k*math.tau/8;m.beam((1.08,0,0),(1.08,.60*math.sin(a),.60*math.cos(a)),.035,.035,'timber')
     m.finish();return rt
+
+
+def bearing(m,x,z,hung=False):
+    rings=[]
+    for u,r in ((-.09,.09),(.09,.09),(.09,.05),(-.09,.05),(-.09,.09)):
+        rings.append([(x+u,r*math.cos(k*math.tau/16),z+r*math.sin(k*math.tau/16)) for k in range(16)])
+    m.loft(rings,'iron',caps=False,smooth=True)
+    if hung:
+        for y in (-.10,.10):m.box((x,y,z+.47),(.16,.055,.94),'iron')
+    else:m.box((x,0,z-.10),(.22,.26,.02),'iron')
 
 
 def sign(parent,point,name,lines):

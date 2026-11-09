@@ -22,7 +22,7 @@ def instance(path,name,point,yaw=0,scale=1,kind=None,actor='town'):
             for ob in obs:
                 if ob.name not in bpy.data.objects or ob.type!='MESH':continue
                 if len(ob.data.polygons)<400:continue
-                modifier=ob.modifiers.new('Church distant context reduction','DECIMATE');modifier.ratio=.16
+                modifier=ob.modifiers.new('Church distant context reduction','DECIMATE');modifier.ratio=.13
                 bpy.context.view_layer.objects.active=ob
                 bpy.ops.object.modifier_apply(modifier=modifier.name)
         rt=G.root('Template_'+name)
