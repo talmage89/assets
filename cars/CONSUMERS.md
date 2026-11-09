@@ -83,12 +83,17 @@ exact bytes after accepting the new fixed-recipe hashes and replacing older
 four-thread caches. Its immutable accepted surface baselines remain useful
 independent preservation checks.
 
-Complete-site car exceptions, including the garage's embedded repeat guard,
-need each site's car caches/immutable input receipts refreshed, its owned site
-baseline rebuilt, and its full repeat check run before becoming exact. The
-same applies to churches, civic, river and the other families' accepted site
-receipts. No whole sites are rebuilt here. On their next build, site counts
-may move by the few triangles contributed by the corrected native car caches.
+The garage's `context_embedded.py` / `embedded_repeat.py` car exception also
+needs refreshed fixed car caches, rebuilt owned form/look-dev site baselines,
+and the full `make repeat` proof before requiring exact car payloads.
+
+Church and civic already compare their own packages exactly while keeping
+canonical native cars immutable; river also has an exact package repeat and
+reuses school's car cache. Their guards need no new tolerance rule. Adopting
+changed car inputs still needs their input receipts/owned caches refreshed
+and their full repeat checks run. No whole sites are rebuilt here. On the
+next build, site counts may move by the few triangles contributed by the
+corrected native car caches.
 
 ## H120 metadata proof
 
