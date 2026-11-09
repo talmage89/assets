@@ -452,3 +452,31 @@ match the final exported GLB hashes (`build/joint-repair/render-receipt.json`).
 Opened every final render, the contact and all three refreshed docs sheets.
 The open pose and hinge construction visibly changed, so docs are refreshed in
 their own final commit. Repository check and `git diff --check` pass. Kit unchanged.
+
+## Repaired-cart LOD adoption — frozen tool a646238
+
+109 kit source/recipe hashes are frozen in `build/lod-cart-repair/freeze*`.
+`sources.json` freezes both repaired deliveries, after the original full build,
+checks, repeat and visual review. All LOD work reads these exports; it does not
+regenerate LOD0. Both carts retain their three separate moving meshes and use
+LOD0 whenever any lid or wheel angle departs from rest.
+
+### Trash LOD critique 1 — cheaper reduction witness
+
+Built the existing .4/.15 requests at .25/.09 without region protection first.
+Opened every native 0/55/145-degree strip and all three 960px construction views.
+Color/value stays charcoal, without a broad new gray wash or changed stamp hue.
+The 3,202-triangle near level develops a dark, uneven sealing reveal in the
+construction view. The 1,952-triangle far level visibly kinks/separates the skirt
+and bead, and shifts the rear grip highlight in the native rear strip. Its
+8x8 patch maxima are .10304 against LOD0 / .10039 against LOD1, over .08.
+Thus generic `check-lod` fails images; raw topology, supplied normal fields,
+re-import and source immutability pass. Targets 2,290/859 remain missed.
+
+The repaired original full sweep and both reduced rest poses pass the finite-
+bearing joint check, all measuring zero unintended penetration. This clears
+the physical blocker but does not approve the visual fault. Exact config,
+payloads, their hashes and all native images are retained in
+`build/lod-cart-repair/trash-unsafe/`; the trial is unwired. The next trial
+pins UV regions to preserve the thin sealing construction instead of accepting
+that deformation or increasing image limits.
