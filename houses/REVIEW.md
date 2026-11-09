@@ -2396,3 +2396,21 @@ original-check receipt. This is an interrupted validation, not a passing one.
 The corrected `make TYPE=ranch check` returns 0 in 69.64 s, including the
 recursive colonial check. Construction, motion, imported surfaces/frames,
 shared maps and original delivery checks pass; the 136-file ledger is exact.
+
+### Ranch fixed-region cost probe
+
+The first public-tool trial requests .4/.15 at .30/.12 screen height, with
+`preserve_uv_regions: true`, original materials and explicitly protected
+`FrontDoor`, `PatioDoor`, `ServiceDoor`. Its serialized near counts are
+53,990 / 53,926 of 55,228: savings only 2.24% / 2.36%, against the colonial's
+55% / 25% ceilings (30,375 / 13,807). These are not adopted on count alone.
+
+An ordinary-Python inventory of the original accessors, using the frozen
+region classifier, measures all 10,618 geometric static-trim vertices fixed;
+16,113 of 16,294 roof vertices fixed; and all 228 / 120 / 96 trim vertices
+fixed in the three moving leaves. Counts are per material primitive and may
+overlap physically. Normal-only splits do not create these regions. The roof
+and trim retain 23,486 / 18,438 source triangles. Inventory:
+`build/houses-lod/ranch-region-inventory.json`. This explains the cost of the
+conservative domain policy; it does not establish a minimum over other tools
+or approve removing the UV guard. Proxy bake and native review follow.
