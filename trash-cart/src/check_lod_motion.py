@@ -116,8 +116,12 @@ def main():
             assert pivot.get('pivot_axis') == 'X'
             rest = pivot.matrix_basis.copy()
             stationary = {o.name: surface(o) for o in fixed}
-            values = ([0] if level else list(range(0, -111, -1)) if name == 'Lid'
-                      else [0] if level else list(range(0, 361, 5)))
+            if level:
+                values = [0]
+            elif name == 'Lid':
+                values = list(range(0, -111, -1))
+            else:
+                values = list(range(0, 361, 5))
             maximum, allowed, worst, bearing_depth = 0., 0, None, 0.
             for angle in values:
                 angles = dict.fromkeys(NAMES, 0.)
