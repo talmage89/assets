@@ -1,5 +1,5 @@
 """One GPU-lock acquisition per serial export review set."""
-import argparse,hashlib,json,struct,sys
+import argparse,hashlib,json,struct,subprocess,sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE),str(HERE.parents[1])]
 import render as renderer
@@ -40,11 +40,27 @@ def main(argv=None):
     p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=Path('renders/look-a'))
     p.add_argument('--width',type=int,default=1000);p.add_argument('--samples',type=int,default=20)
     p.add_argument('--shots',default='hero,above,window,window_dusk');p.add_argument('--matches',action='store_true')
-    p.add_argument('--source-matches',action='store_true');p.add_argument('--range',action='store_true');p.add_argument('--full',action='store_true');p.add_argument('--resume',action='store_true');a=p.parse_args(argv if argv is not None else sys.argv[sys.argv.index('--')+1:])
+    p.add_argument('--source-matches',action='store_true');p.add_argument('--range',action='store_true');p.add_argument('--full',action='store_true');p.add_argument('--resume',action='store_true')
+    p.add_argument('--seeds',default='101,202');p.add_argument('--worker',action='store_true',help=argparse.SUPPRESS)
+    a=p.parse_args(argv if argv is not None else sys.argv[sys.argv.index('--')+1:])
+    if a.full and not a.worker:
+        # The empty coordinator holds the inherited GPU lease. Fresh serial
+        # processes release Blender/Cycles allocations between the two sites
+        # and the independent details; no child is detached.
+        import bpy
+        for seeds in ('101','202',''):
+            command=[bpy.app.binary_path,'-b','-t','4','--factory-startup','--python-exit-code','1',
+                     '--python',str(Path(__file__).resolve()),'--','--full','--worker','--seeds',seeds,
+                     '--out',str(a.out),'--width',str(a.width),'--samples',str(a.samples)]
+            if a.resume:command.append('--resume')
+            subprocess.run(command,check=True)
+        return
     global RESUME
     RESUME=a.resume;renderer.render_file=render_file
-    if a.full:a.shots='hero,above,doors,window,window_dusk,tower,wing,sign,scale,age,north_roof';a.matches=True;a.source_matches=True;a.range=True
-    for seed in (101,202):
+    if a.full:
+        a.shots='hero,above,doors,window,window_dusk,tower,wing,sign,scale,age,north_roof'
+        a.matches=a.source_matches=a.range=not a.seeds
+    for seed in map(int,filter(None,a.seeds.split(','))):
         for name in filter(None,a.shots.split(',')):
             render_file(Path(f'export/ChurchSite-{seed}.gltf'),a.out/str(seed),name,shots(seed)[name],a.width,a.samples,'CYCLES')
     if a.matches:
@@ -55,7 +71,7 @@ def main(argv=None):
                 render_file(Path(f'build/site-{data["seed"]}.blend'),Path('renders/source-matches') if a.full else a.out/'source-matches',name,spec,a.width,a.samples,'CYCLES')
     if a.range:
         render_file(Path('export/Range.gltf'),a.out,'range',dict(location=(60,-170,90),target=(16,0,6),lens=42,ortho=166,module_studio=True),a.width,a.samples,'CYCLES')
-    if a.full:
+    if a.full and not a.seeds:
         render_modules(Path('renders/modules'),720,32,'CYCLES')
         for seed in (101,202):render_file(Path(f'export/ChurchSite-{seed}.gltf'),Path('renders/eevee')/str(seed),'hero',shots(seed)['hero'],a.width,a.samples,'BLENDER_EEVEE')
 
