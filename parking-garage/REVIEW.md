@@ -1349,4 +1349,3 @@ triangles on their next build. Native cache hashes and context repeat could
 now become exact after replacing old caches; the embedded site guard still
 needs refreshed owned site baselines and a complete site repeat proof.
 See [the consumer inventory](../cars/CONSUMERS.md).
-

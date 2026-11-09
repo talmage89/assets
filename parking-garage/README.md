@@ -246,8 +246,10 @@ source fields and non-car exports repeat **byte for byte** with fixed inputs.
 GPU rebakes are checked separately: at most one 8-bit code per channel and
 mean normalized error at most 1e-5; their bytes are not promised identical.
 
-The hatchback and crossover generators can vary by a few triangles and less
-than a millimeter between cold builds. Their caches require identical object
+At multiple threads the hatchback and crossover generators can vary by a few
+triangles and less than a millimeter. Native car cache builds now use one
+thread; three cold caches per car repeat exactly (see `REVIEW.md`). Their
+existing guards still require identical object
 names, material assignments and material definitions, total triangle counts
 within **0.1%**, and 30 sampled surface positions per named mesh within
 **1 mm** of the accepted export. The samples cover six extent face interiors
@@ -281,13 +283,14 @@ ignored; `make refs` fetches the recorded images/PDFs. See [SOURCES](refs/SOURCE
 
 ## Known flaws
 
-Native hatchback/crossover caches and complete sites containing them repeat
-within the tolerance above, rather than necessarily byte for byte. The cars
-family is unchanged; this family does not repair its cold-build variance.
-Observed 73,308- and 73,310-triangle crossover candidates exceeded the 0.1%
-count limit and were rejected. Bounded source retries select only candidates
-that pass both fixed limits; their complete histories are retained in
-`build/context/` and `build/context-repeat/`.
+Native hatchback/crossover generation now uses one thread and repeats exactly
+in three cold caches each: 58,020 / 73,382 triangles. Complete accepted sites
+still carry their earlier car inputs and use the tolerance above; they have
+not been rebuilt for this change. Historically, 73,308- and 73,310-triangle
+crossover candidates exceeded the 0.1% limit and were rejected. The original
+guards and bounded retries remain, with histories in `build/context/` and
+`build/context-repeat/`. A future complete site repeat must prove exact car
+payloads before the embedded tolerance guard can become exact.
 
 At close range, the limited coverage kernels and perfectly manufactured small
 edges remain visible procedural tells. Tower cement faces and close cab
