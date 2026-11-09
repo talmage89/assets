@@ -35,12 +35,22 @@ measurements of a photograph.
 | Masonry wall gauge | .4572 / .3048 m (18 / 12 in) |
 | Historic wall / roof pitch | 8.2296 m / 48° |
 | Modern wall / roof pitch | 2.7432 m / 57° |
-| Door leaves | .9906 × 2.1336 m (39 × 84 in) |
+| Door leaves | .984 × 2.1336 m (nominal 39 × 84 in, fitted clearances) |
 | Front stair rise / going | .1524 / .3302 m (6 / 13 in) |
 | Ramp rise / run | .6096 / 7.9248 m; 1:13 |
 | Ramp clear between rails / landings | 1.524 / 1.8288 m |
 | Rail height / grasp diameter | .9144 / .0424 m |
 | Parking stall / aisle | 2.7432 × 5.4864 / 7.3152 m |
+
+The historic side apertures are 1.4m wide with a 3.10m vertical stem and
+1.212m pointed crown, in 457mm masonry. These are authored dimensions,
+checked against the slenderness and layered reveals of HABS photographs,
+not dimensions transcribed from the photographed church. Modern rafters
+are 620 × 240mm, mitered under the roof on steel shoes. Roof slate repeats
+at 406mm width and 196mm exposed course gauge. The unchanged native roofing
+set covers the A-frame. The Connecticut nomination's Shepherd of the Sea
+Chapel supplies the main straight-roof/bent/arrival-drive photo comparison;
+its abandoned 2024 surfaces do not supply the intended maintained age.
 
 ADA 1991 is the period reference for the invented 1996 retrofit; the Access
 Board's current guide is a readable construction cross-check. Provide level

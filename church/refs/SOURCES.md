@@ -20,6 +20,7 @@ at their scales, never traced. PDF photo extractions remain ignored in refs/.
 | historic-street.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/md/md1800/md1821/photos/387470pv.jpg | James W. Rosenthal, 2007, HABS MD-1298-1, Library of Congress / National Park Service; US federal survey photograph, public domain | St. Mary's Evangelical Lutheran Church: street elevation, tower-to-gable scale, stone arch construction and narrow lawn. Monochrome is a form reference, not brick hue calibration. |
 | historic-entry.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/tn/tn0100/tn0102/photos/153766pv.jpg | HABS TN-145-5, Library of Congress / National Park Service; US federal survey photograph, public domain | Christ Episcopal Church: full-gauge entry, layered storm-protected lancets, roof edge and foundation shrubs. White painted siding is not a brick color target. |
 | historic-habs.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/pa/pa1100/pa1153/color/570205cv.jpg | HABS PA-1725, Church of St. James the Less; US federal survey color transparency, public domain | Supplementary sheltered stone, deep tree shade and planted churchyard; not a camera-match source. |
+| period-perris.jpg | https://live.staticflickr.com/3100/3160415169_4dddbfb6fd_o.jpg | michael h j c, 2 January 2009, CC BY-SA 2.0; original photograph linked by the Wikimedia Commons file record below | Period condition: dark protective glazing, real panel joints/roof gauge, sheltered staining, narrow planting and jointed concrete. Viewed locally, comparison only; no texels reused. |
 
 The PDF-derived `modern-front-44.jpg`, `modern-photo-45.jpg` through
 `modern-photo-47.jpg` and `historic-photo-10.jpg` are extracted from those
@@ -39,7 +40,8 @@ registered PDFs with Poppler. They are not independently downloaded sources.
 - [Flasher church, 12 June 2009](https://commons.wikimedia.org/wiki/File:Flasher,_North_Dakota_-_6175487355.jpg), Andrew Filer, CC BY-SA 2.0: 1959 brick A-frame type in a town setting. Direct image: https://upload.wikimedia.org/wikipedia/commons/6/6c/Flasher%2C_North_Dakota_-_6175487355.jpg
 - [St. Albans church](https://commons.wikimedia.org/wiki/File:St._Albans.jpg), Harfang, CC BY-SA 3.0, cataloged 6 February 2010 (EXIF 2009): supplementary town context. Direct image: https://upload.wikimedia.org/wikipedia/commons/c/cf/St._Albans.jpg
 
-Commons image servers returned HTTP 403/429 during initial retrieval. These
-pages informed type research; they are not claimed as locally inspected
-camera-pair evidence. The HABS and nomination photographs above remain the
-rebuildable local comparison sources. No account or upload was used.
+Commons image servers returned HTTP 403/429 during retrieval. The Perris
+original was subsequently retrieved from the photographer's static image URL
+linked by Commons and inspected locally. The other two pages inform type
+research only. The HABS and nomination photographs remain the three camera
+comparison sources. No account or upload was used.
