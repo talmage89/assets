@@ -79,3 +79,15 @@ construction/used pairs and three docs. Hero-distance low grime and rim rust
 survive; no black flute projection band or missing metallic reflections. The
 studio remains brighter than the outdoor reference and 1024 filtering softens
 fine spangle/dents; these are the remaining visual limits.
+
+## LOD rollout — 2026-11-09
+
+Merged current main at `af79b87`; no kit change came with that merge. Freeze
+revision and all 103 literal tool hashes are in
+`build/lod-rollout/metal-trash-can/freeze*`. Original `make check` passes,
+with `-o build/lookdev.blend -o build/game-audit.blend
+-o build/finalized.blend -o export/MetalTrashCan.glb` freezing accepted
+generated inputs; `original-before.{json,log}` records the complete command.
+Start with one standard-prop .4 level at .25, keeping removable Lid and both
+folding handle frames/meshes. The original sheets, maps and docs stay immutable.
+No LOD is accepted before native review and independent checks.

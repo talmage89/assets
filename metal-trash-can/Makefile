@@ -22,6 +22,7 @@ renders/photo-final/.stamp: export/MetalTrashCan.glb build/matched-cameras.json
 build/self-normal.stamp: build/baked.stamp build/finalized.blend src/bake_normal.py
 	$(KIT)/with_gpu.sh $(BP) --python src/bake_normal.py -- --out textures/bake --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
 	@touch $@
+
 build/textures.stamp: build/self-normal.stamp
 bake: build/self-normal.stamp
 
@@ -31,3 +32,6 @@ renders/final-eevee-reflected/.stamp: export/MetalTrashCan.glb src/eevee.py rend
 	$(KIT)/with_gpu.sh $(BP) --python src/eevee.py -- --stage final --source $< --config $(CONFIG) --out renders/final-eevee --shots hero_closed --engine BLENDER_EEVEE --width $(WIDTH) --samples $(SAMPLES)
 	@mkdir -p renders/final-eevee-reflected
 	@touch $@
+
+# Additional levels read the accepted GLB without rebuilding it.
+include ../kit/lod_rules.mk
