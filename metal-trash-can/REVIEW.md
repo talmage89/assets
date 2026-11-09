@@ -111,3 +111,42 @@ sweeps pass. This is physical surface evidence, separate from serialization.
 Config, outputs, checks, hashes, motion and every image are archived in
 `build/lod-rollout/metal-trash-can/pass1/` before a lower .15 request, keeping
 the .25 switch and original 1971 goal unchanged.
+
+### LOD critique 2: select 3224, reject the goal-count control
+
+The lower .15 request yields 3224 triangles, below the first trial's 3284.
+Opened all fresh native strips, both construction views and contact. Zinc value,
+flutes, chime and handle coverage hold; close lid/rim facets remain the weakest
+area. At the unchanged .25 / 2.62m switch, worst mean .001928, p95 .010896,
+local .069670, alpha .005896 and silhouette loss .006027 pass the original
+gates. Generic raw/field audits pass. The imported physical sweep also passes:
+lid .347733mm within .5mm seating tolerance, handles zero within .4mm.
+
+Opened all three native strips for the deliberately unguarded 1968-triangle
+ordinary-collapse control in `build/lod-rollout/metal-trash-can/goal-control/`.
+With the original maps unchanged, it develops dark vertical streaks, an eroded
+zigzag chime and altered lid response. Front/rear local errors .12410/.08305
+fail .08; the side .07118 passes numerically but still shows the vertical
+fault. Its script and receipt retain source/candidate/selected dependencies,
+tool hashes and actual count. It is never a delivery or a bypass of a check.
+
+Select 3224, the lowest reviewed passing count, not a global geometric minimum.
+`target_met: false` remains against 1971. This is a measured target exception
+with a cheaper native visible failure, not a claim that optimizer saturation
+proves necessity. Keep just one standard-prop level; no extra far row is
+claimed. Removable lid and folding handles remain separate with original
+pivots/ranges. `check-lod` now also runs `src/check_lod_motion.py`, which
+includes all four actual imported meshes, rejects boundary-excluded fixtures
+and measures moving/fixed counts before the sampled source/LOD sweeps.
+
+Final receipts: `final-count-check.json` records full `make check-lod` exit 0,
+including physical motion and independent field/raw audits. Original check
+before/after both exit 0 with the explicit frozen inputs above. All 103 tool
+hashes still match revision `af79b87`; chain check proves the source bytes
+unchanged. `lod_report.py --write-readmes` generated the measured table and
+`build/lod-rollout/metal-trash-can/report/contact.jpg`, which was inspected.
+Stored chain: 8152 triangles, one canonical material, eight primitive placements,
+6887230 physical bytes, 4.4000 MiB resident (4.0001 maps once plus all meshes).
+New images 0; added mesh buffers .16068 MiB. An instance draws 4928 or 3224
+triangles and four primitives. Repository check: 2602 source files, zero errors;
+diff check passes. No kit/source delivery/maps/docs image changes.

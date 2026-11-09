@@ -35,3 +35,7 @@ renders/final-eevee-reflected/.stamp: export/MetalTrashCan.glb src/eevee.py rend
 
 # Additional levels read the accepted GLB without rebuilding it.
 include ../kit/lod_rules.mk
+.PHONY: check-lod-motion
+check-lod: check-lod-motion
+check-lod-motion:
+	$(BP) --threads $(LOD_THREADS) --python src/check_lod_motion.py -- --config $(LOD_CONFIG)
