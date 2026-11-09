@@ -2355,3 +2355,515 @@ previous image in the original portfolio commit, so only one street JPG blob
 remains in this branch's history. All other accepted docs, delivered split
 files and shared maps retain their bytes. All four types' make checks and
 the repository/privacy checks pass again for this correction. No kit changes.
+
+## LOD adoption — ranch immutable original, 2026-11-09
+
+The LOD reference is the accepted delivery, not a new source look. Main was
+merged before work (already current at `1c38664`). The tool/recipe freeze is
+`build/lod-freeze-revision.txt` and `build/lod-freeze.sha256`. No kit code is
+changed. `build/houses-lod/originals.json` protects all 136 existing house
+delivery, image and docs files; no digest is refreshed during adoption.
+
+To avoid publishing a newer exporter label over the accepted original, copied
+the family scripts, generated inputs and maps to the ignored
+`build/houses-lod/original-build/houses/`, with the current kit read-only.
+Ran `make TYPE=ranch export -W src/ranch_sweep.py` there: exit 0, 81.13 s.
+This freshly rebuilds the six procedural sources and deliveries. All six BINs
+and metadata files match exactly. Each glTF differs only in its generator
+label v5.2.40 to v5.2.41; after removing that single field its entire JSON
+matches. The scratch build did not publish to the accepted directory. Counts and
+geometry sizes match the existing six-seed README table. Full commands, hashes
+and comparisons: `build/houses-lod/ranch-original-{build,comparison}.json`.
+
+One representative chain is attempted for seed 12: the ranch is an unbounded
+seeded generator, not six cosmetic copies with identical routing. Seed 12
+includes the broad eave, picture glazing, chimney, garage, front/service leaves
+and rear slider. No result is inferred for another seed or roof/material
+choice. Source glTF SHA-256:
+`0beefce72801255d7209147d098f0935fb414e1bdb84592c1c902227fcea237c`;
+BIN: `af84399a8d1698badd2ac59b0772be75ef4dc5c41099e6e7a4a2af6c9f2f3b25`.
+The LOD builder additionally freezes every canonical source-image dependency.
+
+The first original-check attempt exposed a GNU make trap: `-o` is not inherited
+by recursive make. The ranch check passed, but its recursive colonial check
+began rebuilding/republication. Stopped it and restored all sixteen changed
+original files from verified exact backups; the 136-file ledger then passed.
+No digest was refreshed. `interrupted-original-check.json` lists those files.
+The corrected command passes the same explicit frozen-input list through
+`MAKE` as well as the outer invocation; its full argv is retained in the
+original-check receipt. This is an interrupted validation, not a passing one.
+
+The corrected `make TYPE=ranch check` returns 0 in 69.64 s, including the
+recursive colonial check. Construction, motion, imported surfaces/frames,
+shared maps and original delivery checks pass; the 136-file ledger is exact.
+
+### Ranch fixed-region cost probe
+
+The first public-tool trial requests .4/.15 at .30/.12 screen height, with
+`preserve_uv_regions: true`, original materials and explicitly protected
+`FrontDoor`, `PatioDoor`, `ServiceDoor`. Its serialized near counts are
+53,990 / 53,926 of 55,228: savings only 2.24% / 2.36%, against the colonial's
+55% / 25% ceilings (30,375 / 13,807). These are not adopted on count alone.
+
+An ordinary-Python inventory of the original accessors, using the frozen
+region classifier, measures all 10,618 geometric static-trim vertices fixed;
+16,113 of 16,294 roof vertices fixed; and all 228 / 120 / 96 trim vertices
+fixed in the three moving leaves. Counts are per material primitive and may
+overlap physically. Normal-only splits do not create these regions. The roof
+and trim retain 23,486 / 18,438 source triangles. Inventory:
+`build/houses-lod/ranch-region-inventory.json`. This explains the cost of the
+conservative domain policy; it does not establish a minimum over other tools
+or approve removing the UV guard. Proxy bake and native review follow.
+
+### Ranch LOD critique pass 1 — exported values and construction
+
+Opened all nine native four-panel strips through unscaled raw-PNG pages
+(`build/houses-lod/inspection/ranch/`), their original/preceding comparisons
+and x6 differences, all four 960-square construction views and the contact.
+Color/value first: the near brick, gray shingles, dark room backings and
+green entry door match the immutable original under identical procedural
+light; no photographic white balance is inferred. Neither near level gains
+the colonial's dark window-to-wall streaks. Normal-map phase, gutter/drop
+coverage, chimney/dish outline and the separate doors remain consistent.
+
+The 1,800-triangle proxy blurs masonry and roof granules and has a dark
+crease beside the entry hood in the elevated construction view. It is not
+suited to that closer view. At 4.5% / 48.6 nominal pixels / 110.18 m, the
+three native comparisons retain the roof/wall values, picture opening,
+entry supports and broad footprint. Maximum reference mean/p95/local are
+.012453/.053376/.078411; alpha/IoU maxima .016807/.018141. Every original
+and adjacent gate passes at its default, with no phase exception.
+
+`make lod LOD_CONFIG=src/lod-ranch.json LOD_THREADS=4` returns 0 (1,820 s
+including two GPU queues). `make check-lod` with the same override returns
+0 (19.32 s), including source charts/regions, normals, fresh re-import,
+pivots/sockets, original hashes and image residency. These rest/data checks
+are separate from the original family's sampled motion check and do not
+establish engine performance. The trial remains unwired pending the cost
+decision: its near mesh buffers are 4,967,832 / 4,961,820 bytes versus the
+original's 4,892,352, for only 2.24% / 2.36% triangle savings. They retain
+ten draws and allocate more geometry memory than LOD0.
+
+The complete trial is preserved as `src/lod-ranch-trial.json`, wired to no
+Make target. Its contents and payloads are unchanged by that filename move;
+`build/houses-lod/ranch-trial-report/` was generated from the current passing
+manifest without a failure waiver. This is a cost rejection, not a claim that
+an unsafe cheaper mesh visibly failed or that these counts are minimal.
+
+| Trial level | Triangles / target | Draws | Geometry bytes | Texture / mesh MiB | Switch |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Original | 55,228 / — | 10 | 4,906,874 | 27.3337 / 4.6657 | near |
+| Near | 53,990 / 30,375 | 10 | 4,981,701 | 27.3337 / 4.7377 | 30% / 16.53 m |
+| Middle | 53,926 / 13,807 | 10 | 4,975,687 | 27.3337 / 4.7320 | 12% / 41.32 m |
+| Proxy | 1,800 / 1,800 | 1 | 97,954 | 1.3334 / .0900 | 4.5% / 110.18 m |
+
+Near goals both miss; the proxy goal meets. Original/near dependency PNGs are
+7,277,844 bytes; the four 512-square proxy PNGs total 403,560. Stored costs:
+164,944 triangles, seven canonical materials, 31 primitive placements,
+22,643,620 distinct payload bytes and 42.8926 MiB, versus 31.9995 MiB for
+LOD0 alone. Only one level draws: ten submissions near, one at the proxy.
+No intermediate image is added. The two near buffers would cost 9.4697 MiB
+for negligible benefit. The useful far replacement will be proved separately;
+an engine must hold LOD0 while any door/slider differs from rest.
+
+The scratch rebuild driver initially replaced the inherited GPU lock with a
+worktree-local fallback. That affected only its first ignored material rebake;
+the accepted maps were not published. Corrected it to retain the supplied
+shared lock, and queued a fresh source/4096-map rebuild. The adoption bake and
+all switch renders used the supplied shared lock. The recorded descriptor
+audit confirms the corrected scratch wrapper uses that same lock; it has no
+leftover own holder.
+
+The original-check wrapper was also extended before Cape adoption: its legacy
+check invokes `make` directly from Python, in addition to `$(MAKE)` recursion.
+A local PATH wrapper appends the explicit `-o` list to both forms and logs
+every full nested argv. Dry checks of the family check graph and a direct
+nested ranch export return 0 with no publication scheduled. This changes no
+Makefile or kit file. The wrapper, complete inputs, commands and dry output
+remain in `build/houses-lod/`; the original 136 digests still match.
+
+The corrected fresh source rebuild returns 0: `make TYPE=ranch export
+-W src/ranch_sweep.py -W src/ranch_bake.py`, 1,676.95 s including the shared
+GPU queue. All six BINs and all six metadata files match accepted bytes;
+the six glTFs still differ only in the exporter label. The accepted 136-file
+ledger remains exact. This complete run supersedes the initial scratch bake.
+
+The sixteen fresh ranch PNGs have maximum independent channel drift 1/255
+against the accepted maps, within the family's documented GPU repeat bound.
+Per-map maximum and RMS code errors are in
+`build/houses-lod/ranch-rebaked-maps.json`. All accepted source PNG hashes are
+unchanged; the source-repeat variation is not baked into a replacement LOD0.
+
+### Ranch LOD critique pass 2 — direct far switch and final adoption
+
+The optional cost question received no answer during continued work. Proceeded
+with the stated economical choice: omit the near buffers, retain LOD0 for
+interaction, and prove the same far construction as the sole additional level.
+This is a partial adoption of the requested four-level chain; the near targets
+remain blocked by cost, not approved through an exception or lower image gate.
+
+Fresh `make lod LOD_CONFIG=src/lod-ranch.json LOD_THREADS=4` returns 0 in
+310.10 s; `make check-lod` with that override returns 0 in 4.21 s. Opened all
+three fresh native source/new/preceding strips and differences through six
+unscaled raw-PNG pages, both construction views and the contact. Color/value,
+entry posts, window rhythm, hip outline and deep eave shading remain consistent
+at 4.5%. The rear service/room highlights change slightly but do not become
+large bright blocks. Masonry blur and the close-view hood/roof crease remain
+visible weaknesses. No near-view equivalence is claimed for this shell.
+
+The fresh proxy's position/normal/UV/index arrays match the earlier reviewed
+proxy exactly. Three rebaked image hashes differ, so acceptance uses the fresh
+images, not a file-identity claim. Native reference mean/p95/local maxima are
+.012447/.053304/.078390, alpha/IoU .016807/.018141; all unchanged gates pass.
+The final proxy is 1,800/1,800 triangles, one material/draw, 97,954 geometry
+bytes and 403,132 PNG bytes (four 512-square maps). Its cold load is 501,086
+bytes. Whole storage: 57,028 triangles, seven material resources, eleven
+primitive placements and 12,685,804 distinct payload bytes; active draws are
+ten or one. Resident cost is 33.4229 MiB versus 31.9995 MiB for LOD0: only
+1.3334 MiB maps and .0900 MiB mesh are added. The two wasteful near meshes
+are absent from this manifest and the Make hooks.
+
+The post-build frozen `make TYPE=ranch check` returns 0 in 70.41 s, including
+the recursive colonial check. All 136 original files and every literal kit/
+recipe freeze entry match. Current evidence is
+`renders/lod/ranch-12-proxy/`, `export/lod/ranch-12-proxy/`, and
+`build/houses-lod/ranch-final-report/`; the original/trial receipts remain
+alongside. The README table is generated from this final serialized manifest.
+
+## LOD adoption — Cape Cod immutable original, 2026-11-09
+
+Merged current main before this type (already current). Tool/recipe freeze:
+`build/houses-lod/cape-freeze-revision.txt` and `cape-freeze.sha256`, revision
+`d1c4f13`; the later ranch prose correction changes no tool bytes.
+`make TYPE=cape export -W src/cape_sweep.py` in the same ignored original-build
+copy returns 0 in 1,021.66 s, including the shared GPU queue. All twenty-one
+glTF/BIN/metadata files for seeds 31–36 and the existing 34 paint control
+match accepted bytes exactly. Counts and sizes match the original README.
+The 136-file original ledger remains exact. Full receipt and per-file hashes:
+`build/houses-lod/cape-original-{build,comparison}.json`.
+
+The representative is seed 36, the accepted portfolio hero: its steep roof,
+two front dormers, short eaves, entry hood and chimney test this generator's
+distinctive construction. Front/service leaves are the source's two moving
+roots; this seed has no garage. An unbounded generator is not a set of cosmetic
+variants, so no chain is inferred for the other seeds, additions or sash/skin
+choices. Immutable glTF SHA-256:
+`1127ddc65eec070e7110a62fc57151916def0e3e6a8d66d1d30a47bc3701ef9e`;
+BIN: `748b85fdfd534d260796b3c4c7b3dfa5dc3ef3b8d8a5ddf0527e35d65122294b`.
+The builder additionally freezes every canonical image dependency.
+The frozen original `make TYPE=cape check` returns 0 in 161.69 s, including
+both older types, physical construction/motion, actual delivery surfaces,
+UVs/normals, imported frames and canonical images. Nested direct/recursive
+make arguments are recorded in `build/houses-lod/cape-nested-make.jsonl`;
+the 136-file preservation check also passes.
+
+### Cape near trial — raw failure before native comparisons
+
+The full frozen-tool request produces 34,721 / 34,397 / 1,798 triangles,
+against goals 20,010 / 9,095 / 1,800. Near levels keep original materials,
+`preserve_uv_regions: true`, and separate front/service roots. The two near
+mesh allocations are 3,603,078 / 3,575,502 bytes versus 3,231,894 original:
+only 4.57% / 5.46% triangle savings, larger buffers and the same eight draws.
+All 13,298 geometric static-trim vertices are region-fixed; the per-material
+source inventory is `build/houses-lod/cape-region-inventory.json`.
+
+The build/bake finishes, but `make lod` returns 2 after the comparison renderer
+refuses `Imported LOD triangle/corner order changed` on LOD1. Opened the only
+completed render, `renders/lod/cape-36/close-LOD0.png`; no near switch image
+was produced, so no near visual pass is claimed. Color/value in that source
+view retains the white lap, dark roof/rooms and red entry; it is the immutable
+appearance reference, not a photo-white-balance measurement.
+
+Full `check-lod` returns 2. Each near level has two new degenerate/sliver
+triangles; Blender re-import drops nine triangles (34,712 / 34,388 imported).
+The independent UV/normal field audit passes, which does not waive those raw
+failures. The proxy separately re-imports all 1,798 triangles, with zero
+open/nonmanifold/degenerate/sliver faces and positive volume on all sixteen
+shells. It still needs its own native image proof.
+
+Preserved `src/lod-cape-trial.json`, complete payload dependencies/hashes,
+full checks, failed render log and simplification report before replacing
+the active config. Evidence: `build/houses-lod/cape-trial-*` and
+`export/lod/cape-36/`. The trial is wired to no target. No importer/shading,
+topology or image check is disabled; no kit edit is attempted. These near
+levels are blocked by both serialization/topology and cost. A separate direct
+far configuration is being proved from the original, not from this trial.
+
+The failed full chain would store 107,299 triangles, seven material resources,
+25 primitive placements and 17,088,230 distinct payload bytes, with eight or
+one active draws. Resident estimate: 35.689 MiB versus 27.416 MiB original;
+1.333 MiB new proxy maps and 6.9394 MiB additional mesh buffers. Original/near
+PNGs total 6,155,272 bytes per dependency set; the four 512-square proxy maps
+total 384,900. Geometry bytes are 3,244,354 / 3,614,991 / 3,587,402 / 101,311.
+These measured costs do not approve the failed near levels or the unreviewed
+far appearance. Complete dimensions and resources remain in the saved manifest.
+
+### Cape LOD critique pass 1 — reject the 4.5% proxy
+
+Built the direct far-only config independently from immutable LOD0. Opened
+all three native four-panel strips, source/new/preceding raw-PNG pages and
+x6 differences, both construction views and contact. Color/value first:
+the front windows/trim become brighter, the lap and shingles blur, and the
+close view exposes pale triangular window fields. At the intended 48.6-pixel
+height this changes the frontal appearance; it is not approved as mere loss
+of subpixel granules. Coverage and the main gable/dormer silhouette pass.
+
+The 1,798/1,800-triangle proxy meets its count and is one material/draw.
+Front mean/p95/local are .034095/.133333/.117586; side
+.023323/.101961/.096181. Both fail the unchanged .02/.08/.08 gates;
+rear .015240/.054902/.039542 passes. Alpha/IoU maxima .025770/.027926 pass.
+`check-lod` returns 2 solely for rendered differences; geometry, source bytes,
+re-import, pivots and normal-map audit pass. There is no image-limit override.
+
+Preserved the exact config as `src/lod-cape-proxy045-trial.json`, all payloads,
+maps, manifest, raw checks, metrics and native images in
+`build/houses-lod/cape-proxy045/` before tuning. The measured failed report is
+`build/houses-lod/cape-proxy045-report/`, explicitly using `--allow-failed`
+without updating the README. A 3% / 32.4-pixel switch is tested next with
+the same triangle goal, 512 maps, shader policy and original image limits.
+
+### Cape LOD critique pass 2 — farther switch does not fix color
+
+Opened all three new 3% native strips and all six unscaled source/new/
+preceding/difference pages, both close views and contact. Color/value first:
+the front openings/trim remain too bright; the close view still has false
+pale triangular window fields and blurred roof manufacture. At 32.4 nominal
+pixels / 225.16 m, front mean/p95/local are .033532/.125490/.087503;
+side .022318/.094966/.076320; rear .014211/.047059/.029571. Coverage
+passes (maximum alpha .029686, IoU .033172). The front and side still fail
+the original color gates. Moving farther alone has not solved the appearance.
+
+The count is 1,800/1,800, one material/draw. The full check returns 2 only for
+image differences; geometry, fresh import, fields and source bytes pass.
+Archived the exact config as `src/lod-cape-proxy030-trial.json` and the
+complete package/evidence under `build/houses-lod/cape-proxy030/`; the failed
+measured report is alongside. No README table or Make hook is added.
+The next control keeps 3% and changes only the public
+`min_projected_coverage` option to .97, testing whether envelope merging
+fills small window recesses. This is a geometry-control hypothesis, not a
+claim that the cause has been isolated or permission to change any image gate.
+
+### Cape LOD critique pass 3 — opening coverage is insufficient
+
+Opened the .97-coverage control's three native strips, six raw-PNG inspection
+pages, both construction views and contact. Color/value still fails at the
+front window/trim fields; the close view retains false pale window triangles.
+Front mean/p95/local are .033172/.133333/.089777; side
+.022863/.097093/.084838; rear .013498/.043137/.028039. Coverage improves
+slightly (maximum alpha .026345, IoU .029586), but that does not fix color.
+The count remains 1,800/1,800 and the complete check returns 2 only for images.
+
+Archived `src/lod-cape-coverage030-trial.json`, package, metrics, checks,
+maps and raw/native images under `build/houses-lod/cape-coverage030/`.
+Its failed measured report is `cape-coverage030-report/` alongside. No chain
+is adopted and no limit changes. The last bounded trial moves to 2% / 21.6px,
+keeps .97 coverage and uses a finer quarter-pixel grid with .15-pixel inflation.
+It tests a smaller far silhouette with less envelope expansion; a failure
+will end this type's attempt rather than authorize a general tool edit.
+
+### Cape LOD critique pass 4 — final far rejection and hold
+
+Opened every final 2% native strip, all six unscaled comparison/difference
+pages, both construction views and the contact. Color/value remains wrong
+at the front window/trim fields; the closer view also exposes dark triangular
+dormer-apex artifacts, coarse steps and lost roof/lap detail. At 21.6 nominal
+pixels / 337.75 m, front mean/p95/local are .029275/.118235/.055592;
+side .019967/.082353/.047376; rear .011807/.039216/.024422. Alpha/IoU
+maxima .015886/.018900 pass. Front color still fails strongly, and side p95
+still exceeds .08; no tolerance is relaxed for the smaller excess.
+
+The final full check returns 2 only for images; topology, normals, re-import,
+pivots and immutable inputs pass. The 1,800/1,800-triangle shell has one
+material/draw, 100,041 geometry bytes and four 512-square PNGs / 414,704 bytes,
+514,745 cold-load bytes altogether. This rejected two-level package would
+store 38,183 triangles, seven material resources and nine placements, with
+28.8414 MiB resident versus the original's 27.4158 MiB. No intermediate
+image is added. Its saved recipe is `src/lod-cape-proxy020-trial.json`;
+current payload/native evidence is `export/lod/cape-36-proxy/` and
+`renders/lod/cape-36-proxy/`, with measured failed tables/contact in
+`build/houses-lod/cape-final-failed-report/`.
+
+No passing proxy was found at 4.5%, 3% or 2%, including the opening/finer-grid
+controls. Both near levels are raw failures and poor cost reductions, so
+ending at LOD2 would also be invalid. Cape stays LOD0-only. All rejected
+configs remain unwired; the README gets three plain lines and no failed
+tables. General near serialization and far appearance fixes are deferred,
+as required by this adoption scope. The post-build original check follows.
+
+The post-build frozen `make TYPE=cape check` returns 0 in 172.83 s, including
+both older types. All 136 accepted files and all literal Cape tool/recipe
+freeze entries match. `repo_check.py` and `git diff --check` pass. There is no
+Cape LOD hook or active `lod-cape.json`; only explicitly named rejected trials
+remain in `src/`. Default family LOD hooks still select adopted chains only.
+
+## LOD adoption — split-level immutable original, 2026-11-09
+
+Merged `main` before starting this type: merge `6ae1ac0` adds an unrelated
+Blender-command helper/test and its README paragraph; no existing LOD source
+changed. All prior literal freeze entries still match. A fresh split freeze
+is `build/houses-lod/split-freeze.sha256`, revision recorded alongside it.
+
+Rebuilt all six originals in the isolated scratch mirror using
+`make TYPE=split export -W src/split_sweep.py`: exit 0 in 116.15 s.
+All 18 glTF/BIN/metadata files are byte-identical to accepted deliveries.
+The exporter repeats its existing tangent warning on static geometry;
+it changes no delivery bytes. The immutable ledger still matches all 136
+accepted files. Comparison and command receipts are
+`build/houses-lod/split-original-{build,comparison}.json`.
+
+Representative seed 51 is the accepted core side-split: stepped roof,
+sunken integral two-car garage, both entry doors and all four sectional
+garage panels. Those six moving nodes are held in near reductions. A rest
+proxy must hold LOD0 whenever any door/panel moves. This proof makes no
+claim for the other five seeds' foyer, carport or bay configurations.
+
+The original `make TYPE=split check` with generated inputs frozen through
+every recursive/direct make returns 0 in 124.06 s. Phony mesh, motion,
+delivery and older-type checks execute; only rebuilding accepted deliveries
+is suppressed. Its archived precheck is `split-pre-original-check.{json,log}`.
+The first bounded trial keeps UV regions and original materials near, and
+uses the colonial's default 4.5% one-draw far recipe without limit changes.
+
+### Split LOD critique pass 1 — reject the complete trial
+
+`make lod LOD_CONFIG=src/lod-split-trial.json LOD_THREADS=4` builds/renders
+in 614.50 s; `check-lod` returns 2 in 15.68 s. The recipe was originally
+named `lod-split.json`; the exact failed recipe is now saved as the trial.
+Opened all 18 unscaled native original/new and preceding/difference pages,
+the four construction views and both contact sheets. Color/value is virtually
+unchanged near. The far front/side instead brighten the siding and alter
+window/trim values; the entrance, window surrounds and garage are visible
+differences at the switch. Close views also lose shingles, lap relief and
+steps, with a coarse roof junction. There is no image waiver.
+
+Near levels achieve 41,277/23,102 and 40,351/10,501 triangles at 30%/12%:
+both targets miss. They save only 1.73%/3.94% from 42,005, retain six
+materials/twelve draws and increase mesh buffers from 3,803,394 to
+4,454,106/4,356,426 bytes. Region-safe routing fixes 24,710 of 25,813
+source geometric vertices; the trim has 15,802 fixed of 15,956. More
+seriously, each near mesh introduces three degenerate triangles. Re-import
+counts and pivots match, and the independent UV/normal audit passes, but
+those facts do not waive raw geometry failures. No near level is adopted.
+
+The 1,798/1,800 far shell is closed, with three positive-volume islands,
+no degenerate/open/nonmanifold edges, one material/draw and a passing normal
+audit. At 4.5% / 48.6px / 145.75 m its front mean/p95/local errors are
+.034258/.137255/.133680; side .024152/.109804/.115584;
+rear .013227/.054902/.063276. Alpha/IoU maxima .022584/.024230 pass.
+Front and side color fail the unchanged limits.
+
+Full rejected-chain costs: geometry bytes 3,822,197 / 4,472,119 /
+4,374,424 / 110,973; unchanged near map dependencies 6,313,961 bytes,
+far four 512-square PNGs 364,137 bytes. The far cold load is 475,110 bytes.
+The chain would store 125,431 triangles, seven material resources and 37
+placements / 19,457,811 distinct payload bytes; residency rises from
+28.2109 to 38.0470 MiB. Maps add 1.3334 MiB, extra meshes 8.5027 MiB,
+and there are no new intermediate images. These stored alternatives are
+not simultaneous draws: the active level still costs twelve or one.
+
+Payload/check/native evidence remains in `export/lod/split-51/` and
+`renders/lod/split-51/`; measured failed tables/contact are in
+`build/houses-lod/split-trial-report/`. The same directory's sibling
+`split-trial-receipt.json` records dependency hashes; archived command
+receipts and simplification data retain the original trial. The next
+far-only test moves to 3%, raises projected opening coverage to .97 and
+uses a quarter-pixel grid/.15-pixel inflation. These configuration controls
+address the window/trim envelope; they change no acceptance threshold.
+
+### Split LOD critique pass 2 — reject the finer 3% proxy
+
+The far-only trial builds/renders in 317.17 s; `check-lod` returns 2 in
+3.63 s, only for images. The 1,800/1,800-triangle proxy passes topology,
+normal transfer, re-import and immutable input checks. Opened all six
+unscaled native pages, both close views and both contacts. Color/value
+still fails at the pale upper front: siding brightens and window surrounds
+change, with the garage/roof edge also visible in the difference. Finer
+geometry and .97 opening coverage do not cure that transfer. Roof, steps
+and window frames remain softened close up.
+
+At 3% / 32.4px / 218.62 m, front mean/p95/local are
+.034718/.151961/.108354; side .024296/.117647/.114011;
+rear .009482/.035294/.027431. Alpha/IoU maxima .018148/.020344
+pass. Front/side color failures remain substantial. The exact config,
+payload, images, simplification and command receipts are archived under
+`build/houses-lod/split-proxy030/`, with failed measured tables/contact in
+`split-proxy030-report/`. Saved recipe: `src/lod-split-proxy030-trial.json`.
+The last bounded trial changes only the switch to 2%; no further tool or
+acceptance changes follow if it fails.
+
+### Split LOD critique pass 3 — final far rejection and hold
+
+The final 2% test builds/renders in 257.53 s; `check-lod` returns 2 in
+3.58 s only for images. Opened all six native comparison/difference pages,
+both close views and both contacts. Color/value still fails in the same
+front/side siding and window fields. The close view additionally exposes
+dark stretched roof-junction patches, lost lap/shingle relief and coarse
+steps. At 2% / 21.6px / 327.94 m, front mean/p95/local are
+.034236/.140000/.118608; side .023529/.109804/.102208;
+rear .009765/.031649/.021324. Alpha/IoU maxima .023214/.027168 pass.
+Front and side remain clearly outside the unchanged color gates.
+
+This rejected shell meets 1,800/1,800 triangles, one material/draw, closed
+positive-volume topology, independent normal audit and exact re-import.
+It has 108,746 geometry bytes and four 512-square PNGs / 393,901 bytes,
+502,647 cold-load bytes total. The two-level trial would store 43,805
+triangles, seven material resources, thirteen placements / 10,638,805
+distinct bytes and 29.6425 MiB resident versus LOD0's 28.2109 MiB.
+No intermediate images are introduced. Its saved recipe is
+`src/lod-split-proxy020-trial.json`; current exact payload and native
+evidence are `export/lod/split-51-proxy/` and `renders/lod/split-51-proxy/`,
+with measured failed tables/contact in
+`build/houses-lod/split-final-failed-report/`.
+
+No passing proxy was found at the tested useful heights of 4.5%, 3% or 2%.
+Neither near level can ship because of new degenerate faces as well as
+poor buffer costs. The split-level stays LOD0-only, with no LOD hook and
+three plain README lines. General reducer/transfer changes are deferred
+to a separate tool proof; no accepted source or gate is adjusted here.
+The post-build original family check follows, with accepted inputs frozen.
+
+## LOD adoption — final proof and remaining work
+
+The post-build `make TYPE=split check`, with explicit accepted-input `-o`
+arguments propagated through every nested make, returns 0 in 120.73 s.
+Its full command/log is `build/houses-lod/split-original-check.{json,log}`.
+The corresponding ranch and Cape postchecks returned 0 in 70.41/172.83 s.
+Source scripts were rebuilt for all delivered seeds; LOD appearance proofs
+cover only representative ranch 12, Cape 36 and split 51, for the reasons
+recorded above. Cape/split publication repeats are byte exact. The ranch
+rebuild's glTF generator label and one-code-value rebake drift remain
+explicitly distinguished from the unchanged accepted delivery.
+
+Final `make TYPE=ranch check-lod LOD_THREADS=4` returns 0 in 4.12 s.
+The fresh measured report/contact is `build/houses-lod/handoff-ranch-report/`.
+Final rejected Cape/split full checks each return 2 only for images; their
+earlier near trials also fail raw geometry. They are never selected by
+default family LOD hooks, which retain the approved colonial and ranch only.
+No full four-level chain is newly adopted. The ranch far proxy is a partial
+adoption; the requested shared-map near reductions remain deferred.
+
+`originals.json` still matches all 136 accepted geometry, metadata, image
+and docs files. Literal `sha256sum -c` checks pass all ranch 109, Cape 109
+and split 111 frozen entries; `*-final-freeze.log` records them. This includes
+the original recipe, builder, independent auditor, renderer and reporter.
+`python3 kit/repo_check.py` passes 2,657 tracked sources with zero errors;
+`git diff --check` passes. No authored changes touch `kit/`, `cars/`, the
+top-level README or original docs. No bake/render/check process remains.
+
+For the three representative seeds together, counting only the adopted
+ranch proxy and the other originals, `representative-union.json` measures
+135,416 stored triangles, nineteen material resources, 31 stored primitive
+placements and 20,274,004 distinct payload bytes. Canonical original maps
+deduplicate to 28.0005 MiB, the one proxy adds 1.3334 MiB, and all meshes
+occupy 11.4651 MiB: 40.7991 MiB total versus 39.3756 MiB for those LOD0s.
+This is the three-seed union, not the whole delivered house family or the
+colonial chain. One selected level draws per instance; the active original
+draw counts are ranch 10, Cape 8 and split 12, or one for the ranch proxy.
+
+Remaining work needs separate general tool proofs: economical reduction
+within tiled/trim regions without new degenerate faces in the export,
+and far transfer that preserves pale siding and window/trim response.
+The retained ranch proxy still loses close masonry/shingle detail and has
+an entry-roof crease; it is approved only at its tested 4.5% switch and
+cannot replace an interacting door hierarchy. No engine frame-time or
+continuous motion-clearance claim is made by these LOD checks.

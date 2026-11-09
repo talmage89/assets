@@ -1,0 +1,43 @@
+{
+  "kind": "split-level seed 51",
+  "source": "export/HearthfieldSplit-51.gltf",
+  "output": "export/lod/split-51",
+  "renders": "renders/lod/split-51",
+  "readme_key": "split-51",
+  "readme_title": "Additional LODs — split-level seed 51",
+  "readme_level": 3,
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 512,
+  "protected_nodes": ["FrontDoor", "ServiceDoor", "GaragePanel*"],
+  "levels": [
+    {
+      "ratio": 0.4,
+      "screen_height": 0.3,
+      "target_triangles": 23102,
+      "preserve_uv_regions": true
+    },
+    {
+      "ratio": 0.15,
+      "screen_height": 0.12,
+      "target_triangles": 10501,
+      "preserve_uv_regions": true
+    },
+    {
+      "ratio": 0.05,
+      "screen_height": 0.045,
+      "proxy": true,
+      "target_triangles": 1800,
+      "texture_size": 512,
+      "atlas_sampling": {
+        "surface_texels_per_pixel": 1,
+        "graphic_texels_per_pixel": 4
+      },
+      "bake_supersample": 4,
+      "proxy_remesh": {
+        "voxel_pixels": 0.5,
+        "inflation_pixels": 0.3
+      }
+    }
+  ]
+}
