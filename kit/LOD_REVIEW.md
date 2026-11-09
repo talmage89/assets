@@ -2653,3 +2653,51 @@ limits; no engine benchmark or continuous motion proof is claimed. Nothing
 needs installing or input from the lead. Future kit work should focus on
 powered proxy optical transfer and source-layer ordering before attempting
 further reductions of those failed controls. The checkpoint stops here.
+
+## Factory paint adapter control, 2026-11-09
+
+`490b6e8` adds an explicit `factory_paint: true` path for the delivered
+`reference_plus_coverage_delta` convention. It leaves the ordinary proxy path
+disabled by default. The source reference paint/coat/lamp decode is evaluated
+before transfer. One additional linear atlas stores AO / tint coverage / clean
+metallic coverage; a one-material proxy retains the original tint and metallic
+tables. Its runtime metallic decode preserves the nonpaint reference response.
+Family helpers opt into that graph only for the new coverage tag.
+
+The independent GPU fixture builds its own paint, metallic trim, glass and lamp
+boxes, bakes a proxy and evaluates installed color/metal fields through Cycles
+after five fresh imports. Maximum measured linear component error is .001557;
+all three nonpaint probes have zero tint/metallic coverage. Both lamp states
+route. The fixture preserves source dependencies and measures one material/draw.
+One 512 map adds 349,552 compressed-mip bytes (.333 MiB); the car proxy uses
+eight 512 maps / 2.667 MiB altogether. No intermediate image is introduced.
+
+This is a contract proof, **not a passing car adoption**. The H120 source was
+rebuilt with its original family `make` before the control. All five presets
+execute on LOD0 and the proxy in ten fresh imports of the actual delivered
+decoder. The old control still raises `StopIteration` for every proxy preset.
+The unchanged old control also reproduces its recorded native RGB errors.
+
+Opened all six new native strips (three old-control and three adapter views),
+their differences, four construction views and both contacts. Color/value first:
+the reference-preset blue body remains recognizable, but the proxy loses the
+windshield's broad pale cabin band and changes front lamps and rear window/trim
+response. The adapter control uses 512 render samples, a fourfold bake filtered
+to 512, and no image-limit override. At .04 / 43.2px / 32.5845m its 2,498/2,500
+triangles meet the count, while means .060548/.033157/.031670 and p95
+.270588/.168627/.207843 fail .02/.08. Local patches also fail; coverage passes.
+Even the reference preset, with zero tint delta, fails. Tint coverage alone
+cannot repair those existing optical differences.
+
+Full `check-lod` returns 2 with only the rendered-difference error; the independent
+normal audit, topology, fresh-import and immutable-source checks pass. No new
+car chain is adopted. The brief's adapter gate stops the S240, X220 and full
+H120 adoptions and pickup re-adoption. Detailed two-pass critique and measured
+costs are in `cars/REVIEW.md` and `cars/README.md`. Native evidence is
+`cars/renders/lod/hatch-adapter/` and `hatch-proxy-control/`; generated reports
+are under `build/car-lod/adapter-report/` and `control-report/`.
+
+The literal pre-change kit archive matches `1d9d429`. The opt-in implementation's
+source/recipe freeze is `build/car-lod/freeze.sha256`. Full clean-suite and
+pickup/cone/maple opt-out byte-comparison closeout follows after those serial
+jobs complete; no result is inferred from their start.
