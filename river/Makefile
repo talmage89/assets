@@ -62,6 +62,7 @@ check-texture-repeat: textures/checkpoint/.stamp
 	$(PYTHON) src/texture_repeat.py
 
 .PHONY: docs
+all: docs
 docs: checkpoint
 	$(PYTHON) src/delivery.py
 

@@ -899,3 +899,76 @@ its alpha. Independent pixel inspection confirms transparent pores and
 fixes are wider variable strips, curved paths, discontinuities, a continuous
 UV chart per strip and multiscale porous coverage. No docs have been made;
 judge both complete crossings and the matched-light bank view next.
+
+## Pass 26 — complete clean exports and the elevated water gate
+
+Color/value first: opened all 25 complete exported inspection frames at their
+native 1280px width. Both 40mm bank heroes have sunlit gray concrete, deep
+underside cavities, warm bank/building reflections and blue reflected sky.
+The concrete-balanced Raisin and Morrison controls remain the value references.
+The river is green brown in depth; bed and submerged stones remain visible at
+both bars. The hidden-floor light bands do not return. Neither hero clips its
+highlights in the display-value audit.
+
+The low riffle views and the complete elevated bank comparison now show two
+broken, curved foam chutes with short standing trains. The rejected channel-wide
+wire ladder is gone. Source-field and shipped bank controls retain the same
+flow shapes and muted tone, without projection holes or lost shallow detail.
+The analytic crests remain more orderly than the Huron photograph's turbulence.
+Accept this specific correction; do not describe it as a fluid simulation.
+
+The overhead town has different neighboring depths, widths, heights, rooflines
+and setbacks, rear additions, service gaps and parking. The underlying block
+rhythm still reads regular. Both undersides resolve the I-section, overhang,
+drip line, joints and scuppers; cap runs stay narrow with subdued mineral edges.
+Quarry stones are graded gray/brown fracture hulls with partly buried toes,
+soil/vegetation gaps and water-height tint. Their hard silhouettes, macro card
+pixels, simple snagged wood and native quick context materials remain CG cues.
+Eevee has paler waterline transmission and weaker underside occlusion than
+Cycles. Preserve those controls and disclose the difference. The new ladder
+and outfall macros still need their final inspection before gallery creation.
+
+## Pass 27 — wall access passes; comparison exposure correction
+
+Color/value first: opened all three assembled matched-light pairs at full size.
+The urban and bank renders are darker than their corresponding illuminated
+photo surfaces. Raise only those comparison exposures to +.35 / +.65EV;
+retain the underside's +1.6EV, all optical fits and the heroes' separate light.
+Do not create gallery docs until the four affected export/source controls
+have been rerendered and inspected.
+
+Opened both wall macros and both accepted-version controls at 1280px. The
+barrel is hollow with a recessed interior; the poured bays have actual ties,
+weeps, high-water residue and paint-over. The west ladder is accessible,
+3.789m from the nearest bench surface. No accepted bench moved. The low sun
+casts hardware and railing shadows on the walk and wall. The barrel rim's
+limited segments and the flood-line mask remain simplified CG detail.
+Clean `make` completed, and all 24 comparisons retain identical optical
+cameras at 1280px per side. Appearance and numerical checks remain separate.
+
+## Pass 28 — corrected pairs and encoded gallery
+
+Color/value first: opened the four revised export/source comparison frames,
+both revised pairs, and all five gallery JPGs at native size. Raising only
+the urban/bank pair exposures opens their concrete, banks and water toward
+the balanced photographs. No hero or material value changed. The pair fits
+remain 12.69 / 11.57 / 10.93px; autumn foliage, structures and clear-sky
+conditions still differ, so these remain estimated light/type comparisons.
+
+All 30 delivered export frames have current bundle, camera, recipe and image
+receipts. The gallery preserves the hero shadows and shallow-water detail
+after encoding, at 1280–1600px wide and 176,899–198,538 bytes per JPG. Approve
+the five images for delivery after repeat and independent texture checks.
+The explicit remaining CG cues are analytic crest/foam placement, hard quarry
+facets, coarse macro card edges, regular urban block rhythm, simple snagged
+wood and native presentation materials. Eevee's pale waterline/weak occlusion
+remains visible in its labelled controls. No simulation or renderer-parity
+claim is made.
+
+Final verification: clean build and final `make check` passed. `make repeat`
+matched all 486 files byte for byte, including the five gallery JPGs and
+delivery manifest. The independent 4096 rebake/1024 filter matched all five
+shipped images with zero maximum/RMS byte error. All 633 existing delivery
+files remain unchanged. The repository check reports zero errors, and the
+final render/bundle/image receipts are current. No Blender worker or GPU
+lease remains from this build. Kit and the top-level index were not edited.

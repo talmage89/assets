@@ -58,6 +58,9 @@ def main():
         assert r['scene_and_river_images_bytes']<120000000
         lines.append(f'| {seed} | {r["scene_and_river_images_bytes"]:,} | {r["external_png_bytes"]:,} | {r["standalone_copy_bytes"]:,} |')
     lines += ['', 'The original 367 MB measurement counted glTF + BIN. Both scenes also remain below 120 MB including their river-owned PNGs. Canonical library PNGs remain external, shared and byte-identical. Copying every shared dependency into a standalone folder costs the larger total above.']
+    lines += ['', 'Shared full-mip image residency per crossing, including native context: '
+              + ' / '.join(f'{seed}: **{resources[f"RiverCrossing-{seed}"]["shared_image_mib"]:.2f} MiB**'
+                           for seed in (101,202)) + '. The two totals overlap and are not additive.']
     lines += ['','| Seed / category | Placed triangles | Unique triangles | Geometry bytes | Shared image MiB |',
               '| --- | ---: | ---: | ---: | ---: |']
     for seed in (101,202):

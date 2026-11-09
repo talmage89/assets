@@ -69,7 +69,9 @@ def prepare():
         # Original photographs remain untouched. The neutral gains are
         # recorded separately from the fitted geometry and not baked into art.
         result[name]['construction_status']='type comparison, not reconstruction'
-        result[name]['shot']['exposure']=1.6 if name=='under' else -.4
+        # Match the photographs' illuminated concrete / water values without
+        # altering the accepted optical fit or the separate 16-degree heroes.
+        result[name]['shot']['exposure']={'under':1.6,'urban':.35,'bank':.65}[name]
         if name=='under':result[name]['reference_optics']='Estimated virtual lens from four support landmarks; different pile/bearing layout and new age. Four anchors do not certify full girder alignment.'
         if name=='bank':result[name]['reference_optics']='99mm-equivalent photographic EXIF is not imposed on the unsurveyed authored reach. Estimated virtual optics fit its four shore anchors.'
         result[name]['white_balance']=dict(original=original,neutral_patch_xyxy=neutral[name],
