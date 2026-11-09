@@ -439,3 +439,14 @@ a color error. Independent raw UV/normal/tangent audits pass, while full
 Config, payloads, checks, every image and hashes are archived in `bench-pass2/`.
 Next test more coarse geometry at this same far switch, keeping the original
 515 goal and all image limits. No bench or other furniture chain is accepted yet.
+
+### LOD critique 3: the small density change still fails
+
+Opened every new native strip, both construction views and contact after the
+GPU queue released. The .3 request yields 1808 triangles. Color/value and all
+local RGB checks pass, but side/rear coverage .05505/.05091 still fails .05;
+front .03535 passes. The close slat tips remain angular. Full `check-lod`
+returns 2 on images; the independent field audit passes. Archive: `bench-pass3/`.
+Try .5 at the same far switch, preserving the 515 goal. Select the canonical
+Bench root explicitly so consolidated geometry stays under its placement
+frame alongside its sidewalk/anchor sockets; no original placement is changed.
