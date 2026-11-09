@@ -38,7 +38,7 @@ def light(dusk=False,sun_direction=None,sky_strength=None):
 
 def shots(seed):
     modern=seed==202
-    return dict(hero=dict(location=(40,-56,1.72) if modern else (34,-40,1.72),target=(9,0,6.9) if modern else (0,0,11.8),lens=38 if modern else 35,sky_strength=.09 if modern else .06,sun_direction=(.95,.30,-.40) if modern else (.55,.85,-.45)),
+    return dict(hero=dict(location=(40,-56,1.72) if modern else (34,-40,1.72),target=(9,0,6.9) if modern else (0,0,11.8),lens=38 if modern else 35,sky_strength=.045 if modern else .06,sun_direction=(-.92,.62,-.32) if modern else (.55,.85,-.45)),
         above=dict(location=(100,-112,92) if modern else (61,-69,56),target=(21,1,0) if modern else (0,8,0),lens=42 if modern else 45),
         doors=dict(location=(4,-23,1.72),target=(0,-14 if modern else -12.8,1.75),lens=48),
         window=dict(location=(4,-23,5.0) if modern else (13,-1,4.0),target=(1,-14.95,6.4) if modern else (6.65,-2.13,4.8),lens=48),

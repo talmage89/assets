@@ -9,6 +9,7 @@ ROOT=Path(__file__).resolve().parents[2]
 spec=importlib.util.spec_from_file_location('_church_garden_turf',ROOT/'community-garden/src/groundcover.py')
 garden=importlib.util.module_from_spec(spec);spec.loader.exec_module(garden)
 MODERN=False
+CUTS=[]
 
 
 def maps(out):garden.maps(ROOT,out)
@@ -24,9 +25,14 @@ def tint(x,y):
     # Congregants cut the corner between the sidewalk and entry approach.
     a,b=((-12,-39),(0,-22)) if MODERN else ((-13,-23),(-2.2,-17))
     traffic=math.exp(-(segment(x,y,a,b)/(.31+.05*math.sin(x*2)))**4)
-    dry=.14+.18*math.sin(x*.19+y*.13)**2
-    shade=.16*math.exp(-((x-21)**2+(y+21)**2)/22)
-    return (base[0]*(.90+.035*traffic),base[1]*(.91-.14*traffic-dry*.18-shade),base[2]*(.90-.10*traffic-dry*.14-shade))
+    dry=.14+.36*(.5+.5*math.sin(x*.29+y*.17)*math.sin(y*.23-x*.08))**2
+    shade=.25*math.exp(-((x-21)**2+(y+21)**2)/22)
+    shade+=.18*math.exp(-((x+10)**2+(y-5)**2)/55)
+    edge=min((min(abs(x-a),abs(x-b)) if c<y<d else min(abs(y-c),abs(y-d))
+              if a<x<b else 100 for a,b,c,d in CUTS),default=100)
+    edge=math.exp(-(edge/.38)**2)*(.5+.5*math.sin(x*.8+y*.9)**2)
+    patch=.82+.12*math.sin(x*.18+y*.11)*math.sin(y*.27-x*.14)
+    return (base[0]*patch*(1+.07*edge),base[1]*patch*(.96-.14*traffic-dry*.26-shade-.12*edge),base[2]*patch*(.90-.10*traffic-dry*.21-shade-.13*edge))
 
 
 def beds(p):
@@ -35,6 +41,8 @@ def beds(p):
 
 
 def details(p,parent,cuts,bounds):
+    global CUTS
+    CUTS=cuts
     import geometry as G
     rng=random.Random(p['seed']+2947)
     m=G.Mesh('Mulched foundation planting beds',parent,actor_kind='site')
