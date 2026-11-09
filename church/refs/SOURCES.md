@@ -1,6 +1,6 @@
 # Church references
 
-Accessed 2026-11-08. Images and PDFs are ignored research inputs. No reference
+Accessed 2026-11-08–09. Images and PDFs are ignored research inputs. No reference
 pixel enters a texture, mesh, decal or lighting rig. All names and inscriptions
 on the generated churches are fictional. HABS sheets are measured by looking
 at their scales, never traced. PDF photo extractions remain ignored in refs/.
@@ -48,5 +48,6 @@ registered PDFs with Poppler. They are not independently downloaded sources.
 Commons image servers returned HTTP 403/429 during retrieval. The Perris
 original was subsequently retrieved from the photographer's static image URL
 linked by Commons and inspected locally. The other two pages inform type
-research only. The HABS and nomination photographs remain the three camera
-comparison sources. No account or upload was used.
+research only. The current camera comparisons use the MDAH color street,
+Connecticut nomination and NPS NCPTT protective-glazing photographs. Earlier
+HABS pairs remain form evidence. No account or upload was used.

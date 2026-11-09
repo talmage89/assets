@@ -1,14 +1,15 @@
-# Town churches — form and construction checkpoint
+# Town churches — form and look checkpoint
 
 Two fictional American congregations in a 2010 town: a 1908 brick Gothic
 church one block from Main Street, and a 1963 glulam A-frame church on a
 residential arterial. Both are assembled from original scripted modules and
 exported as glTF with shared external images. This delivery stops at the
-requested construction checkpoint. The photographic finish is not approved.
+requested form/look checkpoint. Final delivery and photographic approval remain
+the next gate; there are no committed docs images or a README gallery.
 
 Seed 101 has a six-bay nave, corner bell tower and spire, rose, deep paired
 portal, later brick hall and a 1996 side ramp. Its rear lot is full for Sunday
-morning, with four more cars on the streets. Seed 202 has seven A bents,
+morning, with ten more cars along its curbs. Seed 202 has seven A bents,
 low masonry walls, glazed ends, steel campanile, fellowship/education wings,
 garden, covered drop-off and a lightly occupied weekday lot. Their plans,
 circulation and neighbors differ. There is no playable interior.
@@ -35,9 +36,11 @@ records every downloaded reference, author, rights and use.
   of the Sea nomination supplies the principal A-frame/arrival-drive photo.
   DAHP supplies the postwar type guide. The abandoned 2024 photograph is
   used for form, not the maintained age target.
-- HABS MD-1298-1 and TN-145-5 supply street and window comparisons. A credited
-  Wikimedia 2009 church photograph supplies period glazing/roof/planting
-  condition. No photograph is projected, traced or used in a texture.
+- The MDAH April 2009 color street photograph supplies brick/slate/trim and
+  town-age comparison. NPS NCPTT's credited protective-glazing photograph
+  supplies actual cloudy plastic over a brick church's lancet. The earlier
+  monochrome HABS pairs remain form evidence only. No photograph is projected,
+  traced or used in a texture.
 
 | Dimension | Historic 101 | Mid-century 202 |
 | --- | ---: | ---: |
@@ -123,8 +126,10 @@ front −Y. glTF is +Y up, front +Z. Moving parts retain their local pivots:
 - Each sign character: `socket_kind=sign_letter`, with row, column and glyph.
   `build/letters.json` gives atlas rectangles for A–Z, 0–9, `&-:.`.
 - Stall empties: `socket_kind=parked_car`, center, width/depth, occupied and
-  accessible flags. 101 has 17 stalls/17 cars plus four street cars; 202 has
-  31 stalls/seven cars. Native car colors vary without new texture sets.
+  accessible flags. 101 has 17 stalls/15 occupied plus ten street cars; 202
+  has 27 stalls/six occupied after landscape islands and circulation gaps.
+  Household driveway cars are separately placed town context. Native car colors
+  vary without new texture sets.
 - Walk empties contain ordered `points`; the drop-off empty contains driving
   points, `interpolation=CATMULL_ROM` and 7m lane width. Extras point arrays
   remain in authored Blender axes; convert them when using a glTF engine.
@@ -133,6 +138,25 @@ front −Y. glTF is +Y up, front +Z. Moving parts retain their local pivots:
 `Church_stained` retains the authored emissive color map with strength zero
 by day; the dusk preview sets strength 4.5. A game can drive that material's
 emissive intensity. The protective storm sheet is separate and non-emissive.
+
+Historic windows have pale cathedral fields, blue/amber borders and one original
+memorial symbol panel. The modern gable is predominantly clear glass over a dim
+unplayable nave, with one amber/smoke-blue faceted cross. Fresh-import areas measure
+144.126m² clear glazing and 8.035m² faceted cross (5.28% of their combined face area).
+The exported lower protective-glazing air slot is 20mm.
+
+The downtown parcel has six distinct native Downtown storefronts, a rear alley,
+nearby houses/parsonage, street trees and Sunday curb parking. The A-frame stands
+in a subdivision of individually placed native houses, 23–25m lot widths, drives,
+fences and yard trees; a local street and two adjacent eastern lots close the
+previous field. Parking islands hold smaller trees and poles. Imported wheel
+stops measure 2.1m from stall centers toward their heads; clear aisles measure
+9.7136m downtown and 7.3136m at the A-frame.
+
+Weathering follows splash, rising damp, sill/course and copper runoff, repairs,
+rail feet, roof exposure and timber ends. July lawn reuses the community garden's
+albedo recipe with Ground's original blade normal/ORM, clipped fine blades,
+mulched foundation beds and corner traffic. Existing deliveries stay read-only.
 
 ## Geometry and resources
 
@@ -144,13 +168,13 @@ is the source/export ledger.
 
 | Expanded triangles | Downtown 101 | Mid-century 202 |
 | --- | ---: | ---: |
-| Complete church | 62,694 | 24,324 |
-| Paving, roads and site equipment | 109,210 | 112,062 |
-| Context buildings | 69,767 | 64,666 |
-| **Budgeted site, excluding cars/plants** | **241,671** | **201,052** |
-| Native cars | 1,292,361 (21) | 434,193 (7) |
-| Native trees/shrubs | 184,108 (6 + 7) | 260,864 (8 + 12) |
-| Entire expanded inspection scene | 1,718,140 | 896,109 |
+| Complete church | 64,060 | 25,777 |
+| Paving, roads and site equipment | 110,344 | 117,700 |
+| Context buildings, drives, fences and lawns | 53,216 | 99,261 |
+| **Budgeted site, excluding cars/plants** | **227,620** | **242,738** |
+| Native cars | 1,656,512 (27) | 668,464 (11) |
+| Native vegetation and clipped sward | 355,820 | 767,737 |
+| Entire expanded inspection scene | 2,239,952 | 1,678,939 |
 
 Both static parcels meet 250k, the historic church meets 40–120k and its
 tower meets 15k. Car/tree instances retain shared mesh data; their expanded
@@ -160,45 +184,46 @@ is intentional and is called out below.
 | Resource receipt | Downtown 101 | Mid-century 202 |
 | --- | ---: | ---: |
 | Whole building envelope, including below-grade base | 28.323 × 33.132 × 29.110m | 51.759 × 47.444 × 16.559m |
-| Building glTF + geometry BIN | 7,971,659 bytes | 3,192,523 bytes |
-| Embedded building inspection GLB | 50,650,448 bytes | 48,704,496 bytes |
-| Site glTF + geometry BIN | 34,874,590 bytes | 29,678,770 bytes |
-| Referenced site image PNG bytes, once each | 113,808,818 | 113,374,174 |
-| Referenced site map allocation, including actors | 246.833MiB | 240.167MiB |
-| Site material definitions / mesh primitives | 79 / 619 | 72 / 500 |
+| Building glTF + geometry BIN | 8,159,803 bytes | 3,376,772 bytes |
+| Embedded building inspection GLB | 51,330,340 bytes | 49,380,464 bytes |
+| Site glTF + geometry BIN | 45,283,577 bytes | 37,929,112 bytes |
+| Referenced site image PNG bytes, once each | 137,417,843 | 136,983,199 |
+| Budgeted static map union | 185.000MiB | 178.333MiB |
+| Referenced site map allocation, including actors | 281.000MiB | 274.333MiB |
+| Site material definitions / mesh primitives | 129 / 1,238 | 96 / 987 |
 
-| Independently exported piece | Triangles |
-| --- | ---: |
-| Belfry bay | 572 |
-| Bell including shell, yoke, axle, wheel | 2,552 |
-| Memorial bench | 60 |
-| Laminated A bent with concrete shoes | 48 |
-| Steel bent shoe/bolts | 456 |
-| Stepped buttress | 144 |
-| Drop-off canopy | 156 |
-| Classroom bay | 226 |
-| Operating door pair/frame/hinges | 1,560 |
-| Drainage | 648 |
-| Education wing assembly | 5,012 |
-| Accessible exit bay assembly | 1,872 |
-| Bike rack/cornerstone | 360 |
-| Rose gable assembly | 4,184 |
-| Glazed A gable assembly | 2,132 |
-| Connecting hyphen | 124 |
-| Low sidewall | 568 |
-| Parish hall assembly | 4,024 |
-| Recessed portal | 1,268 |
-| Rail run | 1,052 |
-| Filled ramp and two rail runs | 2,176 |
-| Rear exit landing, treads and rails | 748 |
-| Roof assembly example | 540 |
-| Rose | 1,342 |
-| Rear services | 856 |
-| Changeable sign with glyphs | 162 |
-| Entry landing/steps | 60 |
-| Historic tower including bell/top | 12,456 |
-| Pierced wall bay including window | 1,894 |
-| Storm-covered lancet | 813 |
+| Independently exported piece | Triangles | Resident map union, MiB |
+| --- | ---: | ---: |
+| Belfry bay | 572 | 36 |
+| Bell including shell, yoke, axle, wheel | 2,552 | 20 |
+| Memorial bench | 60 | 4 |
+| Laminated A bent with concrete shoes | 48 | 8 |
+| Steel bent shoe/bolts | 456 | 20 |
+| Stepped buttress | 144 | 20 |
+| Drop-off canopy | 156 | 36 |
+| Classroom bay | 226 | 36 |
+| Operating door pair/frame/hinges | 1,560 | 24 |
+| Drainage | 648 | 36 |
+| Education wing assembly | 5,012 | 72 |
+| Accessible exit bay assembly | 1,872 | 40 |
+| Bike rack/cornerstone | 360 | 20 |
+| Rose gable assembly | 4,448 | 16 |
+| Glazed A gable assembly | 2,191 | 44 |
+| Connecting hyphen | 124 | 32 |
+| Low sidewall | 1,132 | 16 |
+| Parish hall assembly | 4,024 | 72 |
+| Recessed portal | 1,268 | 24 |
+| Rail run | 1,052 | 16 |
+| Filled ramp and two rail runs | 2,176 | 32 |
+| Rear exit landing, treads and rails | 748 | 32 |
+| Roof assembly example | 540 | 8 |
+| Rose | 1,342 | 8 |
+| Rear services | 856 | 36 |
+| Changeable sign with glyphs | 162 | 20.667 |
+| Entry landing/steps | 60 | 4 |
+| Historic tower including bell/top | 13,080 | 44 |
+| Pierced wall bay including window | 1,894 | 44 |
+| Bare tower lancet | 813 | 24 |
 
 Assembly rows include their children; do not add the rows together. Individual
 wall/window/buttress/roof/rail pieces meet the modular ceiling. Whole wings,
@@ -206,6 +231,11 @@ gables and the ramp contain several pieces. The bell fits the small-prop
 3k ceiling. Simple silhouettes are deliberately below indicative lower
 triangle targets. The A-frame church is below the requested 40k lower band:
 its repeated structural sections and mapped lead do not warrant padding.
+`build/resources.md` / `build/resources.json` give every piece's actual image
+allocation and geometry bytes, plus separate church/site/town/car/vegetation
+resources. Cars cost 48MiB across all three models; placed vegetation uses
+64MiB including the 16MiB lawn already resident in the static site. Actor memory
+overlaps and must not be added to the static or whole-site union.
 
 | Shared set | Shipped allocation | Estimated compressed GPU memory |
 | --- | --- | ---: |
@@ -214,7 +244,8 @@ its repeated structural sections and mapped lead do not warrant padding.
 | DowntownMineralRoof (mineral trim chart) | 1024² BC/Normal/ORM | 4MiB |
 | RanchRoof | 1024² BC/Normal/ORM | 4MiB |
 | HouseSiding (chapel range) | existing 1024² triple | 4MiB |
-| Ground Concrete / Asphalt / Lawn | existing 2048² triples | 16MiB each |
+| Ground Concrete / Asphalt | existing 2048² triples | 16MiB each |
+| Garden summer lawn | private 2048² albedo; unchanged Ground normal/ORM | 16MiB |
 | GroundTrim | existing 2048² triple | 16MiB |
 | **New ChurchCraft** | **1024² BC/Normal/ORM** | **4MiB** |
 | **New ChurchGlass** | **1024² BC/Normal/ORM** | **4MiB** |
@@ -229,12 +260,14 @@ BC is sRGB, normals are OpenGL +Y, ORM is occlusion/roughness/metallic.
 Memory estimates assume 8bpp block compression with full mip chains; PNG disk
 size is not GPU allocation. Maps are deduplicated by content across packages.
 
-The standalone buildings reference 76.667/80.667MiB of existing plus new maps;
-they share most of it with the town. Body materials number 12, including solid
+The standalone buildings reference 76.667/80.667MiB of existing plus new maps.
+Localized runoff and moss reuse the unused quarter of the ChurchGlass atlas;
+this adds no images. The new Church allocation stays 8.667MiB. Buildings
+share most of their maps with the town. Body materials number 14/13, including solid
 glass and shadow proxies. Fine grain/lead lives in maps, with causal vertex
 tint at wall bases, repaired patches and runoff. UV charts intentionally
 tile/reuse; this is not a unique lightmap unwrap or a no-overlap claim.
-The module hierarchy is retained for this checkpoint: 303/232 source glTF
+The module hierarchy is retained for this checkpoint: 315/239 source glTF
 primitives before static batching. Those are mesh-definition counts;
 expanded site draw calls can be higher. Draw-call reduction remains later work.
 
@@ -249,10 +282,18 @@ make check           # raw geometry/resources/repository + fresh Blender import
 make repeat          # independent deterministic own-geometry/map payloads
 ```
 
+`make SAMPLES=48` captures the complete review set at 1400px, with one GPU
+lock for the serial render batch. It composes the photo pairs, resource
+ledger and contact sheets, then audits geometry/map/renderer receipts. Local
+before/after images preserve the original revision's cameras at 1400px per
+panel; a cold build audits the current exports without inventing old captures.
+Interrupted captures resume only when package, renderer, camera, engine,
+resolution and recorded sample count agree; all other frames are regenerated.
+
 Build native library dependencies first if absent: Ground, trees, shrubs,
-the two house seeds, three cars, street lights and street signs. The dependency
-script reports missing files. It copies the cached Downtown host or builds a
-private copy under this family's `build/`, never in an existing delivery.
+six house variants, fences, three cars, street lights and street signs. The
+dependency script reports missing files. Six distinct Downtown hosts are built
+privately under this family's `build/`, never in an existing delivery.
 No kit change is required. A cold reconstruction removed this family's own
 `build/`, `export/`, `textures/` and `renders/` before rebuilding; reference
 downloads and the independent pre-build library hash receipt were preserved.
@@ -268,12 +309,17 @@ Door/bell sweeps use
 15° samples, 1mm tolerance and no contact exceptions. Walk centerlines are
 tested at +1.1/+1.7m against church construction. These prove sampled surfaces
 and serialization, not structural/code certification or complete navigation
-volumes. The current independent receipt also confirms 373 pre-existing
+volumes. The current independent receipt also confirms 1,080 pre-existing
 delivery/map files remain byte-identical.
-The repeat check reproduced 39 building/range/construction-module BIN and
-new PNG payloads exactly, totaling 37,368,671 bytes. It excludes the two sites
+The repeat check reproduced 42 building/range/construction-module BIN and
+new/lawn PNG payloads exactly, totaling 62,053,256 bytes. It excludes the two sites
 and site-only sign geometry; native inputs are covered by the immutable
 library receipt rather than regenerated by that check.
+The presentation audit passes 61 current source/map/renderer/sample receipts
+and eight same-camera native-size before/after pairs. Source/export matched
+images differ by .254/.079/.260 RGB byte levels on average. Hero frame 99th
+percentile display luminance is 190.8/203.4 out of 255, with clipped-pixel
+fractions .00000153/0. These are frame statistics, not physical albedo values.
 
 ## Inspection images
 
@@ -290,32 +336,41 @@ There are no final `docs/` images at this gate.
   viewed side and records that direction in its receipt.
 - [Modules/contact](renders/modules/contact.jpg),
   [four-church range](renders/checkpoint/range.png), and
-  [Eevee hero](renders/eevee/101/hero.png).
-- [Photo pairs/contact](renders/matches/contact.jpg): three distinct HABS/
-  nomination photographs. [Source comparisons](renders/source-matches/contact.jpg)
+  [both Eevee heroes](renders/eevee/contact.jpg).
+- Native-size same-camera before/after: [101 hero](renders/before-after/101-hero.jpg),
+  [101 above](renders/before-after/101-above.jpg),
+  [202 hero](renders/before-after/202-hero.jpg),
+  [202 above](renders/before-after/202-above.jpg), plus each church's day/dusk
+  glass in `renders/before-after/`. Each panel remains 1400px wide.
+- [Photo pairs/contact](renders/matches/contact.jpg): color MDAH street,
+  Connecticut A-frame and NCPTT storm-glazing photographs.
+  [Source comparisons](renders/source-matches/contact.jpg)
   use the saved construction scene with the same maps; the principal pairs
   use the actual exported packages. The third pair explicitly isolates the
   exported WallBay to avoid a neighboring buttress hiding the window.
 
-Photo-fit RMS is 30.6px/705px for the historic street, 24.3px/878px for the
-A-frame, and 9.4px/170px for the window. The modern/window lens bounds are
+Photo-fit RMS is 17.72px/1000px for the historic street, 24.32px/878px for the
+A-frame, and 4.44px/240px for the NCPTT lancet. All lens bounds are
 active; these are framing comparisons between different original buildings,
 not replicas. Independent Blender projection agrees with the calibrator
 within .05 source pixel. The modern reference is balanced on its unmarked
-gray arrival drive; HABS monochrome does not supply a hue target. Full
+gray arrival drive, the street reference on concrete steps, and the glazing
+reference on a white-painted exterior storm bar. The NCPTT crop isolates the
+left light of a larger paired opening; its shared tracery is visibly different. Full
 critiques, corrections and remaining differences are in [REVIEW.md](REVIEW.md).
 
-The current weak points are clean, even trim and concrete, regular art-glass
-patterning, synthetic bell patina, planar parcel lawns, coarse reduced
-neighboring roofs and too many unbatched static primitives. Storm glazing has frame depth/stand-off,
-vents and separate glass, but its yellowing/haze needs a causal wear pass.
-The breathing slots need detailed verification, and Eevee screen reflections
-still differ from Cycles despite the native raytrace/slab setup.
-Patina, roof repairs/lichen, repointing/efflorescence, runoff, railing rust,
-bird deposits, fascia deterioration and site-specific age still need a
-later look-dev brief. The current vertex tint and inherited paving
-wear are not acceptance of that brief's final aging. No final high-detail
-bake, shipping optimization or photographic-finish approval is claimed.
+The churches now carry local repairs, damp/salt at grade, oxidized copper,
+course runoff, rail-foot deposits, broken north-pitch/step growth and exposed
+timber/fascia wear. The roofs and entries have dedicated inspection views.
+Remaining weaknesses are even-looking entry stone and door panels, a simple
+mapped memorial composition, specular grain in the modern glazing, flat fine
+moss, coarse fascia paint patches, weak beam-end gray, coarse reduced
+neighboring roofs and a sparse district beyond the
+authored blocks. Cross rust and fine ledge/bird deposits still under-read;
+roof-repair and flat-roof ponding history is weaker than the masonry repairs.
+Eevee reflections differ from Cycles. The many unbatched static primitives
+remain an export-performance task. No final shipping optimization or
+photographic-finish approval is claimed at this checkpoint.
 
 ## Credits
 

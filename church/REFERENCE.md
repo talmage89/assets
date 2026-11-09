@@ -1,7 +1,7 @@
-# Church construction checkpoint
+# Church form and look checkpoint
 
 Original town churches, maintained in 2010. The nominal construction dates,
-names and parcel plans are fictional. This is a form checkpoint, not a claim
+names and parcel plans are fictional. This is a review checkpoint, not a claim
 of surveyed replicas, structural design or code certification.
 
 The historic church uses a six-bay nave, load-bearing brick, stepped
@@ -59,6 +59,28 @@ and accessible stalls. IBC assembly provisions motivate outward door swings,
 panic bars and separated side/rear exits. No playable interior or occupancy
 certificate is provided. Geometry checks must measure exported surfaces;
 configured dimensions alone are not evidence of clearances.
+
+## Color, glass and maintenance evidence
+
+The color street comparison is MDAH's April 2009 photograph of a brick Gothic
+Revival church, balanced on the concrete entry steps. Its original tower and
+gable are framing evidence, not a traced design. The exported front-gable
+patch measures display RGB 145/101/93 against 143/99/95 in the balanced photo;
+these values include lighting and are not a physical albedo measurement.
+
+The close comparison is Jason Church's photograph in NPS NCPTT's protective
+glazing guidance, explicitly showing clouded/yellowed plastic over art glass
+in a brick opening. The left light is isolated from its shared tracery;
+the white-painted exterior storm bar supplies the balance neutral. Native
+crop width is 240px. The exported storm sheet has a measured 20mm lower air
+slot. The earlier clapboard/HABS and brick-infilled tower-window pairs are
+not evidence for the current glass appearance.
+
+Original memorial glass uses a pale cream/sage field, a blue/amber border and
+a central cross. The modern gable has clear lightly tinted panes and one
+faceted cross, measured at 5.28% of combined glazing area. Garden summer turf
+is reused locally. The age masks follow grade splash, course/sill and copper
+runoff, repairs, sheltered roof joints, rail feet and exposed timber ends.
 
 ## Review gate
 

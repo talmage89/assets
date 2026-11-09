@@ -342,3 +342,88 @@ a repeating colored mosaic. The NCPTT pair is valid glass evidence at 4.43px,
 not the rejected brick infill. Fresh-import tests pass wheel-stop placement,
 7.3136m modern aisle, the clear/colored area ratio and a measured .0200m lower
 air slot. These measure the imported surfaces, not renderer serialization.
+
+## Place and age review G — full-size failures, then targeted inspection
+
+Color/value first: inspected the revised 1400px downtown hero, overhead,
+door, glass, tower, sign, scale/entry and north-roof views. The lawn's orange
+shortcut is gone; its grass stays yellow-green with interrupted compression.
+The low sun retains dark belfry cavities and sidewall shade. The stone entry
+and door panels remain too even, despite the warmer stone and lower-base
+maintenance. Do not call that photographic finish.
+
+The first full capture exposed the parish-hall camera inside the new tree.
+Stopped the owned render process, released its lock and moved only that
+inspection camera. In all six `renders/look-g/` exports the new wing camera
+clears the tree; the modern wing/lot view also clears its island canopy.
+Both still show their imported context. The original hero/overhead/glass
+cameras stay unchanged for native-size before/after comparison.
+
+Runoff previously used GroundTrim's very faint deposit alpha (median 1/255,
+99th percentile 52/255), so much of the modeled age disappeared. Repurposed
+the unused ChurchGlass quarter for deposits, adding no texture allocation.
+This removes GroundTrim from the standalone historic building's resident
+union. The stronger roof test then failed honestly: all 24 thin drips in
+each patch looked like rectangular barcodes, especially on the A-frame.
+Do not ship `look-g` as the north-roof appearance. Divide that spare quarter
+into a vertical runoff chart and a separate broken, wavering growth chart
+following damp slate/tread joints. The next export inspection must prove it.
+
+The day glass is subdued; the modern clear field reflects houses over the
+dark nave. Specular grain is visible in the close door view at 32 samples.
+The existing unbatched module hierarchy and coarse neighboring roofs remain
+performance/context weaknesses. These observations come from the images,
+not passing triangle counts or source/export equivalence.
+
+## Place and age review H — complete exported checkpoint
+
+Color/value first: inspected all 61 current checkpoint PNGs, their contact
+sheets, all three final color/form pairs and the eight 1400px-per-panel
+before/after JPGs. The street photo remains balanced on concrete steps, the
+modern on its gray arrival drive and the NCPTT glass on its white-painted
+storm bar. The same brick sample stays 145/101/93 against 143/99/95. The hero
+99th-percentile display luminance is 190.8/203.4 of 255; clipped fractions
+are .00000153/0. The dark belfry and nave remain dark, while broad highlights
+stay below clipping. These frame/display observations are not albedo readings.
+
+The final overheads prove the place changes: the historic church has six
+different nearby storefront hosts, parsonage/house neighbors, a rear alley,
+a Sunday rear lot and occupied curbs. The modern church has individually
+placed houses at 23–25m lot widths, local streets, drives, fences and yard
+trees. Its 27-stall lot has six weekday cars, islands, poles and stops at the
+heads, not along the street. No accepted church massing or generator range
+was redesigned. Native reduced house roofs still look torn/coarse from above,
+and the larger district beyond these blocks remains sparse.
+
+The old random primary quarries are gone. Historic dusk shows a cream/sage
+field, blue/amber border and cross panel; day shows a dark field behind the
+yellowed reflective protective sheet. The modern gable is mostly clear over
+a dim nave, with one physically scaled faceted cross. Its glazing still has
+specular grain at 48 samples and its composition remains simple. The NCPTT
+comparison has much cloudier plastic and white painted shared tracery; our
+original window is less opaque. Buff versus red surrounding brick is not
+treated as a hue match. The complete color street/window fits are 17.72px
+at 1000px and 4.44px at the native 240px crop; modern stays 24.32px at 878px.
+All lens bounds are active. These are framing comparisons, not reconstructions.
+
+The new joint-growth mask removes the rectangular drip-barcode test. Growth
+is still flat and a little brush-like close up. Front/tower repairs, base
+moisture and course runoff are visible, and the lawn stays its own summer
+yellow-green with mulch under the shrubs and fine clipped edges. Entry stone,
+door panels and steps remain too uniform. Surviving fascia paint looks like
+coarse patches close up; beam ends remain too warm. Cross rust, ledge/bird
+deposits, roof-repair and flat-roof ponding history under-read. These are
+remaining appearance tasks, not concealed by successful resource checks.
+Eevee preserves the form but differs in glass/reflections and thin paint
+patch visibility. The module hierarchy still needs static batching.
+
+The render batch received two SIGTERM interruptions, with no Blender traceback;
+the cause was not established. Both processes exited. Recovery reused only
+captures with matching package, renderer, camera, engine, dimensions and
+PNG-recorded sample counts, then completed the missing frames under the lock.
+The 61-image audit passes. Source/export mean absolute RGB differences are
+.254/.079/.260 on a 0–255 scale: this proves preservation, not realism.
+The independent rebuild reproduces 42 own BIN/new-and-lawn PNG payloads,
+62,053,256 bytes exactly. Other deliveries' 1,080 recorded files are unchanged.
+No kit change, docs images or README gallery is included. Stop at this review
+checkpoint; final delivery remains the next round.
