@@ -36,7 +36,13 @@ def measure(path):
         used={ii for mi in materials[actor] for ii in image_refs(d['materials'][mi])}
         unique={images[ii]['sha256']:images[ii] for ii in used}
         groups[actor]=unique
-        actors[actor]=dict(triangles=triangles[actor],materials=len(materials[actor]),meshes=len(mesh_ids[actor]),texture_mib=sum(v['mib'] for v in unique.values()))
+        accessors={ai for mi in mesh_ids[actor] for pr in d['meshes'][mi]['primitives']
+                   for ai in [pr['indices'],*pr['attributes'].values()]}
+        views={d['accessors'][ai]['bufferView'] for ai in accessors}
+        geometry_bytes=sum(d['bufferViews'][i]['byteLength'] for i in views)
+        actors[actor]=dict(triangles=triangles[actor],materials=len(materials[actor]),meshes=len(mesh_ids[actor]),
+                          geometry_bytes=geometry_bytes,image_bytes=sum(v['bytes'] for v in unique.values()),
+                          texture_mib=sum(v['mib'] for v in unique.values()))
     unique={v['sha256']:v for v in images.values()}
     static_images={h:v for actor,group in groups.items() if actor in ('church','site','town') for h,v in group.items()}
     static=dict(triangles=sum(n for actor,n in triangles.items() if actor in ('church','site','town')),texture_mib=sum(v['mib'] for v in static_images.values()))
@@ -51,7 +57,7 @@ def main():
         lines.append(f'| {name} | {row["triangles"]:,} | {row["texture_mib"]:.2f} | {row["gltf_bytes"]+row["bin_bytes"]:,} |')
         if 'ChurchSite' in name:
             static=row['static_without_cars_plants'];lines.append(f'| ↳ budgeted static union | {static["triangles"]:,} | {static["texture_mib"]:.2f} | shared |')
-            for actor,value in row['actors'].items():lines.append(f'| ↳ {actor} | {value["triangles"]:,} | {value["texture_mib"]:.2f} | shared |')
+            for actor,value in row['actors'].items():lines.append(f'| ↳ {actor} | {value["triangles"]:,} | {value["texture_mib"]:.2f} | {value["geometry_bytes"]:,} geometry only |')
     Path('build/resources.md').write_text('\n'.join(lines)+'\n')
     print('\n'.join(lines))
 

@@ -1,11 +1,22 @@
-# Town churches — form and look checkpoint
+# Town churches
+
+![Grace Corner, Sunday morning downtown](docs/hero-101.jpg)
+![Cedar & Bell, weekday on the arterial](docs/hero-202.jpg)
+![Both churches and their parcels from above](docs/places.jpg)
+![Entries and glass by day and at dusk](docs/glass-entry.jpg)
+![Generator, modules, tower, wing, sign and Eevee](docs/kit.jpg)
 
 Two fictional American congregations in a 2010 town: a 1908 brick Gothic
 church one block from Main Street, and a 1963 glulam A-frame church on a
 residential arterial. Both are assembled from original scripted modules and
-exported as glTF with shared external images. This delivery stops at the
-requested form/look checkpoint. Final delivery and photographic approval remain
-the next gate; there are no committed docs images or a README gallery.
+exported as glTF with shared external images. The gallery renders the exports
+with their shipped maps. This is the family's final delivery, including the
+partial fixes named in **Known flaws** below.
+
+[All full-size finals](renders/final/contact.jpg) ·
+[Matched-light photographs](renders/matches/contact.jpg) ·
+[Last-round correction crops](renders/last-fixes/contact.jpg) ·
+[Visual critiques](REVIEW.md)
 
 Seed 101 has a six-bay nave, corner bell tower and spire, rose, deep paired
 portal, later brick hall and a 1996 side ramp. Its rear lot is full for Sunday
