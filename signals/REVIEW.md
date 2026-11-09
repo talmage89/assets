@@ -972,3 +972,37 @@ Whole default chain:
 Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 25 to 27 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
 
 <!-- LOD checkpoint span-set: end -->
+
+## Fixed-region adoptions, 2026-11-09
+
+Frozen tool `cc6cfee`, literal hashes in `build/lod-uv/freeze.sha256`.
+All original deliveries already exist here. The original frozen-input
+`make check` passes before work (`build/lod-uv/signals-original-before.json`).
+The immutable ledger covers all 52 original signal delivery/map/docs files.
+These proofs compare unchanged delivered LOD0 under identical lighting; no
+photographic balance or new realism approval is inferred.
+
+### Cabinet critique 1 — native color and small powered fixture
+
+Opened all three .09 / 19.362 m native strips and their difference panes.
+Cabinet gray, zinc, dark vent slots and the separate service-light center
+retain their source values. The new row is 2676/2964 triangles against 445,
+1194 more than the rejected 1482 trial. Worst mean .0000983, local .00404,
+alpha .000913 and silhouette loss .000986 pass unchanged limits. No new
+intermediate image is referenced. The saving is modest: 288 triangles.
+
+### Cabinet critique 2 — held doors, original trim-domain gate
+
+Opened both construction views and contact, revisiting door rims, hinges,
+the access aperture, louvers and lamp at native size. Source panel construction
+and values agree; small original bevels remain visibly coarse close up. Both
+door mesh hierarchies and canonical pivots survive. The independent source-field,
+UV-area, tangent and re-import checks pass. Most importantly the family's own
+unchanged `make check` includes `export/lod/cabinet/Cabinet_LOD1.gltf` and now
+passes: the old 12 trim crossings and outside-domain vertex are gone. Every
+original byte remains unchanged. This frequent part's small extra .1594 MiB
+buffer buys a 9.72% triangle saving without a private atlas; the 445 goal is
+explicitly missed and no optimality or engine timing claim is made. Rest checks
+and original sampled motion are separate; keep LOD0 during door interaction.
+Final native evidence: `renders/lod/cabinet/`; archived proof:
+`build/lod-uv/archive/signals/cabinet-final/`.

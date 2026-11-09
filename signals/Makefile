@@ -113,3 +113,7 @@ finals: review renders/final/gallery/.stamp $(GALLERY_OUTPUTS) renders/final/sca
 	$(PYTHON) src/final_crops.py
 docs: finals
 	$(PYTHON) src/finals.py --docs
+
+# Only independently checked, adopted kinds enter the opt-in targets.
+LOD_CONFIGS := src/lod-cabinet.json
+include ../kit/lod_rules.mk
