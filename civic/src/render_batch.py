@@ -1,6 +1,7 @@
 """One lease, fresh serial Blender workers, validated resumable captures."""
 import argparse,hashlib,json,os,signal,subprocess,sys
 from pathlib import Path
+from PIL import Image
 SHOTS={'101':'hero,above,entry,cornice,police,scale,flag,hero-fixed,front,side,back,top',
        '202':'hero,above,bays,interior,tower,scale,scupper,hero-fixed,front,side,back,top'}
 ACTIVE=None
@@ -13,6 +14,11 @@ def stop(signum,frame):
 
 def current(path,width,samples):
     if not path.exists() or not path.with_suffix('.json').exists():return False
+    try:
+        with Image.open(path) as im:
+            if im.width!=width:return False
+            im.verify()
+    except (OSError,ValueError):return False
     d=json.loads(path.with_suffix('.json').read_text())
     if d.get('width')!=width or d.get('samples')!=samples:return False
     for key,file in [('render_recipe_sha256','render.py'),('sheet_recipe_sha256','sheets.py'),('source_recipe_sha256','source_matches.py')]:

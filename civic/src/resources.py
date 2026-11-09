@@ -1,7 +1,6 @@
 """Count real exported accessor bytes per reusable module, excluding images."""
-import json
+import json,struct
 from pathlib import Path
-from kit.gltf import GLB
 
 
 def module_costs():
@@ -45,7 +44,8 @@ def package_costs():
         rows.append(dict(package=path.stem,gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,categories=costs))
     actors=[]
     for name in ('AlderS240','AlderC150'):
-        path=Path('../cars/export')/(name+'.glb');raw=GLB(path);d=raw.json;views=set()
+        path=Path('../cars/export')/(name+'.glb');payload=path.read_bytes()
+        length=struct.unpack_from('<I',payload,12)[0];d=json.loads(payload[20:20+length]);views=set()
         for m in d['meshes']:
             for p in m['primitives']:
                 for i in [p['indices'],*p['attributes'].values()]:views.add(d['accessors'][i]['bufferView'])
