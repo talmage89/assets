@@ -704,3 +704,56 @@ buyer notes. This one instance draws two primitives and 7730 or 5958 triangles;
 its full stored costs are in report-shelter/ and the README. The failed trial's
 stale raw/normal reports are explicitly renamed and marked in its STATUS.json.
 No failed export is presented as an extra delivered level.
+
+### Missing-pane shelter critique 1 — own native comparison, no borrowed approval
+
+Built this source independently with its own config and frozen tool. Geometry
+reaches 7718 -> 5938 triangles, goal 1158, at .09 / 26.385 m. After its serial
+CPU build, the comparison waited about nine minutes in the shared GPU queue;
+kept it monitored in the foreground until make lod exited 0. Opened all three
+native strips, both close views and the contact. Color/value first: roof/slab
+highlights and dark frame match this original. The rear-right opening remains
+clear, with no invented pane. Rails, roof ribs, bench straps and feet hold at
+native size. All original image limits pass.
+
+### Missing-pane shelter critique 2 — physical proof passes; cost proof incomplete
+
+The separate actual-surface audit passes both original and reduced levels:
+six pad/slab gaps at most .000030 mm, six columns enter their own pads, and
+the rear-right pane ray misses on both levels. All meshes follow this module's
+root. Its own public override check-lod passes raw/UV/frame/topology, normals
+and these actual construction checks. This is this variant's proof.
+
+It is **not adopted**. At about an hour of active family work, plus the shared
+GPU queue, its required own cheaper-count witness is unfinished. The intact
+shelter's negative trial cannot establish this variant's target exception.
+A direct accessor identity check did not establish equivalence, so do not reuse
+that mesh or approval. No table is added to the buyer README and the Makefile
+does not list this config. Its passing-but-provisional payload is removed from
+export/lod and archived, with hashes, images, config, checks and STATUS.json,
+in missing-pass1/; measured provisional costs stay in missing-provisional-report/.
+
+Stop further family tuning here. Receptacle/news/collection kinds remain
+blocked by their original physical contacts. BusStop stays minimal LOD0 at
+574 triangles / 66073 geometry bytes / two materials; source costs and its
+thin post/printed faces do not justify forcing another small mesh allocation.
+Racks stay 1020 per U / 4080 per row. Only bench, single meter, twin meter and
+intact shelter are adopted in this family. All their tables and engine notes
+remain measured and plain; no deferred-kind trial table is a delivery.
+
+Final family closure: original make check and default public check-lod both
+exit 0 after the last trial. A dry-run hook audit finds exactly bench, single
+meter, twin meter and intact shelter; the missing-pane trial is not selected.
+The retained shelter's GLTF/BIN match its archived passing payload exactly.
+All 38 original/accepted-bench files, all six accepted meter payload files and
+all 103 frozen tool hashes match. No own Blender, lock waiter or supervisor
+remains. Repository and whitespace checks pass. Kit, cars, school, original
+deliveries/maps and docs JPGs are unchanged; the top README is left to the lead.
+
+The measured family union for the four adopted kinds is 28058 stored triangles,
+seven material resources, 24 primitive placements and 12151180 distinct bytes.
+Original maps stay shared once at 17.333 MiB; all alternatives plus maps use
+19.7853 MiB before engine overhead. Source containers are counted once, every
+additional mesh remains resident, and an instance draws only its chosen level
+(one to four calls by kind). report-shelter/families.json and the final rollout
+report retain the complete calculation; deferred kinds are absent from it.

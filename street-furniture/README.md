@@ -194,7 +194,8 @@ Stock glTF does not reproduce headlight retroreflection for the separate signs.
 
 Bike racks stay LOD0: 1,020 triangles per U, or 4,080 for the row; their pipe geometry is already minimal.
 Receptacles and news/collection boxes have no LOD chain yet; their hinges need clearance corrections.
-The missing-pane shelter and bus-stop sign await their own LOD checks. See [the review](REVIEW.md).
+The bus-stop sign stays LOD0 at 574 triangles, preserving its thin post and printed faces.
+The missing-pane shelter has no LOD chain yet; lower-cost geometry still needs verification. See [the review](REVIEW.md).
 
 <!-- LOD checkpoint bench: begin -->
 ## Bench LODs
