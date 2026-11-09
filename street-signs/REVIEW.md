@@ -174,3 +174,40 @@ Whole default chain:
 Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 2 to 2 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
 
 <!-- LOD checkpoint school-speed: end -->
+
+## Fixed-region adoptions, 2026-11-09
+
+Frozen tool `cc6cfee`, literal hashes in `build/lod-uv/freeze.sha256`.
+All accepted originals exist; the frozen-input original `make check set-check`
+passes before work, command in `build/lod-uv/street-signs-original-before.json`.
+The preservation receipt covers 71 original delivery/map/docs files. These
+comparisons judge unchanged delivered values under identical lights, not a new
+photographic realism approval. All new levels opt into fixed UV regions.
+
+### School speed critique 1 — native values and lettering
+
+Opened all six native strips, each with source/previous/new/difference, then
+all three construction views and contact. White and yellow-green sheeting,
+black printing, zinc and backing values agree with source. SCHOOL and 20 stay
+readable at .25 / 11.966 m. At .09 / 33.240 m the 20 remains readable; small
+words and the time legend are already subpixel in LOD0. No loss of source
+legibility is accepted. Counts are 1016/944 against 560/210, costing 294/432
+more than the rejected 722/512. All unchanged image gates pass: worst mean
+.000187, local .00590, alpha and silhouette loss zero. No new image is used.
+
+### School speed critique 2 — actual UV faces and construction
+
+Revisited blank rims, bolt apertures, spacers and square post. Close LOD2
+exposes simplified blank/backing edges and fewer small fittings; this is
+acceptable only at its switch, not as close-view equivalence. Unlike the old
+trial, the printed primitive retains all 114 triangles with zero flat UVs at
+both levels; exact face/attribute records independently find zero new flat UV
+faces and zero new invalid tangent records. Raw accessors are measured in
+`build/lod-uv/sign-fields-school-speed.json`. Source unprinted metal contains
+flat UVs and invalid tangents; surviving defects are byte-exact inherited data,
+not newly created or silently repaired. The independent region/source-field,
+normals, tangent and re-import checks pass. Original `make check set-check`
+passes afterwards; all 71 original files match. Both targets remain unmet.
+The 5.333 MiB canonical 2048 image stays shared; new mesh buffers add .1517 MiB.
+Final native evidence: `renders/lod/school-speed/`; frozen recipe/payload/checks:
+`build/lod-uv/archive/street-signs/school-speed-final/`.

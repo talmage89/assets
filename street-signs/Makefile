@@ -45,3 +45,7 @@ set-all:
 	$(MAKE) -C ../street-furniture
 set-clean:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('build/set','export/set')]"
+
+# Additional exports only; accepted sources never depend on these targets.
+LOD_CONFIGS := src/lod-school-speed.json
+include ../kit/lod_rules.mk

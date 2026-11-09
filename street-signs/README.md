@@ -216,5 +216,41 @@ The full-size visual audit precedes `make -C ../street-furniture docs`.
 [Source credits](refs/SOURCES.md) include FHWA, suppliers and open fonts;
 photographs remain research-only and never enter a committed image/texture.
 
-No LOD chain yet. Reduced signs have invalid texture coordinates and shading data.
+Other sign kinds retain their compact LOD0 pending individual comparisons.
 See [the LOD review](REVIEW.md).
+
+<!-- LOD checkpoint school-speed: begin -->
+## School speed assembly LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/school-speed/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 1,400 / — | 2 / 2 | 113,009 | 674,885 | 787,894 | 5.333 + 0.1035 | near |
+| LOD1 | 1,016 / 560 | 2 / 2 | 86,384 | 674,885 | 761,269 | 5.333 + 0.0793 | 25.0% / 11.97 m |
+| LOD2 | 944 / 210 | 2 / 2 | 79,040 | 674,885 | 753,925 | 5.333 + 0.0723 | 9.0% / 33.24 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **5.589 MiB**, versus LOD0 alone **5.437 MiB**. Unique textures 5.333 MiB = 5.333 MiB original + 0.000 MiB proxy/impostor; all meshes 0.2552 MiB. Increase over LOD0 0.152 MiB = 0.000 MiB far maps + 0.1517 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/school-speed/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/school-speed/check.json` and `export/lod/school-speed/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod-uv/archive/street-signs/school-speed-final/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 1 × 2048×2048; LOD1: 1 × 2048×2048; LOD2: 1 × 2048×2048.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 3,360 | 2 | 6 | 953,318 | 5.5885 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 2 to 2 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint school-speed: end -->
