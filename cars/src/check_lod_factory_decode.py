@@ -4,6 +4,7 @@ Run in Blender with --source, --manifest and --out. This checks routing and
 shader state; native renders separately prove appearance and optical transfer.
 """
 import argparse
+import importlib
 import json
 import sys
 from pathlib import Path
@@ -30,7 +31,7 @@ def state(material):
     return {key:record(key) for key in ('Base Color','Metallic','Roughness','Transmission Weight')}
 
 
-def check(source,paths,out):
+def check(source,paths,out,apply_decoder=decoder):
     reference=next(m['extras'] for m in Document(source).data['materials']
                    if m.get('extras',{}).get('paint_decode')=='reference_plus_coverage_delta')
     colors=json.loads(reference['paint_colors']);metals=json.loads(reference['paint_metallic'])
@@ -48,7 +49,7 @@ def check(source,paths,out):
             paint=decoder.paint_material()
             ordinary={m.name:state(m) for m in bpy.data.materials if m.use_nodes and m!=paint}
             try:
-                decoder.apply(preset,lights=False)
+                apply_decoder.apply(preset,lights=False)
                 delta=[s.default_value for s in paint.node_tree.nodes['Factory delta'].inputs]
                 expected=[v-r for v,r in zip(tint,reference['paint_reference_color'])]
                 assert max(abs(a-b) for a,b in zip(delta,expected))<1e-6
@@ -59,7 +60,7 @@ def check(source,paths,out):
                 lamps=[m for m in bpy.data.materials if m.get('lamp_strength')]
                 assert lamps,'Missing lamp-state routing'
                 for lights in (False,True):
-                    decoder.apply(preset,lights=lights)
+                    apply_decoder.apply(preset,lights=lights)
                     for lamp in lamps:
                         power=lamp.node_tree.nodes.get('Lamp power')
                         value=power.inputs[1].default_value if power else surface(lamp).inputs['Emission Strength'].default_value
@@ -68,7 +69,8 @@ def check(source,paths,out):
                                     metallic=metals[preset],lights=[False,True],passed=True))
             except (AssertionError,StopIteration,KeyError) as exc:
                 errors.append(f'{path.name}/{preset}: {type(exc).__name__}: {exc}')
-    report=dict(passed=not errors,errors=errors,results=results,decoder_sha256=digest(Path(decoder.__file__)),
+    report=dict(passed=not errors,errors=errors,results=results,decoder_sha256=digest(Path(apply_decoder.__file__)),
+                family_decoder_sha256=digest(Path(decoder.__file__)),decoder_module=apply_decoder.__name__,
                 scope='Actual delivered decoder execution and shader-routing proof; appearance checked separately')
     out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(dict(passed=report['passed'],imports=len(results),errors=errors)))
@@ -79,7 +81,8 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--source',type=Path,required=True);p.add_argument('--manifest',type=Path,required=True)
     p.add_argument('--out',type=Path,required=True)
+    p.add_argument('--decoder-module',choices=['delivery_materials','suv_delivery_materials'],default='delivery_materials')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     manifest=json.loads(a.manifest.read_text())
     paths=[a.source]+[a.manifest.parent/r['path'] for r in manifest['levels'] if r['level']]
-    check(a.source,paths,a.out)
+    check(a.source,paths,a.out,importlib.import_module(a.decoder_module))

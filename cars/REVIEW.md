@@ -2353,6 +2353,27 @@ control commands above refer to that checkpoint. Diagnostics can use the kit
 CLI with configs in `cars/build/`, rather than production Make targets. The
 car selection README contains no rejected-trial table or archive path.
 
+## X220 original-input rebuild — preservation receipt corrected
+
+`make -C cars BODY=suv export check` cold-built the original X220 input:
+64,933 triangles, four materials, 41 color-pass draws, three 2048 maps and
+9,061,700 GLB bytes. Its delivery, construction, motion and grille-support
+checks passed, then `check-pickup` stopped on a stale pre-SUV SHA-256.
+That checker expected `ec70cde…`; the accepted pickup is `f3efff73…`, already
+recorded repeatedly in this review before LOD work. The session's immutable
+2,996-file ledger independently confirmed zero changes, including the pickup.
+
+Updated only that checker's accepted receipt to the documented current pickup
+hash. Its exact-byte comparison remains active; no pickup regeneration or
+payload edit occurred. `make -C cars BODY=suv check` then passed in 5.1 seconds.
+The first failure and successful rerun remain in `round2/suv-source.json`
+(command receipt), `suv-source-recheck.json` and their logs; the immutable
+GLB/dependency and budget receipt is also stored as `suv-source.json` after
+the rebuild. Five fresh LOD0 imports execute all presets through the actual
+`suv_delivery_materials` wrapper, with both lamp states, in
+`build/car-lod/round2/suv-source-routing.json`. The routing probe now accepts
+an explicit decoder module so the SUV's warm projector policy is exercised.
+
 ## Factory proxy adapter, 2026-11-09
 
 The adapter closes factory routing, but does not close the native appearance

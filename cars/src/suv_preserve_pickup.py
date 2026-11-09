@@ -1,11 +1,12 @@
-"""Compare an existing pickup delivery with the accepted pre-SUV hash.
+"""Compare an existing pickup delivery with its current accepted hash.
 
 This never regenerates, edits or re-exports the pickup. A fresh clone can have
 no pickup delivery; that is reported as unavailable, not a byte-identity proof.
 """
 import argparse,hashlib,json
 from pathlib import Path
-EXPECTED='ec70cde87fbe50fb814cc14c900ee324e254711b5bfa5d3735aef166b146de5b'
+# Current accepted pickup receipt, documented in cars/REVIEW.md before LOD work.
+EXPECTED='f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65'
 
 
 def main():
