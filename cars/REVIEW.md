@@ -7702,3 +7702,5 @@ remains 11,530,736 bytes with SHA-256
 `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
 
 Subdivision UV cold-build investigation: [evidence and reproduction](DETERMINISM.md).
+
+Cold-build stop: native subdivision UVs vary. `src/subdivision_probe.py` isolates one modifier. Exact-chart trials fail preservation gates; no production fix adopted. Details above.

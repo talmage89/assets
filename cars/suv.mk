@@ -15,7 +15,6 @@ PASS ?= suv-detail-form
 OUT := renders/$(PASS)
 DEPS := src/suv_build.py src/suv_body.py src/suv_spec.py src/suv_apertures.py src/suv_character.py src/suv_greenhouse.py src/suv_cladding.py src/suv_sculpt.py src/suv_optimize.py src/suv_resample.py src/build.py src/forms.py src/wheels.py src/detail_helpers.py ../kit/model.py ../kit/vehicle.py
 DEPS += src/suv_surface_normals.py
-DEPS += src/regular_chart.py
 CLAY := front_three_quarter rear_three_quarter side front rear top side_raking
 STRIPES := stripes_horizontal stripes_vertical stripes_rear_horizontal stripes_rear_vertical stripes_side_horizontal stripes_side_vertical stripes_hood_driver
 PAIRS := crv_front rav4_front crv_rear rav4_rear

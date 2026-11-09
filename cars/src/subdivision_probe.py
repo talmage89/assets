@@ -31,7 +31,7 @@ def main():
     mode.add_argument('--prepare', choices=('suv', 'hatch'))
     mode.add_argument('--source', type=Path)
     p.add_argument('--out', type=Path, required=True)
-    p.add_argument('--canonical', action='store_true')
+    p.add_argument('--canonical', action='store_true', help='Also hash the exact mathematical UV lattice; diagnostics only')
     a = p.parse_args(sys.argv[sys.argv.index('--') + 1:])
     a.out.parent.mkdir(parents=True, exist_ok=True)
     if a.prepare:
@@ -76,10 +76,7 @@ def main():
                   native_uv_sha256=digest(uv),
                   max_uv_lattice_drift=float(np.max(np.abs(uv - np.rint(uv * 32) / 32))))
     if a.canonical:
-        from regular_chart import restore
-        restore(ob, 5)
-        me.uv_layers.active.data.foreach_get('uv', uv)
-        report['canonical_uv_sha256'] = digest(uv)
+        report['canonical_uv_sha256'] = digest(np.rint(uv * 32) / 32)
     a.out.write_text(json.dumps(report, indent=2) + '\n')
     print('SUBDIVISION_PROBE', json.dumps(report), flush=True)
 
