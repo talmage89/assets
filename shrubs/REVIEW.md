@@ -668,3 +668,10 @@ the shared 16.0001 MiB images once. A selected shrub draws two primitives;
 the four container placements are not one selected shrub's draw cost. Added
 images and meshes are zero. `full-family-costs.json` records the measured union.
 All 103 frozen hashes match. Original GLB/maps/docs remain unchanged.
+
+Cache availability follow-up: all eight source/export matched PNGs and their
+four shots.json receipts required by bake_loss.py are absent too; exact paths
+are in `check-inputs.json`. Recomputing that source-validation report would
+therefore require the original image pipeline. This preflight stops on the
+missing shader/card adapter and leaves that additional work unrun, rather than
+claiming a passing original check from absent cache files.
