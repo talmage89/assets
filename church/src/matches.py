@@ -38,13 +38,14 @@ def definitions():
         ((-w/2,-l/2,0),(51,442)),((w/2,-l/2,0),(327,448)),
         ((-w/2,-l/2,e),(76,384)),((w/2,-l/2,e),(303,388)),
         ((0,-l/2,h),(195,85)),((w/2,l/2,e),(487,402)),((w/2,l/2,0),(486,445)),((0,l/2,h),(445,268))]))
-    # Right nave bay, local arch width tangent to Y on the +X wall.
-    x=(p['width']-p['wall'])/2+.235;y=-p['length']/2+2.5*p['bay'];sill=2.30;stem=3.10;r=.70
-    window=dict(title='Storm-protected lancet and masonry reveal',photo='refs/match-window.jpg',crop=[0,0,170,370],location=point(p,(14,-21,1.72)),target=point(p,(x,y,4.7)),lens=48,lens_bounds_mm=(28,100),camera_height_m=(1.72,1.2),landmarks=marks(p,[
-        ((x,y-r,sill),(86,302)),((x,y+r,sill),(114,303)),
-        ((x,y-r,sill+stem),(88,141)),((x,y+r,sill+stem),(117,139)),
-        ((x,y,sill+stem+3**.5*r),(111,91)),
-        ((x,y-r,sill+1.0),(87,245)),((x,y+r,sill+1.0),(115,245))]))
+    # Compare the exported wall module: the photograph has a flat wall,
+    # whereas a neighboring buttress occludes this oblique view in the nave.
+    y=-.235;sill=2.30;stem=3.10;r=.70
+    window=dict(title='Isolated exported wall bay: storm-protected lancet',photo='refs/match-window.jpg',crop=[0,0,170,370],location=(-12,-8,1.72),target=(0,y,4.7),lens=48,lens_bounds_mm=(28,100),camera_height_m=(1.72,1.2),landmarks=[dict(world=xyz,pixel=xy) for xyz,xy in [
+        ((-r,y,sill),(86,302)),((r,y,sill),(114,303)),
+        ((-r,y,sill+stem),(88,141)),((r,y,sill+stem),(117,139)),
+        ((0,y,sill+stem+3**.5*r),(111,91)),
+        ((-r,y,sill+1.0),(87,245)),((r,y,sill+1.0),(115,245))]])
     return dict(gothic=classic,modern=modern,window=window)
 
 
@@ -52,9 +53,11 @@ def main():
     balance=prepared();defs=definitions();out={}
     for name,row in defs.items():
         fit=calibrate(row);fit['source']=f'export/ChurchSite-{202 if name=="modern" else 101}.gltf';fit['seed']=202 if name=='modern' else 101
+        if name=='window':
+            fit['source']='export/modules/WallBay.gltf';fit['shot']['source_module']='WallBay'
         # Sites restore the nave datum to its town position. Apply that same
         # translation to camera and landmarks, preserving the fitted pixels.
-        offset=json.loads(Path(f'build/plan-{fit["seed"]}.json').read_text())['placement_offset']
+        offset=[0,0,0] if name=='window' else json.loads(Path(f'build/plan-{fit["seed"]}.json').read_text())['placement_offset']
         for key in ('location','target'):fit['shot'][key]=[a+b for a,b in zip(fit['shot'][key],offset)]
         fit['landmarks_world_m']=[[a+b for a,b in zip(p,offset)] for p in fit['landmarks_world_m']]
         fit['shot']['exposure']=.15;fit['shot']['aspect']=(row['crop'][2]-row['crop'][0])/(row['crop'][3]-row['crop'][1])

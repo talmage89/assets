@@ -23,12 +23,12 @@ def camera(loc,target,lens=42,aspect=1.5,ortho=None):
     bpy.context.scene.camera=ob;return ob
 
 
-def light(dusk=False):
+def light(dusk=False,sun_direction=None):
     scene=bpy.context.scene;world=bpy.data.worlds.new('Procedural clear sky');world.use_nodes=True;scene.world=world
     ns=world.node_tree.nodes;ls=world.node_tree.links;sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=.37;sky.sun_rotation=4.1;sky.sun_disc=False
     bg=ns.get('Background');ls.new(sky.outputs['Color'],bg.inputs['Color']);bg.inputs['Strength'].default_value=.06 if not dusk else .025
     data=bpy.data.lights.new('Low raking morning sun','SUN');data.energy=4.5 if not dusk else .08;data.angle=math.radians(.65);data.color=(1,.90,.78)
-    ob=bpy.data.objects.new(data.name,data);bpy.context.collection.objects.link(ob);ob.rotation_euler=Vector((.55,.85,-.45)).to_track_quat('-Z','Y').to_euler()
+    ob=bpy.data.objects.new(data.name,data);bpy.context.collection.objects.link(ob);ob.rotation_euler=Vector(sun_direction or (.55,.85,-.45)).to_track_quat('-Z','Y').to_euler()
     if dusk:
         for ma in bpy.data.materials:
             if 'stained' in ma.name:
@@ -44,9 +44,9 @@ def shots(seed):
         window=dict(location=(4,-23,5.0) if modern else (13,-1,4.0),target=(1,-14.95,6.4) if modern else (6.65,-2.13,4.8),lens=48),
         window_dusk=dict(location=(4,-23,5.0) if modern else (13,-1,4.0),target=(1,-14.95,6.4) if modern else (6.65,-2.13,4.8),lens=48,dusk=True),
         tower=dict(location=(-10,-22,1.72) if modern else (-11,-21.5,1.72),target=(-13.84,-12.94,10.8) if modern else (-8.35,-11,16.0),lens=40),
-        wing=dict(location=(49,-17,5.5) if modern else (31,37,3.5),target=(22,9,2.3) if modern else (10,10,2.4),lens=42),
-        sign=dict(location=(22,-51,1.72) if modern else (21,-33,1.72),target=(17,-40 if modern else -22,1.9),lens=48),
-        scale=dict(location=(14,-35,2.1),target=(0,-13,3.0),lens=45))
+        wing=dict(location=(54,-34,4.8) if modern else (29,35,7),target=(28,4,2.2) if modern else (9,17,2.4),lens=42 if modern else 38,sun_direction=(.55,.85,-.45) if modern else (-.55,-.85,-.45)),
+        sign=dict(location=(11,-47.5,1.72) if modern else (19,-26.5,1.72),target=(7,-37.5,1.9) if modern else (17,-22,1.9),lens=48 if modern else 35),
+        scale=dict(location=(14,-35,2.1),target=(0,-13,3.0),lens=45,scale_ground_z=.1524 if modern else 0))
 
 
 def human(point):
@@ -62,21 +62,27 @@ def render_file(source,out,name,spec,width,samples,engine):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     if source.suffix=='.blend':bpy.ops.wm.open_mainfile(filepath=str(source.resolve()))
     else:bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
-    light(spec.get('dusk',False));scene=bpy.context.scene;scene.render.engine=engine
+    if source.suffix=='.blend' and spec.get('source_module'):
+        part=next(o for o in bpy.context.scene.objects if o.get('module_kind')==spec['source_module'])
+        shown=set(part.children_recursive);part.parent=None;part.location=(0,0,0);part.rotation_euler=(0,0,0)
+        for ob in bpy.context.scene.objects:
+            if ob.type=='MESH' and ob not in shown:ob.hide_render=True
+    light(spec.get('dusk',False),spec.get('sun_direction'));scene=bpy.context.scene;scene.render.engine=engine
     if engine=='CYCLES':enable();scene.cycles.samples=samples;scene.cycles.use_denoising=True;scene.cycles.max_bounces=8;scene.cycles.transparent_max_bounces=12
     cam=camera(spec['location'],spec['target'],spec.get('lens',42),ortho=spec.get('ortho'));cam.rotation_euler.rotate_axis('Z',spec.get('roll',0))
     if name=='scale':
-        human((4.03,-18.4,0))
+        height=spec.get('scale_ground_z',0);human((4.03,-18.4,height))
         before=set(bpy.context.scene.objects)
         bpy.ops.import_scene.gltf(filepath=str((HERE.parents[1]/'cars/export/AlderH120.glb').resolve()))
         obs=set(bpy.context.scene.objects)-before
         for ob in obs:
-            if ob.parent not in obs:ob.location+=Vector((-3,-18.5,0))
+            if ob.parent not in obs:ob.location+=Vector((-3,-18.5,height))
     scene.render.resolution_x=width;scene.render.resolution_y=round(width/spec.get('aspect',1.5));scene.render.resolution_percentage=100
     if 'landmarks_world_m' in spec:
         from bpy_extras.object_utils import world_to_camera_view
         bpy.context.view_layer.update();px=[]
-        sw,sh=spec['photo_size']
+        sw,sh=spec['photo_size'];factor=max(1,round(width/sw))
+        scene.render.resolution_x=sw*factor;scene.render.resolution_y=sh*factor
         for p in spec['landmarks_world_m']:
             v=world_to_camera_view(scene,cam,Vector(p));px.append((v.x*sw,(1-v.y)*sh))
         error=max(math.dist(a,b) for a,b in zip(px,spec['expected_pixels']))
@@ -84,7 +90,7 @@ def render_file(source,out,name,spec,width,samples,engine):
         spec['independent_projection_error_source_px']=error
     scene.render.image_settings.file_format='PNG';out.mkdir(parents=True,exist_ok=True);scene.render.filepath=str((out/(name+'.png')).resolve())
     bpy.ops.render.render(write_still=True)
-    (out/(name+'.json')).write_text(json.dumps(dict(source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),package_sha256=digest(source),render_recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),engine=engine,**spec),indent=2))
+    (out/(name+'.json')).write_text(json.dumps(dict(source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),package_sha256=digest(source),render_recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),resolution=[scene.render.resolution_x,scene.render.resolution_y],engine=engine,**spec),indent=2))
 
 
 def main():
