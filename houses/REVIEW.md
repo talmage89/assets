@@ -2621,3 +2621,24 @@ maps, manifest, raw checks, metrics and native images in
 `build/houses-lod/cape-proxy045-report/`, explicitly using `--allow-failed`
 without updating the README. A 3% / 32.4-pixel switch is tested next with
 the same triangle goal, 512 maps, shader policy and original image limits.
+
+### Cape LOD critique pass 2 — farther switch does not fix color
+
+Opened all three new 3% native strips and all six unscaled source/new/
+preceding/difference pages, both close views and contact. Color/value first:
+the front openings/trim remain too bright; the close view still has false
+pale triangular window fields and blurred roof manufacture. At 32.4 nominal
+pixels / 225.16 m, front mean/p95/local are .033532/.125490/.087503;
+side .022318/.094966/.076320; rear .014211/.047059/.029571. Coverage
+passes (maximum alpha .029686, IoU .033172). The front and side still fail
+the original color gates. Moving farther alone has not solved the appearance.
+
+The count is 1,800/1,800, one material/draw. The full check returns 2 only for
+image differences; geometry, fresh import, fields and source bytes pass.
+Archived the exact config as `src/lod-cape-proxy030-trial.json` and the
+complete package/evidence under `build/houses-lod/cape-proxy030/`; the failed
+measured report is alongside. No README table or Make hook is added.
+The next control keeps 3% and changes only the public
+`min_projected_coverage` option to .97, testing whether envelope merging
+fills small window recesses. This is a geometry-control hypothesis, not a
+claim that the cause has been isolated or permission to change any image gate.
