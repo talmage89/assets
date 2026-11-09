@@ -1,0 +1,31 @@
+{
+  "kind": "split-level seed 51: far proxy",
+  "source": "export/HearthfieldSplit-51.gltf",
+  "output": "export/lod/split-51-proxy",
+  "renders": "renders/lod/split-51-proxy",
+  "readme_key": "split-51",
+  "readme_title": "Additional LOD — split-level seed 51",
+  "readme_level": 3,
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 512,
+  "levels": [
+    {
+      "ratio": 0.05,
+      "screen_height": 0.02,
+      "proxy": true,
+      "target_triangles": 1800,
+      "texture_size": 512,
+      "min_projected_coverage": 0.97,
+      "atlas_sampling": {
+        "surface_texels_per_pixel": 1,
+        "graphic_texels_per_pixel": 4
+      },
+      "bake_supersample": 4,
+      "proxy_remesh": {
+        "voxel_pixels": 0.25,
+        "inflation_pixels": 0.15
+      }
+    }
+  ]
+}

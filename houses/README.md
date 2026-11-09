@@ -1235,3 +1235,7 @@ passes and a street-framing correction in [REVIEW.md](REVIEW.md) disclose the
 regular brick/shingle manufacture, softened stone color, simple room
 backings, peeling that still reads chiefly in close-up, and a spare procedural street
 landscape. No kit changes or additional tools are required.
+
+No additional split-level LODs are delivered yet: reduced meshes develop
+broken faces, and the tested far replacements change siding and window brightness.
+Use the original mesh; [LOD review](REVIEW.md).

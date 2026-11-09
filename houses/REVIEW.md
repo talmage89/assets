@@ -2790,3 +2790,34 @@ payload, images, simplification and command receipts are archived under
 `split-proxy030-report/`. Saved recipe: `src/lod-split-proxy030-trial.json`.
 The last bounded trial changes only the switch to 2%; no further tool or
 acceptance changes follow if it fails.
+
+### Split LOD critique pass 3 — final far rejection and hold
+
+The final 2% test builds/renders in 257.53 s; `check-lod` returns 2 in
+3.58 s only for images. Opened all six native comparison/difference pages,
+both close views and both contacts. Color/value still fails in the same
+front/side siding and window fields. The close view additionally exposes
+dark stretched roof-junction patches, lost lap/shingle relief and coarse
+steps. At 2% / 21.6px / 327.94 m, front mean/p95/local are
+.034236/.140000/.118608; side .023529/.109804/.102208;
+rear .009765/.031649/.021324. Alpha/IoU maxima .023214/.027168 pass.
+Front and side remain clearly outside the unchanged color gates.
+
+This rejected shell meets 1,800/1,800 triangles, one material/draw, closed
+positive-volume topology, independent normal audit and exact re-import.
+It has 108,746 geometry bytes and four 512-square PNGs / 393,901 bytes,
+502,647 cold-load bytes total. The two-level trial would store 43,805
+triangles, seven material resources, thirteen placements / 10,638,805
+distinct bytes and 29.6425 MiB resident versus LOD0's 28.2109 MiB.
+No intermediate images are introduced. Its saved recipe is
+`src/lod-split-proxy020-trial.json`; current exact payload and native
+evidence are `export/lod/split-51-proxy/` and `renders/lod/split-51-proxy/`,
+with measured failed tables/contact in
+`build/houses-lod/split-final-failed-report/`.
+
+No passing proxy was found at the tested useful heights of 4.5%, 3% or 2%.
+Neither near level can ship because of new degenerate faces as well as
+poor buffer costs. The split-level stays LOD0-only, with no LOD hook and
+three plain README lines. General reducer/transfer changes are deferred
+to a separate tool proof; no accepted source or gate is adjusted here.
+The post-build original family check follows, with accepted inputs frozen.
