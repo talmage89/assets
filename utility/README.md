@@ -384,6 +384,9 @@ supply presentation context without changing their source or delivery paths.
 The other utility kinds have no additional chain yet; they await their own
 geometry, support and switch-distance checks. See [the LOD review](REVIEW.md).
 
+The 1,248-triangle crossarm stays at LOD0: its safe far trial saves only 76
+triangles while allocating another nearly full mesh. See [REVIEW.md](REVIEW.md).
+
 <!-- LOD checkpoint tangent: begin -->
 ## Tangent pole LODs
 

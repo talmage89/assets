@@ -904,4 +904,24 @@ payloads, images and simplification receipt are archived in
 `build/lod-uv/utility-report/contact.jpg`; native judgment uses
 `renders/lod/tangent/`, not its reduced index. This is rest/source-field and
 actual support-gap proof, not an engine timing or continuous-motion claim.
+
+### Crossarm critique 1 — native field and coverage
+
+Opened all three native .09 / 9.228 m strips and their difference panes.
+Color/value, wood grain, porcelain and zinc agree; both thin braces and their
+lower joint remain. The trial is 1172/1248 triangles against 187. All image,
+field, topology, re-import and guarded-atlas checks pass; no new crossings.
+Worst mean .0000335, local .00104 and IoU loss .000123.
+
+### Crossarm critique 2 — reject an uneconomic extra row
+
+Opened both construction views and contact, then revisited native end hardware
+and the brace joint. No new unsupported piece or missing thin member appears;
+the old low-sided sheds and tiny bolt geometry remain coarse. The row retains
+93.91% of LOD0, saving only 76 triangles while adding 101592 mesh bytes.
+Keep the 1248-triangle original instead of another almost-complete buffer.
+This is a cost decision under the recipe's already-compact module rule, not a
+tool or image failure. Config stays unwired; payload/images/checks are archived
+in `build/lod-uv/archive/utility/crossarm-cost-rejected/`, removed from live
+export/lod. It has no runtime switch recommendation or residency increment.
 Its two rejected trials have no runtime residency or placement recommendation.
