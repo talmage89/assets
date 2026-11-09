@@ -19,6 +19,10 @@ def colors():return json.loads(paint_material()['paint_colors'])
 def install():
     m=paint_material();nt=m.node_tree
     if nt.nodes.get('Factory delta'):return
+    if m.get('lod_factory_coverage'):
+        from kit.lod_factory import install_paint
+        install_paint(m)
+        return
     bs=next(n for n in nt.nodes if n.type=='BSDF_PRINCIPLED');bs.name='SURFACE'
     tex=next(n for n in nt.nodes if n.type=='TEX_IMAGE' and 'BaseColor' in n.image.name)
     orm=next(n for n in nt.nodes if n.type=='TEX_IMAGE' and 'ORM' in n.image.name)
