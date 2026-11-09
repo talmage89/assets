@@ -62,8 +62,14 @@ def human(point):
 
 def render_file(source,out,name,spec,width,samples,engine):
     bpy.ops.wm.read_factory_settings(use_empty=True)
+    imported=source
+    if source.suffix=='.gltf':
+        # publish() embeds these exact geometry and PNG payloads first, then
+        # externalizes them without a second Blender export. Judge that GLB.
+        imported=(Path('build/glb')/source.relative_to('export')).with_suffix('.glb')
+        assert imported.exists(),imported
     if source.suffix=='.blend':bpy.ops.wm.open_mainfile(filepath=str(source.resolve()))
-    else:bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
+    else:bpy.ops.import_scene.gltf(filepath=str(imported.resolve()))
     if source.suffix=='.blend' and spec.get('source_module'):
         part=next(o for o in bpy.context.scene.objects if o.get('module_kind')==spec['source_module'])
         shown=set(part.children_recursive);part.parent=None;part.location=(0,0,0);part.rotation_euler=(0,0,0)
@@ -104,7 +110,7 @@ def render_file(source,out,name,spec,width,samples,engine):
         spec['independent_projection_error_source_px']=error
     scene.render.image_settings.file_format='PNG';out.mkdir(parents=True,exist_ok=True);scene.render.filepath=str((out/(name+'.png')).resolve())
     bpy.ops.render.render(write_still=True)
-    (out/(name+'.json')).write_text(json.dumps(dict(source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),package_sha256=digest(source),render_recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),resolution=[scene.render.resolution_x,scene.render.resolution_y],engine=engine,**spec),indent=2))
+    (out/(name+'.json')).write_text(json.dumps(dict(source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),imported_source=str(imported),imported_sha256=hashlib.sha256(imported.read_bytes()).hexdigest(),package_sha256=digest(source),render_recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),resolution=[scene.render.resolution_x,scene.render.resolution_y],engine=engine,**spec),indent=2))
 
 
 def render_modules(out,width,samples,engine):
