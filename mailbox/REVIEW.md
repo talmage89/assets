@@ -100,3 +100,15 @@ final contact and all three generated docs JPGs: the silvered post and dirty
 foot read in the full hero, the crown stays clear and the flag has no misplaced
 streaks. All nine Cycles views and the Eevee view record the final GLB hash.
 The accepted JPGs are held for the single end-of-pass image commit.
+
+## LOD rollout — 2026-11-09
+
+Merged current main (already up to date). Frozen tool revision `c18eff8` and
+103 literal hashes are in `build/lod-rollout/mailbox/freeze*`. Original
+`make -C mailbox check -o build/lookdev.blend -o build/game-audit.blend
+-o build/finalized.blend -o export/Mailbox.glb` passes before adoption;
+`original-before.{json,log}` records the exact command and result. Those
+accepted generated inputs are frozen to prevent source regeneration. The
+small-prop starting chain requests .4 at .25 and .15 at .09; Door/Flag frames
+and independent meshes must remain through both. No original export/map or
+docs image is changed. A build or numeric result alone is not acceptance.

@@ -19,3 +19,6 @@ endif
 .PHONY: check-delivery-motion
 check-delivery-motion: export/$(ASSET).glb
 	$(BP) --python src/check_delivery.py -- --source $< --out build/motion-glb.json
+
+# Additive opt-in LODs; immutable delivery remains the default build.
+include ../kit/lod_rules.mk
