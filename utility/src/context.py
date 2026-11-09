@@ -3,6 +3,13 @@ import hashlib,json,os,subprocess,sys,shutil
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];ASSET=HERE.parent
 OUT=ASSET/'build/context';OUT.mkdir(parents=True,exist_ok=True)
+sys.path.insert(0,str(ROOT))
+from kit.blender_command import with_threads
+
+
+def build_command(source,script,args):
+    command=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(script),'--',*args]
+    return with_threads(command,1) if source=='cars/src/build.py' else command
 
 
 def file_sha(path):
@@ -54,11 +61,12 @@ def prepare():
         dependency_folders=[ROOT/Path(source).parts[0]/'src']
         if output.stem in ('pickup','ground'):dependency_folders.append(ROOT/('cars' if output.stem=='pickup' else 'ground')/'src')
         signature=hashlib.sha256(b''.join(p.read_bytes() for folder in dependency_folders for p in sorted(folder.glob('*.py')))+str([x.replace(str(ASSET),'ASSET') for x in args]).encode()).hexdigest()
+        if source=='cars/src/build.py':signature=hashlib.sha256((signature+' threads=1').encode()).hexdigest()
         receipt=output.with_suffix('.recipe')
         if not output.exists() or not receipt.exists() or receipt.read_text()!=signature:
             with (OUT/(output.stem+'.log')).open('w') as log:
                 script=car_source/'build.py' if source=='cars/src/build.py' else ROOT/source
-                subprocess.run([os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(script),'--',*args],cwd=ASSET,stdout=log,stderr=subprocess.STDOUT,check=True)
+                subprocess.run(build_command(source,script,args),cwd=ASSET,stdout=log,stderr=subprocess.STDOUT,check=True)
             receipt.write_text(signature)
         rows.append(dict(script=source,output=str(output.relative_to(ASSET)),sha256=file_sha(output)))
         print('CONTEXT',source,flush=True)
