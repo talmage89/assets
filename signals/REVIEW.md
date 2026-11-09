@@ -700,3 +700,19 @@ topology and re-import checks pass. However 2238/2964 triangles retain
 a cost trial, not yet a selected family level. Complete config, payload,
 hashes, comparisons and checks are archived in
 `build/lod-rollout/signals/cabinet-pass1/`; the next equipment trial is the mast.
+
+### LOD critique 2: mast target control
+
+Opened every native strip, both construction views and contact for both mast
+requests. Color/value and shaft coverage hold at .25 / 27.15m. The initial
+3835/8174 level (46.92%) passes all original image and independent field/raw
+checks, but misses 3270. All three aiming head frames and separate lens/state
+nodes remain; four materials and fifteen draws retain canonical routing.
+The lower .15 request reaches 2849, meeting the count, but side-view local
+RGB .12776 exceeds .08: visor/housing highlights and thin projected shapes
+change. No image limit is altered. The source UV/frame audit still passes;
+`make check-lod` returns 2 for images. Source-only noise is not claimed as its
+cause. Both configs, payloads, checks and every image are retained in
+`build/lod-rollout/signals/mast-arm-pass1/` and `mast-arm-pass2/` before a
+middle request is tested. Close views expose coarser visor rims at both
+densities; acceptance remains at the native switch.

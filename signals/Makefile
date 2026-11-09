@@ -115,5 +115,5 @@ docs: finals
 	$(PYTHON) src/finals.py --docs
 
 # Opt-in chains of independently placed equipment; preserve all LOD0 payloads.
-LOD_CONFIGS := src/lod-cabinet.json
+LOD_CONFIGS := src/lod-cabinet.json src/lod-mast-arm.json
 include ../kit/lod_rules.mk

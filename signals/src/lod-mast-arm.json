@@ -1,0 +1,15 @@
+{
+  "kind": "standard prop: signal mast arm assembly",
+  "name": "MastArm",
+  "source": "export/parts/MastArm.gltf",
+  "output": "export/lod/mast-arm",
+  "renders": "renders/lod/mast-arm",
+  "readme_key": "mast-arm",
+  "readme_title": "Mast arm LODs",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "levels": [
+    {"ratio": 0.15, "screen_height": 0.25, "target_triangles": 3270}
+  ]
+}
