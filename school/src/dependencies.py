@@ -3,7 +3,7 @@
 Accepted geometry/maps are reused where present. Missing local context is
 rebuilt with the original generators. Existing library deliveries never change.
 """
-import hashlib,json,os,subprocess,sys
+import hashlib,json,os,subprocess,sys,shlex
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 LOCAL=ROOT/'school'
@@ -16,7 +16,7 @@ def car_cache(kind,target,log_path):
     target=Path(target);target.parent.mkdir(parents=True,exist_ok=True)
     policy=target.with_suffix('.threads')
     if target.exists() and policy.exists() and policy.read_text()=='1\n':return
-    command=[os.environ.get('BLENDER','blender'),'-b','--factory-startup','--python-exit-code','1','--python',str(ROOT/'downtown/src/context_build.py'),'--','--kind',kind,'--out',str(target)]
+    command=[*shlex.split(os.environ.get('BLENDER','blender')),'-b','--factory-startup','--python-exit-code','1','--python',str(ROOT/'downtown/src/context_build.py'),'--','--kind',kind,'--out',str(target)]
     with Path(log_path).open('w') as log:
         subprocess.run(with_threads(command,1),cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT,check=True)
     policy.write_text('1\n')
@@ -88,7 +88,7 @@ def main():
         target=out/'context'/f'{kind}.glb'
         if not target.exists() or target.stat().st_mtime<(LOCAL/'src/context_export.py').stat().st_mtime or (kind=='car' and target.stat().st_mtime<(out/'context/car.blend').stat().st_mtime):
             cmd=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python','src/context_export.py','--',kind]
-            if kind=='car':cmd=with_threads(cmd,1)
+            if kind=='car':cmd=with_threads([*shlex.split(cmd[0]),*cmd[1:]],1)
             with (out/f'context-{kind}-export.log').open('w') as log:subprocess.run(cmd,cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT,check=True)
     # The analytic library shrub maps are shared delivery inputs, rather than
     # glTF dependencies on disposable source folders under build/.

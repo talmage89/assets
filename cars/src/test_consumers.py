@@ -27,9 +27,10 @@ class ConsumerThreads(unittest.TestCase):
         deps=load('school_deps','school/src/dependencies.py')
         target=self.folder/'car.blend';target.write_bytes(b'old')
         def run(command,**kwargs):
+            self.assertEqual(command[0],'blender')
             self.assertEqual(command[command.index('-t')+1],'1')
             target.write_bytes(b'new')
-        with patch.object(deps.subprocess,'run',side_effect=run) as launch:
+        with patch.dict(os.environ,BLENDER='blender -t 8'), patch.object(deps.subprocess,'run',side_effect=run) as launch:
             deps.car_cache('hatchback',target,self.folder/'car.log')
             deps.car_cache('hatchback',target,self.folder/'car.log')
         self.assertEqual(launch.call_count,1)
@@ -56,6 +57,10 @@ class ConsumerThreads(unittest.TestCase):
             command=context.build_command(source,ROOT/source,['--quality','game'])
             self.assertEqual(command[command.index('-t')+1],count)
             self.assertEqual(command[command.index('--')+1:],['--quality','game'])
+        with patch.dict(os.environ,BLENDER='blender -t 8'):
+            command=context.build_command('cars/src/build.py','build.py',[])
+        self.assertEqual(command[:2],['blender','-b'])
+        self.assertEqual(command[command.index('-t')+1],'1')
 
     def test_garage_rebuilds_old_cache_and_retains_guard(self):
         deps=load('garage_deps','parking-garage/src/dependencies.py');commands=[]

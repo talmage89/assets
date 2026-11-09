@@ -1,5 +1,5 @@
 """Read-only library context generation, all outputs confined to utility/build."""
-import hashlib,json,os,subprocess,sys,shutil
+import hashlib,json,os,subprocess,sys,shutil,shlex
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];ASSET=HERE.parent
 OUT=ASSET/'build/context';OUT.mkdir(parents=True,exist_ok=True)
@@ -9,7 +9,7 @@ from kit.blender_command import with_threads
 
 def build_command(source,script,args):
     command=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(script),'--',*args]
-    return with_threads(command,1) if source=='cars/src/build.py' else command
+    return with_threads([*shlex.split(command[0]),*command[1:]],1) if source=='cars/src/build.py' else command
 
 
 def file_sha(path):
