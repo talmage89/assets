@@ -296,3 +296,44 @@ Door and Flag geometry, as well as their pivots and material routing. Try one
 .09 level: retaining these already small moving surfaces makes a weak near
 reduction poor value. Keep the original far goal of 190, so any necessary
 exception remains measurable. No source geometry or kit code is modified.
+
+### Round 2 critique 3 — retained mechanisms and one useful far switch
+
+Opened the three new native strips, both 960-pixel construction views and the
+new contact sheet. Color/value first: original black paint, silvered post,
+splash and red flag remain stable. The original door now keeps its rounded
+crown and the flag keeps its rectangular arm/paddle. The rear shell is angular
+in the construction close-up, but does not produce a visible break at 97 pixels.
+There is no new atlas, paint decoder or material. Native image gates pass.
+
+Adopt one 692-triangle level at .09 / 12.217 m, retaining exact Door (484) and
+Flag (76) geometry; the remaining fixed shell/support uses 132 triangles.
+The 190 goal remains target_met:false. The failed cheaper 196/202 levels and
+494 near witness explain this exception; a weak extra near switch is omitted.
+Only one level draws at once. Both exported levels retain three meshes/draws
+and one canonical material on the original three 1024 maps. Reduced geometry
+is permitted only with Door at rest; use LOD0 for any open-door interaction.
+
+Actual permitted-pose audit passes: original Door 106 samples, Flag 91 samples
+on both levels, reduced Door one rest sample; all measured penetration is zero
+against .05 mm. All meshes follow Mailbox's root with maximum .000119 mm error.
+Generic raw/UV/frame/topology and normal-field checks also pass. The public
+Makefile now exposes only this adopted config and runs its physical audit as
+part of check-lod. Prior rejected LOD2 payloads/images are removed from the
+live directories after archiving; none are a delivery.
+
+Closing proof: make lod, public make check-lod (including permitted-pose audit)
+and the original make check all exit 0. Removing obsolete trial LOD2 images
+after rendering initially invalidated their recorded hashes; the check correctly
+failed. Regenerated the final comparison receipt in the cleaned directory,
+reopened every final strip/close view/contact and reran both public checks.
+The final retry passes; no image gate or receipt was bypassed.
+
+kit/lod_report.py --write-readmes generated the measured tables, then their
+surrounding prose was shortened for asset users. The table is checked literally
+against the reporter. Whole chain: 1956 stored triangles, one canonical material,
+six stored primitive placements, 4123744 physical payload bytes, 4.1333 MiB
+resident; one instance draws 1264 or 692 triangles in three calls. Texture
+residency is the original 4 MiB; new images zero, added mesh 49032 GPU bytes.
+The immutable original receipt, all 103 frozen hashes, repository and whitespace
+checks pass. No accepted source, map, docs JPG, car file or kit file changed.
