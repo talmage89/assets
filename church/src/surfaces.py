@@ -36,7 +36,7 @@ def palette():
         ma=tiling.material(name,G.ROOT/folder,tint=True);ma.name='Church_'+role
         G.MATS[role]=ma
     G.MATS['copper']=G.MATS['bronze']
-    for role,color,rough,metal in [('glass',(.76,.79,.73),.035,0),('storm',(.74,.69,.48),.19,0),('black',(.009,.010,.008),.85,0)]:
+    for role,color,rough,metal in [('glass',(.76,.79,.73),.035,0),('storm',(.79,.74,.53),.12,0),('black',(.009,.010,.008),.85,0)]:
         ma=bpy.data.materials.new('Church_'+role);ma.use_nodes=True;ma['tiling_vertex_tint']=False
         p=ma.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(*color,1);p.inputs['Roughness'].default_value=rough;p.inputs['Metallic'].default_value=metal
         if role in ('glass','storm'):p.inputs['Transmission Weight'].default_value=.96;p.inputs['IOR'].default_value=1.49
@@ -49,16 +49,31 @@ def palette():
         ls.new(tx.outputs['Color'],p.inputs['Base Color']);p.inputs['Roughness'].default_value=.35 if role=='stained' else .65
         if role=='stained':
             mix=ns.new('ShaderNodeMix');mix.data_type='RGBA';mix.blend_type='MULTIPLY';mix.inputs[0].default_value=1
-            ls.new(tx.outputs['Color'],mix.inputs[6]);mix.inputs[7].default_value=(.16,.16,.16,1)
+            ls.new(tx.outputs['Color'],mix.inputs[6]);mix.inputs[7].default_value=(.26,.26,.26,1)
             ls.new(mix.outputs[2],p.inputs['Base Color'])
             ls.new(tx.outputs['Color'],p.inputs['Emission Color']);p.inputs['Emission Strength'].default_value=emit
         else:
             ls.new(tx.outputs['Alpha'],p.inputs['Alpha']);ma.surface_render_method='DITHERED';ma.use_backface_culling=False
         ma.use_backface_culling=False;G.MATS[role]=ma
+    ma=G.MATS['stained'].copy();ma.name='Church_stained_faceted'
+    for node in ma.node_tree.nodes:
+        if node.type=='MIX':node.inputs[7].default_value=(.55,.55,.55,1)
+    G.MATS['faceted']=ma
 
 
-def charts(points,role):
-    if role=='brick':return D.masonry_faces(points,0,upper_grid=True)
+def charts(points,role,weather_grid=False):
+    if role=='brick':
+        source=D.masonry_faces(points,0,upper_grid=True);out=[]
+        # Only the splash zone needs extra vertical samples. Preserve the
+        # physical brick UV phase and leave every upper bay at its old count.
+        for poly,uv in source:
+            if weather_grid and min(p[2] for p in poly)<1.1 and max(p[2] for p in poly)<=1.21921 and max(p[2] for p in poly)-min(p[2] for p in poly)>.30:
+                rows=[poly]
+                for z in (.24,.51,.83):
+                    rows=[q for row in rows for q in ([D.clip_height(row,z,True),D.clip_height(row,z,False)] if min(p[2] for p in row)+1e-7<z<max(p[2] for p in row)-1e-7 else [row]) if len(q)>=3]
+                for row in rows:out.extend(D.masonry_faces(row,0,upper_grid=True))
+            else:out.append((poly,uv))
+        return out
     normal=(Vector(points[1])-Vector(points[0])).cross(Vector(points[2])-Vector(points[0]))
     axis=max(range(3),key=lambda k:abs(normal[k]));axes=[(1,2),(0,2),(0,1)][axis]
     if role in ('stone','iron'):
@@ -87,7 +102,7 @@ def tint(p,role,col,props):
     if role=='copper':col=tuple(v*g for v,g in zip(col,(.28,1.30,1.08)))
     if role=='timber' and props.get('door'):col=tuple(v*.15 for v in col)
     if role=='brick':
-        col=tuple(v*g for v,g in zip(col,(.88,.82,.77)))
+        col=tuple(v*g for v,g in zip(col,(.80,.74,1.05)))
         floor=props.get('floor',.6096);zz=max(0,z-floor)
         reach=.55+.14*math.sin(x*4.9+y*3.2)+.06*math.sin(x*19+y*11)
         damp=.36*max(0,1-zz/reach)

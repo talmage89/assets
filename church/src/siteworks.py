@@ -15,7 +15,8 @@ def paving(p,parent):
     modern=p['style']=='aframe';cuts=[]
     def pad(name,rect,z=0,role='concrete'):
         cuts.append(rect);return slab(name,rect,z,role,parent)
-    lot=(12,70,-36,-18) if modern else (-18,13,23,44)
+    lot=(12,70,-36.6,-18) if modern else (-18,13,23,44)
+    p['parking_rect']=list(lot)
     pad('Sealed parking lot',lot,.005,'asphalt')
     if modern:
         pad('Arterial driveway connection',(10.6908,13.7388,-39.38,-33),.005,'asphalt')
@@ -94,6 +95,9 @@ def parking(p,parent,rect):
             for xx in (x-pitch/2,x+pitch/2):
                 pts=[(xx-.045,y-2.72,.012),(xx+.045,y-2.72,.012),(xx+.045,y+2.72,.012),(xx-.045,y+2.72,.012)]
                 m.geom(pts,[(0,1,2,3)],'paint',color=(.57,.55,.45),uv=[[(.005,.755),(.12,.755),(.12,.995),(.005,.995)]])
+                if (j+row)%3:
+                    old=[(xx-.10,y-2.62,.0115),(xx-.02,y-2.62,.0115),(xx-.02,y+2.64,.0115),(xx-.10,y+2.64,.0115)]
+                    m.geom(old,[(0,1,2,3)],'paint',color=(.23,.24,.21),uv=[[(.005,.755),(.12,.755),(.12,.995),(.005,.995)]])
             yy=y+(2.1 if row else -2.1);m.box((x,yy,.075),(1.70,.17,.15),'concrete')
             occupied=((row,j) in ((0,3),(0,5),(0,10),(0,16),(1,4),(1,11),(1,17))) if modern else rng.random()<p['occupancy']
             accessible=(modern and row==1 and j==4) or (not modern and row==0 and j==9)
@@ -110,6 +114,20 @@ def parking(p,parent,rect):
 
 def settlement(parent,rect,seed):
     rng=random.Random(seed+207);a,b,c,d=rect;m=G.Mesh('Lot settlement cracks',parent,actor_kind='site',sheet=True)
+    # Small aggregate-scale native map, with broad wheel-path polishing and a
+    # partial later sealer job. Grid supports only those meter-scale fields.
+    top=G.Mesh('Traffic-polished partly resealed lot',parent,actor_kind='site',sheet=True)
+    for xx in range(math.floor(a),math.ceil(b),2):
+        for yy in range(math.floor(c),math.ceil(d),2):
+            x0=max(a,xx);x1=min(b,xx+2);y0=max(c,yy);y1=min(d,yy+2)
+            if x1<=x0 or y1<=y0:continue
+            midx=(x0+x1)/2;midy=(y0+y1)/2
+            seam=45+.65*math.sin(midy*1.7)+.25*math.sin(midy*3.7)
+            sealer=.77 if midx>seam and midy<(c+d)/2 else 1.03
+            wheel=.12*math.exp(-((midy-(c+d)/2)/2.8)**2)
+            gain=sealer-wheel
+            top.geom([(x0,y0,.0053),(x1,y0,.0053),(x1,y1,.0053),(x0,y1,.0053)],[(0,1,2,3)],'asphalt',color=(gain,gain,gain*.98))
+    top.finish()
     for i in range(9):
         x=rng.uniform(a+1,b-1);y=rng.uniform(c+1,d-2);w=rng.uniform(.08,.18);length=rng.uniform(1.4,3.5)
         m.geom([(x-w,y,.013),(x+w,y,.013),(x+w,y+length,.013),(x-w,y+length,.013)],[(0,1,2,3)],'paint',uv=[[(.502,.005),(.623,.005),(.623,.245),(.502,.245)]])
@@ -157,9 +175,10 @@ def town(p,parent):
     build(p)
     # Native foliage, at varied orientations and credible setbacks. Shrub roots
     # are selected from the single delivered two-species library.
-    plants=[(-18,-17),(20,-17),(-20,17),(23,39),(49,26),(58,-4),(33.7,-33),(52.9,-33)] if modern else [(-18,-25),(21,-25),(-25,8),(26,35),(-42,46),(43,48)]
+    plants=[(-18,-17),(20,-17),(-20,17),(23,39),(71,37),(71,-4),(33.7,-33),(52.9,-33)] if modern else [(-18,-25),(32,-25),(-25,8),(26,35),(-42,46),(43,48)]
     for i,(x,y) in enumerate(plants):
-        instance(G.ROOT/('trees/export/PinOak.glb' if i%3==0 else 'trees/export/RedMaple.glb'),'Established street tree '+str(i),(x,y,0),i*53,.70 if modern else .61,actor='vegetation')
+        size=(.42 if i in (6,7) else .70) if modern else .61
+        instance(G.ROOT/('trees/export/PinOak.glb' if i%3==0 else 'trees/export/RedMaple.glb'),'Established street tree '+str(i),(x,y,0),i*53,size,actor='vegetation')
     for i in range(12 if modern else 7):
         point=(36.2,-7+i*1.65,0) if modern else (17.1,4+i*1.65,0)
         instance(G.ROOT/'shrubs/export/Shrubs.glb','Foundation shrub '+str(i),point,i*37,.75 if not modern else .87,kind='Hydrangea' if i%4==0 else 'Boxwood',actor='vegetation')

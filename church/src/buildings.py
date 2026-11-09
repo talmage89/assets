@@ -136,6 +136,8 @@ def build(p):
     fittings(rt,p)
     from weather import repairs
     repairs(rt,p)
+    from maintenance import add as history
+    history(rt,p)
     import bpy
     bpy.context.view_layer.update()
     points=[ob.matrix_world@v.co for ob in rt.children_recursive if ob.type=='MESH' for v in ob.data.vertices]

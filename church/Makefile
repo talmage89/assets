@@ -7,14 +7,14 @@ CHECKPOINT_OUTPUTS += $(patsubst %.gltf,%.bin,$(filter %.gltf,$(CHECKPOINT_OUTPU
 CHURCH_MAPS := $(foreach set,Craft Glass,$(foreach map,BaseColor Normal ORM,textures/ship/T_Church$(set)_$(map).png)) textures/ship/T_ChurchLetters_BaseColor.png build/letters.json
 CHURCH_MAPS += $(foreach map,BaseColor Normal ORM,textures/ship/T_GardenLawn_$(map).png)
 CHECKPOINT_DEPS := $(wildcard src/*.py) build/dependencies.json $(CHURCH_MAPS)
-CHECKPOINT_CHECK = $(PYTHON) src/check.py && $(BP) --python src/construction_check.py
+CHECKPOINT_CHECK = $(PYTHON) src/check.py && $(BP) --python src/construction_check.py && $(BP) --python src/site_check.py
 CHECKPOINT_OUT := renders/checkpoint
 CHECKPOINT_REVIEW = $(PYTHON) src/review.py
 CHECKPOINT_RENDER_ARGS := --shots hero,above,doors,window,window_dusk,tower,wing,sign,scale
 include ../kit/checkpoint_rules.mk
 BP := $(BLENDER) -b -t 4 --factory-startup --python-exit-code 1
 
-build/dependencies.json: src/dependencies.py
+build/dependencies.json: src/dependencies.py src/context_hosts.py
 	@mkdir -p build $(TMPDIR)
 	$(PYTHON) src/dependencies.py
 $(CHURCH_MAPS) &: src/textures.py src/art_glass.py src/turf.py

@@ -36,13 +36,13 @@ def window(name,parent,width=1.7,stem=2.8,sill=2.5,kind='pointed',point=(0,0,0),
     m.finish()
     m=G.Mesh('Stained glass',rt,sheet=True)
     poly=outline(r-.075,stem-.035,kind,bottom=.075)
-    h=max(z for x,z in poly);uv=[[(.004+(x/r/2+.5)*.492,.004+z/h*.492) for x,z in poly]]
+    h=max(z for x,z in poly);uv=[[(.004+(x/(r-.075)/2+.5)*.492,.004+z/h*.492) for x,z in poly]]
     m.geom([(x,-.10,z) for x,z in poly],[tuple(range(len(poly)))],'stained',uv=uv);m.finish()
     if storm:
         m=G.Mesh('1990s protective glazing',rt,sheet=True)
         # Outside protective sheet held off art glass; 20mm breathing slots
         # remain at sill/head. The tinted polymer is deliberately not emissive.
-        poly=outline(r-.045,stem-.03,kind,bottom=.035)
+        poly=outline(r-.045,stem-.05,kind,bottom=.055)
         m.geom([(x,-.245,z) for x,z in poly],[tuple(range(len(poly)))],'storm');m.finish()
         m=G.Mesh('Storm bars vents and screws',rt)
         ring(m,outline(r,stem,kind,bottom=0),outline(r-.035,stem-.025,kind,bottom=.035),-.275,.035,'iron')

@@ -22,8 +22,13 @@ def glass(out):
                 base=cream if (row+col)%3 else sage
                 d.rectangle((x,y,x+88,y+57),fill=tuple(int(v*tone) for v in base),outline=lead,width=1)
         # Two narrow colored borders; no solid color carpet across the field.
-        for inset,c in ((10,(49,67,83)),(23,(116,87,46))):
-            d.rectangle((ox+inset,oy+inset,ox+512-inset,oy+512-inset),outline=c,width=11)
+        for inset,c in ((10,(49,67,83)),(26,(116,87,46))):
+            radius=(256-inset)/256;stem=4.904;h=stem+3**.5
+            poly=[(ox+inset,oy+502),(ox+512-inset,oy+502)]
+            for j in range(65):
+                xx=radius*(1-2*j/64);zz=stem+max(0,4*radius*radius-(abs(xx)+radius)**2)**.5
+                poly.append((ox+256+xx*256,oy+512-zz/h*512+inset*.22))
+            d.line(poly+[poly[0]],fill=c,width=12)
         for y in range(36,490,44):
             for x in (16,496):
                 d.polygon([(ox+x,oy+y-7),(ox+x+5,oy+y),(ox+x,oy+y+7),(ox+x-5,oy+y)],fill=(121,70,54),outline=lead)
@@ -60,7 +65,7 @@ def glass(out):
     a*=.97+.03*ripple[:,:,None]
     Image.fromarray(np.uint8(np.clip(a*255,0,255))).save(out/'T_ChurchGlass_BaseColor.png')
     leadfield=np.max(a,axis=2)<.075
-    h=leadfield*.0011+.00013*ripple
+    h=leadfield*.0004+.00004*ripple
     dy,dx=np.gradient(h);norm=np.stack((-dx*n/3,dy*n/3,np.ones_like(dx)),axis=2);norm/=np.linalg.norm(norm,axis=2,keepdims=True)
     Image.fromarray(np.uint8((norm*.5+.5)*255)).save(out/'T_ChurchGlass_Normal.png')
     orm=np.ones((n,n,3));orm[:,:,1]=np.where(leadfield,.78,.29+.025*ripple);orm[:,:,2]=np.where(leadfield,.32,0)

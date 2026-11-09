@@ -44,7 +44,9 @@ def shots(seed):
         window=dict(location=(4,-23,5.0) if modern else (13,-1,4.0),target=(1,-14.95,6.4) if modern else (6.65,-2.13,4.8),lens=48),
         window_dusk=dict(location=(4,-23,5.0) if modern else (13,-1,4.0),target=(1,-14.95,6.4) if modern else (6.65,-2.13,4.8),lens=48,dusk=True),
         tower=dict(location=(-10,-22,1.72) if modern else (-11,-21.5,1.72),target=(-13.84,-12.94,10.8) if modern else (-8.35,-11,16.0),lens=40),
-        wing=dict(location=(54,-34,4.8) if modern else (29,35,7),target=(28,4,2.2) if modern else (9,17,2.4),lens=42 if modern else 38,sun_direction=(.55,.85,-.45) if modern else (-.55,-.85,-.45)),
+        wing=dict(location=(48,-44,4.8) if modern else (29,35,7),target=(28,4,2.2) if modern else (9,17,2.4),lens=42 if modern else 38,sun_direction=(.55,.85,-.45) if modern else (-.55,-.85,-.45)),
+        age=dict(location=(11,-23,1.72) if modern else (-8,-25,1.72),target=(7,-14.4,2.2) if modern else (-5,-12,2.5),lens=48),
+        north_roof=dict(location=(-22,24,16) if modern else (-17,25,18),target=(-5,6,7) if modern else (-4.8,4,9.8),lens=45,sun_direction=(.55,.85,-.45)),
         sign=dict(location=(11,-47.5,1.72) if modern else (19,-26.5,1.72),target=(7,-37.5,1.9) if modern else (17,-22,1.9),lens=48 if modern else 35),
         scale=dict(location=(14,-35,2.1),target=(0,-13,3.0),lens=45,scale_ground_z=.1524 if modern else 0))
 
@@ -105,18 +107,21 @@ def render_file(source,out,name,spec,width,samples,engine):
     (out/(name+'.json')).write_text(json.dumps(dict(source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),package_sha256=digest(source),render_recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),resolution=[scene.render.resolution_x,scene.render.resolution_y],engine=engine,**spec),indent=2))
 
 
+def render_modules(out,width,samples,engine):
+    for source in sorted(Path('export/modules').glob('*.gltf')):
+        meta=json.loads(source.with_suffix('.json').read_text());lo,hi=map(Vector,(meta['bounds_min'],meta['bounds_max']));center=(lo+hi)/2;span=max(hi-lo)
+        if source.stem=='BentShoe':
+            bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
+            pts=[o.matrix_world@v.co for o in bpy.context.scene.objects if o.type=='MESH' for v in o.data.vertices if (o.matrix_world@v.co).x<center.x]
+            lo=Vector(tuple(min(p[k] for p in pts) for k in range(3)));hi=Vector(tuple(max(p[k] for p in pts) for k in range(3)));center=(lo+hi)/2;span=max(hi-lo)
+        spec=dict(location=list(center+Vector((span*.85,span*1.9*(1 if source.stem=='RearSteps' else -1),span*.70))),target=list(center),lens=48,ortho=span*1.48,module_studio=True)
+        render_file(source,out,source.stem,spec,width,samples,engine)
+
+
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--source');ap.add_argument('--out',type=Path,default=Path('renders/checkpoint'));ap.add_argument('--width',type=int,default=1200);ap.add_argument('--samples',type=int,default=32);ap.add_argument('--seeds',default='101,202');ap.add_argument('--shots',default='hero,above,doors,window,window_dusk,tower,wing,sign,scale');ap.add_argument('--engine',default='CYCLES');ap.add_argument('--building-only',action='store_true');ap.add_argument('--range',action='store_true');ap.add_argument('--modules',action='store_true');ap.add_argument('--matches',action='store_true');ap.add_argument('--source-scene',action='store_true');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
     if a.modules:
-        for source in sorted(Path('export/modules').glob('*.gltf')):
-            meta=json.loads(source.with_suffix('.json').read_text());lo,hi=map(Vector,(meta['bounds_min'],meta['bounds_max']));center=(lo+hi)/2;span=max(hi-lo)
-            if source.stem=='BentShoe':
-                # Inspect one of the paired shoes at its actual scale.
-                bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
-                pts=[o.matrix_world@v.co for o in bpy.context.scene.objects if o.type=='MESH' for v in o.data.vertices if (o.matrix_world@v.co).x<center.x]
-                lo=Vector(tuple(min(p[k] for p in pts) for k in range(3)));hi=Vector(tuple(max(p[k] for p in pts) for k in range(3)));center=(lo+hi)/2;span=max(hi-lo)
-            spec=dict(location=list(center+Vector((span*.85,span*1.9*(1 if source.stem=='RearSteps' else -1),span*.70))),target=list(center),lens=48,ortho=span*1.48,module_studio=True)
-            render_file(source,a.out,source.stem,spec,a.width,a.samples,a.engine)
+        render_modules(a.out,a.width,a.samples,a.engine)
         return
     if a.matches:
         for name,data in json.loads(Path('build/matched-cameras.json').read_text()).items():

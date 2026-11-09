@@ -18,6 +18,16 @@ def color(point,role,col,props):
         station=min(abs(y+l/2-.4),abs(y-l/2+.4))
         runoff=math.exp(-(station/.20)**2)*math.exp(-max(0,z-.25)/3.4)
         col=tuple(c*(1-runoff*.16)*a for c,a in zip(col,(1-runoff*.10,1,1-runoff*.04)))
+        if p['style']!='aframe':
+            tx,ty=p['tower_xy'];wet=0
+            if abs(y-(ty-2.285))<.49:
+                for head,stations in ((4.87,(-1.42,.57,1.88)),(12.72,(-.73,.96)),(17.22,(-.15,1.63))):
+                    drop=head-z
+                    if 0<drop<2.1:
+                        wet+=sum(math.exp(-((x-tx-s)/.27)**2) for s in stations)*(.42*(1-drop/2.1))
+            if abs(y+l/2)<.48 and 5.8<z<7.2:
+                wet+=sum(math.exp(-((x-s)/.22)**2) for s in (-.82,.63))*.26*(z-5.8)/1.4
+            col=tuple(c*(1-wet) for c in col)
     if role=='stone':
         under=.27 if props.get('normal_z',0)<-.4 else 0
         groove=(.5+.5*math.sin(x*6.3+y*4.8))**10
@@ -34,8 +44,8 @@ def color(point,role,col,props):
         # Site north is -X. Moss persists below overlapping north eave/slates.
         north=max(0,min(1,-x/(w/2)))
         tuft=max(0,math.sin(y*2.7+x*.6)+.46*math.sin(y*6.4-x*2.3)-.6)
-        moss=north*tuft*.28*wear
-        col=tuple(c*a for c,a in zip(col,(1+moss*.18,1+moss*.75,1-moss*.24)))
+        moss=north*tuft*.48*wear
+        col=tuple(c*a for c,a in zip(col,(1-moss*.16,1+moss*1.5,1-moss*.45)))
     return col
 
 
@@ -70,6 +80,9 @@ def repairs(parent,p):
             for j in range(3):
                 yy=y-2.34-j*.3302;z=p['floor']-j*.1524+.001
                 m.geom([(x-.08,yy,z),(x+.07,yy,z),(x+.10,yy-.29,z),(x-.06,yy-.27,z)],[(0,1,2,3)],'paint',color=(.65,.32,.13),uv=[[(.755,.505),(.995,.505),(.995,.745),(.755,.745)]])
+        for j in (1,2,3):
+            yy=y-2.34-j*.3302;z=p['floor']-j*.1524+.0013
+            m.geom([(-2.13,yy,z),(-1.79,yy,z),(-1.83,yy-.26,z),(-2.13,yy-.28,z)],[(0,3,2,1)],'paint',color=(.34,.60,.22),uv=[[(.755,.505),(.995,.505),(.995,.745),(.755,.745)]])
     if m.v:m.finish()
     if p['style']=='aframe':fascia(parent,p)
 

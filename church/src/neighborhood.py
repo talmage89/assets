@@ -28,6 +28,16 @@ def house(i,x,y,yaw,width=24):
     a=world(drive_x-1.65,front_street,-.012);b=world(drive_x+1.65,front_street,-.012)
     c=world(drive_x+1.65,front+.2,-.012);d=world(drive_x-1.65,front+.2,-.012)
     m.geom([a,b,c,d],[(0,1,2,3)],'concrete')
+    lawn=G.Mesh('Individual neighbor lawn '+str(i),actor_kind='town')
+    for u in range(math.floor(-width/2),math.ceil(width/2),2):
+        for v in range(math.floor(front_street),math.ceil(back+4),2):
+            ua=max(-width/2,u);ub=min(width/2,u+2);va=max(front_street,v);vb=min(back+4,v+2)
+            if ub<=ua or vb<=va:continue
+            midu=(ua+ub)/2;midv=(va+vb)/2
+            if min(q.x for q in pts)<midu<max(q.x for q in pts) and front<midv<back:continue
+            if abs(midu-drive_x)<2 and front_street<midv<front+.3:continue
+            lawn.geom([world(ua,va,-.016),world(ub,va,-.016),world(ub,vb,-.016),world(ua,vb,-.016)],[(0,1,2,3)],'lawn')
+    lawn.finish()
     # Native privacy sections only along alternating rear lot boundaries.
     if i%2==0:
         for j in range(4):
@@ -55,11 +65,12 @@ def rear_street(cx,cy,horizontal,count):
 def build(p):
     modern=p['style']=='aframe'
     if modern:
-        rear_street(-30,51,True,19);rear_street(82,-47,False,17)
+        rear_street(-30,51,True,19);rear_street(82,-47,False,17);rear_street(44,-10,False,10)
         rows=[(x,69,0,24) for x in (-15,9,34,59,83)]
         rows += [(100,y,-90,24) for y in (-24,0,24,49,73)]
         rows += [(x,-65,180,25) for x in (-15,10,35,60,85)]
         rows += [(-48,y,90,24) for y in (-22,2,26,51)]
+        rows += [(61,3,-90,24),(61,28,-90,24)]
     else:
         for i,(x,y) in enumerate(((26.6,-21),(36.8,-22),(48.2,-21),(-2,51),(8.5,51),(19,51))):
             instance(G.ROOT/f'church/build/hosts/town-{i}.glb',f'Distinct town building {i}',(x,y,0),actor='town')

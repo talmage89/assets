@@ -236,3 +236,109 @@ have mean absolute RGB differences of approximately .09/.13/.04 on a 0–255
 scale, showing that export preserves this source appearance; that does not
 prove the source itself looks real. Stop here at the requested form and
 construction gate, with the weaknesses above exposed for lead review.
+
+## Place and age review D — first revised export set
+
+Color/value first: opened all eight full-size `renders/look-a/101,202/`
+views and the three composed pairs. The new Gothic reference is the MDAH
+April 2009 color photograph, prepared at 1000×960, balanced on the concrete
+entry steps (360,925..420,934). The modern pair retains its arrival-drive
+neutral. Brick is still too even in value and repairs are too hard to see
+at hero distance. Buff trim is improved but needs grime specifically below
+projecting moldings. The lawns have their own yellow-green rather than the
+old dark felt; their broad patches still look interpolated from a coarse grid.
+
+The street context is substantially closer: distinct native storefronts,
+an alley, Sunday street parking, varied houses and yard trees. The modern
+overhead still exposes an empty eastern half-block. Add the adjoining local
+street and two lots there, rather than filling the land with isolated props.
+The tree beside the downtown sign hides its letters; move it along the same
+parkway. Smaller parking-island trees will reveal the education-wing roof.
+
+Historic glass now has a pale field and one symbol panel. Its colored border
+is clipped by the old UV range and does not follow the arch. Correct the
+border chart and UVs. Modern clear glazing reflects the sky and town against
+a dim nave, but the faceted cross stretches its atlas differently in its
+vertical and horizontal arms. Give its facets one physical scale and reduce
+the relief. The 20-sample clear-glass specular noise needs a higher-sample test.
+
+The Gothic color fit is 17.72 px RMS; the modern is 24.32 px. The provisional
+13.90 px window fit is REJECTED: on opening the composed pair I saw that the
+selected small tower lancet was infilled with brick, not protective glass.
+That was my reference-selection error. It supplies no glass evidence. Replace
+it with the NPS NCPTT photograph explicitly captioned as yellowed plastic
+protective glazing on a brick church, and retain the rejected pair only in
+the ignored iteration evidence. No accepted result relies on that fit.
+
+## Place and age review E — corrected glazing pair and density
+
+Color/value first: opened all eight `renders/look-b/` street/site/window PNGs
+and all three complete pairs. The concrete-step balance is now explicitly
+RGB .667/.627/.584, gains .939/.998/1.072. The same clear gable-brick patch
+(674,575..695,595 in the prepared street frame) measures 143/99/95 in the
+balanced photograph and 151/105/80 in the export. These display RGB medians
+are lighting-dependent, not measured physical albedo. They still expose an
+orange bias. Correct the brick tint toward red-brown before finer wear.
+
+The replacement window is definitively protective glazing: Jason Church's
+NCPTT photograph is captioned as clouded/yellowed plastic over stained glass
+on a brick church. Compare its left light, with its shared tracery visible at
+the crop edge, against the original exported lancet. It is not a replica of
+that multi-light window. Balance on the white-painted exterior bar, RGB
+.741/.749/.710, gains .989/.979/1.033. The fit is 4.43 px RMS on the native
+240×570 crop; the 150mm lens limit is active. The brick hue target remains
+the red-brick street photograph, not this buff-brick window surround.
+
+The daylight export is dark olive behind the protective reflection, with a
+visible but subdued memorial field. Dusk now shows a continuous blue/amber
+border following the pointed crown, pale cathedral glass and a central cross
+panel. The modern cross now has one physical facet scale; clear glass shows
+the reflected town and the dim nave. It still has specular grain at 40 samples,
+and the simple geometric composition is less rich than historical craft.
+
+The additional two eastern lots close the modern block instead of leaving
+its east side as a field. The island trees are smaller, the wing roof reads,
+wheel stops sit at real stall heads and the seven weekday cars are spread
+between both rows. The front lot row needs another .6m of depth to preserve
+the intended aisle width after adding the grass buffer; measure that on the
+fresh import. Sunday curbs are lined with cars. Native distant roofs remain
+coarsely reduced; that is a context weakness, not a church-triangle excuse.
+
+Front repairs now read at the tower base, but the age is still too weak on
+large lit walls. Add splash-zone color samples only to the front gable,
+tower shaft and modern low walls; retain the accepted WallBay count. Darken
+runoff below actual tower courses, and make the corner-cut traffic line
+continuous rather than relying on a two-meter lawn grid to find it. The next
+export pass must judge those changes at hero size before the complete set.
+
+## Place and age review F — color correction on the exports
+
+Color/value first: inspected all eight `renders/look-c/` PNGs and all three
+composed pairs. The same concrete-balanced front-gable brick patch now reads
+145/101/93 against the photograph's 143/99/95. The low sun still makes the
+hero warmer; the old orange hue is corrected without raising exposure or
+flattening cavities. The two storm-window images retain dark daylight and
+a pale, luminous dusk field, rather than saturated primary quarries.
+
+The refined front/tower base now carries interrupted damp and salt deposits;
+repairs are visible at the tower foot. Fixed course joints feed short runoff
+paths. These remain maintenance cues on red masonry rather than a gray wash.
+The front gable remains plainer and more even than the old church photograph;
+some of that difference is the accepted original architecture. Keep it honest
+as an appearance limitation rather than claiming a product-photo match.
+
+The continuous lawn ribbon failed this review: from above it read as an orange
+line drawn across the grass. Reduce both chroma and contrast and vary its
+intensity along the route, retaining compressed grass instead of rust-colored
+bare earth. Reframe the modern wing view outside the new island tree canopy.
+Capture dedicated beam/step and north-roof views in the full set so moss and
+end-grain wear are actually inspected, rather than inferred from shader code.
+
+The native houses now supply lot widths, driveways, fences and yard trees.
+Their roofs remain visibly coarse at aerial distance and the district beyond
+these blocks is sparse. The new faceted cross is confined to about five
+percent of the gable glass; it no longer turns the entire sanctuary front into
+a repeating colored mosaic. The NCPTT pair is valid glass evidence at 4.43px,
+not the rejected brick infill. Fresh-import tests pass wheel-stop placement,
+7.3136m modern aisle, the clear/colored area ratio and a measured .0200m lower
+air slot. These measure the imported surfaces, not renderer serialization.

@@ -31,7 +31,15 @@ def glazed_end(parent,p,y,back=False):
     # One original amber/blue faceted cross, composed across the clear grid.
     m=G.Mesh('Faceted cross composition',rt,sheet=True)
     for a,b,lo,hi in ((-.30,.30,3.0,11.1),(-2.82,-.30,7.85,8.48),(.30,2.82,7.85,8.48)):
-        m.geom([(a,-.035,lo),(b,-.035,lo),(b,-.035,hi),(a,-.035,hi)],[(0,1,2,3)],'stained',uv=[[(.505,.005),(.995,.005),(.995,.495),(.505,.495)]])
+        factor=min(1,(peak-.7)/11.1);lo*=factor;hi*=factor
+        a*=min(1,w/17.6784);b*=min(1,w/17.6784)
+        for k in range(math.floor(lo/1.2),math.ceil(hi/1.2)):
+            za=max(lo,k*1.2);zb=min(hi,(k+1)*1.2)
+            for j in range(math.floor(a/1.2),math.ceil(b/1.2)):
+                xa=max(a,j*1.2);xb=min(b,(j+1)*1.2)
+                poly=[(xa,-.035,za),(xb,-.035,za),(xb,-.035,zb),(xa,-.035,zb)]
+                uv=[[(.505+(x/1.2-j)*.49,.005+(z/1.2-k)*.49) for x,y,z in poly]]
+                m.geom(poly,[(0,1,2,3)],'faceted',uv=uv)
     m.finish()
     # An unplayable dark light-baffle closes the opposite sky opening. Sash,
     # beams and roof reveal still stand in front of this dim nave silhouette.

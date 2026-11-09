@@ -26,10 +26,12 @@ def prepared():
     # Neutral: unmarked gray arrival drive, excluding curb/leaf litter.
     a=np.asarray(im).astype(float)/255;patch=a[465:477,350:450];med=np.median(patch.reshape(-1,3),axis=0);gain=med.mean()/med
     a=np.clip(a*gain,0,1);Image.fromarray(np.uint8(a*255)).save('refs/match-modern.jpg',quality=96)
-    # Brick tower lancet, with exterior protective sheet/bar and deep reflection.
-    # Keep native photo pixels in this close comparison; concrete is in the
-    # whole frame and supplies the balance before the window crop is taken.
-    window=balanced('refs/color-dayton.jpg',(1371,3468,1589,3494),'refs/match-window.jpg',crop=(806,2218,1109,2822))
+    if not Path('refs/protective-native-002.ppm').exists():
+        subprocess.run(['pdfimages','-f','4','-l','4','-j','refs/protective-glazing.pdf','refs/protective-native'],check=True)
+    Image.open('refs/protective-native-002.ppm').transpose(Image.Transpose.ROTATE_270).save('refs/protective-upright.jpg',quality=98)
+    # NCPTT explicitly identifies this as aged plastic over stained glass.
+    # Neutral: white-painted exterior storm bar, never the yellowed plastic.
+    window=balanced('refs/protective-upright.jpg',(191,601,312,609),'refs/match-window.jpg',crop=(130,225,370,795))
     return dict(modern_neutral_rgb=med.tolist(),modern_white_balance_gain=gain.tolist(),historic=historic,window=window)
 
 
@@ -52,10 +54,10 @@ def definitions():
     # Compare the exported wall module: the photograph has a flat wall,
     # whereas a neighboring buttress occludes this oblique view in the nave.
     y=-.235;sill=2.30;stem=3.10;r=.70
-    window=dict(title='Brick lancet and protective glazing',photo='refs/match-window.jpg',crop=[0,0,303,604],location=(4,-9,1.72),target=(0,y,4.6),lens=48,lens_bounds_mm=(20,160),camera_height_m=(1.72,1),landmarks=[dict(world=xyz,pixel=(xy[0]*3.36-806,xy[1]*3.36-2218)) for xyz,xy in [
-        ((-r,y,sill),(267,813)),((r,y,sill),(297,806)),
-        ((-r,y,sill+stem),(268,714)),((r,y,sill+stem),(301,707)),
-        ((0,y,sill+stem+3**.5*r),(285,688))]])
+    window=dict(title='NCPTT brick lancet: yellowed protective plastic',photo='refs/match-window.jpg',crop=[0,0,240,570],location=(-1,-7,1.72),target=(0,y,4.6),lens=48,lens_bounds_mm=(20,150),camera_height_m=(1.72,1),landmarks=[dict(world=xyz,pixel=(xy[0]-130,xy[1]-225)) for xyz,xy in [
+        ((-r,y,sill),(186,729)),((r,y,sill),(336,736)),
+        ((-r,y,sill+stem),(190,393)),((r,y,sill+stem),(331,397)),
+        ((0,y,sill+stem+3**.5*r),(260,284))]])
     return dict(gothic=classic,modern=modern,window=window)
 
 

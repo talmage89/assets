@@ -56,6 +56,28 @@ def details(p,parent,cuts,bounds):
         dx=math.cos(ang)*width;dy=math.sin(ang)*width
         blade.geom([(x-dx,y-dy,-.009),(x+dx,y+dy,-.009),(x+dx*.3+.005,y+dy*.3,height)],[(0,1,2)],'lawn',color=(.92,1.0,.87))
     ob=blade.finish();ob['cause']='mower edges and clipped foreground sward; 22–52 mm; same July lawn set'
+    # An adaptive ribbon samples the actual corner-cut route. A two-meter
+    # lawn grid alone misses a 60cm desire line between most grid vertices.
+    a,b=((-12,-39),(0,-22)) if MODERN else ((-13,-23),(-2.2,-17))
+    dx=b[0]-a[0];dy=b[1]-a[1];length=math.hypot(dx,dy);nx=-dy/length;ny=dx/length
+    path=G.Mesh('Compressed grass on corner-cut route',parent,actor_kind='site',sheet=True)
+    for j in range(24):
+        t0=j/24;t1=(j+1)/24
+        for side in (-1,1):
+            pp=[]
+            for t,u in ((t0,0),(t1,0),(t1,side),(t0,side)):
+                x=a[0]+dx*t;y=a[1]+dy*t;width=.43+.07*math.sin(t*19)
+                pp.append((x+nx*u*width,y+ny*u*width,-.006))
+            path.geom(pp,[(0,1,2,3)] if side>0 else [(3,2,1,0)],'lawn')
+    ob=path.finish();colors=ob.data.color_attributes['Tint']
+    for face in ob.data.polygons:
+        for li in face.loop_indices:
+            v=ob.data.vertices[ob.data.loops[li].vertex_index].co
+            strength=max(0,1-segment(v.x,v.y,a,b)/.48)
+            station=((v.x-a[0])*dx+(v.y-a[1])*dy)/(length*length)
+            strength*=.16+.48*(.5+.5*math.sin(station*17+.7))
+            c=colors.data[li].color
+            colors.data[li].color=(c[0]*(1+strength*.03),c[1]*(1-strength*.20),c[2]*(1-strength*.15),1)
 
 
 def imported_lawns():

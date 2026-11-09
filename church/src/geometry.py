@@ -93,7 +93,8 @@ class Mesh:
         vs=[];fs=[];uvs=[];cols=[];roles=[];smooth=[]
         for f,role,col,uv,sm in zip(self.f,self.role,self.colors,self.uv,self.smooth):
             points=[self.v[i] for i in f]
-            for pp,tt in ([(points,uv)] if uv else charts(points,role)):
+            refine=self.name.startswith(('Front rose gable','Pierced tower shaft','Low brick sidewall'))
+            for pp,tt in ([(points,uv)] if uv else charts(points,role,weather_grid=refine)):
                 n=len(vs);vs.extend(pp);fs.append(tuple(range(n,n+len(pp))));uvs.append(tt)
                 normal=(Vector(pp[1])-Vector(pp[0])).cross(Vector(pp[2])-Vector(pp[0])).normalized()
                 props=dict(self.props,name=self.name,normal_z=normal.z)
