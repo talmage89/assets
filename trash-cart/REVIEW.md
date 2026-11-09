@@ -480,3 +480,20 @@ payloads, their hashes and all native images are retained in
 `build/lod-cart-repair/trash-unsafe/`; the trial is unwired. The next trial
 pins UV regions to preserve the thin sealing construction instead of accepting
 that deformation or increasing image limits.
+
+### Recycling LOD critique 1 — independent cheaper witness
+
+Opened all six native strips, their difference panels, the contact and all three
+construction views. Color/value and blue hue remain stable; the municipal stamp
+does not turn into a bright block. The near level's sealing reveal develops the
+same uneven dark line. The far skirt/bead visibly folds away from the body;
+the recycling relief becomes subpixel in the switch view, without a new bright
+patch. Counts are 3,284/1,988 against 2,378/892. At the rear far switch the local
+maxima are .09626 against LOD0 / .09138 against LOD1, over .08; generic
+`check-lod` fails images while topology, normal fields and re-import pass.
+
+The independent blue original sweep and both reduced rest poses pass, with
+zero measured unintended penetration. Its exact original config, all payloads,
+hashes, checks and native images are in `build/lod-cart-repair/recycling-unsafe/`.
+Both cheaper trials are archived and hash-verified before clearing their live
+output folders. No rejected chain is exposed by the family's Makefile.
