@@ -25,7 +25,9 @@ def render_file(source,out,name,spec,width,samples,engine):
         if 'photo_size' in spec:
             sw,sh=spec['photo_size'];factor=max(1,round(width/sw));size=[sw*factor,sh*factor]
         else:size=[width,round(width/spec.get('aspect',1.5))]
-        if (count==samples and d.get('source')==str(source) and d.get('package_sha256')==PACKAGES[source]
+        imported=Path(d.get('imported_source','build/missing-import'))
+        import_current=imported.is_file() and d.get('imported_sha256')==hashlib.sha256(imported.read_bytes()).hexdigest()
+        if (import_current and count==samples and d.get('source')==str(source) and d.get('package_sha256')==PACKAGES[source]
                 and d.get('render_recipe_sha256')==recipe and d.get('engine')==engine
                 and all(d.get(k)==v for k,v in normalized.items())
                 and d['resolution']==size and list(struct.unpack_from('>II',raw,16))==size):
