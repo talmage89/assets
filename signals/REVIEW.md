@@ -785,3 +785,46 @@ checks, payload hashes and native images are archived in `span-set-pass1/`
 before a lower .25 request is tested at the same .25 switch. No tool or image
 gate changed. New geometry uses 25 draws versus the original 27, with the
 original three materials/maps; these are measured color-pass submissions.
+
+### LOD critique 6: native pass, original trim check fails
+
+Opened every native page in `build/lod-rollout/signals/span-native-pass2/`,
+both new construction views and the combined reporter contact. The 5692-triangle
+span meets 6982 at the unchanged .25 / 31.18m switch. Pole/wire coverage and
+indications hold; close views still expose coarse fittings. Worst mean .00590,
+p95 .03138, local .04875, alpha .02462 and silhouette loss .03856 pass.
+`span-set-final-check.json` records exit 0, including the independent field audit.
+Twenty-four aiming/lens control nodes retain their serialized state routing.
+
+**Stop: no signals adoption.** The required original `make check` afterwards
+returns 2: its unchanged delivery checker also scans the additive directory,
+and catches actual newly crossed manufacturing trim cells. An independent raw
+accessor audit, `build/lod-rollout/signals/trim-domain-audit.json`, measures:
+
+| Trial | Newly crossed trim triangles | Outside-domain vertices | Maximum UV |
+| --- | ---: | ---: | ---: |
+| Cabinet 1482 | 12 | 1 | 1.0003411 |
+| MastArm 3199 | 30 | 4 | 1.0040153 |
+| SpanSet 5692 | 121 | 1 | 1.0516849 |
+
+The three immutable sources have zero such faults. Screen comparisons and the
+generic correspondence audit passing do not override this construction-specific
+failure. No checker, threshold, source, UV or frozen tool is changed. All three
+final configs, payload hashes, raw checks and every image are archived in
+`build/lod-rollout/signals/{cabinet,mast-arm,span-set}-final/`. Their trial payloads
+are removed from `export/lod/` so the original-only check can run independently;
+`make lod` reproduces the rejected trials. Tables describe those trials, not
+approved chains. This defect ends the family at its time box; all remaining
+heads, posts and town assemblies stay LOD0 pending their own proof.
+
+Final receipts: `original-before.json` exits 0; `original-after.json` exits 2
+on the new trim faults; `original-after-isolated.json` exits 0 after archiving
+the rejected additions. Exact original commands retain `-o build/delivery.json`
+and `-o ../ground/export/ArterialSites.glb`. The unchanged delivery check then
+audits all fifteen original containers. Tool freeze revision `55b6288`, all
+103 literal hashes match in `freeze-check.txt`. The rollout's immutable receipt
+still has all 1200 original delivery/texture/docs files unchanged. Repository
+check: 2551 source files, zero errors. The reporter generated all three tables
+with `--write-readmes`; `report/contact.jpg` was inspected. Its generic PASS
+labels do not include, and cannot overrule, the failed original trim check.
+No live jobs or tool edits remain for this family.
