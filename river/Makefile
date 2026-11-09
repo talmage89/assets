@@ -61,6 +61,17 @@ repeat: model
 check-texture-repeat: textures/checkpoint/.stamp
 	$(PYTHON) src/texture_repeat.py
 
+.PHONY: docs
+docs: checkpoint
+	$(PYTHON) src/delivery.py
+
+.PHONY: wall
+WALL_VIEWS := renders/wall-details/outfall.png renders/wall-details/ladder.png renders/wall-before/outfall.png renders/wall-before/ladder.png
+wall: $(WALL_VIEWS)
+review: wall
+$(WALL_VIEWS) &: $(CHECKPOINT_OUTPUTS) src/wall_views.py src/render.py src/materials.py build/accepted-rebuild/river/export/RiverCrossing-101.gltf
+	$(KIT)/with_gpu.sh $(BP) --python src/wall_views.py -- --width $(WIDTH) --samples $(SAMPLES)
+
 # Only a camera correction with otherwise current hash/camera receipts can
 # refresh the batch stamp. Any changed geometry or other camera fails the gate.
 .PHONY: inspection

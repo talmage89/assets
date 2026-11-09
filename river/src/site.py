@@ -73,7 +73,7 @@ def fixtures(p,parent):
         for side in (-1,1):b.box((x+.1,y+side*.65,z+.68),(.35,.40,1.15))
         b.box((x+.1,y,z+1.20),(.35,1.7,.22))
         rings=[[(xx,y+r*math.cos(k*math.tau/20),z+.58+r*math.sin(k*math.tau/20)) for k in range(20)] for xx,r in ((x+.65,.4318),(x-.12,.4318),(x-.12,.381),(x+.65,.381))]
-        b.loft(rings,'concrete',caps=False)
+        b.loft(rings,'concrete',caps=False,smooth=True)
     if p.kind=='edge':
         # Small worn fishing landing and 12%-slope boat launch into shallow edge.
         y=-36;x=p.center(y)-p.halfwidth(y)

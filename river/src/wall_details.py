@@ -37,7 +37,7 @@ def add(p,parent):
             patch(y,1.22,.78,.56,0,(.49,.56,.36,1))
             patch(y+.18,1.17,.12,.47,1,(.92,.94,.84,1))
         # Embedded wall ladder: 32mm rails, 20mm rungs, bolted stand-offs.
-        ly=-45 if side<0 else 39
+        ly=-49 if side<0 else 39
         for dy in (-.27,.27):
             b.tube([pos(ly+dy,.78,3.96),pos(ly+dy,4.22,3.96),pos(ly+dy,4.22,4.55)],.016,'steel',8)
             for z in (1.0,2.1,3.3):b.beam(pos(ly+dy,z,4.23),pos(ly+dy,z,3.96),.04,.025)

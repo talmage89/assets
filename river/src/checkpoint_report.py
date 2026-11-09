@@ -27,7 +27,7 @@ def main():
            f'| Cutbank/sod/roots, point bar, bankfull wrack and broken riffle | {shots("bar","riffle")} |',
            f'| Warm raking light, depth/flow water, caused age and bank plants | {shots("hero","pier","driver")} |',
            '', 'Before/after: '+comparisons('hero','above','bearings','abutment','riffle','bar','pier','under','driver','scale')+'.',
-           '', 'All twenty-two comparisons are in `renders/fixes/`, 1280 pixels per side, with identical cameras.',
+           '', 'All twenty-four comparisons are in `renders/fixes/`, 1280 pixels per side, with identical cameras.',
            'The baseline is the reconstructed accepted `4f09582` export and lighting.',
            'The unchanged cameras retain the original handoff frames. Receipts: `build/fix-evidence.json`.',
            '', '| Photo pair | RMS px |','| --- | ---: |']

@@ -180,7 +180,7 @@ def construction(seed):
     assert closure_clearances and min(closure_clearances)>.50,('Visible water closing interface',min(closure_clearances))
     crop_audit=crop_cells(bed) if seed==202 else None
     quarry=quarry_dimensions(next(o for o in obs if o.name=='BarCobbleAndScourRiprap'))
-    rail_gaps=[]
+    rail_gaps=[];ladder_clearance=None
     for rail in [o for o in obs if o.type=='MESH' and o.name.startswith('ApproachRail_')]:
         tips=rail.data.attributes.get('_GROUND_TIP');assert tips is not None,('No post-tip semantics',rail.name)
         points=[rail.matrix_world@v.co for v,tag in zip(rail.data.vertices,tips.data) if tag.value>.5]
@@ -221,6 +221,16 @@ def construction(seed):
         socket_gaps[name]=abs(pos.z-hit.z)
         assert socket_gaps[name]<.025,('Socket above landing',name,socket_gaps[name])
     if seed==101:
+        from plan import Plan
+        p=Plan(**meta['plan'])
+        wall=bpy.data.objects['FloodwallConstructionAndAccess']
+        ladder=[wall.matrix_world@v.co for v in wall.data.vertices
+                if -49.30<v.co.y<-48.70 and .76<v.co.z<1.3
+                and abs(v.co.x-(p.center(v.co.y)-p.halfwidth(v.co.y)-3.96))<.10]
+        benches=[bvh(o) for o in obs if o.type=='MESH' and o.name.startswith('Riverwalk bench ')]
+        assert ladder and benches,('Missing ladder/bench surface audit',len(ladder),len(benches))
+        ladder_clearance=min(t.find_nearest(point)[3] for t in benches for point in ladder)
+        assert ladder_clearance>1.2,('Bench obstructs ladder access',ladder_clearance)
         streets=next(o for o in obs if o.name=='MainStreetAndServiceAlleys')
         front=next(o['main_street_front_m'] for o in obs if o.name=='TownContext')
         for f in streets.data.polygons:
@@ -294,7 +304,8 @@ def construction(seed):
         soil=tree.ray_cast(point+Vector((0,0,100)),Vector((0,0,-1)),200)[0]
         assert soil is not None and point.z-soil.z>.65,('Photo camera in bank',point,soil)
         photo_camera=dict(nearest_support_surface_m=distance,ground_clearance_m=point.z-soil.z)
-    return dict(categories=counts,quarry_dimensions=quarry,water_floor_centroid_samples=len(closure_clearances),
+    return dict(categories=counts,minimum_ladder_bench_surface_distance_m=ladder_clearance,
+                quarry_dimensions=quarry,water_floor_centroid_samples=len(closure_clearances),
                 minimum_water_floor_below_bed_m=min(closure_clearances),crop_cell_audit=crop_audit,inspection_camera_ground_clearance_m=camera_clearance,under_photo_camera_clearance=photo_camera,bearing_surface_samples=len(gaps),max_girder_pad_gap_m=max(gaps),
                 plinth_support_samples=len(seat_gaps),max_plinth_support_gap_m=max(seat_gaps),girder_lengths_m=sorted(set(round(x,5) for x in lengths)),water_width_samples=samples,
                 riverwalk_headroom_samples=len(headroom),minimum_sampled_riverwalk_headroom_m=min(headroom) if headroom else None,
