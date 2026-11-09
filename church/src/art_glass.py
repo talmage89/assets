@@ -68,11 +68,11 @@ def glass(out):
     # Reusing this quarter adds no images or GPU allocation.
     alpha=np.ones((n,n));gy,gx=np.mgrid[:256,:512];rng=np.random.default_rng(7841)
     field=np.zeros((256,512))
-    for j in range(24):
-        cx=rng.uniform(12,500);width=rng.uniform(8,30);reach=rng.uniform(.35,1)
+    for j in range(7):
+        cx=rng.uniform(12,500);width=rng.uniform(35,83);reach=rng.uniform(.40,1)
         t=gy/256;wav=cx+3*np.sin(t*9+j)
         track=np.exp(-((gx-wav)/(width*(1-.65*t)))**4)*np.clip(1-t/reach,0,1)**.6
-        field=np.maximum(field,track*rng.uniform(.45,.95))
+        field=np.maximum(field,track*rng.uniform(.38,.78))
     edge=np.clip(np.minimum(gx,511-gx)/18,0,1)*np.clip((255-gy)/20,0,1)
     field*=edge*(.84+.16*np.sin(gx*.13+np.sin(gy*.07)*2)**2)
     alpha[:256,:512]=field
