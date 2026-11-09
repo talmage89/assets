@@ -2529,3 +2529,25 @@ recipe freeze entry match. Current evidence is
 `renders/lod/ranch-12-proxy/`, `export/lod/ranch-12-proxy/`, and
 `build/houses-lod/ranch-final-report/`; the original/trial receipts remain
 alongside. The README table is generated from this final serialized manifest.
+
+## LOD adoption — Cape Cod immutable original, 2026-11-09
+
+Merged current main before this type (already current). Tool/recipe freeze:
+`build/houses-lod/cape-freeze-revision.txt` and `cape-freeze.sha256`, revision
+`d1c4f13`; the later ranch prose correction changes no tool bytes.
+`make TYPE=cape export -W src/cape_sweep.py` in the same ignored original-build
+copy returns 0 in 1,021.66 s, including the shared GPU queue. All twenty-one
+glTF/BIN/metadata files for seeds 31–36 and the existing 34 paint control
+match accepted bytes exactly. Counts and sizes match the original README.
+The 136-file original ledger remains exact. Full receipt and per-file hashes:
+`build/houses-lod/cape-original-{build,comparison}.json`.
+
+The representative is seed 36, the accepted portfolio hero: its steep roof,
+two front dormers, short eaves, entry hood and chimney test this generator's
+distinctive construction. Front/service leaves are the source's two moving
+roots; this seed has no garage. An unbounded generator is not a set of cosmetic
+variants, so no chain is inferred for the other seeds, additions or sash/skin
+choices. Immutable glTF SHA-256:
+`1127ddc65eec070e7110a62fc57151916def0e3e6a8d66d1d30a47bc3701ef9e`;
+BIN: `748b85fdfd534d260796b3c4c7b3dfa5dc3ef3b8d8a5ddf0527e35d65122294b`.
+The builder additionally freezes every canonical image dependency.
