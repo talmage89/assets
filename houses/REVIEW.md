@@ -2757,7 +2757,7 @@ Full rejected-chain costs: geometry bytes 3,822,197 / 4,472,119 /
 far four 512-square PNGs 364,137 bytes. The far cold load is 475,110 bytes.
 The chain would store 125,431 triangles, seven material resources and 37
 placements / 19,457,811 distinct payload bytes; residency rises from
-28.2118 to 38.0460 MiB. Maps add 1.3334 MiB, extra meshes 8.5027 MiB,
+28.2109 to 38.0470 MiB. Maps add 1.3334 MiB, extra meshes 8.5027 MiB,
 and there are no new intermediate images. These stored alternatives are
 not simultaneous draws: the active level still costs twelve or one.
 
@@ -2769,3 +2769,24 @@ receipts and simplification data retain the original trial. The next
 far-only test moves to 3%, raises projected opening coverage to .97 and
 uses a quarter-pixel grid/.15-pixel inflation. These configuration controls
 address the window/trim envelope; they change no acceptance threshold.
+
+### Split LOD critique pass 2 — reject the finer 3% proxy
+
+The far-only trial builds/renders in 317.17 s; `check-lod` returns 2 in
+3.63 s, only for images. The 1,800/1,800-triangle proxy passes topology,
+normal transfer, re-import and immutable input checks. Opened all six
+unscaled native pages, both close views and both contacts. Color/value
+still fails at the pale upper front: siding brightens and window surrounds
+change, with the garage/roof edge also visible in the difference. Finer
+geometry and .97 opening coverage do not cure that transfer. Roof, steps
+and window frames remain softened close up.
+
+At 3% / 32.4px / 218.62 m, front mean/p95/local are
+.034718/.151961/.108354; side .024296/.117647/.114011;
+rear .009482/.035294/.027431. Alpha/IoU maxima .018148/.020344
+pass. Front/side color failures remain substantial. The exact config,
+payload, images, simplification and command receipts are archived under
+`build/houses-lod/split-proxy030/`, with failed measured tables/contact in
+`split-proxy030-report/`. Saved recipe: `src/lod-split-proxy030-trial.json`.
+The last bounded trial changes only the switch to 2%; no further tool or
+acceptance changes follow if it fails.
