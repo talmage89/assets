@@ -716,3 +716,19 @@ cause. Both configs, payloads, checks and every image are retained in
 `build/lod-rollout/signals/mast-arm-pass1/` and `mast-arm-pass2/` before a
 middle request is tested. Close views expose coarser visor rims at both
 densities; acceptance remains at the native switch.
+
+### LOD critique 3: selected mast density
+
+The .25 optimization request at the unchanged .25 switch reaches 3199
+triangles, 39.14% of 8174, meeting the original 3270-triangle/40% goal.
+Opened all three fresh native strips, both construction views and contact.
+Color/value, shaft coverage, street-name lettering and red indications remain
+consistent. Local RGB .02429/.05828/.02545 passes the original .08 bound;
+mean/p95 and alpha/IoU pass too. The coarser visor rims remain a close-view
+limitation. Fresh `make check-lod` and the independent UV/frame audit pass.
+`build/lod-rollout/signals/MastArm-state-routing.json` independently records
+all thirteen aiming/lens control nodes with matching control fields and
+independent mesh/material bindings. This proves serialized state routing,
+not live phase timing, flexible-cable updates or a new swept-motion audit.
+The cheaper 2849-triangle visible-failure control remains archived. Measured
+selected-level table/contact: `build/lod-rollout/signals/mast-report/`.
