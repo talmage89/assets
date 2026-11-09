@@ -1018,3 +1018,26 @@ mathematical minimum. Original maps allocate no new image. Final evidence:
 `build/lod-uv/archive/utility/angle-final/`; native views:
 `renders/lod/angle/`. This proves rest appearance/data and measured gaps,
 not engine performance or continuous motion.
+
+
+### Dead-end pole LODs critique 1 — native values and coverage
+
+Opened all three native strips and difference panes. Timber and hardware
+values agree with LOD0; termination crossarm, braces, shaft, lower cable loop and dead-end fitting remain.
+At 25% / 36.315 m, the protected level has
+2266/3056 triangles against 1222.
+Worst mean 0.0006881, local 0.002592 and silhouette loss
+0.003240 pass the unchanged gates. The goal is missed.
+
+### Dead-end pole LODs critique 2 — construction and independent checks
+
+Opened both construction views and contact, then revisited native details:
+the termination hardware and brace joint; small original fittings remain coarse. No new missing support or thin member appears.
+Chart crossings are zero and maximum measured marking gap is 0.4003 mm.
+Re-import, UV area, tangent and source-field checks pass independently of images.
+The original family check passes after these variants; every original resource
+and frozen tool hash matches. Counts are the tested protected result, not a
+mathematical minimum. Original maps allocate no new image. Final evidence:
+`build/lod-uv/archive/utility/deadend-final/`; native views:
+`renders/lod/deadend/`. This proves rest appearance/data and measured gaps,
+not engine performance or continuous motion.

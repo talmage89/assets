@@ -1,0 +1,9 @@
+{
+  "kind": "standard prop: utility dead-end pole", "name": "Deadend",
+  "source": "export/UtilityParts.gltf", "include_nodes": ["Deadend"],
+  "output": "export/lod/deadend", "renders": "renders/lod/deadend",
+  "readme_key": "deadend", "readme_title": "Dead-end pole LODs",
+  "screen_space": true, "feature_pixels": 1.5, "render_samples": 128,
+  "levels": [{"ratio": 0.15, "target_triangles": 1222, "screen_height": 0.25,
+              "surface_pixels": 0.05, "preserve_uv_regions": true}]
+}
