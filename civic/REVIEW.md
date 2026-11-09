@@ -179,3 +179,76 @@ batch interruption exposed a reentrant signal-handler join: unwind the wait
 before terminating/joining the child. Final captures now use fresh serial
 Blender workers, with one GPU lease and hash-validated resumption; completed
 frames survive a joined interruption. No interrupted partial frame is evidence.
+
+## Pass 16 — complete final exports and last-round comparisons
+
+Color and value: opened all 28 current 1400px final captures at native size,
+the three exported photographic pairs and calibration overlays, all ten
+1400px-per-panel fixed-camera change pairs, and both contact sheets. The same
+concrete neutrals and approximate balances from pass 13 remain in use. Hall
+hero display-luminance p1/p99 is .00364/.67027; station .01315/.74589. Neither
+hero has a pixel with a channel above .995. This proves headroom and shadow
+range, not photographic realism. The historic pair still has more uniform
+stone and masonry than its photograph; the station's repair patches and wheel
+lanes remain visibly procedural. Different brick species, original designs
+and estimated photo lighting limit any direct pigment comparison.
+
+The 38mm hall and 45mm station heroes have distinct eye-height compositions,
+without the common foreground sedan, and opposite 18-degree side suns. The
+column, cornice and pier shadows are stronger. The station sky remains pale
+near the horizon, the signal pole crosses its third bay, and some shaded rear
+faces are too dark as detail presentations. Do not call the whole light fix
+complete. The full-size change pairs make the lower wall values and darker
+lawn clear, but the columns' bases and broad limestone faces remain too clean.
+Scupper discharge is strongly visible in its own view; its single soft track
+is simpler than real mineral/algal runoff. Wheel and engine lanes are visible
+from the street and above, but look too straight and airbrushed, with long
+shadows competing in the hero. Repointing and salts retain recognizable shapes.
+
+The lawns are less bright and even: moisture/root variation, worn margins,
+corner cuts, shade and mulch remain visible. They are still planar and tiled,
+especially from above. Native house/tree rhythms repeat, the flag close-up
+exposes a sparse far horizon, and the clean roof planes remain conspicuous.
+The open bay's repeated coats and hoses remain schematic. Profile/finial facets
+show in macros. No pigeon deposits were built. The Eevee control has pale,
+opaque glazing and different foliage shadows; it is weaker than Cycles.
+
+The added turnarounds initially used a site-offset target on centered building
+exports and cropped the hall. Reject those intermediate frames; the final
+inspections center the actual complete building envelope. Range and module
+sheets retain all four programs and sixteen prototypes, with a separate 1.8m
+human/car scale view. These are inspection scenes, not occupied town views.
+
+The expanded exact repeat caught image-list ordering in `family.json`, while
+all runtime exports, images and six owned native context GLBs repeated exactly.
+Sort the material/image records at their source instead of relaxing the repeat
+test. Debug blends remain outside byte determinism. Fresh 4096 fields and GPU
+rebakes are independently checked; canonical native delivery bytes stay intact.
+
+Final source/export review: opened all six 1400px matched PNGs as well as their
+six composed photo pairs. Camera/light checks agree, and the caused value/color
+layers show no gross loss through export. This does not cure the uniform stone,
+regular lanes or planar lawn. Opened every encoded gallery JPG at native size;
+compression retains the declared detail and the gallery does not conceal the
+known flaws. README lists the partial outcomes of all three requested fixes.
+
+Final proof completed: empty-directory dependency/field/bake/model rebuild and
+`make` pass, with verified resumption after joined SIGTERM interruptions.
+`make check` passes ten raw/fresh-import packages, geometry/UV/normal/scale,
+selected actual roof/ramp/drive measurements, 224 parked-car/walk envelope
+comparisons and source/export door sweeps. Repository check reports zero errors;
+1,011 protected delivery files remain exact. `make repeat` now passes all 70
+files, including regenerated native context caches and sorted manifests.
+`make check-texture-repeat` passes twelve exact manufacture fields and fifteen
+maps; maximum rebake difference is zero. No native car cache is generated:
+their delivered files are read-only and included in preservation.
+
+`make review changes` passes 28 current finals, three export and three source
+pairs, plus ten 1400px-per-panel historical comparisons. Final contact is
+`renders/final/contact.jpg`; pairs are `renders/matches/`, and before/after is
+`renders/last-fixes/`. All final sources, maps and render/context recipes validate.
+The five reviewed gallery JPGs are 188,566 / 195,484 / 192,951 / 197,411 /
+194,962 bytes, at 1400–1600px width. Piece/module/package/image costs are in
+`build/resource-report.md`, `piece-costs.json`, `module-costs.json` and
+`package-costs.json`, with cars, vegetation and neighboring context separate.
+No kit or top-level index edits. No pending Blender/bake/render worker remains.
