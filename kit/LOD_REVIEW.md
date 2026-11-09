@@ -2698,6 +2698,33 @@ costs are in `cars/REVIEW.md` and `cars/README.md`. Native evidence is
 are under `build/car-lod/adapter-report/` and `control-report/`.
 
 The literal pre-change kit archive matches `1d9d429`. The opt-in implementation's
-source/recipe freeze is `build/car-lod/freeze.sha256`. Full clean-suite and
-pickup/cone/maple opt-out byte-comparison closeout follows after those serial
-jobs complete; no result is inferred from their start.
+source/recipe freeze is `build/car-lod/freeze.sha256`; all recorded entries still
+match. All **35 kit test files pass** in one serial clean-fixture run, including
+the new factory fixture and existing GPU proxy/frame/transfer fixtures. The run
+took 1366 seconds; commands, exits and tested source hashes are in
+`build/car-lod/tests/results.json`. No runtime source changed afterwards.
+
+Opt-out byte proof is **incomplete**, not a blanket compatibility approval:
+
+- Cone: both full builds complete; every glTF/BIN/PNG matches byte for byte.
+  The manifest differs only in its honest tool hashes.
+- Maple: all ten payload files in the default 11,840/4,736/8-triangle chain match
+  byte for byte. Its default manifest matches after removing tool receipts and
+  optional alternatives. The optional camera-facing billboard fails strict byte
+  equality: one channel of one pixel differs by 1/255, inherited from sector 0
+  of the fresh capture. The fixed crossed atlas is byte-identical. The origin of
+  that single-pixel variation is not isolated, and it is not waived as a pass.
+- Pickup: the frozen cold build exceeded about one hour without completing
+  LOD1. It was stopped with SIGTERM under the car time budget, preserving genuine
+  completed reduction caches. No complete baseline/current pickup comparison is
+  claimed. The full baseline phase, including cone/maple, took 3785 seconds.
+
+Exact comparison receipts are `build/car-lod/optout-proof.json`,
+`tree-default-proof.json`, `tree-pixel-differences.json` and
+`pickup-regression-incomplete.json`. Every pre-existing delivery/map/image file
+in the 2,996-file ledger remains byte-identical. The original H120 `make check`
+passes after both controls, with explicit frozen inputs. Repository and diff
+checks pass. `build/car-lod/final-audit.json` deliberately reports
+`car_image_checks_passed: false`, `compatibility_proof_complete: false` and no
+car adoptions. These remaining failures prevent calling the adapter/adoptions
+complete; no new car delivery or documentation image is committed.
