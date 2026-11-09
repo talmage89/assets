@@ -1,5 +1,11 @@
 # Rill / wood utility poles and overhead lines
 
+LOD rollout is blocked before building: the accepted `UtilityParts.gltf` and
+four `UtilityStreet-101`–`104` glTF/BIN/JSON deliveries, their maps and generated
+check inputs are absent in this worktree. No chain or source rebuild is made.
+The original delivery costs below are historical source documentation, not new
+LOD measurements. See [the rollout preflight](REVIEW.md).
+
 Original scripted US residential distribution, maintained 1970–2010 equipment
 with 15–30 years of service age. Reusable pole assemblies and four streets
 share one 2048 atlas through external-image glTF delivery.

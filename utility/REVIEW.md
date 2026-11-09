@@ -769,3 +769,18 @@ hero remains .052 Y prime below the thin-cloud comparator. Gallery section
 cuts and the uncompiled engine far-shader example are documented limits.
 The utility itself remains within its accepted geometry/material/texture
 budgets. No kit or neighboring source/delivery was changed.
+
+## LOD rollout preflight — blocked, 2026-11-09
+
+Merged current main (already up to date), read the family construction, wire
+policy and original check graph. `build/lod-rollout/utility/preflight.json`
+records all fifteen expected glTF/BIN/JSON paths absent and zero generated
+build files. There is no accepted geometry/map input for an immutable-source
+receipt, native comparison or original `make check`. That check depends on
+`export` and would rebuild missing accepted deliveries, so it is not run.
+No config, LOD render, adoption or LOD0-only minimality claim is made. Two
+render critique passes and `check-lod` are not possible without those inputs.
+No kit/source delivery/docs image changes. The lead needs to stage the accepted
+packages, maps and generated check inputs before this family can be adopted.
+The tool hashes were recorded without invoking the builder at revision
+`b132747`; `build/lod-rollout/utility/freeze.sha256` remains checkable.
