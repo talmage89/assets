@@ -116,11 +116,11 @@ def roof_growth(parent,p):
         poly=[(xx,y,p['ridge']-abs(xx)*slope+.009) for xx,y in ((x,yy),(xa,yy),(xa,yb),(x,yb))]
         m.geom(poly,[(0,1,2,3)],'shingle' if p['style']=='aframe' else 'slate',color=(1.42,1.40,1.32))
     if p['style']=='aframe':
-        for j in range(7):
-            yy=-p['length']/2+1+j*4.1;x=-rng.uniform(.5,2.8);end=-half+.15
-            width=rng.uniform(.9,2.1)
+        for j in range(4):
+            yy=rng.uniform(-p['length']/2+.5,p['length']/2-3);x=-.035;end=-half+.15
+            width=rng.uniform(1.3,2.9)
             poly=[(xx,y,p['ridge']+xx*slope+.011) for xx,y in ((end,yy),(end,yy+width),(x,yy+width),(x,yy))]
-            m.geom(poly,[(0,1,2,3)],'age',color=(.42,.46,.42),uv=[[(.005,.755),(.495,.755),(.495,.995),(.005,.995)]])
+            m.geom(poly,[(0,1,2,3)],'age',color=(.70,.73,.68),uv=[[(.005,.755),(.495,.755),(.495,.995),(.005,.995)]])
     if m.v:m.finish()
 
 
