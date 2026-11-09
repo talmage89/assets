@@ -810,3 +810,20 @@ Tool revision e375b58 and literal hashes were frozen before use. Start with an
 unwired Tangent config: .4 at .25 with .05-pixel surface preservation for the
 thin shaft. Experimental builds explicitly add kit/lod_rules.mk on the command
 line; no public Makefile exposes a candidate before it passes its own proof.
+
+### Tangent critique 1 — native switch and close views
+
+Opened all three native strips, both 960-pixel construction views and the
+contact sheet in renders/lod/tangent. Color/value first: the original's dark
+treated timber and gray hardware retain their values; the difference panes
+show no broad wash or missing silhouette. Braces, porcelain, shaft taper,
+ground molding and the lower cable loop remain. The construction views expose
+the original's small polygonal bends, without a new coarse break at the switch.
+This is a comparison to the accepted export, not a new photo-realism approval.
+
+The .05-pixel trial measures 3632 -> 2592 triangles at .25 / 36.315 m,
+above the 1453 goal. Generic check-lod and the independent guarded-atlas test
+both pass; zero triangles leave their stock charts. Brand support gaps are
+.345–.436 mm, below the original's 1 mm maximum. Preserve that trial's config,
+payload and images in build/lod-round2/utility/tangent-pass1 before testing
+.5-pixel surface preservation for a cheaper witness. No delivery claim yet.
