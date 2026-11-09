@@ -1124,3 +1124,6 @@ Keep the original shared-set 1088-triangle mast. This and the bank config stay
 unwired, with no new resident allocation or switch recommendation. Evidence:
 `build/lod-uv/archive/utility/service-mast-cost-rejected/`. Both live control
 outputs are removed from export/lod after archiving.
+
+The checked service-mast control is retained as an unwired source config for
+reproduction; its sockets and dimensions still belong to the original delivery.
