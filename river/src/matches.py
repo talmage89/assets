@@ -80,9 +80,10 @@ def prepare():
 
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--prepare',action='store_true');ap.add_argument('--compose',action='store_true');a=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument('--prepare',action='store_true');ap.add_argument('--compose',action='store_true')
+    ap.add_argument('--folder',default='renders/checkpoint-matches');a=ap.parse_args()
     if a.prepare:prepare()
-    if a.compose:compose('build/photo-calibration.json','renders/checkpoint-matches','renders/checkpoint-matches')
+    if a.compose:compose('build/photo-calibration.json',a.folder,a.folder)
 
 
 if __name__=='__main__':main()

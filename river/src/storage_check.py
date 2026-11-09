@@ -20,7 +20,7 @@ def compare(d,b,path):
     old=json.loads(raw[20:20+size]);length=struct.unpack_from('<I',raw,20+size)[0]
     original=raw[28+size:28+size+length]
     lookup={n['name']:n for n in d['nodes'] if 'mesh' in n};seen=set()
-    worst_position=worst_normal=worst_color=worst_uv=0.;vertices=triangles=0
+    worst_position=worst_distance=worst_normal=worst_color=worst_uv=0.;vertices=triangles=0
     for node in old['nodes']:
         if 'mesh' not in node:continue
         target=lookup[node['name']];key=(node['mesh'],target['mesh'])
@@ -38,6 +38,7 @@ def compare(d,b,path):
                     decode=after.get('extras',{}).get('river_position_decode')
                     if decode:z=z*decode[1]+decode[0]
                     worst_position=max(worst_position,float(abs(a-z).max()));vertices+=len(a)
+                    worst_distance=max(worst_distance,float(np.linalg.norm(a-z,axis=1).max()))
                     if node.get('extras',{}).get('river_category')=='bridge':assert np.array_equal(a,z)
                 elif name=='NORMAL':
                     a/=np.linalg.norm(a,axis=1)[:,None];z/=np.linalg.norm(z,axis=1)[:,None]
@@ -47,9 +48,10 @@ def compare(d,b,path):
                     decode=d['materials'][q['material']].get('extras',{}).get('river_uv_decode_'+name[-1])
                     if decode:z=z*np.array(decode[1])+np.array(decode[0])
                     worst_uv=max(worst_uv,float(abs(a-z).max()))
-    assert worst_position<.0005 and worst_normal<.5 and worst_color<.002 and worst_uv<.0005
+    assert worst_position<.0005 and worst_distance<.001 and worst_normal<.5 and worst_color<.002 and worst_uv<.0005
     return dict(compared_mesh_pairs=len(seen),compared_vertices=vertices,index_exact_triangles=triangles,
-        maximum_position_axis_error_m=worst_position,maximum_normal_angle_degrees=worst_normal,
+        maximum_position_axis_error_m=worst_position,maximum_position_distance_error_m=worst_distance,
+        maximum_normal_angle_degrees=worst_normal,
         maximum_linear_color_error=worst_color,maximum_uv_error=worst_uv,structural_positions_exact=True)
 
 
