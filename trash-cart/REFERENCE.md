@@ -22,7 +22,7 @@ measurements; no photographic outline is traced or projected into geometry.
 | Wheels / axle | 254 / 15.875 mm diameter | Manufacturer brochure |
 | Body wall | 6 mm; locally thicker rim and drag heel | Authored manufacturing estimate |
 | Lid skin | 5 mm with reinforcing ribs and skirt | Authored manufacturing estimate |
-| Lid hinge axis | X at (0, 391.075, 1032) mm | Photo-based authored fit |
+| Lid hinge axis | X at (0, 430, 1010) mm | Authored external pin; verified full swing |
 | Axle axis | X at (0, 314.925, 127) mm | Wheel/ground tangency; photo-based depth |
 | Lift bar | 19 mm diameter, 250 mm overall span at Z 535 mm | Photo-based authored fit; molded pockets partly cover the ends |
 | Nominal body mouth | 730 × 791 mm maximum opening | Authored taper within published envelope |

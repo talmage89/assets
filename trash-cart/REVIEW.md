@@ -371,3 +371,84 @@ Their source receipt and all 103 frozen kit hashes pass. A separate actual
 trash-original sweep also reproduces the 16.625 mm lid/support collision;
 source-only reports retain exact payload and script hashes for each variant.
 No cart chain is adopted and no Makefile exposes either rejected config.
+
+## Joint repair — source construction, 2026-11-09
+
+The first repair moved the support inboard but left the old pin location. A new
+part-resolved source sweep exposed more than the aggregated delivery diagnostic:
+the rear skirt also crossed the body rim, and a large stationary knuckle crossed
+the skirt. A second external-pin construction cleared the body but met the grip
+near full opening. These failed logs remain in `build/joint-repair/source-sweep*`.
+
+The final construction moves the X hinge to (0, 430, 1010) mm, behind the body
+rim and below the rear skirt. Bent straps reach two 28 mm rotating knuckles;
+inboard stationary knuckles carry the 16 mm pins. The support's outer side ends
+at X 224 mm; the rotating knuckle starts at 227 mm. The grip and supports sit
+39 mm lower to clear the last part of the swing. The supports extend around
+the lower half of each fixed knuckle; evaluated-surface contact checks cover
+knuckle/support, support/body and support/grip in both game and high scenes.
+The crowned skin and bead move
+5.85 mm rearward to center their skirt over the body rim; their shapes, lid ribs,
+front tab and the cart's overall dimensions stay the same.
+
+`make check-scene check-motion BLENDER='blender -t 4'` passes on game and high
+sources: 111 samples per lid, 73 per wheel, zero measured unintended penetration
+at a 0.2 mm tolerance. The staged blue source has no body beside it; the delivered
+blue cart's independent full sweep is the proof of its assembled clearance.
+Only named strap/barrel versus pin and hub versus axle bore contacts are allowed
+in the source test. The delivered test instead bounds these contacts to the
+finite pin and axle envelopes, and records every sampled pose. Neither check
+exempts a complete lid/body pair. These are sampled solid-surface proofs, not
+continuous collision detection.
+
+### Rebuild normal-map investigation
+
+Archived the accepted scenes/maps/exports before editing. Repeating the 4096 / 32
+sample OptiX bake from those unchanged saved scenes gives normal maximum delta
+1 byte and RMSE 0.000797; BaseColor is the same, ORM maximum 1 / RMSE 0.001261.
+`build/joint-repair/old-scene-repeat.json` passes the kit's default repeat bounds.
+Thus this rebake does **not** reproduce the clean rebuild's maximum 235 / RMSE
+1.8302 normal difference. Comparing accepted versus round-2 rebuilt scenes finds
+identical source positions/normals, and identical finalized geometry/UVs, but
+different finalized corner normals on beveled parts (maximum 37.5006 degrees).
+`frame-comparison.json` records every part. The discrepancy follows regenerated
+finalized normals, not ordinary bake variation; no shared kit code is changed
+and no claim of byte-identical historical rebuild is made.
+
+### Delivered joint and visual proof
+
+`make variants all repeat BLENDER='blender -t 4'` exits 0
+(`build/joint-repair/final-delivery.log`). Exports measure **5,724 / 5,944 triangles**,
+**2,558,388 / 2,580,844 bytes**, four meshes, one material each, with identical
+1024-square maps of **792,744 / 525,974 / 897,541 bytes** (BaseColor/Normal/ORM).
+UV coverage is 47.49% / 47.62%, with zero measured overlaps, outside or flat UV
+triangles; density p5/median/p95 is 212/249/252 px/m. Re-imported positions and
+pivots match exactly. All five bake channels cover 9,331,952 interior texels
+without misses; BaseColor has no black interior samples. Both delivered lid
+sweeps (111 poses) and both full wheel turns (73 poses each) measure zero
+unintended penetration. Game/high repeat geometry and pivot frames match exactly.
+
+Opened all six 960px exported-GLB joint views in
+`renders/joint-TrashCart/` and `renders/joint-TrashCartRecycling/` at 0/-67/-110°,
+and both camera-matched pairs plus their raw renders in
+`renders/joint-repair-glb/`. Color/value first: using the photograph's white
+background as neutral, the inherited studio appearance remains smoother and
+lighter than the manufacturer's dark, granite-textured resin. The blue lid also
+keeps its accepted pale studio response. Materials are unchanged for this repair;
+these remain limitations of the original. No bright cut-through or new color
+patch appears at the joint. The inboard/outboard knuckles have a visible dark
+gap; the strap clears the support and lowered grip in both open views. The skin
+and sealing reveal keep their closed silhouette. At extreme close range the
+coarse barrel facets, normal-map waviness and simplified support remain visible.
+The manufacturer photograph establishes construction; it contains no open-lid
+pose, so the open views establish our authored assembly, not a matched open photo.
+`renders/joint-review/contact.jpg` indexes the six views and the reference crop.
+
+After embedding the fixed knuckles, reran the full delivery and all views above.
+`make repeat joint-views BLENDER='blender -t 4'` passes; the repeat now compares
+exact finalized positions, indices, UVs, corner normals and frames on all 68
+meshes, as well as both source builds. All 21 studio/joint/photo render receipts
+match the final exported GLB hashes (`build/joint-repair/render-receipt.json`).
+Opened every final render, the contact and all three refreshed docs sheets.
+The open pose and hinge construction visibly changed, so docs are refreshed in
+their own final commit. Repository check and `git diff --check` pass. Kit unchanged.

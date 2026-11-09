@@ -28,3 +28,32 @@ renders/recycling/.stamp: export/TrashCartRecycling.glb $(CONFIG) $(KIT)/studio.
 check: check-cart
 check-cart: export/TrashCart.glb export/TrashCartRecycling.glb
 	$(BP) --python src/check_cart.py -- --out build/cart-check.json
+
+.PHONY: check-supports
+check: check-supports
+check-supports: build/game-audit.blend build/lookdev.blend
+	$(BP) --python $(KIT)/assembly.py -- --source build/game-audit.blend --config $(CONFIG) --out build/support-game.json
+	$(BP) --python $(KIT)/assembly.py -- --source build/lookdev.blend --config $(CONFIG) --out build/support-high.json
+
+# Joint-specific delivered sweeps retain finite bearing exemptions only.
+.PHONY: check-joints repeat
+check: check-joints
+check-joints: export/TrashCart.glb export/TrashCartRecycling.glb
+	$(BP) --python src/check_lod_motion.py -- --config src/lod-trash.json --source-only
+	$(BP) --python src/check_lod_motion.py -- --config src/lod-recycling.json --source-only
+
+.PHONY: joint-views
+joint-views: variants
+	@set -e; for cart_name in TrashCart TrashCartRecycling; do \
+		$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source export/$$cart_name.glb --config src/joint_views.py --out renders/joint-$$cart_name --shots closed,swing,open --width 960 --samples $(SAMPLES); \
+	done
+
+repeat: check-scene build/finalized.blend
+	@mkdir -p build/repeat
+	$(BP) --python src/build.py -- --wear $(WEAR) --quality game --out build/repeat/game.blend
+	$(BP) --python $(KIT)/audit.py -- --source build/repeat/game.blend --config $(CONFIG) --out build/repeat/game-audit.json
+	$(BP) --python src/build.py -- --wear $(WEAR) --quality high --out build/repeat/high.blend
+	$(BP) --python $(KIT)/audit.py -- --source build/repeat/high.blend --config $(CONFIG) --out build/repeat/lookdev-audit.json
+	$(PYTHON) src/check_repeat.py
+	$(BP) --python $(KIT)/finalize.py -- --source build/repeat/game.blend --config $(CONFIG) --out build/repeat/finalized.blend --report build/repeat/uv-report.json --size $(SHIP_SIZE) --target-density $(UV_TARGET_DENSITY) --margin $(UV_MARGIN)
+	$(BP) --python src/check_repeat_fields.py

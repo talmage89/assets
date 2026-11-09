@@ -27,8 +27,8 @@ def bearing(point, name):
     # Finite source pin/axle envelopes, plus 0.5 mm. These are intended solid
     # bearing interfaces, not exemptions for a whole lid/body or wheel/body pair.
     if name == 'Lid':
-        return any(abs(point.x-sign*.263) <= .0425 and
-                   math.hypot(point.y-.391075, point.z-1.032) <= .0085
+        return any(.1975 <= sign*point.x <= .3055 and
+                   math.hypot(point.y-.430, point.z-1.010) <= .0085
                    for sign in (-1, 1))
     return abs(point.x) <= .3315 and math.hypot(
         point.y-.314925, point.z-.127) <= .0084375
@@ -126,6 +126,7 @@ def main():
             else:
                 values = list(range(0, 361, 5))
             maximum, allowed, worst, bearing_depth = 0., 0, None, 0.
+            poses = []
             for angle in values:
                 angles = dict.fromkeys(NAMES, 0.)
                 angles[name] = angle
@@ -133,17 +134,21 @@ def main():
                 pivot.matrix_basis = rest@Matrix.Rotation(math.radians(angle), 4, 'X')
                 bpy.context.view_layer.update()
                 current = surface(moving[0])
+                pose_depth = 0.
                 for ob in fixed:
                     result = contact(current, stationary[ob.name], name)
                     allowed += result['bearing_samples']
                     bearing_depth = max(bearing_depth, result['bearing_depth_m'])
+                    pose_depth = max(pose_depth, result['depth_m'])
                     if result['depth_m'] > maximum:
                         maximum = result['depth_m']
                         worst = dict(angle=angle, fixed=ob.name, point_m=result['point_m'])
+                poses.append(dict(angle_degrees=angle, max_penetration_m=pose_depth,
+                                  passed=pose_depth <= TOLERANCE))
             pivot.matrix_basis = rest
             bpy.context.view_layer.update()
             motions.append(dict(node=name, samples=len(values), range=[min(values), max(values)],
-                max_penetration_m=maximum, worst=worst, bearing_samples=allowed,
+                max_penetration_m=maximum, worst=worst, bearing_samples=allowed, poses=poses,
                 max_intended_bearing_depth_m=bearing_depth, passed=maximum <= TOLERANCE))
             print('CART MOTION', level, name, maximum, allowed, flush=True)
         rows.append(dict(level=level, path=str(path.relative_to(ROOT)), sha256=digest(path),

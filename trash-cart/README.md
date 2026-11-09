@@ -38,14 +38,14 @@ not an independently certified interior-volume or truck-interface specification.
 
 | Delivery measurement | Result |
 | --- | --- |
-| Trash / recycling triangles | 5,556 / 5,776, each within 6,000 |
+| Trash / recycling triangles | 5,724 / 5,944, each within 6,000 |
 | Mesh objects / materials | 4 / 1 |
 | Shared atlas | Three 1024² PNGs; 4096² source bake |
 | Block-compressed GPU memory | Approximately 4 MB with mipmaps, shared across both variants |
-| Trash / recycling GLB bytes | 2,387,504 / 2,409,624 |
-| BaseColor / Normal / ORM PNG bytes | 736,541 / 486,758 / 825,586 |
-| Trash / recycling UV coverage | 42.41% / 42.52% |
-| UV density p5 / median / p95 | 200 / 236 / 238 px/m at 1024 |
+| Trash / recycling GLB bytes | 2,558,388 / 2,580,844 |
+| BaseColor / Normal / ORM PNG bytes | 792,744 / 525,974 / 897,541 |
+| Trash / recycling UV coverage | 47.49% / 47.62% |
+| UV density p5 / median / p95 | 212 / 249 / 252 px/m at 1024 |
 
 BaseColor is sRGB; tangent Normal is OpenGL +Y; ORM packs R occlusion,
 G roughness and B metallic. The normal intermediate is 16-bit at 4096. Delivery
@@ -71,14 +71,22 @@ actual ground-contact footprint at Z=0. glTF maps Blender `(x,y,z)` to
 and each wheel remain separate meshes under their pivot empties; no armature or
 animation clips are required for engine control.
 
+The external hinge uses bent straps and inboard fixed knuckles with a 3 mm
+axial gap. The lower rear grip clears the fully open lid. `make check` sweeps
+both delivered lids at 1° steps over the full range and each wheel at 5° steps,
+allowing only finite pin/axle bearing contacts; every sampled pose must remain
+within 0.2 mm unintended penetration. Source parts are also swept independently.
+The [joint review](REVIEW.md#joint-repair--source-construction-2026-11-09)
+records the construction changes and close views.
+
 | Pivot | Blender position, mm | Axis / range |
 | --- | --- | --- |
 | `TrashCart` | (0, 0, 0) | Placement origin |
-| `Lid` | (0, 391.075, 1032) | X; 0° closed through −110° open |
+| `Lid` | (0, 430, 1010) | X; 0° closed through −110° open |
 | `Wheel_Left` | (−305, 314.925, 127) | X; continuous rotation |
 | `Wheel_Right` | (305, 314.925, 127) | X; continuous rotation |
 
-Installed Blender 5.2.2, Python/Pillow/NumPy, DejaVu Sans, flock are required; an OptiX or
+Blender 5.2, Python/Pillow/NumPy, DejaVu Sans, flock are required; an OptiX or
 CUDA GPU is recommended (otherwise Cycles warns and uses the CPU). No packages or remote code are installed. References are
 only images/PDFs; studio lighting uses procedural area lights. All Cycles work
 holds `ASSETS_GPU_LOCK`. Scratch files live in ignored `build/` directories.
@@ -86,6 +94,8 @@ holds `ASSETS_GPU_LOCK`. Scratch files live in ignored `build/` directories.
 ```sh
 make                         # references, source, UVs, 4K bake, both GLBs, final renders, docs, checks
 make check                   # audits, camera projection, both GLBs, shared atlas and moving parts
+make repeat                  # clean-scene source builds; exact finalized geometry, UVs, normals and frames
+make joint-views             # both exported hinges closed, at -67 degrees, and fully open
 make variant VARIANT=trash
 make variant VARIANT=recycling
 make WEAR=0.65                # regenerate a more weathered pair
@@ -96,7 +106,7 @@ make clean && make           # complete rebuild
 
 The alternate blue lid is staged 1.25 m to the right only for non-overlapping
 baking. Variant export removes the unused lid and restores the selected hinge
-position/name. Thus the source audit counts both lids (6,816 game-source
+position/name. Thus the source audit counts both lids (7,056 game-source
 triangles), whereas the 6,000-triangle delivery gate applies independently to
 each exported cart. Both variants use the same body geometry and UVs.
 
@@ -123,5 +133,5 @@ in this repository. DejaVu Sans uses its open font license; the recycling symbol
 is a standard mark. Reference photographs remain copyrighted measurement aids,
 ignored by Git and absent from the textures and documentation images.
 
-No LOD chain yet. The lid meets its rear support while opening; reduced lids also interfere when closed.
+No LOD chain yet. The repaired originals pass their joint sweeps; reduced levels await their own proof.
 See [the LOD review](REVIEW.md).
