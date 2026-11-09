@@ -924,4 +924,25 @@ This is a cost decision under the recipe's already-compact module rule, not a
 tool or image failure. Config stays unwired; payload/images/checks are archived
 in `build/lod-uv/archive/utility/crossarm-cost-rejected/`, removed from live
 export/lod. It has no runtime switch recommendation or residency increment.
+
+### Standalone transformer critique 1 — near construction
+
+Opened all three native .25 / 7.788 m strips, both construction views and
+contact. Gray paint, zinc, porcelain and black leads retain their values;
+the slack loops, mounting feet and rating plate remain. The 2890/3036 trial
+misses 1214, passing all image, field, re-import, atlas and support checks.
+Rating gaps remain .3694–.3996 mm. It saves only 146 triangles. Archived in
+`build/lod-uv/archive/utility/transformer-near-cost-trial/` before the far test.
+
+### Standalone transformer critique 2 — far cost decision
+
+Opened all three .09 / 21.633 m strips, both construction views and contact.
+The same dark leads and case highlight hold; the tiny rating print becomes
+subpixel without a new bright block. Original low-sided porcelain and folded
+mounting hardware remain evident close up. All independent checks pass with
+zero crossings and the same sub-millimeter rating support. The far row retains
+2824/3036 triangles (93.02%), versus 455 requested. Saving 212 triangles does
+not justify another almost-complete buffer. Keep this already coarse module
+at LOD0; no new runtime allocation or switch is recommended. Config is unwired;
+final evidence is `build/lod-uv/archive/utility/transformer-far-cost-rejected/`.
 Its two rejected trials have no runtime residency or placement recommendation.

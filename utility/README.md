@@ -387,6 +387,9 @@ geometry, support and switch-distance checks. See [the LOD review](REVIEW.md).
 The 1,248-triangle crossarm stays at LOD0: its safe far trial saves only 76
 triangles while allocating another nearly full mesh. See [REVIEW.md](REVIEW.md).
 
+The standalone 3,036-triangle transformer stays at LOD0: its safe far trial
+saves only 212 triangles. See [REVIEW.md](REVIEW.md).
+
 <!-- LOD checkpoint tangent: begin -->
 ## Tangent pole LODs
 
