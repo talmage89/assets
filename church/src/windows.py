@@ -43,7 +43,7 @@ def window(name,parent,width=1.7,stem=2.8,sill=2.5,kind='pointed',point=(0,0,0),
         # Outside protective sheet held off art glass; 20mm breathing slots
         # remain at sill/head. The tinted polymer is deliberately not emissive.
         poly=outline(r-.045,stem-.03,kind,bottom=.035)
-        m.geom([(x,-.245,z) for x,z in poly],[tuple(range(len(poly)))],'glass');m.finish()
+        m.geom([(x,-.245,z) for x,z in poly],[tuple(range(len(poly)))],'storm');m.finish()
         m=G.Mesh('Storm bars vents and screws',rt)
         ring(m,outline(r,stem,kind,bottom=0),outline(r-.035,stem-.025,kind,bottom=.035),-.275,.035,'iron')
         for z in (stem*.42,stem*.82):m.box((0,-.269,z),(width,.035,.024),'iron')

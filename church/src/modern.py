@@ -20,11 +20,7 @@ def glazed_end(parent,p,y,back=False):
         for row,(lo,hi) in enumerate(zip(levels,levels[1:])):
             poly=D.clip_height(D.clip_height(pts,lo,True),hi,False)
             if len(poly)<3 or hi<=z0:continue
-            # The two unfigured fields repeat at a true glass-panel scale;
-            # a whole-gable chart made the lead several centimeters wide.
-            u0,v0=(0,.5) if (i+row)%2 else (.5,0)
-            uv=[[(u0+.004+(x-a)/(b-a)*.492,v0+.004+(z-lo)/(hi-lo)*.492) for x,y,z in poly]]
-            m.geom(poly,[tuple(range(len(poly)))],'stained',uv=uv)
+            m.geom(poly,[tuple(range(len(poly)))],'glass')
         m.beam((a,-.10,z0),(a,-.10,top(a)),.065,.10,'iron')
         if abs((a+b)/2)>1.2:m.box(((a+b)/2,0,z0/2),(b-a,.25,z0),'brick')
     for s in (-1,1):m.box((s*1.28,0,1.215),(.32,.25,2.43),'brick')
@@ -32,6 +28,16 @@ def glazed_end(parent,p,y,back=False):
         hw=w/2 if z<e else (peak-z)/(peak-e)*w/2
         if hw>.2:m.box((0,-.10,z),(2*hw,.12,.07),'iron')
     m.finish();doors('Modern front doors' if not back else 'Modern rear exit',rt,(0,-.13,.1524),modern=True)
+    # One original amber/blue faceted cross, composed across the clear grid.
+    m=G.Mesh('Faceted cross composition',rt,sheet=True)
+    for a,b,lo,hi in ((-.30,.30,3.0,11.1),(-2.82,-.30,7.85,8.48),(.30,2.82,7.85,8.48)):
+        m.geom([(a,-.035,lo),(b,-.035,lo),(b,-.035,hi),(a,-.035,hi)],[(0,1,2,3)],'stained',uv=[[(.505,.005),(.995,.005),(.995,.495),(.505,.495)]])
+    m.finish()
+    # An unplayable dark light-baffle closes the opposite sky opening. Sash,
+    # beams and roof reveal still stand in front of this dim nave silhouette.
+    m=G.Mesh('Dim nave behind clear gable',rt,sheet=True)
+    pts=[(-w/2+.3,1.75,.18),(w/2-.3,1.75,.18),(w/2-.3,1.75,e-.25),(0,1.75,peak-.45),(-w/2+.3,1.75,e-.25)]
+    m.geom(pts,[tuple(range(5))],'black');m.finish()
     return rt
 
 

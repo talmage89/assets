@@ -28,17 +28,17 @@ def palette():
            'shingle':('RanchRoof','houses/textures/ranch-ship'),
            'concrete':('Concrete','ground/textures/ship'),
            'asphalt':('Asphalt','ground/textures/ship'),
-           'lawn':('Lawn','ground/textures/ship'),
+           'lawn':('GardenLawn','church/textures/ship'),
            'timber':('ChurchCraft','church/textures/ship'),
            'slate':('ChurchCraft','church/textures/ship'),
            'bronze':('ChurchCraft','church/textures/ship')}
     for role,(name,folder) in specs.items():
         ma=tiling.material(name,G.ROOT/folder,tint=True);ma.name='Church_'+role
         G.MATS[role]=ma
-    for role,color,rough,metal in [('glass',(.91,.93,.86),.10,0),('black',(.006,.008,.009),.85,0)]:
+    for role,color,rough,metal in [('glass',(.76,.79,.73),.035,0),('storm',(.74,.69,.48),.19,0),('black',(.009,.010,.008),.85,0)]:
         ma=bpy.data.materials.new('Church_'+role);ma.use_nodes=True;ma['tiling_vertex_tint']=False
         p=ma.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(*color,1);p.inputs['Roughness'].default_value=rough;p.inputs['Metallic'].default_value=metal
-        if role=='glass':p.inputs['Transmission Weight'].default_value=.94;p.inputs['IOR'].default_value=1.49
+        if role in ('glass','storm'):p.inputs['Transmission Weight'].default_value=.96;p.inputs['IOR'].default_value=1.49
         ma.use_backface_culling=False;G.MATS[role]=ma
     for role,file,emit in [('stained','T_ChurchGlass_BaseColor.png',.0),('letters','T_ChurchLetters_BaseColor.png',0)]:
         ma=tiling.material('ChurchGlass',G.ROOT/'church/textures/ship') if role=='stained' else bpy.data.materials.new('Church_'+role)
@@ -71,7 +71,7 @@ def charts(points,role):
                 out.append((poly,[(p[a]/4.8768,1/3+.008+(p[b]/height-k)*(1/3-.016)) for p in poly]))
             return out
         return [(points,[(p[a]/2,idx/3+.008+(p[b]-lo)/max(hi-lo,1e-7)*(.333- .016)) for p in points])]
-    cov={'concrete':3.048,'asphalt':6.096,'lawn':6.096,'shingle':4.8768,'siding':1.2192}.get(role,1)
+    cov={'concrete':3.048,'asphalt':6.096,'lawn':3.048,'shingle':4.8768,'siding':1.2192}.get(role,1)
     return [(points,[(p[axes[0]]/cov,p[axes[1]]/cov) for p in points])]
 
 
@@ -92,6 +92,6 @@ def tint(p,role,col,props):
         if patch:col=tuple(a*b for a,b in zip(col,(1.12,1.04,.91)))
     if role=='asphalt':col=tuple(v*.62 for v in col)
     if role=='lawn':
-        # Broad coherent mowing/exposure changes, with the existing fine turf.
-        f=.70+.05*math.sin(x*.75+y*.06)+.035*math.sin(y*1.4)
+        from turf import tint as summer
+        col=tuple(a*b for a,b in zip(col,summer(x,y)))
     return tuple(max(0,min(1.8,c*f)) for c in col)

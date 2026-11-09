@@ -5,6 +5,7 @@ import numpy as np
 from PIL import Image,ImageDraw,ImageFont
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from kit.fonts import find_font
+from art_glass import glass
 
 
 def make():
@@ -28,36 +29,8 @@ def make():
     srgb=np.where(color<=.0031308,color*12.92,1.055*np.maximum(color,0)**(1/2.4)-.055)
     for suffix,a in [('BaseColor',srgb),('Normal',normal*.5+.5),('ORM',orm)]:Image.fromarray(np.uint8(np.clip(a*255+.5,0,255))).save(out/f'T_ChurchCraft_{suffix}.png')
     glass(out);letters(out)
-
-
-def glass(out):
-    n=1024;im=Image.new('RGB',(n,n),(6,8,10));d=ImageDraw.Draw(im)
-    colors=[(49,66,72),(79,36,33),(92,72,34),(39,62,58),(49,43,72),(48,74,85)]
-    rng=np.random.default_rng(906)
-    # Three tall lancets plus a wheel chart. Leading is always dark; muted
-    # colored panes become luminous through the switchable emission material.
-    for cell in range(4):
-        x0=(cell%2)*512;y0=(cell//2)*512
-        for row in range(14):
-            for col in range(7):
-                x=x0+col*73+(row%2)*36;y=y0+row*37
-                poly=[(x,y-37),(x+36,y),(x,y+37),(x-36,y)]
-                d.polygon(poly,fill=colors[int(rng.integers(6))]);d.line(poly+[poly[0]],fill=(6,7,8),width=2)
-        # An original plain geometric medallion, not religious iconography.
-        cx=x0+256;cy=y0+240
-        if cell in (1,2):
-            d.ellipse((cx-96,cy-96,cx+96,cy+96),fill=(93,68,31),outline=(8,9,9),width=3)
-            for k in range(8):
-                a=k*np.pi/4;d.line((cx,cy,cx+96*np.cos(a),cy+96*np.sin(a)),fill=(8,9,9),width=2)
-    a=np.array(im).astype(float)/255
-    yy,xx=np.mgrid[:n,:n];waver=.96+.04*np.sin(xx*.18+np.sin(yy*.03)*2)*np.sin(yy*.13)
-    a*=waver[:,:,None];Image.fromarray(np.uint8(np.clip(a*255,0,255))).save(out/'T_ChurchGlass_BaseColor.png')
-    lead=np.max(a,axis=2)<.055
-    h=lead*.0014+.00011*np.sin(xx*.09)*np.sin(yy*.13)
-    dy,dx=np.gradient(h);norm=np.stack((-dx*n/3,dy*n/3,np.ones_like(dx)),axis=2);norm/=np.linalg.norm(norm,axis=2,keepdims=True)
-    Image.fromarray(np.uint8((norm*.5+.5)*255)).save(out/'T_ChurchGlass_Normal.png')
-    orm=np.ones((n,n,3));orm[:,:,1]=np.where(lead,.76,.28);orm[:,:,2]=np.where(lead,.35,0)
-    Image.fromarray(np.uint8(orm*255)).save(out/'T_ChurchGlass_ORM.png')
+    from turf import maps
+    maps(out)
 
 
 def letters(out):
