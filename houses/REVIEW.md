@@ -2723,3 +2723,49 @@ delivery and older-type checks execute; only rebuilding accepted deliveries
 is suppressed. Its archived precheck is `split-pre-original-check.{json,log}`.
 The first bounded trial keeps UV regions and original materials near, and
 uses the colonial's default 4.5% one-draw far recipe without limit changes.
+
+### Split LOD critique pass 1 — reject the complete trial
+
+`make lod LOD_CONFIG=src/lod-split-trial.json LOD_THREADS=4` builds/renders
+in 614.50 s; `check-lod` returns 2 in 15.68 s. The recipe was originally
+named `lod-split.json`; the exact failed recipe is now saved as the trial.
+Opened all 18 unscaled native original/new and preceding/difference pages,
+the four construction views and both contact sheets. Color/value is virtually
+unchanged near. The far front/side instead brighten the siding and alter
+window/trim values; the entrance, window surrounds and garage are visible
+differences at the switch. Close views also lose shingles, lap relief and
+steps, with a coarse roof junction. There is no image waiver.
+
+Near levels achieve 41,277/23,102 and 40,351/10,501 triangles at 30%/12%:
+both targets miss. They save only 1.73%/3.94% from 42,005, retain six
+materials/twelve draws and increase mesh buffers from 3,803,394 to
+4,454,106/4,356,426 bytes. Region-safe routing fixes 24,710 of 25,813
+source geometric vertices; the trim has 15,802 fixed of 15,956. More
+seriously, each near mesh introduces three degenerate triangles. Re-import
+counts and pivots match, and the independent UV/normal audit passes, but
+those facts do not waive raw geometry failures. No near level is adopted.
+
+The 1,798/1,800 far shell is closed, with three positive-volume islands,
+no degenerate/open/nonmanifold edges, one material/draw and a passing normal
+audit. At 4.5% / 48.6px / 145.75 m its front mean/p95/local errors are
+.034258/.137255/.133680; side .024152/.109804/.115584;
+rear .013227/.054902/.063276. Alpha/IoU maxima .022584/.024230 pass.
+Front and side color fail the unchanged limits.
+
+Full rejected-chain costs: geometry bytes 3,822,197 / 4,472,119 /
+4,374,424 / 110,973; unchanged near map dependencies 6,313,961 bytes,
+far four 512-square PNGs 364,137 bytes. The far cold load is 475,110 bytes.
+The chain would store 125,431 triangles, seven material resources and 37
+placements / 19,457,811 distinct payload bytes; residency rises from
+28.2118 to 38.0460 MiB. Maps add 1.3334 MiB, extra meshes 8.5027 MiB,
+and there are no new intermediate images. These stored alternatives are
+not simultaneous draws: the active level still costs twelve or one.
+
+Payload/check/native evidence remains in `export/lod/split-51/` and
+`renders/lod/split-51/`; measured failed tables/contact are in
+`build/houses-lod/split-trial-report/`. The same directory's sibling
+`split-trial-receipt.json` records dependency hashes; archived command
+receipts and simplification data retain the original trial. The next
+far-only test moves to 3%, raises projected opening coverage to .97 and
+uses a quarter-pixel grid/.15-pixel inflation. These configuration controls
+address the window/trim envelope; they change no acceptance threshold.
