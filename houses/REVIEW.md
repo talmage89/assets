@@ -2695,3 +2695,31 @@ both older types. All 136 accepted files and all literal Cape tool/recipe
 freeze entries match. `repo_check.py` and `git diff --check` pass. There is no
 Cape LOD hook or active `lod-cape.json`; only explicitly named rejected trials
 remain in `src/`. Default family LOD hooks still select adopted chains only.
+
+## LOD adoption — split-level immutable original, 2026-11-09
+
+Merged `main` before starting this type: merge `6ae1ac0` adds an unrelated
+Blender-command helper/test and its README paragraph; no existing LOD source
+changed. All prior literal freeze entries still match. A fresh split freeze
+is `build/houses-lod/split-freeze.sha256`, revision recorded alongside it.
+
+Rebuilt all six originals in the isolated scratch mirror using
+`make TYPE=split export -W src/split_sweep.py`: exit 0 in 116.15 s.
+All 18 glTF/BIN/metadata files are byte-identical to accepted deliveries.
+The exporter repeats its existing tangent warning on static geometry;
+it changes no delivery bytes. The immutable ledger still matches all 136
+accepted files. Comparison and command receipts are
+`build/houses-lod/split-original-{build,comparison}.json`.
+
+Representative seed 51 is the accepted core side-split: stepped roof,
+sunken integral two-car garage, both entry doors and all four sectional
+garage panels. Those six moving nodes are held in near reductions. A rest
+proxy must hold LOD0 whenever any door/panel moves. This proof makes no
+claim for the other five seeds' foyer, carport or bay configurations.
+
+The original `make TYPE=split check` with generated inputs frozen through
+every recursive/direct make returns 0 in 124.06 s. Phony mesh, motion,
+delivery and older-type checks execute; only rebuilding accepted deliveries
+is suppressed. Its archived precheck is `split-pre-original-check.{json,log}`.
+The first bounded trial keeps UV regions and original materials near, and
+uses the colonial's default 4.5% one-draw far recipe without limit changes.
