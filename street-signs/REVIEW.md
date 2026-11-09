@@ -403,3 +403,37 @@ afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
 additional mesh buffers total 0.1059 MiB.
 Final native evidence: `renders/lod/school-crossing/`; archived recipe and proof:
 `build/lod-uv/archive/street-signs/school-crossing-final/`.
+
+### Sign family closeout and omitted levels
+
+The 30 mph two-level control saved zero triangles at .25 (648/648), so that
+duplicate level is omitted. Its checked payload and native images remain in
+`build/lod-uv/archive/street-signs/speed30-final/`; the adopted single .09
+level is independently rebuilt/reviewed in `speed30-far-final/`. The other
+single-blank kinds start with the useful far request; no untested near saving
+is inferred. School speed and the two crossing assemblies have useful distinct
+near/far counts. All goals are explicitly missed, and all eight kinds retain
+original map/material routing with no private atlas.
+
+Legacy STOP/name variants stay at their original 568 triangles. The 446-triangle
+curve, left no-parking, left one-way, timed-parking, no-turn-red and plain speed
+kinds remain coarse controls. The other original kinds are deferred pending
+their own comparisons; this proof does not approve aliases, alternate sheeting
+grades or the band bracket. Every one remains in the full-container costs.
+
+Public `make check-lod LOD_THREADS=4` passes all eight configurations
+(`build/lod-uv/street-signs-public-final.json`). Original `make check set-check`
+passes after every kind; the immutable receipt covers 71 unchanged files.
+Independent raw records show zero new flat UV faces or invalid tangent records
+on every level; surviving source defects are explicitly identified. Construction
+views viewed over white as well as transparency confirm the complete crossing
+pictograms; the neutral-backed native strips establish switch appearance.
+
+Full 31-container costs (`build/lod-uv/street-signs-full-costs.json`) include the
+inspection library and legacy variants once per actual file: 42036 stored
+triangles, 57 per-container canonical material references, 125 stored placements
+and 8477655 distinct payload bytes. Textures are 9.3334 MiB for both original
+sets together; new mesh buffers add .5560 MiB. Family residency is 11.8872 →
+12.4432 MiB, excluding engine overhead. Adopted signs draw two primitives per
+active level; the inspection library's 49 draws are separate. Combined measured
+tables/contact are `build/lod-uv/street-signs-final-report/`.
