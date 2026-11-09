@@ -537,3 +537,23 @@ renderer, camera, dimensions and sample receipts. Fresh serial workers now
 inherit the GPU lease and are reaped on interruption. The complete 61-image
 audit passes. This is the final delivery judgement; ship with the limitations
 above, then complete the deterministic rebuild and repository receipts.
+
+Delivery verification after J: the independent full repeat agrees for 152
+payloads, 287,606,483 bytes, including complete sites and all five gallery
+JPGs. Relative image paths and their package-byte ledgers are relocated to
+the canonical folder before comparing; JSON formatting/order is checked too.
+Nine guarded native MikkTSpace corners remove demonstrated fourth-decimal
+tangent rounding variation. Exact position/normal/UV signatures and the kit's
+one-rounding-step limit guard the correction. All 150 reviewed export/map
+payloads, including the embedded inspection copies, retain their pre-change
+SHA-256 values (`build/review-preservation.json`). No visual change is inferred
+from a serialization check: the visual flaws above remain.
+
+The three source comparisons were rendered again after Blender rewrote its
+scene containers, and opened at full native size. Color/value and the CG
+limitations above are unchanged; mean RGB differences still round to
+.153/.081/.076. Final `make`, `make check`, `make repeat`,
+`make check-texture-repeat` and repository check pass: 35 packages, 61 capture
+receipts, ten exact maps, five bounded gallery JPGs, 1,080 untouched existing
+delivery files and zero repository errors. The optional 12-bay/24.384m smoke
+build was reconstructed too: 102,616 triangles with passing raw checks.
