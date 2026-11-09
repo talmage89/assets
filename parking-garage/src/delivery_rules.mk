@@ -24,7 +24,7 @@ build/delivery-render-parameters.json: FORCE
 	$(PYTHON) -c "from pathlib import Path; import json; p=Path('$@'); s=json.dumps(dict(width=$(FINAL_WIDTH),samples=$(FINAL_SAMPLES)),sort_keys=True)+'\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
 $(FINAL_VIEWS) $(FINAL_PIECES) $(FINAL_PAIRS) renders/final/modules.png renders/final/views.json &: $(FINAL_EXPORTS) build/lookdev/matches/calibration.json build/lookdev/baseline-cameras.json build/delivery-render-parameters.json $(FINAL_SCRIPTS)
 	$(KIT)/with_gpu.sh $(LOOK_BP) --python src/delivery_render.py -- --width $(FINAL_WIDTH) --samples $(FINAL_SAMPLES)
-renders/final/contact.jpg: $(FINAL_VIEWS) $(FINAL_PIECES) $(FINAL_PAIRS) src/delivery_review.py src/ruling_views.py
+renders/final/contact.jpg: $(FINAL_VIEWS) $(FINAL_PIECES) $(FINAL_PAIRS) src/delivery_review.py src/lookdev_review.py src/ruling_views.py
 	$(PYTHON) src/delivery_review.py
 	$(PYTHON) src/lookdev_review.py --pass-name final
 delivery-review: renders/final/contact.jpg

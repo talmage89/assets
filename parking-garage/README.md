@@ -261,6 +261,16 @@ attribute/index payload remains exact. This sampled comparison does not
 measure every surface point. All other families' committed deliveries stay
 byte-identical. Historical garage-owned form sites may regenerate.
 
+The delivered empty-cache build completed with verified render resumption
+after a SIGTERM; `make` and the explicit `make check` passed. `make repeat`
+passed on 70 historical outputs (91,257,928 bytes), three source maps,
+175 exact finish/export/manifest files and 14 mixed-site files audited with
+the car exception. `make check-texture-repeat` passed: maximum one code in
+BaseColor/normal, mean normalized errors 2.34e-10 / 6.23e-10, exact ORM.
+Canonical textures stay unchanged. The build also passed all 60 motion
+sweeps. Audit receipts are in `build/repeat.json`, `build/lookdev/repeat.json`,
+`build/lookdev/bake-repeat.json` and `build/delivery-check.json`.
+
 ## Credits
 
 Geometry, fields, coverage, signs and fictional names are original scripts.

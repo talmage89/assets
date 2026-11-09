@@ -35,7 +35,8 @@ def main():
         if pairfolder.exists():
             for r in json.loads((pairfolder/'views.json').read_text()):verify_receipt(r)
             rows.extend([[p] for p in sorted(pairfolder.glob('*-pair.jpg'))])
-    review_sheet(rows,folder/'contact.jpg',width=2400,title='Parking garages / exported baked checkpoint / no docs')
+    title='Parking garages / exported baked finals' if args.pass_name=='final' else 'Parking garages / exported baked checkpoint / no docs'
+    review_sheet(rows,folder/'contact.jpg',width=2400,title=title)
     out=Path('build/lookdev')/(args.pass_name+'-image-values.json');out.write_text(json.dumps(ranges,indent=2)+'\n')
     # Within-photo value comparison, balanced on bare column concrete. These
     # are displayed image values under unequal lighting, not measured albedos.

@@ -16,14 +16,18 @@ def recipe():
 
 
 def encode(source,dest):
-    im=Image.open(source).convert('RGB')
-    if im.width>1600:im=im.resize((1600,round(im.height*1600/im.width)),Image.Resampling.LANCZOS)
-    for quality in range(94,35,-1):
-        payload=io.BytesIO();im.save(payload,format='JPEG',quality=quality,optimize=True,subsampling=0)
-        if len(payload.getvalue())<=200000:break
-    assert len(payload.getvalue())<=200000
-    dest.write_bytes(payload.getvalue())
-    return dict(source=str(source),source_sha256=digest(source),output=str(dest),sha256=digest(dest),bytes=dest.stat().st_size,size=list(im.size),quality=quality)
+    original=Image.open(source).convert('RGB');maximum=min(original.width,1600)
+    # Tall, detailed montages need fewer pixels rather than extreme JPEG
+    # quantization. Standard photographic chroma subsampling preserves luma
+    # edges; retain quality >= 60 and reduce width only when needed.
+    for width in range(maximum,639,-160):
+        im=original.resize((width,round(original.height*width/original.width)),Image.Resampling.LANCZOS)
+        for quality in range(94,59,-1):
+            payload=io.BytesIO();im.save(payload,format='JPEG',quality=quality,optimize=True,subsampling=2)
+            if len(payload.getvalue())>200000:continue
+            dest.write_bytes(payload.getvalue())
+            return dict(source=str(source),source_sha256=digest(source),output=str(dest),sha256=digest(dest),bytes=dest.stat().st_size,size=list(im.size),quality=quality,subsampling=2)
+    raise AssertionError(('Documentation exceeds budget at quality floor',source))
 
 
 def main():

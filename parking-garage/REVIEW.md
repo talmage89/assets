@@ -1242,3 +1242,82 @@ During the full corrected repeat, a second native outlier was rejected:
 0.322mm; the triangle limit did not. Its archived GLB, measurements and all
 subsequent attempts remain in `build/context-repeat/`, including the
 append-only `crossover-history.json`. The limits and baseline remain fixed.
+
+The next crossover attempt passed with 73,422 triangles, SHA
+`6ab97eabd2eedf0b484685d5b63561e2bc1edce60ff2b33fdb8dc2d2d5d61f02`:
+four below baseline, 0.005448%, maximum sampled bound 0.322mm. Hatchback
+repeated at 58,032 triangles with its original hash and 0.503mm sampled
+bound. The towns retained their exact hashes. No failed candidate was used
+in an export, and no canonical car cache or baseline was replaced.
+
+`make -C parking-garage -j1 repeat` then passed, exit 0; the complete log is
+`../build/garage-ruling/final-repeat-fixed.log`. Historical form/graphic/
+manifest outputs: all 70 exact, 91,257,928 bytes. Source atlas maps: all three
+exact. Finish/final exports and manifests: 175 exact files plus 14 mixed-site
+files, 1,366,977,030 bytes total. Six form/look/final site comparisons and two
+historical site comparisons passed their exact non-car and tolerant car
+audits. Their maximum computed bound was 0.3243mm. The complete actual
+file hashes and sampled measurements are retained in the repeat receipts.
+
+`make -C parking-garage -j1 check-texture-repeat` passed, exit 0, independently
+baking at 4096 and filtering to 2048. BaseColor/normal maxima were one code;
+mean normalized errors were 2.3374e-10 / 6.2332e-10, ORM byte-identical.
+Canonical maps were untouched. Log: `../build/garage-ruling/final-texture-repeat.log`;
+measurements: `build/lookdev/bake-repeat.json`.
+
+The additional embedded-policy regression passed a nonzero 0.5mm / 0.05%
+car change. It rejected all six faults: 1.5mm car surface displacement,
+0.15% triangles, a one-micrometer garage attribute change, a 2mm move of a
+shared car instance, changed object names and changed material definitions.
+Log: `../build/garage-ruling/embedded-policy.log`. This proves that the
+exception remains confined to qualifying car surfaces, rather than relaxing
+garage comparisons.
+
+The comparator-only source changes forced dependency regeneration. All 64
+inspected PNGs, imported GLBs, buffers, textures and photo calibrations still
+matched their original receipts afterward. Camera/calibration metadata was
+refreshed serially too. Only then were image-cache timestamps re-attested,
+without changing a byte or rendering unchanged inputs; the recipe comparison
+permits only the two verification-script edits. Receipt:
+`../build/garage-ruling/review-cache-reattestation.json`. The docs Make plan
+then contained only Python composition/encoding, with no Blender/GPU work.
+
+The final independent preservation audit again passed all 580 existing
+library delivery files and all 59 protected original garage files against
+the pre-session hashes: `../build/garage-ruling/final-preservation-full.json`.
+Cars, kit and the lead's top-level README have no family edits.
+
+`make -C parking-garage docs` passed with the final JPEG encoder, exit 0
+(`../build/garage-ruling/final-docs-fixed.log`). The original full-chroma
+encoder correctly stopped at the 200,000-byte limit on the tall family
+montage. The cap stays fixed; standard photographic chroma subsampling,
+a quality floor of 60 and bounded width reduction solve the encoding cost.
+This final code change affects only docs, and the reviewed source recipe
+was updated accordingly; no scene source, map, camera or rendered PNG changes.
+
+Opened all five final JPEGs at their native sizes, and both intermediate
+montages. Titles, module labels, level colors and localized wheel paths
+survive compression. The heroes retain warm concrete, cool cavities and
+unclipped highlight rolloff; the same CG limitations recorded in pass 20
+remain. The family montage is smaller to retain edge quality within budget.
+
+| Final docs JPG | Pixels | Bytes | JPEG quality |
+| --- | --- | ---: | ---: |
+| hero-101.jpg | 1600 × 681 | 193,634 | 92 |
+| hero-202.jpg | 1600 × 681 | 193,176 | 90 |
+| family.jpg | 1120 × 1164 | 197,079 | 68 |
+| details.jpg | 1600 × 1546 | 198,448 | 68 |
+| modules.jpg | 1600 × 1424 | 193,561 | 94 |
+
+The repository check passed: 2,439 source files, zero errors. All 64 final
+PNG receipts still describe their original inspected images and exported
+inputs. `src/delivery-acceptance.json` binds the inspected recipe and native
+baselines. The five docs JPEGs are committed last, by themselves. All Blender
+workers, GPU leases, lock waits and other task processes have completed.
+
+The final contact heading now names the exported finals rather than the old
+checkpoint, and its Make dependency includes the composition script. Opened
+that completed contact too. `make docs` passed again with the complete final
+source recipe (`../build/garage-ruling/docs-final-source.log`); all five
+inspected JPEG hashes repeated exactly. This contact-only cleanup does not
+change any scene frame, module, photo pair, material or map.
