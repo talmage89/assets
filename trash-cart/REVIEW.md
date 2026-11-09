@@ -187,3 +187,52 @@ passes before adoption with explicit `-o build/lookdev.blend`,
 lid UV/vertex data, so each gets its own config/proof. Near chains retain
 Lid/Wheel_Left/Wheel_Right frames and use one canonical texture pool. No
 accepted source/map/docs image is changed. No result yet approves either kind.
+
+### LOD critique 1: trash rest and close construction
+
+Opened every native strip, all three construction views and contact for the
+trash kind. Charcoal body/lid values, hot stamps, grip and wheel coverage hold
+at .25 / 3.81m and .09 / 10.57m. The far construction view exposes a distorted
+lid skirt/reveal and angular wheel/shoulder forms. Counts 3130/2178 miss
+2222/833; this pass does not establish an accepted target exception. Generic
+`check-lod` exits 0, including independent raw UV/tangent/normal checks.
+The blue-lid kind is not built or approved by this proof.
+
+### LOD critique 2: open pose and unresolved joint clearance
+
+Opened both native same-pose strips in
+`build/lod-rollout/trash-cart/motion-views/` (55/145 degrees, lid -71 degrees).
+All three exported levels are imported independently with unchanged shaders.
+Color/value and independent lid/wheels hold; the far rim, corner and skirt
+deformation is obvious in this deliberately closer construction control.
+It is not substituted for the far switch-distance acceptance images.
+
+No cart chain is adopted. The independent actual-surface diagnostic
+`motion-proof.json` samples the lid at one-degree intervals and a full wheel
+turn at five-degree intervals, against all three fixed meshes with no exemptions.
+It reports source contacts too: worst lid depths 16.625/18.917/21.665mm for
+source/LOD1/LOD2; wheel depths source 15.559mm, LOD1 16.024/16.477mm,
+LOD2 14.813/12.760mm. These are measured BVH/solid-parity diagnostic depths,
+not established unintended interference: the test does not distinguish intended
+coaxial pin/hub contacts. Its process exit 0 means the diagnostic finished,
+not clearance passed. Its JSON records all three clearance results false.
+The increased lid depths and deformed skirt remain unresolved without a
+joint-specific fixture. No broad mesh-pair exemption is introduced to hide them.
+
+The original cart check exercises pivot/radius/origin and shared atlas data;
+it is serialization/kinematic evidence, not a sampled clearance certificate.
+Likewise a generic `check-lod` pass cannot certify motion. Target misses also
+lack a reviewed cheaper visible-failure witness, so no target exception is
+claimed. Stop this family before spending its time box on fixture/tool work.
+Recycling stays unbuilt/L0 pending its own proof, rather than inheriting the
+trash result. Complete trash payload/config/hash/check/render archive:
+`build/lod-rollout/trash-cart/trash-pass1/`.
+
+Final receipts: the exact original commands above pass both before and after;
+`trash-pass1-check.json` records the trash generic check exit 0. No recycling
+`check-lod` result is asserted. Tool freeze: all 103 hashes match. The reporter
+ran `--write-readmes --allow-failed` for the trash trial only; its complete
+contact was inspected. Its PASS describes its own generic gates, not motion
+or a target exception. Full-family costs include both immutable source
+containers and their shared maps once. Repository check: 2555 files, zero
+errors. No accepted source/map/docs or kit code changed.

@@ -122,3 +122,68 @@ Original scripts, geometry, procedural finishes and fictional graphics are autho
 in this repository. DejaVu Sans uses its open font license; the recycling symbol
 is a standard mark. Reference photographs remain copyrighted measurement aids,
 ignored by Git and absent from the textures and documentation images.
+
+## LOD rollout checkpoint: unresolved clearance
+
+Neither cart kind has an adopted chain. The table below describes the trash
+trial only. Its generic `check-lod` passes, but the independent joint-clearance
+diagnostic remains unresolved and 3130/2178 triangles miss 2222/833 without a
+reviewed cheaper visible-failure witness. See [both LOD critiques](REVIEW.md).
+The diagnostic also finds source pin/hub contacts, so it is not reported as
+proven unintended interference or as a tool regression. More precise joint
+fixtures are needed. The recycling config is staged but unbuilt; it has no
+LOD comparison, check or approval. Its unchanged LOD0 costs 5776 triangles,
+one material and four draws, sharing the original 1024 atlas.
+
+`make lod LOD_CONFIG=src/lod-trash.json LOD_THREADS=4` reproduces the trash
+trial; `src/lod-recycling.json` selects the unproved blue-lid trial. Images are
+`renders/lod/trash/` and `build/lod-rollout/trash-cart/motion-views/`.
+The reporter's generic PASS label does not cover physical clearance.
+
+Full-container accounting (both original variants plus the trash trial) is
+`build/lod-rollout/trash-cart/full-family-costs.{json,md}`: 16640 stored triangles,
+two source-specific material resources, sixteen primitive placements,
+7268239 physical bytes and 5.0478 MiB resident. Original images occupy
+4.0001 MiB once; new images 0, added meshes .3921 MiB. Only one level draws
+per instance: trash 5556/3130/2178 triangles with four draws, recycling 5776
+with four. Both original family checks pass with accepted generated inputs frozen.
+
+<!-- LOD checkpoint trash: begin -->
+## Trash cart LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/trash/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 5,556 / — | 1 / 4 | 338,624 | 2,048,880 | 2,387,504 | 4.000 + 0.3173 | near |
+| LOD1 | 3,130 / 2,222 | 1 / 4 | 237,423 | 2,048,880 | 2,286,303 | 4.000 + 0.2211 | 25.0% / 3.81 m |
+| LOD2 | 2,178 / 833 | 1 / 4 | 184,808 | 2,048,880 | 2,233,688 | 4.000 + 0.1709 | 9.0% / 10.57 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **4.709 MiB**, versus LOD0 alone **4.317 MiB**. Unique textures 4.000 MiB = 4.000 MiB original + 0.000 MiB proxy/impostor; all meshes 0.7094 MiB. Increase over LOD0 0.392 MiB = 0.000 MiB far maps + 0.3921 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/trash/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/trash/check.json` and `export/lod/trash/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 1024×1024; LOD1: 3 × 1024×1024; LOD2: 3 × 1024×1024.
+
+LOD1 separate moving meshes: `LidMesh`, `Wheel_LeftMesh`, `Wheel_RightMesh`.
+
+LOD2 separate moving meshes: `LidMesh`, `Wheel_LeftMesh`, `Wheel_RightMesh`.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 10,864 | 1 | 12 | 4,858,615 | 4.7094 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 4 to 4 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint trash: end -->
