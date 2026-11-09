@@ -431,7 +431,8 @@ pack was downloaded or adapted.
   kernel; it is pigment on flat sheets rather than eroded masonry.
 - **Roof age is partial.** Shingle chart addressing now preserves its courses,
   slate values vary and repairs are lighter. Eave colonies and algae follow
-  damp slopes. Growth still reads flat and patterned close up; this is not
+  damp slopes. Algae still retains straight column boundaries in the north
+  roof close-up. Growth reads flat and patterned; this is not
   convincing thick moss or individual lichen. Ridge/eave granule loss and
   flat-roof ponding remain weak.
 - **A-frame light is changed, with limits.** The opposite-side low sun and
