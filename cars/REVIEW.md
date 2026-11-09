@@ -126,147 +126,9 @@ packed print parallelogram, retaining all word-axis pixels. This corrects the
 rectangular pack's .72-squared aspect distortion without disturbing neighbors
 or relaxing the original .30 unique-coverage / 35 px/m p5 gates. The baked GLB still requires its visual gate.
 
-## Delivery pass 1 — inspect before UVs and bake
-
-Color/value first: preserve the accepted factory factors and matched-light
-exposures. The prior Aluminum rear has 534 clipped painted pixels, localized
-to its intense softbox return (x226–359/y335–519 at 1600 pixels). This is display
-exposure saturation, not a material mask, cut or normal defect. The pickup's
-unchanged gallery recipe is now used at scale 3, with its original light powers,
-positions, diffusion broadening, cove and AgX look. A first -.2 EV Aluminum rear
-control still clips 74 paint pixels; the hero clips 221 at baseline exposure.
-Use a photographic Aluminum exposure bracket, independently of the accepted
-sun/sky comparisons. Do not lower its albedo to compensate for a studio return.
-
-Opened the full-size source gallery hero, rear and rear-quarter close-up.
-The fine numerical cut-border curvature noise does not produce the earlier
-tears in these studio views. Preserve the accepted geometry/normal fields;
-test their continuity again after UV work and GLB import. Arch and projector
-silhouettes are still economical, but the unsupported arch tail is absent.
-The grille's blades remain regular in these new reflections. The next risk is
-thin-surface cross-projection: isolate manufactured parts and test the exact
-reviewed game surface before accepting any normal projection.
-
-## Delivery pass 2 — reject the first baked inspection set
-
-Color/value first: factory factors still match the accepted source. The first
-atlas allocates 49.3% of its area with no overlaps/degenerate UVs after nineteen
-explicit seams on subpixel cut/gauge charts. Bake rays fill all 7,641,490 checked
-interior texels. This proves fill, not appearance. Opened hero, rear, face,
-lamp, quarter, wheel and cargo at 1600 pixels. The paint has no whole-body
-noise wash, but the plate and badge are visibly blurred: their actual object
-names missed the first priority prefixes. Increase those specific chart weights
-and the tire's, rather than adding maps.
-
-The glass has small ripples absent from the source control despite a shader
-with no optical bump height. A quantized tangent normal texture is unnecessary
-on that molded shell: retain its real vertex normals and set the standard
-glTF glass normalTexture scale to zero. This affects the shipped material, not
-only the renderer. An independent accessor audit also finds up to 1.036 degrees
-of corner-field change at thin rear-door caps when the family exporter joins
-and rebases them. Preserve FLOAT_VECTOR world corner directions through that
-operation and reseed them in the final owner frame; keep the .10-degree audit
-tolerance. The generic verifier's transformed wheel boxes overstate width by
-80 mm; raw-accessor vertex bounds remain 2117.000 × 4598.830 × 1735.000 mm.
-Gate those actual dimensions independently, without reporting the inflated box
-as the vehicle's measured width.
-
-## Delivery pass 3 — preserve relief and inspect the insert normals
-
-Color/value first: the source paint/film and the three baked color/roughness/
-metal channels remain unchanged. The normal-field export repair initially
-reseeded against a stale object matrix and failed badly; an explicit dependency
-update fixes the frame. The unchanged independent normal gate now passes at
-0.0396 degrees maximum. Reject the stale-frame images in `suv-export-pass2`.
-
-The direct-surface normal trial still loses tire lettering and tread, despite
-visible source relief. Frozen coordinate attributes retain scalar values but
-lose the shader differentials needed by the normal bake. Bake the explicit
-meter-height output instead; differentiate it within connected UV charts using
-the actual physical tangent Jacobians, then vector-filter at delivery size.
-An affine sheared/mirrored-UV fixture checks that conversion independently.
-This transfers the original procedural relief, not a photograph or new noise.
-
-The rejected direct-normal trial also exposes 27 backward interior texels.
-UV picks locate them in the two corner pockets, exhaust insert and reflector
-inserts, rather than the painted shell or optical lenses. Their source custom
-corner normals include near-tangent/opposed cap directions inherited from the
-projected sheet. Recompute those five molded inserts' own smooth wall normals
-with hard gauge turns: minimum face/corner dot becomes .976 or better. No
-positions, pivots or triangles change. Do not neutralize the failed texels and
-call that a correction. Source and exported cargo controls agree on the exposed
-quarter/header joints; they are economical construction in the accepted source,
-not an export displacement. The revised final set still needs its visual gate.
-
-The first height-atlas trial also differentiated PIL raster-edge pixels that
-Cycles had not covered. Those read as zero encoded height (−5 mm), creating
-false border slopes. The derivative now uses the bake's actual alpha validity
-and one-sided same-chart differences. Missing raster-border samples stay flat;
-valid samples are never neutralized. Thin cut charts get representable UV
-altitudes before packing, so GLB float conversion cannot collapse them.
-
-Opened the height-normal and shared-tyre controls at full size. The original
-four tyre charts left lettering too soft. One canonical torus tile raises
-carcass density to 854–1099 px/m without new texture memory or geometry. Left
-angular reflection preserves readable lettering but mirrors tread handedness;
-four separate carcass primitives are the declared draw-call cost. The final
-prototype's paint and optical returns remain smooth, and lettering survives.
-The final clean build must reproduce this result before docs are committed.
-
-## Delivery pass 4 — reject aggregate density as a sufficient gate
-
-Color/value first: the first clean export's broad paint and molding values
-retain the source, but the per-panel density report exposes another allocation
-fault. Aggregate painted-chart p5/median/p95 (UV-area weighted) of 208/231/244
-px/m hid roughly 46 px/m on both molded bumpers, mirrors, spoiler and painted
-header/sash pieces. Their names did not match the initial priority prefixes.
-Give those actual manufactured pieces explicit priorities and require at least
-100 px/m median on every painted piece larger than .02 m². Rebuild the atlas,
-bake, GLB and all finals; keep the rejected images in `suv-uv-audit`.
-
-Opened its seven completed gallery views at 1600 pixels: hero, rear, front,
-side, back, top and face. The frontal hood reflections deserve an identical
-source control. `suv-gallery-source-diagnostic` confirms the broad bends follow
-the accepted formed banks, while the glass edge is continuous. That snapshot
-control has unresolved relative marking-image paths (magenta badges), so it
-is only a paint-form diagnostic; the final bake-loss controls use the rebuilt
-source in its proper location. Preserve the accepted body design. The grille
-blades stay regular, lens returns follow their shells, and no arch-tail spike
-returns. Economical wheel/optic silhouettes and exposed cargo/header joints
-remain source limitations; source/export equality cannot excuse a new bake tear.
-
-## Delivery pass 5 — reject subpixel material contamination
-
-Color/value first: a saturated red fleck at the lower intake is impossible on
-its neutral molded cladding. The 9,725,396-byte trial passes all geometric UV
-checks but fails its image review. Camera rays locate face 789 of the front
-lower bumper cladding at UV (.99488,.33085); the shipped RGB sample is
-203/18/10. That chart is valid yet smaller than one shipped texel, so it samples
-nearby lamp padding. Several lower fins also pick up brighter material colors.
-This is atlas sampling loss, not red light, a shape defect or grille warping.
-
-Keep every vertex/normal/pivot. Before repacking, expand tiny unique charts to
-hold their own sampled material, using principal chart axes and measured UV
-area. The revised minimum is 4.03 shipped pixels of area; no unique chart is
-below four. The atlas stays within one set. Independently bilinear-sample
-cladding/gloss-black triangles for impossible substrate colors, and require
-that check as well as another full-size face/front inspection. Generic
-non-overlap and successful serialization did not prove this bake correct.
-
-The Aluminum exposure bracket already has zero clipped painted pixels in
-both gallery three-quarters (max channels 250/253); the final new atlas must
-repeat that result. The quarter source control also retains faint paint
-microtexture inside the soft return, with a smooth reflection edge across
-the rear cuts. No geometry change is justified by that shader grain.
-
-The first footprint rebake clears the face but the independent color check
-still rejects nine samples on a thin rear-arch gauge strip. The color extension
-was 12 bake pixels while the packed gap was only about six: reduce opposing
-extensions to three pixels each. All 39,948 bilinear material-color samples now
-pass. Also use the height codec's unset-zero sentinel: flat surfaces encode .5,
-whereas Cycles can retain alpha 1 on uncovered raster-border pixels. Exclude
-those data holes from physical derivatives instead of interpreting them as
-−5 mm relief. The accepted corner fields remain geometry data throughout.
+Earlier UV/bake delivery passes 1–5 are retained in
+[the early X220 delivery review](REVIEW_X220_EARLY.md). Later passes below
+record the superseding fixes and final acceptance.
 
 ## Delivery pass 6 — reject the generic dielectric response
 
@@ -2287,6 +2149,308 @@ regeneration matches all 94 meshes exactly. Fresh pickup generation and re-expor
 retain all 454 source meshes, 150 GLB accessors, maps and graph; the complete
 11,530,736-byte GLB retains SHA-256
 `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+
+## Car LOD round 2 — regression closeout
+
+Merged `main` first (already up to date through `39b835c`). The accepted factory
+adapter stays. Four fresh optional maple atlases now isolate the earlier
+one-code variation: the literal `1d9d429` tool varies by three pixels/channels
+between its two runs; the current tool varies by two. Every difference is one
+8-bit code, and frozen run 1 equals current run 2 byte for byte. This is
+pre-existing bake variation. Commands, hashes and all comparisons are in
+`build/car-lod/maple-proof/proof.json`. Opened all four 32-view atlases: color,
+branch/crown coverage and the dark cavity mass agree visually. No accepted
+tree output is replaced. Cone and fixed-maple payload equality from round 1
+still holds. The pickup's full baseline is skipped at the lead's request.
+
+The round-2 freeze and original-file ledger are in `build/car-lod/round2/`.
+Original deliveries, referenced images and documentation images remain
+immutable. Generated car modeling scenes may be rebuilt independently.
+
+## Car LOD round 2 — S240 budget stop
+
+The family `make -C cars BODY=sedan detail-model` rebuilt the original game
+and high scenes from scripts: 69,658 and 227,994 triangles. The accepted
+S240 GLB, its maps and all 2,996 protected delivery/map/image files remain
+byte-identical. The immutable source receipt is
+`build/car-lod/round2/sedan-source.json`. This rebuild does not rewrite LOD0.
+
+The first .4/.15 request used default component-wide protection around lamps.
+Its completed LOD1 is 55,366 triangles against 38,312, before LOD2. That cost
+is not accepted as a target exception: no cheaper visible-fault witness or
+native image approval exists. Stopped the redundant second conservative level
+and retained config, completed LOD1 payload, dependencies and command/log under
+`build/car-lod/round2/sedan-component-control/`.
+
+The second request used the pickup's existing local powered protection. All
+four source materials are explicitly double-sided, so it also proposed the
+existing scoped `backface_guard: false` option, requiring unchanged rest and
+posed image gates before any adoption. It remained inside the first large
+6,222-triangle body component (2,489 requested) after roughly 20 minutes.
+Stopped and reaped it after the car work, including its original rebuild,
+had exceeded roughly 45 minutes. `sedan-local-incomplete/` beside that control
+retains the exact attempted config, log and incomplete-output receipt.
+Completed content-checked reduction caches are retained for future work.
+
+No S240 chain is adopted. No new native comparison or two-pass visual approval
+was produced; neither simplifier progress nor the kit fixtures approve this car.
+The speculative config was removed from `src/`. The new pose checker has not
+yet been used on S240. Fresh original `make check` and the proxy trial are
+deferred with this adoption under its time budget. The inherited export also
+has mirrors attached to the front doors and parked wipers consolidated into
+the static assembly; it has no independent mirror/wiper pivots to preserve.
+
+The C150 production config now ends at its previously accepted LOD2, removing
+only the known failed far proxy. Both near specs and every other config field
+are literally unchanged. The near builder's screen-space AST and all seven
+geometry/field/serialization/shading modules match `1d9d429` exactly. This is
+a scope proof, not a fresh pickup rebuild or re-adoption. The requested full
+pickup baseline remains skipped. `pickup-near-scope.json` records that proof;
+dry-run default build graphs match byte for byte for all four `BODY` choices.
+
+Production Make targets accept only existing named car-chain configs. The
+two rejected H120 controls have moved out of `src/`; their exact JSON remains
+under `build/car-lod/round2/rejected-configs/` and at `39b835c`. Historical
+control commands above refer to that checkpoint. Diagnostics can use the kit
+CLI with configs in `cars/build/`, rather than production Make targets. The
+car selection README contains no rejected-trial table or archive path.
+
+## X220 original-input rebuild — preservation receipt corrected
+
+`make -C cars BODY=suv export check` cold-built the original X220 input:
+64,933 triangles, four materials, 41 color-pass draws, three 2048 maps and
+9,061,700 GLB bytes. Its delivery, construction, motion and grille-support
+checks passed, then `check-pickup` stopped on a stale pre-SUV SHA-256.
+That checker expected `ec70cde…`; the accepted pickup is `f3efff73…`, already
+recorded repeatedly in this review before LOD work. The session's immutable
+2,996-file ledger independently confirmed zero changes, including the pickup.
+
+Updated only that checker's accepted receipt to the documented current pickup
+hash. Its exact-byte comparison remains active; no pickup regeneration or
+payload edit occurred. `make -C cars BODY=suv check` then passed in 5.1 seconds.
+The first failure and successful rerun remain in `round2/suv-source.json`
+(command receipt), `suv-source-recheck.json` and their logs; the separate
+immutable GLB/dependency and budget receipt is `suv-input.json`. A receipt
+filename collision was corrected using the original foreground tool completion;
+no result was discarded. Five fresh LOD0 imports execute all presets through the actual
+`suv_delivery_materials` wrapper, with both lamp states, in
+`build/car-lod/round2/suv-source-routing.json`. The routing probe now accepts
+an explicit decoder module so the SUV's warm projector policy is exercised.
+
+## X220 LOD critique 1 — closed and open native control
+
+Color/value first: the 36,477-triangle shared-map control keeps the blue body,
+dark rubber/cavities, pale cabin band, red rear guides and white projectors.
+Opened all three native strips, both 960-pixel construction views and contact.
+Global RGB means are .004004/.002949/.002231; p95, silhouette and alpha pass.
+At azimuth 145 the local patch reaches .102594 against .08. The worst patch
+at (852,472) hits `Door_FRMesh` / Opaque: its mirror reflection moves. Do not
+waive it because the global mean is small. Its 36,477 triangles also miss
+the unchanged 35,713 goal. Two open-pose strips fail local limits as well.
+
+## X220 LOD critique 2 — mirror fix, remaining posed failure
+
+Retain the original `Door_FLMesh` and `Door_FRMesh` using the kit's existing
+geometry-retention option; original materials, maps, pivots and support-driver
+frames remain. The result is 40,265 triangles, still above the original goal.
+The cheaper control is preserved as its visible-fault witness under
+`build/car-lod/round2/suv-first-near/`. Reopened all native rest strips,
+differences, construction views and contact. Body value, glass/cabin response,
+lamp powers and the mirror reflection now agree. Rest patches are
+.067708/.058926/.053411; means .003858/.002664/.001953. Full `check-lod`,
+independent normals, ten fresh actual-decoder imports (five paints on LOD0/1,
+both lamp states) and the original `make check` pass. No new image is allocated.
+
+Open-pose review still rejects this candidate: local patch means .115107 and
+.097712 exceed .08, with changed specular detail around the rotated wheels
+and open assembly. Pivots and the eight support-driver memberships match;
+that serialization proof cannot approve appearance. The image gates stay
+unchanged. No X220 chain is adopted; LOD2 and its proxy were not built under
+the car budget. The roughly seven-minute GPU queue was waited out normally.
+The complete retained payload/config/checks and rejection status are under
+`build/car-lod/round2/suv-retained-near/`; native rest and posed comparisons
+remain at `renders/lod/suv/`. Measured cost report:
+`build/car-lod/round2/suv-retained-report/report.md`. Production `src/` no
+longer contains this rejected config. All original delivery/map/image bytes
+remain unchanged. Source mirrors stay on the doors and wipers stay static,
+as in the immutable LOD0; no independent pivot is claimed.
+
+## H120 near LOD critique 1 — rest views
+
+Merged the advanced rollout `main` in `d812384` before this car. The family's
+`make -C cars BODY=hatch model` found its script-generated original warm;
+the original `make check` passed before and after the trial. Immutable input
+and tool receipts are `build/car-lod/round2/hatch-input.json` and the adjacent
+`hatch-freeze-revision.txt`; the source remains 59,852 triangles and SHA-256
+`86104add5c3aaa7bf909af12fc666f9a0ef87f635df2b0e7ce7639c247f1136e`.
+
+Color/value first: opened the three native strips, both construction views and
+contact at `renders/lod/hatch/`. Atlantic blue, dark rubber/cavities, the pale
+cabin band and powered white/red lamps remain. Reduced nose edges and local
+reflective detail change; the close nose acquires dark angular discontinuities.
+The 27-minute near build yields 40,401 triangles at 25% height / 5.21 m, versus
+32,918 requested (`target_met: false`). Means .004252/.002076/.002159 pass,
+but local patches .090135/.083558 at azimuths 55/145 exceed .08. Their native
+8x8 origins are (579,542)/(1157,495). Full `check-lod` rejects only the image
+gate; the independent normal audit passes. No gate or target is raised.
+
+## H120 near LOD critique 2 — articulation
+
+Opened both native posed strips after an interrupted probe was restarted
+and completed (first command exit 143; retry exit 2). Matching pivot poses
+retain doors, hood, liftgate and wheels. The open rear reveals changed fine
+reflections; patch means are .078472/.145516, so the rear still fails .08.
+These sampled views do not prove swept clearance. Mirrors remain on their
+source doors and parked wipers remain static; independent pivots are absent
+from immutable LOD0. Ten fresh imports pass all five presets on LOD0/1 with
+both lamp states. Canonical four materials, 36 color-pass draws and the three
+2048 maps are retained; no intermediate image allocation is added.
+
+The diagnostic level stores 6,672,719 package bytes and draws 2,806,038 mesh
+bytes plus 16,777,296 compressed full-mip texture bytes. Keeping LOD0/1 would
+store 6,829,758 resident mesh bytes. It is not adopted: config, payload and
+rejection receipt are retained under `build/car-lod/round2/hatch-near/`, with
+the exact CLI config also in `build/lod-hatch-near-rejected.json`. The failed
+production config was removed. LOD2 is deferred under this car's budget;
+its proxy is tested separately as an optical diagnostic below.
+
+## H120 proxy critique 1 — second material at 4%
+
+The real-car opt-in glass partition completes at 2,498 / 2,500 target triangles,
+two materials and two color-pass draws. Three pure transmission faces move
+to glass; mixed paint/glass faces retain the coverage decoder. Geometry and
+UVs stay fixed. Opened both construction views, every native strip and contact
+at `renders/lod/hatch-glass-04/`. Color/value first: the cabin band becomes
+dark angular coverage, lamps grow bright jagged returns, and windows change
+response. Front RGB improves from the earlier .0605 to .0510, but .051010 /
+.031837 / .031670 still exceed .02. P95/local limits also fail; silhouette
+and alpha pass. `check` rejects only images; independent normals and ten fresh
+imports of all five paints on LOD0/proxy with both lamp states pass.
+
+The eight 512 maps allocate 2,796,416 compressed full-mip bytes, including
+the factory map's 349,552 bytes. Glass adds no image. Proxy mesh allocation
+is 157,388 bytes; its package is 863,220 bytes. Keeping it beside LOD0 would
+allocate 19,573,712 texture and 4,181,108 mesh bytes. None is adopted.
+
+## H120 proxy critique 2 — move the same payload farther
+
+Moved only the camera, retaining identical dependency hashes, 512 samples,
+three azimuths and all kit limits. Native contacts/strips at
+`renders/lod/hatch-glass-distance-{025,015,010}/` were opened. At 2.5%, 1.5%
+and 1% height (52.14 / 86.89 / 130.34 m), mean RGB ranges remain .03046–.05085,
+.02870–.04999 and .02715–.05708. Window/cabin and lamp color shifts persist;
+even the 11-pixel-tall control fails. Defer the proxy. Geometry or coverage
+reconstruction needs further work; a second material alone is insufficient.
+The exact config, payload and maps stay in `cars/build/lod-hatch-glass-04*`;
+no production Make target builds it. Distance evidence is optical diagnosis,
+not a substitute adoption manifest. One wrapper exited 143 after both first
+distance metrics completed; their renderer/script/dependency/file hashes are
+audited directly. The additional 1% command completes with exit 0.
+
+Final closeout: original `make check` passes for S240, X220 and H120, with
+explicit immutable generated inputs. The earlier S240 budget stop above
+describes its adoption attempt; its original check was completed afterwards.
+`build/car-lod/round2/final-audit.json` checks all 36 passing clean kit tests,
+the unchanged kit freeze, maple repeats, cone/fixed-tree opt-out payloads,
+all diagnostic image hashes and all 2,996 unchanged original files. Measured
+original and rejected diagnostic costs are in the adjacent `costs.json`.
+No new car level is shipped, no rejection becomes a target exception, and
+the lead's pickup full-baseline skip remains in force.
+
+## Factory proxy adapter, 2026-11-09
+
+The adapter closes factory routing, but does not close the native appearance
+gate. No new car chain is adopted. Main merged cleanly in `7391810`; the opt-in
+kit implementation is `490b6e8`, with its literal source/recipe freeze recorded
+under `build/car-lod/freeze.sha256` before this control. The integration uses
+the delivered decoder, not a substituted whole-car tint.
+
+The ignored H120 inputs were absent. `make -C cars BODY=hatch` rebuilt both
+source densities, construction/motion/UV checks, baked maps, the GLB and full
+gallery/pairs successfully. Actual game/export count is 59,852 triangles.
+`build/car-lod/hatch-source.json` records the new immutable source receipt;
+`build/car-lod/hatch-make.log` records the complete cold build. All 2,996
+pre-existing delivery/map/image files matched the preservation ledger afterwards.
+
+### LOD critique 1: rerun the rejected rollout control
+
+Opened all three native four-panel strips, both 960px construction views and
+the contact in `renders/lod/hatch-proxy-control/`. Color/value first: blue paint
+is recognizable, but the windshield loses the pale cabin band; front lamps
+spread and rear optics/trim change. The closer view exposes coarse wheels and
+blurred optical borders. These remain failures at the native switch, independent
+of whether their silhouette reads as a hatchback.
+
+The unchanged `src/lod-hatch-probe.json` gives the recorded 2,498/2,500 triangles
+at .04 / 43.2px / 32.5845m. Means .05930/.03374/.03873 reproduce the earlier
+control; p95 .29020/.17255/.23922 fails .08. Both coverage gates pass.
+The raw routing check still returns failure, and actual fresh imports still
+raise `StopIteration` for all five presets: `build/car-lod/hatch-control-routing.json`
+and `hatch-negative-decoder.json`. Full `check-lod` returns 2 for images;
+the independent normal audit passes. These are the original 24-sample control,
+not a converged attribution of every optical error.
+
+### LOD critique 2: contract preserved, appearance rejected
+
+Opened all three native strips/differences, both construction views and contact
+in `renders/lod/hatch-adapter/`, then reopened the windshield, nose and rear
+native panels. The immutable delivered LOD0 under identical procedural light
+is the color reference; no photographic white-balance inference is used.
+Body paint retains its hue, but the windshield still loses the broad pale
+interior band and its reflection changes. The lamp highlight changes in value
+and shape; the rear window/trim also changes. Those visible faults survive
+512 samples and the fourfold bake filtered to the same 512 atlas.
+
+All five presets now execute on LOD0 and the proxy after ten fresh imports,
+with the original tint/metallic tables and both lamp states. The delivered
+helper delegates only when `lod_factory_coverage` is present. Its ordinary
+materials retain their source color/metal/transmission links. The general GPU
+fixture independently evaluates decoded color/metal fields on paint, metallic
+trim, glass and lamps: maximum linear component error .001557; nonpaint tint
+and metallic coverage are zero at all three nonpaint probes. These establish
+routing and field isolation, not the optical appearance of this car.
+
+`src/lod-hatch-adapter.json` keeps 2,498/2,500 triangles, one material/draw and
+the same .04 switch. Mean RGB .060548/.033157/.031670, p95
+.270588/.168627/.207843 and worst 8px-patch mean .2186/.2134/.2221 fail the
+unchanged .02/.08/.08 gates. Alpha/IoU pass. `check-lod` returns 2 with only
+`render differences exceed threshold`; normal, topology, fresh-import and
+immutable-source checks pass. This is not a target miss or a reason for a
+color-limit exception. Different sample counts/decodes mean the two trials
+are not a one-variable measurement of optical improvement.
+
+The extra linear AO/tint/clean-metal coverage map adds 349,552 compressed-mip
+bytes at 512: .333 MiB, no extra draw. Eight 512 maps total 2.667 MiB; proxy
+mesh buffers add .1499 MiB. LOD0 alone is 19.837 MiB, the control together with
+LOD0 is 22.654 MiB. Stored totals are 62,350 triangles, five material resources,
+37 primitive placements and 8,754,064 payload bytes; only 36 or one draws are
+active per instance. No intermediate atlas or level is present in this control.
+
+Evidence: `build/car-lod/adapter-report/` and `control-report/` contain measured
+tables/contact sheets generated with reporting-only `--allow-failed`.
+`hatch-decoder.json`, `hatch-adapter-routing.json`, `hatch-check-lod.log` and
+`hatch-control-check-lod.log` retain the independent results. The original
+`make BODY=hatch check` also passes afterwards with explicit accepted-input
+`-o` arguments; exact command/exit are in `build/car-lod/finish-proof.json`.
+
+Stopped at the brief's adapter gate. S240, X220 and the full H120 chain are
+not attempted; pickup re-adoption is deferred with them. The missing cabin
+band and changed optical response require more than carrying factory fields.
+Neither counts nor a mathematical decoder proof approves the proxy's look.
+All 35 kit test files subsequently pass from clean fixture folders; source
+hashes and exits are in `build/car-lod/tests/results.json`. The kit freeze still
+matches. Cone and the default fixed maple chain have byte-identical before/after
+payloads; only their tool receipts change. The optional maple camera-facing
+atlas differs in one channel of one pixel by 1/255, so its strict byte check
+fails. The pickup's frozen cold baseline exceeds about one hour while still in
+LOD1 and is stopped with SIGTERM under the car budget, with genuine caches
+preserved. Pickup byte compatibility is unproved. These are incomplete regression
+results, not a claim that every adopted chain rebuilds identically.
+
+All 2,996 pre-existing delivery/map/image files still match. Final receipts are
+`build/car-lod/final-audit.json`, `optout-proof.json`, `tree-default-proof.json`
+and `pickup-regression-incomplete.json`. No car is adopted and no source or docs
+image changes. All owned Blender jobs are drained before reporting.
 
 ## LOD rollout, 2026-11-09
 

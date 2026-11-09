@@ -19,6 +19,10 @@ def colors():return json.loads(paint_material()['paint_colors'])
 def install():
     m=paint_material();nt=m.node_tree
     if nt.nodes.get('Factory delta'):return
+    if m.get('lod_factory_coverage'):
+        from kit.lod_factory import install_paint
+        install_paint(m)
+        return
     bs=next(n for n in nt.nodes if n.type=='BSDF_PRINCIPLED');bs.name='SURFACE'
     tex=next(n for n in nt.nodes if n.type=='TEX_IMAGE' and 'BaseColor' in n.image.name)
     orm=next(n for n in nt.nodes if n.type=='TEX_IMAGE' and 'ORM' in n.image.name)
@@ -58,8 +62,9 @@ def apply(preset='Atlantic',lights=False):
             power=mat.node_tree.nodes.get('Lamp power')
             if power:power.inputs[1].default_value=mat['lamp_strength'] if lights else 0
             else:bs.inputs['Emission Strength'].default_value=mat['lamp_strength'] if lights else 0
-    return dict(preset=preset,linear_tint=tint,metallic=json.loads(m['paint_metallic'])[preset],
-                method='shared baked RGB + coverage alpha * (factory tint - reference tint)',lights=lights)
+    method=('shared reference RGB + FactoryCoverage.G * tint delta; independent metallic coverage'
+            if m.get('lod_factory_coverage') else 'shared baked RGB + coverage alpha * (factory tint - reference tint)')
+    return dict(preset=preset,linear_tint=tint,metallic=json.loads(m['paint_metallic'])[preset],method=method,lights=lights)
 
 
 def eevee_glass():

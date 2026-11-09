@@ -12,3 +12,11 @@ float paint_coat_roughness(float coverage) { return 0.385 - 0.35 * coverage; }
 // Lamp surface: the same BaseColor alpha carries each emitter's calibrated
 // power relative to 80. The selected lit state is an ordinary scalar uniform.
 float lamp_emission_strength(float alpha, bool lit) { return lit ? 80.0 * alpha : 0.0; }
+// Optional LOD proxy: FactoryCoverage is linear AO / tint coverage / clean metal.
+// Apply these only when material extras include lod_factory_coverage.
+vec3 proxy_factory_rgb(vec3 reference_rgb, vec3 coverage, vec3 tint, vec3 reference_tint) {
+    return max(vec3(0.0), reference_rgb + coverage.g * (tint - reference_tint));
+}
+float proxy_factory_metal(float reference_metal, vec3 coverage, float factor, float reference_factor) {
+    return clamp(reference_metal + coverage.b * (factor - reference_factor), 0.0, 1.0);
+}
