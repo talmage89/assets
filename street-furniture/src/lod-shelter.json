@@ -1,0 +1,16 @@
+{
+  "kind": "modular transit shelter",
+  "source": "export/Shelter.gltf",
+  "include_nodes": ["Shelter"],
+  "name": "Shelter",
+  "output": "export/lod/shelter",
+  "renders": "renders/lod/shelter",
+  "readme_key": "shelter",
+  "readme_title": "Transit shelter LODs",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "levels": [
+    {"ratio": 0.15, "screen_height": 0.09, "surface_pixels": 0.05}
+  ]
+}

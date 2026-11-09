@@ -1,0 +1,15 @@
+{
+  "kind": "standard prop: signal span wire assembly",
+  "name": "SpanSet",
+  "source": "export/parts/SpanSet.gltf",
+  "output": "export/lod/span-set",
+  "renders": "renders/lod/span-set",
+  "readme_key": "span-set",
+  "readme_title": "Span wire assembly LODs",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "levels": [
+    {"ratio": 0.25, "screen_height": 0.25, "target_triangles": 6982}
+  ]
+}

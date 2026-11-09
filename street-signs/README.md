@@ -215,3 +215,6 @@ its `renders/match/`. Their receipts hash the actual exported glTF/BIN/image.
 The full-size visual audit precedes `make -C ../street-furniture docs`.
 [Source credits](refs/SOURCES.md) include FHWA, suppliers and open fonts;
 photographs remain research-only and never enter a committed image/texture.
+
+No LOD chain yet. Reduced signs have invalid texture coordinates and shading data.
+See [the LOD review](REVIEW.md).

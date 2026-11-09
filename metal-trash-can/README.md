@@ -90,3 +90,26 @@ calibration uses `renders/wear-pass2-glb/used_estate-pair.jpg` and the matching
 source pair; landmark RMS is 18.01 px. Its original lid and handle construction
 differs from the estate photograph, and studio illumination is brighter than
 the shaded outdoor reference.
+
+<!-- LOD checkpoint: begin -->
+## Additional LODs
+
+`make lod LOD_THREADS=4` builds the extra glTF/BIN level in `export/lod/`; `make check-lod` verifies it. The original delivery remains LOD0.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 4,928 / — | 1 / 4 | 256,678 | 3,228,330 | 3,485,008 | 4.000 + 0.2393 | near |
+| LOD1 | 3,224 / 1,971 | 1 / 4 | 173,892 | 3,228,330 | 3,402,222 | 4.000 + 0.1607 | 25.0% / 2.62 m |
+
+Both levels retain the removable lid and folding handle pivots. LOD1 stays above its triangle goal to preserve the thin shell and finish.
+
+The levels share the original three 1024² maps and add no image content. Keeping the whole chain resident costs about 4.400 MiB, versus 4.239 MiB for LOD0 alone. Reuse the original material and image resources when importing the extra level.
+
+Use the listed screen heights in Unity LODGroup, Godot visibility ranges or Unreal component LODs. Only one level draws at a time. Distances assume 60° vertical FOV and 1080p.
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 8,152 | 1 | 8 | 6,887,230 | 4.4000 |
+
+The stored table includes both alternatives; draw calls in the level table describe one instance. [Verification, target exceptions and limits](REVIEW.md). [Engine setup](../kit/LOD.md).
+<!-- LOD checkpoint: end -->

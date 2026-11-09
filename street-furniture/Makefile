@@ -89,3 +89,13 @@ repeat: model
 	$(PYTHON) src/repeat.py
 clean:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('build','textures','export','renders')]"
+
+# Independently placed kinds require their own additive proof.
+LOD_CONFIGS := src/lod-bench.json src/lod-meter-single.json src/lod-meter-twin.json src/lod-shelter.json
+include ../kit/lod_rules.mk
+.PHONY: check-lod-parts
+check-lod: check-lod-parts
+check-lod-parts:
+	@set -e; for lod_config in $(LOD_CONFIGS); do \
+		$(BP) --threads $(LOD_THREADS) --python src/check_lod_parts.py -- --config "$$lod_config"; \
+	done

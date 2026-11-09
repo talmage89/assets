@@ -204,3 +204,6 @@ Reference photographs stay local and never enter committed docs. Public author
 credits and rights are in the source register; committed files contain no
 private-home address, owner identity or listing link. Every asset vertex and
 texel is original scripted output.
+
+No LOD chain yet. Shrub-specific leaf shading and curved cards need supported distance rendering.
+See [the LOD review](REVIEW.md).

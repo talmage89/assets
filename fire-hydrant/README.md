@@ -118,3 +118,26 @@ Bold uses the installed open DejaVu font license. Daderot's installed reference
 is CC0; manufacturer drawings/photos are copyrighted local research material,
 not redistributed. The rifle project and approved gas-grill pilot informed the
 scripted pipeline.
+
+<!-- LOD checkpoint: begin -->
+## Additional LODs
+
+`make lod LOD_THREADS=4` builds the extra glTF/BIN level in `export/lod/`; `make check-lod` verifies it. The original delivery remains LOD0.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 5,980 / — | 1 / 1 | 371,370 | 3,756,126 | 4,127,496 | 4.000 + 0.3521 | near |
+| LOD1 | 3,524 / 2,392 | 1 / 1 | 251,069 | 3,756,126 | 4,007,195 | 4.000 + 0.2375 | 25.0% / 2.82 m |
+
+Both levels are fixed assemblies. LOD1 stays above its triangle goal to preserve the bonnet, barrel and baked finish.
+
+The levels share the original three 1024² maps and add no image content. Keeping the whole chain resident costs about 4.590 MiB, versus 4.352 MiB for LOD0 alone. Reuse the original material and image resources when importing the extra level.
+
+Use the listed screen heights in Unity LODGroup, Godot visibility ranges or Unreal component LODs. Only one level draws at a time. Distances assume 60° vertical FOV and 1080p.
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 9,504 | 1 | 2 | 8,134,691 | 4.5897 |
+
+The stored table includes both alternatives; draw calls in the level table describe one instance. [Verification, target exceptions and limits](REVIEW.md). [Engine setup](../kit/LOD.md).
+<!-- LOD checkpoint: end -->

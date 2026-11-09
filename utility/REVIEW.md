@@ -769,3 +769,95 @@ hero remains .052 Y prime below the thin-cloud comparator. Gallery section
 cuts and the uncompiled engine far-shader example are documented limits.
 The utility itself remains within its accepted geometry/material/texture
 budgets. No kit or neighboring source/delivery was changed.
+
+## LOD rollout preflight — blocked, 2026-11-09
+
+Merged current main (already up to date), read the family construction, wire
+policy and original check graph. `build/lod-rollout/utility/preflight.json`
+records all fifteen expected glTF/BIN/JSON paths absent and zero generated
+build files. There is no accepted geometry/map input for an immutable-source
+receipt, native comparison or original `make check`. That check depends on
+`export` and would rebuild missing accepted deliveries, so it is not run.
+No config, LOD render, adoption or LOD0-only minimality claim is made. Two
+render critique passes and `check-lod` are not possible without those inputs.
+No kit/source delivery/docs image changes. The lead needs to stage the accepted
+packages, maps and generated check inputs before this family can be adopted.
+The tool hashes were recorded without invoking the builder at revision
+`b132747`; `build/lod-rollout/utility/freeze.sha256` remains checkable.
+
+## LOD round 2 — rebuild the originals
+
+Round 1's absent ignored products are not an asset defect or a reason to ask
+for staged deliveries. `make -C utility export check` rebuilt them here from
+empty build/texture/export directories, exiting 0. It runs the family's complete
+original geometry, bake, external delivery and checks, leaving existing docs
+JPGs unchanged. Context construction stays inside utility/build and verifies
+neighboring exports/textures unchanged. No car source or delivery was edited.
+
+All five glTF+BIN sizes match the README exactly: Parts 2268943 bytes; streets
+101/102/103/104 2905687/2412537/2780181/3004135. Street triangle counts also
+match exactly: 45804/37628/41734/48116. The parts library measures 29932
+triangles in nine primitives, with the documented individual module counts.
+Shared PNGs total 10052349 bytes, one byte below the recorded trio; geometry
+package sizes and counts match exactly. The original GPU rebake policy permits
+small encoded-map variation; absent old maps, no pixel-equality claim is made.
+Actual confirmation,
+full command/exit/resource log and the new 18-file immutable export receipt are
+in build/lod-round2/utility/{original-confirmation.json,original-build.json,
+source-frozen.json}. Source UV/chart, normals, socket and physical checks pass.
+
+Tool revision e375b58 and literal hashes were frozen before use. Start with an
+unwired Tangent config: .4 at .25 with .05-pixel surface preservation for the
+thin shaft. Experimental builds explicitly add kit/lod_rules.mk on the command
+line; no public Makefile exposes a candidate before it passes its own proof.
+
+### Tangent critique 1 — native switch and close views
+
+Opened all three native strips, both 960-pixel construction views and the
+contact sheet in renders/lod/tangent. Color/value first: the original's dark
+treated timber and gray hardware retain their values; the difference panes
+show no broad wash or missing silhouette. Braces, porcelain, shaft taper,
+ground molding and the lower cable loop remain. The construction views expose
+the original's small polygonal bends, without a new coarse break at the switch.
+This is a comparison to the accepted export, not a new photo-realism approval.
+
+The .05-pixel trial measures 3632 -> 2592 triangles at .25 / 36.315 m,
+above the 1453 goal. Generic check-lod and the independent guarded-atlas test
+both pass; zero triangles leave their stock charts. Brand support gaps are
+.345–.436 mm, below the original's 1 mm maximum. Preserve that trial's config,
+payload and images in build/lod-round2/utility/tangent-pass1 before testing
+.5-pixel surface preservation for a cheaper witness. No delivery claim yet.
+
+### Tangent critique 2 — stop on guarded-chart regression
+
+Opened the three new native strips and both construction views. Color/value
+first: no broad pole-color change appears; the difference is concentrated at
+hardware and the loop. Thin braces remain rather than disappear. The cheaper
+trial measures 1620 triangles against 1453; all native image limits and both
+generic check-lod stages pass. Those passes do not approve the delivery.
+
+The independent family audit finds **34 new guarded-chart crossings**, versus
+zero in LOD0 and the first trial. Brand support still passes. A triangle that
+crosses a stock boundary can interpolate unrelated material even when these
+three views hide it. This is the frozen simplifier's chart defect, not a reason
+to relax the original chart limits. The utility family stops here, as required;
+no other pole, transformer, crossarm or street-wire kind inherits an approval.
+No general tool change is in scope. The 280-triangle GuyAssembly remains
+LOD0-only: its thin guard, guy and anchor already use coarse geometry.
+
+Both trials' exact configs, payloads, native images and hashes stay in
+build/lod-round2/utility/tangent-pass{1,2}/. The final chart failure is
+tangent-pass2/atlas.json; rejected measured cost reports are in
+build/lod-round2/utility/rejected-report/. The live rejected mesh is removed
+from export/lod. The src config is evidence, wired to no Makefile target.
+No README trial table or public LOD hook is added. The original check is
+rerun with accepted generated inputs frozen explicitly; its complete command
+is in original-check-command.json. Receipt and freeze outcomes are recorded
+in the closing entry below.
+
+Closing result: original make check exits 0, including seven unit tests,
+physical construction, raw/imported delivery and render-input validation.
+All 103 frozen tool hashes match; all 18 newly built source files and all
+1206 pre-existing delivery/texture/docs files retain their hashes. Repository
+check and diff whitespace check pass. Utility has no lod/check-lod targets.
+Its two rejected trials have no runtime residency or placement recommendation.

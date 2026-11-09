@@ -678,3 +678,297 @@ memory remain 2048/1024/512 × 256 and 17.5 MiB. Per-part/per-intersection
 triangles, material counts, bytes and first-use memory are in README and the
 generated budget report. Nothing is needed from the lead to complete this
 delivery. The appearance limitations in pass 5 remain.
+
+## LOD rollout, 2026-11-09
+
+Frozen tool/recipe revision `55b6288`; literal receipt:
+`build/lod-rollout/signals/freeze.sha256`. The original `make check` passes
+with `-o build/delivery.json -o ../ground/export/ArterialSites.glb`; exact
+command/exit/resource receipt is `build/lod-rollout/signals/original-before.json`.
+
+### LOD critique 1: controller cabinet
+
+Opened all three native original/preceding/new/difference strips, both
+construction views and contact. Color/value first: metal body, dark vents,
+door reveals and concrete retain the original response at 25% / 6.97m.
+The service fixture's shaft retains coverage. Close inspection reveals a
+simpler louver form and coarser circular lamp, without a native switch fault.
+Both `Controller__Door__Fixed` and `Controller__PoliceDoor__Fixed` stay
+separate under their original pivots. All image and independent UV/frame,
+topology and re-import checks pass. However 2238/2964 triangles retain
+75.51%, missing 1186, with unchanged three draws and one material. This is
+a cost trial, not yet a selected family level. Complete config, payload,
+hashes, comparisons and checks are archived in
+`build/lod-rollout/signals/cabinet-pass1/`; the next equipment trial is the mast.
+
+### LOD critique 2: mast target control
+
+Opened every native strip, both construction views and contact for both mast
+requests. Color/value and shaft coverage hold at .25 / 27.15m. The initial
+3835/8174 level (46.92%) passes all original image and independent field/raw
+checks, but misses 3270. All three aiming head frames and separate lens/state
+nodes remain; four materials and fifteen draws retain canonical routing.
+The lower .15 request reaches 2849, meeting the count, but side-view local
+RGB .12776 exceeds .08: visor/housing highlights and thin projected shapes
+change. No image limit is altered. The source UV/frame audit still passes;
+`make check-lod` returns 2 for images. Source-only noise is not claimed as its
+cause. Both configs, payloads, checks and every image are retained in
+`build/lod-rollout/signals/mast-arm-pass1/` and `mast-arm-pass2/` before a
+middle request is tested. Close views expose coarser visor rims at both
+densities; acceptance remains at the native switch.
+
+### LOD critique 3: selected mast density
+
+The .25 optimization request at the unchanged .25 switch reaches 3199
+triangles, 39.14% of 8174, meeting the original 3270-triangle/40% goal.
+Opened all three fresh native strips, both construction views and contact.
+Color/value, shaft coverage, street-name lettering and red indications remain
+consistent. Local RGB .02429/.05828/.02545 passes the original .08 bound;
+mean/p95 and alpha/IoU pass too. The coarser visor rims remain a close-view
+limitation. Fresh `make check-lod` and the independent UV/frame audit pass.
+`build/lod-rollout/signals/MastArm-state-routing.json` independently records
+all thirteen aiming/lens control nodes with matching control fields and
+independent mesh/material bindings. This proves serialized state routing,
+not live phase timing, flexible-cable updates or a new swept-motion audit.
+The cheaper 2849-triangle visible-failure control remains archived. Measured
+selected-level table/contact: `build/lod-rollout/signals/mast-report/`.
+
+### LOD critique 4: select the useful cabinet distance
+
+Omit the weak .25 cabinet row and retain one shared-map level at the existing
+far starting point, .09 / 19.36m. Its 1482 triangles retain 50% of 2964,
+against the unchanged 445-triangle goal. Opened all three native strips,
+both construction views and contact. Gray body/vent values, door reveals and
+the small service-post coverage agree at the switch. The closer construction
+view exposes a polygonal service lamp, simplified louver and panel corners;
+those do not read as faults at .09. All image/field/raw checks pass.
+
+Explicitly tested this exact 1482-triangle export at the old .25 / 6.97m
+distance. Opened all three native controls in
+`build/lod-rollout/signals/cabinet-original-switch/`: the lamp turns visibly
+polygonal and vent response changes. Front/side local errors .15375/.12741
+fail .08; the rear passes. These failed old-distance comparisons and passing
+new-distance comparisons establish the farther switch without changing gates.
+
+Also opened all three 440-triangle ordinary-collapse goal controls at .09 in
+`build/lod-rollout/signals/cabinet-goal-control/`. The lamp turns dark, the
+vent loses its response and bright borders appear on the cabinet. Front
+mean/p95/local .02873/.15687/.25460 and side p95/local .10196/.16268 fail;
+the rear passes. This deliberate unguarded control uses the original maps
+and is never a delivery. Its script/receipt record actual source, selected
+and candidate dependencies and tool hashes. The selected 1482 is the lowest
+reviewed passing count, not a global geometric minimum; `target_met: false`
+remains. Both door meshes/pivots are retained, with matching serialized
+door controls in `Cabinet-state-routing.json`. No new motion-clearance or
+engine-light simulation is claimed. Measured selected tables/contact are
+`build/lod-rollout/signals/report/`; the original .25 cost trial remains
+archived in `cabinet-pass1/`.
+
+### LOD critique 5: span wires at native size
+
+Opened both whole construction views and the contact, then all seven
+unscaled native original/LOD/difference pages under
+`build/lod-rollout/signals/span-native/`. These cover every horizontal span
+of the three comparison frames, including near/far poles, wires and heads.
+Color/value, powered indications, messenger/tether runs and pole coverage
+remain consistent. The six aiming heads and eighteen lens controls remain
+separate. Close construction still exposes coarse fittings and head rims.
+The .4 request gives 7764/17456 triangles (44.48%), above 6982. Every image
+gate passes: worst mean .00483, local .04677, alpha .01852 and IoU .02893.
+
+The first full check was interrupted with observed exit 143 after geometry
+passed and before the independent normal audit finished; no own Blender
+remained. That interruption is preserved, not called a pass. The directly
+monitored full retry passes both checks; exact receipt is
+`build/lod-rollout/signals/span-set-pass1-check-retry.json`. Config, outputs,
+checks, payload hashes and native images are archived in `span-set-pass1/`
+before a lower .25 request is tested at the same .25 switch. No tool or image
+gate changed. New geometry uses 25 draws versus the original 27, with the
+original three materials/maps; these are measured color-pass submissions.
+
+### LOD critique 6: native pass, original trim check fails
+
+Opened every native page in `build/lod-rollout/signals/span-native-pass2/`,
+both new construction views and the combined reporter contact. The 5692-triangle
+span meets 6982 at the unchanged .25 / 31.18m switch. Pole/wire coverage and
+indications hold; close views still expose coarse fittings. Worst mean .00590,
+p95 .03138, local .04875, alpha .02462 and silhouette loss .03856 pass.
+`span-set-final-check.json` records exit 0, including the independent field audit.
+Twenty-four aiming/lens control nodes retain their serialized state routing.
+
+**Stop: no signals adoption.** The required original `make check` afterwards
+returns 2: its unchanged delivery checker also scans the additive directory,
+and catches actual newly crossed manufacturing trim cells. An independent raw
+accessor audit, `build/lod-rollout/signals/trim-domain-audit.json`, measures:
+
+| Trial | Newly crossed trim triangles | Outside-domain vertices | Maximum UV |
+| --- | ---: | ---: | ---: |
+| Cabinet 1482 | 12 | 1 | 1.0003411 |
+| MastArm 3199 | 30 | 4 | 1.0040153 |
+| SpanSet 5692 | 121 | 1 | 1.0516849 |
+
+The three immutable sources have zero such faults. Screen comparisons and the
+generic correspondence audit passing do not override this construction-specific
+failure. No checker, threshold, source, UV or frozen tool is changed. All three
+final configs, payload hashes, raw checks and every image are archived in
+`build/lod-rollout/signals/{cabinet,mast-arm,span-set}-final/`. Their trial payloads
+are removed from `export/lod/` so the original-only check can run independently;
+`make lod` reproduces the rejected trials. Tables describe those trials, not
+approved chains. This defect ends the family at its time box; all remaining
+heads, posts and town assemblies stay LOD0 pending their own proof.
+
+Final receipts: `original-before.json` exits 0; `original-after.json` exits 2
+on the new trim faults; `original-after-isolated.json` exits 0 after archiving
+the rejected additions. Exact original commands retain `-o build/delivery.json`
+and `-o ../ground/export/ArterialSites.glb`. The unchanged delivery check then
+audits all fifteen original containers. Tool freeze revision `55b6288`, all
+103 literal hashes match in `freeze-check.txt`. The rollout's immutable receipt
+still has all 1200 original delivery/texture/docs files unchanged. Repository
+check: 2551 source files, zero errors. The reporter generated all three tables
+with `--write-readmes`; `report/contact.jpg` was inspected. Its generic PASS
+labels do not include, and cannot overrule, the failed original trim check.
+No live jobs or tool edits remain for this family.
+
+## Archived rejected LOD reports — round 1
+
+These reports are rejected evidence, not delivered chains.
+
+## LOD rollout checkpoint: blocked
+
+No signal kind has an adopted chain. The following measured tables describe
+rejected cabinet, mast and span trials. Their generic `check-lod` image,
+geometry and normal checks pass, but the unchanged original `make check`
+rejects newly crossed manufacturing trim cells and out-of-domain UVs in all
+three. No limit is relaxed. See [the two-stage review and raw counts](REVIEW.md).
+`make lod LOD_THREADS=4` reproduces these diagnostic trials; do not deploy them.
+Their final payloads/checks/images are archived under
+`build/lod-rollout/signals/{cabinet,mast-arm,span-set}-final/`; the rejected
+outputs are removed from `export/lod/` after proof. Comparisons also remain in
+`renders/lod/{cabinet,mast-arm,span-set}/`.
+
+The family time box ends here. Untested standalone `Head_five` (1500), `Head_fya`
+(1340), `Head_protected` (964), `Head_three` (1060), `PedHead` (464), `Pedestal`
+(1564), `PushButton` (408) and `PushButtonPost` (1044 triangles) remain LOD0.
+The four town containers also remain LOD0: 201 (47200), 202 (42408), 203 (51520)
+and 204 (31504). These are deferred, not approved by another kind's trial.
+
+Full available-container accounting, including those originals and the three
+archived trials, is `build/lod-rollout/signals/full-family-costs.{json,md}`:
+219943 stored triangles, 43 source-specific material resources, 973 primitive
+placements, 15249449 physical payload bytes and 27.6957 MiB resident. The five
+original image resources occupy 17.5001 MiB once; new images 0, added trial mesh
+buffers .5431 MiB. Only the selected level of a placed kind is drawn; those
+973 stored placements are alternatives, not simultaneous draws. Active draws
+range from 1 to 228 across original containers/trial levels. Trial-specific
+stored and drawn costs follow below.
+
+<!-- LOD checkpoint mast-arm: begin -->
+## Mast arm LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/mast-arm/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 8,174 / — | 4 / 15 | 411,715 | 3,633,325 | 4,045,040 | 17.500 + 0.3765 | near |
+| LOD1 | 3,199 / 3,270 | 4 / 15 | 201,795 | 3,633,325 | 3,835,120 | 17.500 + 0.1756 | 25.0% / 27.15 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **18.052 MiB**, versus LOD0 alone **17.877 MiB**. Unique textures 17.500 MiB = 17.500 MiB original + 0.000 MiB proxy/impostor; all meshes 0.5521 MiB. Increase over LOD0 0.176 MiB = 0.000 MiB far maps + 0.1756 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/mast-arm/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/mast-arm/check.json` and `export/lod/mast-arm/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 1 × 512×256, 1 × 1024×1024, 3 × 2048×2048; LOD1: 1 × 512×256, 1 × 1024×1024, 3 × 2048×2048.
+
+LOD1 separate moving meshes: `Mast_0__Head0__Fixed`, `Mast_0__Head0__S00_red`, `Mast_0__Head0__S01_yellow`, `Mast_0__Head0__S02_green`, `Mast_0__Head1__Fixed`, `Mast_0__Head1__S00_red`, `Mast_0__Head1__S01_yellow`, `Mast_0__Head1__S02_green`, `Mast_0__Head2__Fixed`, `Mast_0__Head2__S00_red_arrow`, `Mast_0__Head2__S01_yellow_arrow`, `Mast_0__Head2__S02_yellow_arrow`, `Mast_0__Head2__S03_green_arrow`.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 11,373 | 4 | 30 | 4,246,835 | 18.0523 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 15 to 15 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint mast-arm: end -->
+
+<!-- LOD checkpoint cabinet: begin -->
+## Controller cabinet LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/cabinet/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 2,964 / — | 1 / 3 | 180,579 | 3,539,302 | 3,719,881 | 16.000 + 0.1681 | near |
+| LOD1 | 1,482 / 445 | 1 / 3 | 101,118 | 3,539,302 | 3,640,420 | 16.000 + 0.0924 | 9.0% / 19.36 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **16.261 MiB**, versus LOD0 alone **16.168 MiB**. Unique textures 16.000 MiB = 16.000 MiB original + 0.000 MiB proxy/impostor; all meshes 0.2605 MiB. Increase over LOD0 0.092 MiB = 0.000 MiB far maps + 0.0924 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/cabinet/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/cabinet/check.json` and `export/lod/cabinet/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048.
+
+LOD1 separate moving meshes: `Controller__Door__Fixed`, `Controller__PoliceDoor__Fixed`.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 4,446 | 1 | 6 | 3,820,999 | 16.2606 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 3 to 3 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint cabinet: end -->
+
+<!-- LOD checkpoint span-set: begin -->
+## Span wire assembly LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/span-set/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 17,456 / — | 3 / 27 | 770,206 | 3,595,708 | 4,365,914 | 17.333 + 0.7065 | near |
+| LOD1 | 5,692 / 6,982 | 3 / 25 | 318,002 | 3,595,708 | 3,913,710 | 17.333 + 0.2751 | 25.0% / 31.18 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **18.315 MiB**, versus LOD0 alone **18.040 MiB**. Unique textures 17.333 MiB = 17.333 MiB original + 0.000 MiB proxy/impostor; all meshes 0.9816 MiB. Increase over LOD0 0.275 MiB = 0.000 MiB far maps + 0.2751 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/span-set/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/span-set/check.json` and `export/lod/span-set/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 1 × 1024×1024, 3 × 2048×2048; LOD1: 1 × 1024×1024, 3 × 2048×2048.
+
+LOD1 separate moving meshes: `SpanWire__Head0__Fixed`, `SpanWire__Head0__S00_red`, `SpanWire__Head0__S01_yellow`, `SpanWire__Head0__S02_green`, `SpanWire__Head1__Fixed`, `SpanWire__Head1__S00_red`, `SpanWire__Head1__S01_yellow`, `SpanWire__Head1__S02_green`, `SpanWire__Head2__Fixed`, `SpanWire__Head2__S00_red`, `SpanWire__Head2__S01_yellow`, `SpanWire__Head2__S02_green`, `SpanWire__Head3__Fixed`, `SpanWire__Head3__S00_red`, `SpanWire__Head3__S01_yellow`, `SpanWire__Head3__S02_green`, `SpanWire__Head4__Fixed`, `SpanWire__Head4__S00_red`, `SpanWire__Head4__S01_yellow`, `SpanWire__Head4__S02_green`, `SpanWire__Head5__Fixed`, `SpanWire__Head5__S00_red`, `SpanWire__Head5__S01_yellow`, `SpanWire__Head5__S02_green`.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 23,148 | 3 | 52 | 4,683,916 | 18.3150 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 25 to 27 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint span-set: end -->
