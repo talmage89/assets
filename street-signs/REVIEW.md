@@ -211,3 +211,27 @@ passes afterwards; all 71 original files match. Both targets remain unmet.
 The 5.333 MiB canonical 2048 image stays shared; new mesh buffers add .1517 MiB.
 Final native evidence: `renders/lod/school-speed/`; frozen recipe/payload/checks:
 `build/lod-uv/archive/street-signs/school-speed-final/`.
+
+
+### speed30 critique 1 — native values and face coverage
+
+Opened every 0/55/145-degree native strip at both switches, with source,
+preceding, new and difference panes. Values agree for white sheeting, black 30 and SPEED LIMIT, gray back and zinc tube.
+Measured LOD1 648/259 at 25% / 10.031 m, LOD2 496/97 at 9% / 27.863 m, from 648 source triangles.
+Worst mean 0.0001127, local 0.001286, silhouette loss
+0.000026 pass the unchanged gates. Targets remain unmet.
+
+### speed30 critique 2 — construction and independent fields
+
+Opened all close views and contact, then revisited the square perforated post, blank rim and two fasteners; 30 reads at both switches.
+Tiny source print remains limited by original texel/mip resolution; no new
+lettering loss or detached member appears at the switches. Coarse small
+fittings remain visible up close; no close-view equivalence is claimed.
+Exact accessor records find zero new flat UV faces and zero new invalid
+tangent records, while identifying inherited unprinted-metal defects separately
+(`build/lod-uv/sign-fields-speed30.json`). Serialized domains, normals,
+source fields and re-import pass. Original `make check set-check` passes
+afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
+additional mesh buffers total 0.0913 MiB.
+Final native evidence: `renders/lod/speed30/`; archived recipe and proof:
+`build/lod-uv/archive/street-signs/speed30-final/`.
