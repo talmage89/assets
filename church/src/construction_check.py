@@ -91,6 +91,15 @@ def run():
                         assert n.z<0,('Roof underside winding',ob.name,face.index);outward+=1
         assert outward>=8*p['bays'];result['outward_face_checks']=outward
         if seed==101:
+            tread=next(o for o in bpy.context.scene.objects if o.name.startswith('Entrance landing and measured steps'))
+            tree=surface(tread)['tree'];hollows=[]
+            for i in range(4):
+                yy=-p['length']/2-2.34-(i+.5)*.3302-cy
+                hits=[tree.ray_cast(Vector((xx-cx,yy,3)),Vector((0,0,-1)))[0] for xx in (0,1.6)]
+                assert all(h is not None for h in hits)
+                depth=hits[1].z-hits[0].z;assert .010<depth<.013,(i,depth)
+                hollows.append(depth)
+            result['tread_midpoint_hollows_m']=dict(measured=hollows,method='Downward rays on imported tread center and unworn shoulder; construction, not serialization')
             hall=next(o for o in bpy.context.scene.objects if o.get('module_kind')=='ParishHall')
             hall_top=max((o.matrix_world@v.co).z for o in hall.children_recursive if o.type=='MESH' for v in o.data.vertices)
             glass=[]
