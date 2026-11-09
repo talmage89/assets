@@ -798,7 +798,10 @@ All five glTF+BIN sizes match the README exactly: Parts 2268943 bytes; streets
 101/102/103/104 2905687/2412537/2780181/3004135. Street triangle counts also
 match exactly: 45804/37628/41734/48116. The parts library measures 29932
 triangles in nine primitives, with the documented individual module counts.
-Shared PNGs total 10052350 bytes, matching the recorded trio. Actual confirmation,
+Shared PNGs total 10052349 bytes, one byte below the recorded trio; geometry
+package sizes and counts match exactly. The original GPU rebake policy permits
+small encoded-map variation; absent old maps, no pixel-equality claim is made.
+Actual confirmation,
 full command/exit/resource log and the new 18-file immutable export receipt are
 in build/lod-round2/utility/{original-confirmation.json,original-build.json,
 source-frozen.json}. Source UV/chart, normals, socket and physical checks pass.
