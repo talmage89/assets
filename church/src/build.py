@@ -30,6 +30,11 @@ def main():
             from siteworks import site
             site_root=site(p,rt)
             save_scene(f'build/site-{seed}.blend');report[f'ChurchSite-{seed}']=publish(site_root,f'ChurchSite-{seed}',known)
+            if not args.no_modules and 'Sign' not in modules:
+                part=next(o for o in site_root.children_recursive if o.get('module_kind')=='Sign')
+                cp=G.clone(part,'Module_Sign');cp.location=(0,0,0);cp.rotation_euler=(0,0,0)
+                modules['Sign']=publish(cp,'Sign',known,'modules')
+                for ob in reversed(objects(cp)):bpy.data.objects.remove(ob,do_unlink=True)
         Path(f'build/plan-{seed}.json').write_text(json.dumps(p,indent=2))
     if not args.no_modules:
         bpy.ops.wm.read_factory_settings(use_empty=True);G.MATS.clear();palette()

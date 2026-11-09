@@ -144,5 +144,5 @@ def tower(parent,p):
         for s in (-1,1):
             for k in range(5):
                 x=-w/2+k*w/4;cap.box((x,s*w/2,height+.45),(.46,.48,.9),'stone');cap.box((s*w/2,x,height+.45),(.48,.46,.9),'stone')
-    cap.box((0,0,height+1.1),(.10,.10,2.2),'iron');cap.box((0,0,height+1.55),(1.1,.10,.10),'iron');cap.finish()
+    cap.box((0,0,height+.95),(.10,.10,2.30),'iron');cap.box((0,0,height+1.55),(1.1,.10,.10),'iron');cap.finish()
     return rt

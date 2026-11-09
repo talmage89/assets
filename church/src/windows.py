@@ -80,5 +80,5 @@ def rose(name,parent,point,r=1.45):
         a=k*math.tau/12;m.beam((.28*math.sin(a),-.24,.28*math.cos(a)),((r-.1)*math.sin(a),-.24,(r-.1)*math.cos(a)),.062,.11,'stone')
     m.finish();m=G.Mesh('Rose art glass',rt,sheet=True)
     pts=[((r-.08)*math.sin(k*math.tau/48),-.03,(r-.08)*math.cos(k*math.tau/48)) for k in range(48)]
-    m.geom(pts,[tuple(range(48))],'stained',uv=[[(.5+x/(r*4),.75+z/(r*4)) for x,y,z in pts]]);m.finish()
+    m.geom(pts,[tuple(range(48))],'stained',uv=[[(.75+x/(r*4),.75+z/(r*4)) for x,y,z in pts]]);m.finish()
     return rt

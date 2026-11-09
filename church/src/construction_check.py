@@ -8,6 +8,31 @@ from kit.motion import surface,sweep
 from package import counts
 
 
+def routes(seed):
+    """Test exported path centerlines at body/head height against the church."""
+    from mathutils.bvhtree import BVHTree
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.ops.import_scene.gltf(filepath=str(Path(f'export/ChurchSite-{seed}.gltf').resolve()))
+    body=next(o for o in bpy.context.scene.objects if 'nave_offset' in o)
+    vertices=[];faces=[]
+    for ob in body.children_recursive:
+        if ob.type!='MESH':continue
+        base=len(vertices);vertices.extend(ob.matrix_world@v.co for v in ob.data.vertices)
+        faces.extend(tuple(base+i for i in f.vertices) for f in ob.data.polygons)
+    tree=BVHTree.FromPolygons(vertices,faces);tested=0
+    for route in bpy.context.scene.objects:
+        if route.get('socket_kind')!='walk_path':continue
+        points=route['points']
+        for a,b in zip(points,points[1:]):
+            for height in (1.1,1.7):
+                aa=Vector(a)+Vector((0,0,height));bb=Vector(b)+Vector((0,0,height));d=bb-aa;length=d.length
+                if length<.05:continue
+                direction=d.normalized();hit=tree.ray_cast(aa+direction*.02,direction,length-.04)
+                assert hit[0] is None,('Walk crosses church construction',seed,route.name,a,b,list(hit[0]) if hit[0] else None)
+                tested+=1
+    return dict(passed=True,segments_at_two_heights=tested,method='BVH rays along exported centerlines at +1.1/+1.7 m; excludes site actors and is not a full navigation-volume test')
+
+
 def run():
     report={}
     for seed in (101,202):
@@ -17,12 +42,18 @@ def run():
         assert meta['triangles']==expected['triangles']
         assert max(abs(a-b) for a,b in zip(meta['size_m'],expected['size_m']))<.0001
         result=dict(fresh_import=meta,serialization_passed=True)
+        tower=next(o for o in bpy.context.scene.objects if o.get('module_kind')=='Tower')
+        cross=next(o for o in tower.children_recursive if o.type=='MESH' and o.name.startswith('Tower top'))
+        crossz=[(cross.matrix_world@v.co).z for f in cross.data.polygons if 'iron' in cross.data.materials[f.material_index].name for i in f.vertices for v in [cross.data.vertices[i]]]
+        capz=[(ob.matrix_world@ob.data.vertices[i].co).z for ob in tower.children_recursive if ob.type=='MESH' for f in ob.data.polygons if ('slate' if seed==101 else 'stone') in ob.data.materials[f.material_index].name for i in f.vertices]
+        gap=min(crossz)-max(capz);assert gap<.001,('Unsupported tower cross',gap)
+        result['cross_vertical_seat_gap_m']=gap
         # Footprint-centered standalone exports: horizontal envelope center.
         assert max(abs((a+b)/2) for a,b in zip(meta['bounds_min'][:2],meta['bounds_max'][:2]))<.0001
         p=json.loads(Path(f'build/plan-{seed}.json').read_text());cx,cy,_=p['placement_offset']
         if seed==101:
             ob=next(o for o in bpy.context.scene.objects if o.name.startswith('Retrofit ramp and edge curbs'))
-            tree=surface(ob)['tree'];x=p['width']/2+2.6-cx;start=-p['length']/2+1.5*p['bay']+.9144-cy;run=p['ramp']['run']
+            tree=surface(ob)['tree'];x=p['width']/2+2.6-cx;start=-p['length']/2+.5*p['bay']+.9144-cy;run=p['ramp']['run']
             hits=[]
             for dy in (.02,run-.02,-.9144,run+.9144):
                 hit=tree.ray_cast(Vector((x,start+dy,4)),Vector((0,0,-1)))
@@ -46,6 +77,7 @@ def run():
             allow=[]
             motions.append(dict(node=pivot.name,axis=pivot['pivot_axis'],range=list(pivot['range_degrees']),step=15,tolerance_m=.001,allow=allow))
         result['motion']=sweep(dict(MOTIONS=motions));assert result['motion']['passed'],result['motion']
+        result['routes']=routes(seed)
         report[str(seed)]=result
     Path('build/construction-check.json').write_text(json.dumps(dict(passed=True,churches=report),indent=2));print('PASS church fresh imports, ramp surfaces and sampled door sweeps')
 

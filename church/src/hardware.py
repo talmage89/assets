@@ -17,11 +17,15 @@ def doors(name,parent,point=(0,0,0),yaw=0,modern=False):
         pivot=G.root('Door_Left' if s<0 else 'Door_Right',(s*1.005,-.155,.055),rt,
                      pivot_axis='Z',range_degrees=[-90,0] if s<0 else [0,90],moving=True)
         m=G.Mesh(pivot.name+'__Leaf',pivot,solid=True,door=True,component='door_leaf');cx=-s*.5065
-        m.box((cx,0,1.067),(.984,.062,2.1336),'iron' if modern else 'timber')
+        if modern:
+            for xx in (cx-.457,cx+.457):m.box((xx,0,1.067),(.07,.062,2.1336),'iron')
+            for z,h in ((.14,.28),(.98,.14),(2.085,.098)):m.box((cx,0,z),(.844,.062,h),'iron')
+            for z,h in ((.595,.63),(1.555,.97)):m.box((cx,0,z),(.842,.006,h),'glass')
+        else:m.box((cx,0,1.067),(.984,.062,2.1336),'timber')
         for z in (.39,1.22,1.88):
             m.box((cx,-.042,z),(.81,.038,.055),'iron' if modern else 'timber')
         if modern:
-            m.panel(cx,-.034,1.51,.78,.92,'glass');m.box((cx,.049,1.0),(.80,.045,.05),'iron')
+            m.box((cx,.049,1.0),(.80,.045,.05),'iron')
         else:
             for x in (-.25,.25):
                 for z,h in ((.39,.46),(1.25,.97),(1.93,.18)):
@@ -34,6 +38,8 @@ def doors(name,parent,point=(0,0,0),yaw=0,modern=False):
         m=G.Mesh(pivot.name+'__Sleeves',pivot,component='door_hinge')
         for z in (.24,1.05,1.85):m.lathe([(z-.055,.016),(z+.055,.016),(z+.055,.009),(z-.055,.009),(z-.055,.016)],'iron',12)
         m.finish()
+    m=G.Mesh(name+'__Vestibule shadow',rt)
+    m.box((0,.70,1.16),(2.06,.05,2.30),'black');m.box((0,.35,2.31),(2.06,.75,.05),'black');m.finish()
     return rt
 
 

@@ -43,7 +43,7 @@ def entrance(parent,p):
     for s in (-1,1):rail('Front stair rail',parent,(s*1.98,y-2.55,f),(s*1.98,y-2.34-count*.3302,.1524),True)
     # Side retrofit: top landing at the entry, run parallel to nave, generous
     # landing at grade. It connects to side doorway, independently of stairs.
-    x=p['width']/2+2.6;start=-p['length']/2+1.5*p['bay']+.9144;end=start+p['ramp']['run'];w=1.66
+    x=p['width']/2+2.6;start=-p['length']/2+.5*p['bay']+.9144;end=start+p['ramp']['run'];w=1.66
     rt=G.root('1996 accessible ramp',(x,start,0),parent,module_kind='Ramp')
     m=G.Mesh('Retrofit ramp and edge curbs',rt)
     m.prism([(-w/2,0,.6096),(w/2,0,.6096),(w/2,p['ramp']['run'],0),(-w/2,p['ramp']['run'],0)],(0,0,-.16),'concrete')
@@ -70,13 +70,16 @@ def services(parent,p):
                 if z<h-.6:m.box((xp,yy,z),(.13,.15,.045),'iron')
             m.box((xp+s*.12,yy,.05),(.64,.40,.10),'concrete')
     m.finish();m=G.Mesh('Rear meters conduit and condensers',parent,module_kind='Services')
-    yy=l/2+.55
+    face=l/2+(.125 if p['style']=='aframe' else 0);yy=face+.10
     for j in range(3):
-        x=-3+j*.7;m.box((x,yy,1.25),(.40,.20,.63),'stone',(.7,.75,.74));m.tube([(x,yy,.12),(x,yy,1.0)],.022,'iron',8)
+        x=-3+j*.7;m.box((x,yy,1.25),(.40,.20,.63),'stone',(.7,.75,.74));m.tube([(x,yy,-.04),(x,yy,1.0)],.022,'iron',8)
+        m.tube([(x,yy+.11,1.30),(x,yy+.18,1.30)],.115,'glass',16)
+        m.box((x,yy+.107,1.30),(.17,.006,.17),'black')
+        for z in (.30,.75):m.box((x,face+.05,z),(.08,.11,.035),'iron')
     for x in (-3.2,3.3):
         m.box((x,yy+1,.13),(1.5,1.2,.26),'concrete');m.box((x,yy+1,.78),(1.22,.95,1.06),'stone',(.65,.7,.69))
         for i in range(13):m.box((x-.54+i*.09,yy+.51,.78),(.022,.035,.90),'iron')
-        m.tube([(x+.58,yy+1,.36),(x+.88,yy+1,.30),(x+.88,yy-.40,.30)],.032,'iron',8)
+        m.tube([(x+.58,yy+1,.36),(x+.88,yy+1,.30),(x+.88,face-.05,.30)],.032,'iron',8)
     m.finish()
 
 
@@ -103,7 +106,7 @@ def build(p):
         for s in (-1,1):
             for i in range(p['bays']):
                 point=(s*(w-p['wall'])/2,-l/2+(i+.5)*p['bay'],0)
-                if s==1 and i==1:
+                if s==1 and i==0:
                     from details import side_exit
                     side_exit(rt,p,point)
                 else:bay('Nave bay '+str(s)+'_'+str(i),rt,p,point,s*90)

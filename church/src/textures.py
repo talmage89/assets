@@ -45,9 +45,10 @@ def glass(out):
                 d.polygon(poly,fill=colors[int(rng.integers(6))]);d.line(poly+[poly[0]],fill=(6,7,8),width=2)
         # An original plain geometric medallion, not religious iconography.
         cx=x0+256;cy=y0+240
-        d.ellipse((cx-96,cy-96,cx+96,cy+96),fill=(93,68,31),outline=(8,9,9),width=6)
-        for k in range(8):
-            a=k*np.pi/4;d.line((cx,cy,cx+96*np.cos(a),cy+96*np.sin(a)),fill=(8,9,9),width=4)
+        if cell in (1,2):
+            d.ellipse((cx-96,cy-96,cx+96,cy+96),fill=(93,68,31),outline=(8,9,9),width=3)
+            for k in range(8):
+                a=k*np.pi/4;d.line((cx,cy,cx+96*np.cos(a),cy+96*np.sin(a)),fill=(8,9,9),width=2)
     a=np.array(im).astype(float)/255
     yy,xx=np.mgrid[:n,:n];waver=.96+.04*np.sin(xx*.18+np.sin(yy*.03)*2)*np.sin(yy*.13)
     a*=waver[:,:,None];Image.fromarray(np.uint8(np.clip(a*255,0,255))).save(out/'T_ChurchGlass_BaseColor.png')
@@ -55,7 +56,7 @@ def glass(out):
     h=lead*.0014+.00011*np.sin(xx*.09)*np.sin(yy*.13)
     dy,dx=np.gradient(h);norm=np.stack((-dx*n/3,dy*n/3,np.ones_like(dx)),axis=2);norm/=np.linalg.norm(norm,axis=2,keepdims=True)
     Image.fromarray(np.uint8((norm*.5+.5)*255)).save(out/'T_ChurchGlass_Normal.png')
-    orm=np.ones((n,n,3));orm[:,:,1]=np.where(lead,.51,.28);orm[:,:,2]=np.where(lead,.65,0)
+    orm=np.ones((n,n,3));orm[:,:,1]=np.where(lead,.76,.28);orm[:,:,2]=np.where(lead,.35,0)
     Image.fromarray(np.uint8(orm*255)).save(out/'T_ChurchGlass_ORM.png')
 
 

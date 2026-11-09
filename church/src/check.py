@@ -52,7 +52,8 @@ def audit(path):
     if path.stem.startswith('Church-'):assert counts['church']<=120000,(path,counts)
     if path.parent.name=='modules' and path.stem=='Tower':assert counts['church']<=15000
     assert not bad,(path,bad[:20])
-    return dict(counts=dict(counts),static_without_cars_plants=static,materials=len(d['materials']),primitives=sum(len(m['primitives']) for m in d['meshes']),gltf_bin_bytes=path.stat().st_size+len(binary),image_bytes=sum(r['bytes'] for r in images.values()),texture_mib=sum(r['mib'] for r in images.values()),images=list(images.values()),density_1024_px_m=np.percentile(density,[5,50,95]).tolist() if density else [],uv_policy='Authored tiled/strip/graphic charts intentionally reuse UVs; density is not a unique lightmap claim.')
+    actors=Counter(n.get('extras',{}).get('actor_kind') for n in ns if n.get('extras',{}).get('actor_kind') in ('car','vegetation','town'))
+    return dict(counts=dict(counts),actors=dict(actors),static_without_cars_plants=static,materials=len(d['materials']),primitives=sum(len(m['primitives']) for m in d['meshes']),gltf_bin_bytes=path.stat().st_size+len(binary),image_bytes=sum(r['bytes'] for r in images.values()),texture_mib=sum(r['mib'] for r in images.values()),images=list(images.values()),density_1024_px_m=np.percentile(density,[5,50,95]).tolist() if density else [],uv_policy='Authored tiled/strip/graphic charts intentionally reuse UVs; density is not a unique lightmap claim.')
 
 
 def main():

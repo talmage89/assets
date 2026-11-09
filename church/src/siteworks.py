@@ -16,24 +16,35 @@ def paving(p,parent):
     lot=(12,57,-43,-22) if modern else (-18,13,23,44)
     pad('Sealed parking lot',lot,.005,'asphalt')
     if modern:
-        pad('Canopy drop-off lane',(8.8,40,-18,-11),.005,'asphalt')
-        pad('East lot connection',(40,47,-23,-11),.005,'asphalt')
-        pad('Canopy walk',(7.5,36,-11,-7.0),.1524)
+        pad('Canopy drop-off lane',(14,45,-18,-11),.005,'asphalt')
+        pad('East lot connection',(40,50,-27,-11),.005,'asphalt')
+        pad('Drop-off exit throat',(14,24,-27,-17),.005,'asphalt')
+        pad('Canopy walk',(14,36,-11,-7.0),.1524)
         pad('Church entry plaza',(-4.2,10,-22,-14.5),.1524)
         pad('Street to entrance walk',(-1.0,1.0,-40,-22),0)
         m=G.Mesh('Accessible plaza approach',parent,actor_kind='site')
         m.prism([(-1,-23.9812,0),(1,-23.9812,0),(1,-22,.1524),(-1,-22,.1524)],(0,0,-.10),'concrete');m.finish()
         pad('Memorial garden walk',(9.0,25.8,-6.8,-4.5),0)
         pad('Memorial garden crosswalk',(13.2,15.1,-4.5,10.2),0)
-        pad('Education route',(25.8,28,-7.0,17.0),.1524)
-        p['dropoff_curve']=[(45,-26,0),(43.5,-18,0),(32,-14.5,0),(16,-14.5,0),(9,-17,0),(10,-21,0),(18,-25,0)]
+        pad('Education route',(23.8,25.8,-7.0,17.0),.1524)
+        pad('Accessible lot approach',(27.3,29.1,-24,-18),.005)
+        from surfaces import paint_material
+        paint_material();m=G.Mesh('Accessible canopy curb ramp',parent,actor_kind='site')
+        m.prism([(27.3,-13,.005),(29.1,-13,.005),(29.1,-11,.1524),(27.3,-11,.1524)],(0,0,-.10),'concrete');m.finish()
+        m=G.Mesh('Drop-off pedestrian crossing',parent,actor_kind='site',sheet=True)
+        for j in range(8):
+            yy=-18+j*.6;m.geom([(27.3,yy,.012),(29.1,yy,.012),(29.1,yy+.30,.012),(27.3,yy+.30,.012)],[(0,1,2,3)],'paint',uv=[[(.005,.755),(.12,.755),(.12,.995),(.005,.995)]])
+        m.finish()
+        p['dropoff_curve']=[(46.5,-29,.005),(46.5,-21,.005),(45,-16.5,.005),(40.5,-14.5,.005),(23,-14.5,.005),(18.5,-16,.005),(16.5,-20.5,.005),(18,-29,.005)]
     else:
         pad('Front approach',(-2.16,2.16,-23,-16.4),0)
         pad('Rear lot drive',(-20.5,-14.4,-22,44),.005,'asphalt')
-        pad('Rear pedestrian way',(-14.4,17.5,19.1,21.2),0)
-        pad('Ramp to rear route',(8.12,10.12,3.0,21),0)
+        pad('Rear pedestrian way',(-14.4,17.7,19.1,21.2),0)
+        pad('Accessible rear lot approach',(5.55,7.35,21.2,23),0)
+        pad('Ramp to rear route',(17.7,19.7,0,21.2),0)
+        pad('Ramp lower landing return',(p['width']/2+3.43,19.7,-1.8288,0),0)
         p['dropoff_curve']=[]
-    p['paths']=[dict(name='Street_to_front',points=[(0,-40 if modern else -23,0),(0,-22 if modern else -17,0),(0,-p['length']/2,p['floor'])]),dict(name='Lot_to_door',points=[(23,-22,0),(10,-20,.1524),(1,-15,.1524)] if modern else [(9,23,0),(9,20,0),(9,3,0),(9,-5,.6096)])]
+    p['paths']=[dict(name='Street_to_front',points=[(0,-40 if modern else -23,0),(0,-22 if modern else -17,0),(0,-p['length']/2-.40,p['floor'])]),dict(name='Lot_to_door',points=[(28.216,-24.9,.005),(28.216,-18,.005),(28.216,-13,.005),(28.216,-11,.1524),(30.6392,-11,.1524),(30.6392,-10.75,.1524)] if modern else [(6.4456,25.9,.005),(6.4456,20.1,0),(18.7,20.1,0),(18.7,-.9144,0),(9.1532,-.9144,0),(9.1532,-1.8288,0),(9.1532,-9.7536,.6096),(9.1532,-10.668,.6096),(6.9,-10.668,.6096)])]
     # Rectangular turf clipping includes construction footprints, so lawns
     # meet paving and foundations without grass polygons through the lot.
     w=p['width'];l=p['length'];cuts.append((-w/2,w/2,-l/2,l/2))
@@ -59,6 +70,8 @@ def parking(p,parent,rect):
         for j in range(n):
             x=start+j*pitch
             if x+pitch/2>b-.7:continue
+            if modern and row==1 and (x<24 or 40<x<50 or j==5):continue
+            if not modern and row==0 and j==8:continue
             # Keep one generous access aisle at the pedestrian-route end.
             if j==0:
                 continue
@@ -66,9 +79,10 @@ def parking(p,parent,rect):
                 pts=[(xx-.045,y-2.72,.012),(xx+.045,y-2.72,.012),(xx+.045,y+2.72,.012),(xx-.045,y+2.72,.012)]
                 m.geom(pts,[(0,1,2,3)],'paint',uv=[[(.005,.755),(.12,.755),(.12,.995),(.005,.995)]])
             yy=y+(2.1 if row else -2.1);m.box((x,yy,.075),(1.70,.17,.15),'concrete')
-            occupied=rng.random()<p['occupancy'];stall=G.root(f'Stall_{row}_{j}',(x,y,.01),parent,socket_kind='parked_car',stall_width=pitch,stall_depth=5.4864,occupied=occupied)
-            p['stalls'].append(dict(name=stall.name,center=[x,y,.01],yaw=0 if row else 180,occupied=occupied))
-            if occupied:car(row*20+j,(x+rng.uniform(-.12,.12),y+rng.uniform(-.16,.16),.012),0 if row else 180)
+            occupied=rng.random()<p['occupancy'];accessible=(modern and row==1 and j==4) or (not modern and row==0 and j==9)
+            stall=G.root(f'Stall_{row}_{j}',(x,y,.01),parent,socket_kind='parked_car',stall_width=pitch,stall_depth=5.4864,occupied=occupied,accessible=accessible)
+            p['stalls'].append(dict(name=stall.name,center=[x,y,.01],yaw=180 if row else 0,occupied=occupied,accessible=accessible))
+            if occupied:car(row*20+j,(x+rng.uniform(-.12,.12),y+rng.uniform(-.16,.16),.012),180 if row else 0)
     m.finish()
 
 
@@ -135,8 +149,8 @@ def town(p,parent):
     for i,(x,y) in enumerate(plants):
         instance(G.ROOT/('trees/export/PinOak.glb' if i%3==0 else 'trees/export/RedMaple.glb'),'Established street tree '+str(i),(x,y,0),i*53,.70 if modern else .61,actor='vegetation')
     for i in range(12 if modern else 7):
-        point=(29.5,-7+i*1.65,0) if modern else (18,4+i*1.65,0)
-        instance(G.ROOT/'shrubs/export/Shrubs.glb','Foundation shrub '+str(i),point,i*37,.87,kind='Hydrangea' if i%4==0 else 'Boxwood',actor='vegetation')
+        point=(36.2,-7+i*1.65,0) if modern else (17.1,4+i*1.65,0)
+        instance(G.ROOT/'shrubs/export/Shrubs.glb','Foundation shrub '+str(i),point,i*37,.75 if not modern else .87,kind='Hydrangea' if i%4==0 else 'Boxwood',actor='vegetation')
     for i,(x,y) in enumerate(((-22,-21),(22,-21),(49,-23)) if modern else ((-22,-22),(22,-22),(-22,20))):
         instance(G.ROOT/'street-light/export/StreetLight.glb','Street light '+str(i),(x,y,0),0,actor='site')
     instance(G.ROOT/'street-signs/export/StreetSigns.glb','Corner street names',(cx+5,cy+6,0),actor='site')
@@ -149,10 +163,10 @@ def town(p,parent):
 def site(p,church):
     rt=G.root('ChurchSite_'+str(p['seed']),seed=p['seed']);church.parent=rt;church.location=p['placement_offset']
     lot=paving(p,rt);parking(p,rt,lot);settlement(rt,lot,p['seed']);town(p,rt)
-    sign(rt,(17,-40 if p['style']=='aframe' else -22,0),p['name'],['CEDAR & BELL' if p['style']=='aframe' else 'GRACE CORNER','WORSHIP 10:30','ALL WELCOME'])
+    marquee=sign(rt,(7,-37.5,0) if p['style']=='aframe' else (17,-22,0),p['name'],['CEDAR & BELL' if p['style']=='aframe' else 'GRACE CORNER','WORSHIP 10:30','ALL WELCOME']);marquee['actor_kind']='site'
     # Accessible walk paths and drive curves ship as empty-node point lists.
     for row in p['paths']:G.root(row['name'],parent=rt,socket_kind='walk_path',points=row['points'])
-    if p['dropoff_curve']:G.root('Dropoff route',parent=rt,socket_kind='drive_curve',points=p['dropoff_curve'])
+    if p['dropoff_curve']:G.root('Dropoff route',parent=rt,socket_kind='drive_curve',points=p['dropoff_curve'],interpolation='CATMULL_ROM',lane_width_m=7.0)
     for ob in list(__import__('bpy').context.scene.objects):
         if ob!=rt and ob.parent is None and not ob.name.startswith('Template_'):ob.parent=rt
     clear();return rt
