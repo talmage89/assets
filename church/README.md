@@ -187,13 +187,13 @@ is the source/export ledger.
 
 | Expanded triangles | Downtown 101 | Mid-century 202 |
 | --- | ---: | ---: |
-| Complete church | 64,060 | 25,777 |
+| Complete church | 65,246 | 27,217 |
 | Paving, roads and site equipment | 110,344 | 117,700 |
 | Context buildings, drives, fences and lawns | 53,216 | 99,261 |
-| **Budgeted site, excluding cars/plants** | **227,620** | **242,738** |
+| **Budgeted site, excluding cars/plants** | **228,806** | **244,178** |
 | Native cars | 1,656,512 (27) | 668,464 (11) |
 | Native vegetation and clipped sward | 355,820 | 767,737 |
-| Entire expanded inspection scene | 2,239,952 | 1,678,939 |
+| Entire expanded inspection scene | 2,241,138 | 1,680,379 |
 
 Both static parcels meet 250k, the historic church meets 40–120k and its
 tower meets 15k. Car/tree instances retain shared mesh data; their expanded
@@ -203,46 +203,61 @@ is intentional and is called out below.
 | Resource receipt | Downtown 101 | Mid-century 202 |
 | --- | ---: | ---: |
 | Whole building envelope, including below-grade base | 28.323 × 33.132 × 29.110m | 51.759 × 47.444 × 16.559m |
-| Building glTF + geometry BIN | 8,159,803 bytes | 3,376,772 bytes |
-| Embedded building inspection GLB | 51,330,340 bytes | 49,380,464 bytes |
-| Site glTF + geometry BIN | 45,283,577 bytes | 37,929,112 bytes |
-| Referenced site image PNG bytes, once each | 137,417,843 | 136,983,199 |
+| Building glTF + geometry BIN | 8,394,873 bytes | 3,598,084 bytes |
+| Embedded building inspection GLB | 51,572,264 bytes | 49,608,384 bytes |
+| Site glTF + geometry BIN | 45,518,240 bytes | 38,150,511 bytes |
+| Referenced site image PNG bytes, once each | 137,424,201 | 136,989,557 |
 | Budgeted static map union | 185.000MiB | 178.333MiB |
 | Referenced site map allocation, including actors | 281.000MiB | 274.333MiB |
-| Site material definitions / mesh primitives | 129 / 1,238 | 96 / 987 |
+| Site material definitions | 131 | 94 |
 
-| Independently exported piece | Triangles | Resident map union, MiB |
+| Category | 101 geometry bytes / map MiB | 202 geometry bytes / map MiB |
 | --- | ---: | ---: |
-| Belfry bay | 572 | 36 |
-| Bell including shell, yoke, axle, wheel | 2,552 | 20 |
-| Memorial bench | 60 | 4 |
-| Laminated A bent with concrete shoes | 48 | 8 |
-| Steel bent shoe/bolts | 456 | 20 |
-| Stepped buttress | 144 | 20 |
-| Drop-off canopy | 156 | 36 |
-| Classroom bay | 226 | 36 |
-| Operating door pair/frame/hinges | 1,560 | 24 |
-| Drainage | 648 | 36 |
-| Education wing assembly | 5,012 | 72 |
-| Accessible exit bay assembly | 1,872 | 40 |
-| Bike rack/cornerstone | 360 | 20 |
-| Rose gable assembly | 4,448 | 16 |
-| Glazed A gable assembly | 2,191 | 44 |
-| Connecting hyphen | 124 | 32 |
-| Low sidewall | 1,132 | 16 |
-| Parish hall assembly | 4,024 | 72 |
-| Recessed portal | 1,268 | 24 |
-| Rail run | 1,052 | 16 |
-| Filled ramp and two rail runs | 2,176 | 32 |
-| Rear exit landing, treads and rails | 748 | 32 |
-| Roof assembly example | 540 | 8 |
-| Rose | 1,342 | 8 |
-| Rear services | 856 | 36 |
-| Changeable sign with glyphs | 162 | 20.667 |
-| Entry landing/steps | 60 | 4 |
-| Historic tower including bell/top | 13,080 | 44 |
-| Pierced wall bay including window | 1,894 | 44 |
-| Bare tower lancet | 813 | 24 |
+| Church | 7,962,498 / 76.667 | 3,280,404 / 80.667 |
+| Roads, paving, equipment | 5,128,080 / 96.667 | 5,659,644 / 96.667 |
+| Town buildings, drives, fences, lawns | 6,722,454 / 136.333 | 4,113,282 / 93.667 |
+| Cars | 14,780,730 / 48 | 14,780,730 / 48 |
+| Vegetation, including fine sward | 7,538,608 / 64 | 7,370,650 / 64 |
+
+Category geometry bytes deduplicate referenced accessor buffer views within
+that category. Image unions overlap; do not add the rows. Cars reference
+14,135,768 PNG bytes and plants 41,747,957 PNG bytes in either site. Native
+car inputs remain exact cached deliveries; this family needs no tolerance
+exception for regenerated native cars. Package bytes include JSON/BIN;
+embedded GLBs additionally include the same referenced PNG payloads.
+
+| Independently exported piece | Triangles | glTF + BIN bytes | Materials | Map MiB |
+| --- | ---: | ---: | ---: | ---: |
+| Belfry bay | 572 | 77,470 | 3 | 36 |
+| Bell including shell, yoke, axle, wheel | 2,552 | 327,493 | 3 | 20 |
+| Memorial bench | 60 | 9,605 | 1 | 4 |
+| Laminated A bent with concrete shoes | 128 | 19,734 | 2 | 8 |
+| Steel bent shoe/bolts | 456 | 62,031 | 2 | 20 |
+| Stepped buttress | 148 | 25,432 | 3 | 24 |
+| Drop-off canopy | 156 | 24,251 | 3 | 36 |
+| Classroom bay | 230 | 39,926 | 6 | 40 |
+| Operating door pair/frame/hinges | 1,560 | 205,250 | 5 | 24 |
+| Drainage | 648 | 92,248 | 3 | 36 |
+| Education wing assembly | 5,068 | 736,620 | 9 | 76 |
+| Accessible exit bay assembly | 2,050 | 270,108 | 7 | 44 |
+| Bike rack/cornerstone | 360 | 50,479 | 2 | 20 |
+| Rose gable assembly | 4,448 | 566,604 | 1 | 16 |
+| Glazed A gable assembly | 2,191 | 290,118 | 7 | 44 |
+| Connecting hyphen | 124 | 19,222 | 2 | 32 |
+| Low sidewall | 1,132 | 144,711 | 1 | 16 |
+| Parish hall assembly | 4,056 | 573,118 | 9 | 76 |
+| Recessed portal | 1,268 | 166,483 | 4 | 24 |
+| Rail run | 1,136 | 147,320 | 2 | 20 |
+| Filled ramp and two rail runs | 2,344 | 297,024 | 3 | 36 |
+| Rear exit landing, treads and rails | 820 | 109,551 | 3 | 36 |
+| Roof assembly example | 540 | 81,952 | 3 | 8 |
+| Rose | 1,342 | 169,756 | 2 | 8 |
+| Rear services | 856 | 110,429 | 5 | 36 |
+| Changeable sign with glyphs | 162 | 63,849 | 3 | 20.667 |
+| Entry landing/steps | 308 | 46,891 | 1 | 4 |
+| Historic tower including bell/top | 13,104 | 1,669,160 | 8 | 44 |
+| Pierced wall bay including window | 1,896 | 251,991 | 7 | 44 |
+| Bare tower lancet | 813 | 109,215 | 3 | 24 |
 
 Assembly rows include their children; do not add the rows together. Individual
 wall/window/buttress/roof/rail pieces meet the modular ceiling. Whole wings,
