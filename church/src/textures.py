@@ -18,7 +18,7 @@ def make():
     color[timber]=(np.array((.36,.19,.075))[None,:]*(.82+.32*grain[timber,None]))
     color[timber]*=(1-.20*laminations[timber,None]);height[timber]=grain[timber]*.00035;orm[timber,1]=.62
     row=np.floor(v*42);xx=u*12+np.mod(row,2)*.5;ix=np.floor(xx);joint=(np.mod(xx,1)<.025)|(np.mod(v*42,1)<.06)
-    tone=.8+.36*rng.random((43,14))[np.clip(row.astype(int),0,42),np.clip(ix.astype(int),0,13)]
+    tone=.57+.92*rng.random((43,14))[np.clip(row.astype(int),0,42),np.clip(ix.astype(int),0,13)]
     color[slate]=(np.array((.064,.071,.074))*tone[slate,None]);color[slate&joint]*=.43
     height[slate]=.0013*(~joint[slate])+.00018*rng.random(np.count_nonzero(slate));orm[slate,1]=.83
     # Fine discontinuous oxidation; no broad sinusoidal bronze ribbons.

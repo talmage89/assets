@@ -96,15 +96,30 @@ def roof_growth(parent,p):
     """Interrupted moss below joints on the damp north pitch, not all roofs."""
     rng=random.Random(p['seed']+349);m=G.Mesh('North-pitch sheltered moss',parent,sheet=True)
     slope=math.tan(math.radians(p['pitch']));half=p['width']/2
-    for j in range(22):
-        # The eave stays wet; a few joints carry growth farther up the pitch.
-        x=-half+rng.uniform(-.05,1.35 if j<17 else half*.65)
-        yy=rng.uniform(-p['length']/2+.5,p['length']/2-.7)
-        length=rng.uniform(.20,.65);width=rng.uniform(.25,.85)
+    for j in range(8):
+        # Colonies bridge damp courses at the eave and shaded tree stations.
+        x=-half+rng.uniform(-.05,.40 if j<5 else half*.50)
+        yy=-p['length']/2+j*p['length']/8+rng.uniform(-.5,.5)
+        length=rng.uniform(.7,1.65);width=rng.uniform(2.8,5.3)
+        width=min(width,p['length']/2-.2-yy)
         poly=[(x,yy),(x+length,yy+.035),(x+length*.86,yy+width),(x-.03,yy+width*.92)]
         points=[(xx,y,p['ridge']+xx*slope+.007) for xx,y in poly]
         m.geom(points,[(0,1,2,3)],'age',color=(.30,.78,.19),uv=[[(.005,.505),(.005,.745),(.495,.745),(.495,.505)]])
     m.finish()
+    m=G.Mesh('Roof replacement packets and algae drainage',parent,sheet=True)
+    for j in range(4):
+        side=-1 if j<3 else 1;x=side*rng.uniform(half*.20,half*.78)
+        yy=rng.uniform(-p['length']/2+1,p['length']/2-3)
+        xa=x+side*rng.uniform(.6,1.2);yb=yy+rng.uniform(1.5,2.9)
+        poly=[(xx,y,p['ridge']-abs(xx)*slope+.009) for xx,y in ((x,yy),(xa,yy),(xa,yb),(x,yb))]
+        m.geom(poly,[(0,1,2,3)],'shingle' if p['style']=='aframe' else 'slate',color=(1.42,1.40,1.32))
+    if p['style']=='aframe':
+        for j in range(7):
+            yy=-p['length']/2+1+j*4.1;x=-rng.uniform(.5,2.8);end=-half+.15
+            width=rng.uniform(.9,2.1)
+            poly=[(xx,y,p['ridge']+xx*slope+.011) for xx,y in ((end,yy),(end,yy+width),(x,yy+width),(x,yy))]
+            m.geom(poly,[(0,1,2,3)],'age',color=(.42,.46,.42),uv=[[(.005,.755),(.495,.755),(.495,.995),(.005,.995)]])
+    if m.v:m.finish()
 
 
 def fascia(parent,p):

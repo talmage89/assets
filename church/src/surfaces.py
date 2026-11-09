@@ -82,6 +82,17 @@ def charts(points,role,weather_grid=False):
         return out
     normal=(Vector(points[1])-Vector(points[0])).cross(Vector(points[2])-Vector(points[0]))
     axis=max(range(3),key=lambda k:abs(normal[k]));axes=[(1,2),(0,2),(0,1)][axis]
+    if role=='shingle' and axis!=2:
+        # RanchRoof is two roofing styles, not a full-square tile. Keep the
+        # maintained three-tab roof in its guarded lower half, at real gauge.
+        a,b=axes;nz=abs(normal.normalized().z)
+        height=2.4384*max(.1,1-nz*nz)**.5;out=[]
+        lo=min(p[b] for p in points);hi=max(p[b] for p in points)
+        for k in range(math.floor(lo/height),math.floor((hi-1e-7)/height)+1):
+            poly=D.clip_height(D.clip_height(points,k*height,True,b),(k+1)*height,False,b)
+            if len(poly)>=3:
+                out.append((poly,[(p[a]/4.8768,.004+(p[b]/height-k)*.492) for p in poly]))
+        if out:return out
     if role in ('stone','iron'):
         return [(points,D.strip_uv(points,0 if role=='stone' else 1,4 if role=='stone' else 8,coverage=2))]
     if role in ('timber','slate','bronze','copper'):
