@@ -709,3 +709,34 @@ remain. All 32 Cycles finals and the Eevee view appear in
 appear in `renders/matches/contact.jpg`. Five reviewed final JPGs are
 192,573 / 198,731 / 195,633 / 199,731 / 199,144 bytes, at most 1600 px wide;
 they are committed last, separately from source and prose. No kit change.
+## Native car cache determinism, round two
+
+`src/context.py` now selects one Blender thread for pickup, crossover and
+hatchback generation only. The car recipe key includes that policy, so older
+native car caches regenerate once. Non-car context launches keep their
+previous automatic thread setting. No car geometry code changes here.
+
+Three empty-folder native cache builds per body, through `context.ensure`
+with only its three car cases selected, give these exact GLB receipts:
+
+| Native car | Triangles, each run | SHA-256, each run |
+| --- | ---: | --- |
+| C150 pickup | 50,434 | `8f9f85bbbdd6c15c48f0f1a0ce9e19534ed4e4027ed56ef434f3065b6bab72b3` |
+| X220 crossover | 73,382 | `7ebf13799ec6b70e6c6732358a654e5e1039c9210e8e460d2445ba3c6db58c6f` |
+| H120 hatchback | 58,020 | `f6f9b59db0ce3478c5947e19c22f5f5d9e18cf7a4679b2685c0d6d5accb9209a` |
+
+These are common stock glTF exports of the actual native `.blend` caches,
+not the cars' baked delivery format. Raw blend-container hashes remain audit
+receipts; exact comparison uses GLBs or mesh arrays. Evidence is under
+`build/cars-determinism/round2/downtown-{1,2,3}/build/context/`, with the
+combined measurements in `build/cars-determinism/round2/consumer-proof.json`.
+The diagnostic exporter validates the complete GLB before using the garage's
+existing direct-exit pattern for Blender's native-node teardown crash; the
+initial failed diagnostic log is retained separately. Native builders exit
+normally. The six consumer launch/cache tests pass.
+
+No full blocks/sites, accepted exports, maps or docs images were rebuilt.
+Site counts may move by those few car triangles on their next build. An exact
+site car guard still needs refreshed native inputs/owned site baselines and
+the full site repeat check; existing tolerance guards remain unchanged.
+See [the shared inventory and scope](../cars/CONSUMERS.md).

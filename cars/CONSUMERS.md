@@ -67,6 +67,10 @@ Their procedural source finishes differ from the cars' baked deliveries;
 those formats are not interchangeable hash references. Downtown and school
 use the same native source format and can be compared directly.
 
+Raw `.blend` container receipts remain audit provenance. An exact guard for
+a blend-only consumer should compare its GLB or mesh arrays; one thread does
+not promise identical serialized viewport state or container bytes.
+
 `python3 cars/src/test_consumers.py` checks launch arguments, old-cache
 invalidation, new-cache reuse and preservation of non-car thread counts.
 `python3 -m unittest kit.test_blender_command` checks the shared override,
