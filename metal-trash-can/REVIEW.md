@@ -91,3 +91,23 @@ generated inputs; `original-before.{json,log}` records the complete command.
 Start with one standard-prop .4 level at .25, keeping removable Lid and both
 folding handle frames/meshes. The original sheets, maps and docs stay immutable.
 No LOD is accepted before native review and independent checks.
+
+### LOD critique 1: preserve the passing cost trial
+
+Opened all three native strips, both construction views and contact. Zinc hue,
+vertical flutes, low grime, handles and chime coverage hold at .25 / 2.62m.
+The lid's close-view crown/rim becomes coarser; it does not show an unacceptable
+pop at the native switch. Generic image/raw/normal/UV audits pass. The level
+retains 3284/4928 triangles (66.64%) against 1971, so target acceptance is
+pending a lower request and native failure witness, not inferred from saturation.
+
+`build/lod-rollout/metal-trash-can/motion-proof.json` independently measures
+both imported immutable source and this level with all four mesh surfaces
+included, three fixed meshes per motion and no bearing exemptions. It uses
+the source's actual steps/ranges/tolerances: 61 lid samples and 49 per handle.
+Source/LOD lid depths .457492/.347733mm are inside the existing .5mm seating
+tolerance; both handles measure zero penetration within .4mm. Both sampled
+sweeps pass. This is physical surface evidence, separate from serialization.
+Config, outputs, checks, hashes, motion and every image are archived in
+`build/lod-rollout/metal-trash-can/pass1/` before a lower .15 request, keeping
+the .25 switch and original 1971 goal unchanged.
