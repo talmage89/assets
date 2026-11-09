@@ -2305,6 +2305,54 @@ The round-2 freeze and original-file ledger are in `build/car-lod/round2/`.
 Original deliveries, referenced images and documentation images remain
 immutable. Generated car modeling scenes may be rebuilt independently.
 
+## Car LOD round 2 — S240 budget stop
+
+The family `make -C cars BODY=sedan detail-model` rebuilt the original game
+and high scenes from scripts: 69,658 and 227,994 triangles. The accepted
+S240 GLB, its maps and all 2,996 protected delivery/map/image files remain
+byte-identical. The immutable source receipt is
+`build/car-lod/round2/sedan-source.json`. This rebuild does not rewrite LOD0.
+
+The first .4/.15 request used default component-wide protection around lamps.
+Its completed LOD1 is 55,366 triangles against 38,312, before LOD2. That cost
+is not accepted as a target exception: no cheaper visible-fault witness or
+native image approval exists. Stopped the redundant second conservative level
+and retained config, completed LOD1 payload, dependencies and command/log under
+`build/car-lod/round2/sedan-component-control/`.
+
+The second request used the pickup's existing local powered protection. All
+four source materials are explicitly double-sided, so it also proposed the
+existing scoped `backface_guard: false` option, requiring unchanged rest and
+posed image gates before any adoption. It remained inside the first large
+6,222-triangle body component (2,489 requested) after roughly 20 minutes.
+Stopped and reaped it after the car work, including its original rebuild,
+had exceeded roughly 45 minutes. `sedan-local-incomplete/` beside that control
+retains the exact attempted config, log and incomplete-output receipt.
+Completed content-checked reduction caches are retained for future work.
+
+No S240 chain is adopted. No new native comparison or two-pass visual approval
+was produced; neither simplifier progress nor the kit fixtures approve this car.
+The speculative config was removed from `src/`. The new pose checker has not
+yet been used on S240. Fresh original `make check` and the proxy trial are
+deferred with this adoption under its time budget. The inherited export also
+has mirrors attached to the front doors and parked wipers consolidated into
+the static assembly; it has no independent mirror/wiper pivots to preserve.
+
+The C150 production config now ends at its previously accepted LOD2, removing
+only the known failed far proxy. Both near specs and every other config field
+are literally unchanged. The near builder's screen-space AST and all seven
+geometry/field/serialization/shading modules match `1d9d429` exactly. This is
+a scope proof, not a fresh pickup rebuild or re-adoption. The requested full
+pickup baseline remains skipped. `pickup-near-scope.json` records that proof;
+dry-run default build graphs match byte for byte for all four `BODY` choices.
+
+Production Make targets accept only existing named car-chain configs. The
+two rejected H120 controls have moved out of `src/`; their exact JSON remains
+under `build/car-lod/round2/rejected-configs/` and at `39b835c`. Historical
+control commands above refer to that checkpoint. Diagnostics can use the kit
+CLI with configs in `cars/build/`, rather than production Make targets. The
+car selection README contains no rejected-trial table or archive path.
+
 ## Factory proxy adapter, 2026-11-09
 
 The adapter closes factory routing, but does not close the native appearance

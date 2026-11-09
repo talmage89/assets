@@ -113,7 +113,17 @@ endif
 sedan:
 	$(MAKE) BODY=sedan
 
-# Optional C150 LOD pilot; other bodies keep their own delivery graphs.
-ifeq ($(BODY),pickup)
+# Optional accepted chains; source builds remain independent of LOD work.
+LOD_CONFIG ?= $(if $(filter pickup,$(BODY)),src/lod.json,src/lod-$(BODY).json)
 include ../kit/lod_rules.mk
+ifneq ($(filter lod lod-mesh lod-render check-lod,$(MAKECMDGOALS)),)
+ifneq ($(filter-out src/lod.json src/lod-sedan.json src/lod-suv.json src/lod-hatch.json,$(LOD_CONFIGS)),)
+$(error Historical or diagnostic car LOD configurations are excluded; see REVIEW.md)
+endif
+ifeq ($(strip $(LOD_CONFIGS)),)
+$(error Select an accepted car LOD configuration; see REVIEW.md)
+endif
+ifneq ($(words $(LOD_CONFIGS)),$(words $(wildcard $(LOD_CONFIGS))))
+$(error This car has no accepted LOD chain; see REVIEW.md)
+endif
 endif
