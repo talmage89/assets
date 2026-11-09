@@ -70,11 +70,19 @@ def stone(b,x,y,z,r,rng,role='riprap',water_z=0):
         hit=BED_TREE.ray_cast(Vector((point.x,point.y,100)),Vector((0,0,-1)),120)[0] if BED_TREE is not None else None
         floors[vertex]=hit.z if hit is not None else z-.04
     v=rng.uniform(.45,.83);brown=rng.random()
+    faces=[]
     for face in bm.faces:
         if all(vertex.co.z<=floors[vertex]+.01 for vertex in face.verts):continue
+        points=[tuple(vertex.co) for vertex in face.verts]
+        first=min(range(len(points)),key=lambda i:points[i]);points=points[first:]+points[:first]
+        faces.append(points)
+    # BMesh face allocation order is not a seeded construction parameter.
+    # Canonical cyclic starts and lexicographic ordering stabilize both the
+    # exported indices and the per-fracture mineral variation across runs.
+    for points in sorted(faces):
         variation=rng.uniform(.96,1.04)
         tint=(v*(1+.04*brown)*variation,v*1.06*variation,v*(1.15-.13*brown)*variation,1)
-        b.geom([v.co[:] for v in face.verts],[tuple(range(len(face.verts)))],role,tint)
+        b.geom(points,[tuple(range(len(points)))],role,tint)
     bm.free()
 
 

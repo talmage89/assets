@@ -98,6 +98,7 @@ def generate(folder=Path('textures/checkpoint')):
     dy,dx=np.gradient(h,2/n);normal=np.stack((-dx,-dy,np.ones_like(dx)),axis=2)
     normal/=np.linalg.norm(normal,axis=2)[:,:,None]
     Image.fromarray(np.uint8((normal*.5+.5)*255)).save(folder/'T_RiverWater_Normal.png')
+    return height
 
 
 if __name__=='__main__': generate()

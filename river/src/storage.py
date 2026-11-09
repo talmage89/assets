@@ -88,5 +88,7 @@ def compact(d,binary):
         node.update(translation=lo.tolist(),scale=[span]*3)
     d.setdefault('extensionsUsed',[])
     if 'KHR_texture_transform' not in d['extensionsUsed']:d['extensionsUsed'].append('KHR_texture_transform')
+    d.setdefault('extensionsRequired',[])
+    if 'KHR_texture_transform' not in d['extensionsRequired']:d['extensionsRequired'].append('KHR_texture_transform')
     d.setdefault('asset',{}).setdefault('extras',{})['maximum_context_position_half_step_m']=worst
     return payload
