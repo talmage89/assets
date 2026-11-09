@@ -2263,3 +2263,65 @@ from the accepted delivery remain unchanged.
 - `python3 -m py_compile trees/src/*.py`, `git diff --check`, repository rules:
   passed. No `kit/` file changed, so no kit regression suite was required. Nothing
   is needed from the lead; no tool installation or contract change is requested.
+
+# Pin oak / LOD adoption preflight, 2026-11-09
+
+The requested maple-style oak adoption stops at the original-delivery prerequisite
+in `kit/LOD.md`, before introducing an oak config or Make hook. Main was already
+merged at `93ad3e8`; the tool/recipe freeze covers 111 files in
+`build/lod-freeze.sha256`, with the revision in `build/lod-freeze-revision.txt`.
+The tree's original GLBs, texture files and five docs JPGs were hashed before
+any work: 23 files in `build/oak-lod/immutable-source.json`.
+
+The existing local oak is an older generated delivery, not the accepted bark
+polish described above. Its SHA-256 is
+`0a554a3dfb3eff604712c794c43d3feeb4353ff6642e2da9ff6a0a12504b23d1`,
+10,822,788 bytes, versus the accepted 11,702,192-byte
+`49ffc243d9888dc82825b8d35f1a208ad795221b48626b9ff2a8258f421ebab3`.
+The actual accessor count is nevertheless the current **24,816 triangles**:
+10,536 wood / 14,280 foliage. Two materials and two color-pass draws share
+three 2048-square maps. Raw mesh allocation is 2,901,792 bytes; compressed
+full-mip texture allocation is 16,777,296 bytes, total **18.7674 MiB**.
+These are LOD0 costs, not an adopted chain or target-count result.
+
+The family's Make rebuilt both native oak source scenes from the unchanged
+scripts, each reporting 24,816 triangles and 7,140 cards. Explicit old targets
+held existing UVs, bake, maps, export, final renders and docs immutable:
+
+```sh
+make -C trees SPECIES=oak all -o docs \
+  -o build/oak/uv-source.blend -o build/oak/finalized.blend \
+  -o build/oak/baked.stamp -o build/oak/textures.stamp \
+  -o export/PinOak.glb -o export/RedMaple.glb -o renders/oak-final/.stamp
+make -C trees SPECIES=oak check \
+  -o build/oak/uv-source.blend -o build/oak/finalized.blend \
+  -o build/oak/baked.stamp -o build/oak/textures.stamp \
+  -o export/PinOak.glb -o export/RedMaple.glb -o renders/oak-final/.stamp
+```
+
+Both commands fail at `oak_final_review.py`'s unchanged bark-population gate;
+the explicit check returns 2. GLB verification and botanical serialization
+pass first: zero UV overlap, position and Wind errors, and normal vector error
+below 8.5e-5. The native-source construction checks later in the Make recipe
+are not reached; rebuilding those scenes alone is not a complete original
+pipeline rebuild or acceptance proof. Full logs are
+`build/oak-lod/original-make.log` and `original-check.log`.
+
+**Color/value first:** opened the inherited exported bark/photo pair and 1 m
+raking image. The local bark has smooth, low-contrast gray faces and thin dark
+lines, missing the accepted bright ridge tops and recessed brown channels.
+Measured ridge / fissure / dark share are **.44085 / .32461 / 2.4626%**,
+versus the reference's **.51788 / .25047 / 11.4266%**. All three differences
+exceed the existing .03 limits. Median .40779 and warm hue still pass; those
+do not excuse the missing relief contrast. Evidence is the existing
+`renders/oak-final/bark-pair.jpg`, `bark_raking.png`, and the freshly evaluated
+`color-value-evidence.json`; `renders/oak-final/contact.jpg` indexes the old
+presentation. No new oak render or LOD critique pass is claimed.
+
+The request holds every existing delivery byte-identical. Replacing this
+package, its maps or its final presentation would break that hold; reducing
+it despite its failed original check would break the adoption recipe. No oak
+level, switch, target result or additional resident/stored cost is claimed.
+No rejected chain is wired to `make lod` or `make check-lod`. Resuming adoption
+requires resolving the stale original delivery under that preservation hold;
+it does not require a new simplification method or relaxed image gates.

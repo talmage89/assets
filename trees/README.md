@@ -293,6 +293,12 @@ Stored counts include the full immutable source container once and every default
 
 ## Pin oak / summer delivery
 
+### Additional LODs
+
+No pin oak LOD chain is adopted yet.
+The local original predates the accepted bark polish and fails its required delivery check; its existing bytes are preserved.
+[Original-check blocker and evidence](REVIEW.md#pin-oak--lod-adoption-preflight-2026-11-09).
+
 ![Pin oak, exported GLB in Cycles](docs/oak-hero.jpg)
 
 ![Leaves, bark, pins, backlight, roots, scale, family and Eevee](docs/oak-details.jpg)
