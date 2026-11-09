@@ -1041,3 +1041,26 @@ mathematical minimum. Original maps allocate no new image. Final evidence:
 `build/lod-uv/archive/utility/deadend-final/`; native views:
 `renders/lod/deadend/`. This proves rest appearance/data and measured gaps,
 not engine performance or continuous motion.
+
+
+### Riser pole LODs critique 1 — native values and coverage
+
+Opened all three native strips and difference panes. Timber and hardware
+values agree with LOD0; three vertical conduits, terminations, clipped leads and shaft remain.
+At 25% / 36.461 m, the protected level has
+3534/4356 triangles against 1742.
+Worst mean 0.0005111, local 0.002111 and silhouette loss
+0.001312 pass the unchanged gates. The goal is missed.
+
+### Riser pole LODs critique 2 — construction and independent checks
+
+Opened both construction views and contact, then revisited native details:
+the conduit seats and termination spacing; original polygonal elbows remain visible. No new missing support or thin member appears.
+Chart crossings are zero and maximum measured marking gap is 0.4008 mm.
+Re-import, UV area, tangent and source-field checks pass independently of images.
+The original family check passes after these variants; every original resource
+and frozen tool hash matches. Counts are the tested protected result, not a
+mathematical minimum. Original maps allocate no new image. Final evidence:
+`build/lod-uv/archive/utility/riser-final/`; native views:
+`renders/lod/riser/`. This proves rest appearance/data and measured gaps,
+not engine performance or continuous motion.
