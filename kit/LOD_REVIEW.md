@@ -2751,3 +2751,38 @@ baseline remains explicitly skipped at the lead's request.
 Commands, all four full atlas hashes, pairwise pixel counts and source hash:
 `build/car-lod/maple-proof/proof.json`; capture images and logs are alongside.
 No runtime or accepted delivery bytes changed for this proof.
+
+## Optional proxy glass partition — independent proof, 2026-11-09
+
+`50856ff` adds `separate_transmission: true`; `31fc324` retains a source glass
+coating when one exists. Both are opt-in. The second proxy material shares
+the atlas, carries source glass culling/IOR and switchable spatial emission,
+and receives only facets whose padded UV rectangle has zero paint tint and
+metallic derivatives. Mixed facets stay on the factory decoder material.
+Geometry, oriented corner fields and UVs remain exact across the partition.
+This adds one material/color-pass draw, no map or triangle; boundary vertex
+records and index/accessor packaging can add measured mesh bytes.
+
+The new test independently checks a mixed paint/glass facet, exact position,
+normal, UV and color data, source culling/IOR, and retained native coating.
+A real supersampled 128-square bake then measures 48 triangles, two materials,
+two draws and the same eight maps. Five fresh imports execute all paints and
+both lamp states; glass has no factory-delta graph. This is interface/field
+proof, not approval of a car's optical appearance or missing cabin geometry.
+Native car image gates remain unchanged and independently required.
+
+All **36** `kit/test_*.py` files pass serially from fresh fixture folders,
+including the new GPU test and the existing immutable-source proxy, source
+frame, factory paint, UV and material tests: 1,414.2 seconds in total.
+`build/car-lod/round2/tests/results.json` records every command, exit, timing
+and complete tested source hashes. Genuine pre-existing reduction caches were
+archived for the clean run and restored afterward; no cache bypasses a field,
+geometry or appearance check.
+
+Fresh current-tool opt-out builds match the saved literal `1d9d429` baseline:
+all seven cone game payloads and all ten fixed-maple game payloads are byte
+identical. Both default manifests match except the required tool receipts.
+The optional maple sector-0/camera-facing atlas retains the already isolated
+pre-existing one-code variation; it is not called byte deterministic. Full
+receipts: `build/car-lod/round2/optout/proof.json`. The full pickup baseline
+remains skipped as requested. No result here approves an unfinished car chain.
