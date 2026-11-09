@@ -135,3 +135,21 @@ Repointed patches, irregular salts/splash, sill/cornice runoff and localized col
 The open-bay floor no longer reads as stretched wood, but the repeated gear, bare room and exhaust drops remain schematic. Flat roof planes are conspicuously clean, distant house/tree silhouettes repeat, grass tiling remains visible at oblique distances, close molding/finial facets remain, and pigeon deposits have not been built. This is a stronger checkpoint, not a photorealism approval. Source pairs show no gross consolidation/color loss; the primary evidence is still the exported GLB with its shared baked images.
 
 Final proof: `make check repeat` passes all ten packages, source/export door sweeps, actual roof-foot bearing (maximum measured gap zero), 224 conservative parked-car/walk envelope comparisons, and repository rules. Exact repeat covers 56 files; all 1,006 protected delivery files remain unchanged. `make render matches source-matches review changes WIDTH=1400 SAMPLES=40` completes serially through the GPU lock. `make review` validates 17 current export frames, three export pairs, and three source pairs against source/export hashes, matched camera/light, dimensions and current context recipes. Ten 1400px-per-panel change pairs validate the original camera and retained historical exports. Resource measurements are in `build/resource-report.md` and `build/piece-costs.json`; cars, vegetation and town context are separate. No kit changes, top-level README changes, committed gallery, or detached Blender/render job remains. Stop at the requested checkpoint.
+
+## Pass 14 — last-round light and individual compositions
+
+Color and value: opened the two inherited 1400px heroes before editing, the
+concrete-balanced three-pair sheet, the inherited entry, and all four 1000px
+`renders/pass-14-light` frames at native size. The 18-degree side sun and reduced
+sky strength make the portico recesses darker, lengthen column shadows across
+the wall and steps, and sharpen bay-pier shadows. Stone keeps its neutral hue;
+the sky is deeper blue, though still a smooth atmospheric gradient. The station
+receives the opposite side sun. No native albedo was changed in this light test.
+
+The foreground sedan is gone; occupied stall cars remain. Reject the first new
+station camera: it hides the accepted shop neighbor and gives too much foreground
+lawn. Move back to the east side, closer to the street, with a more frontal 45mm
+view. Tighten the hall to 40mm from a different eye position. The inherited
+cameras remain as `hero-fixed` for honest full-size comparisons. The test still
+shows evenly maintained stone and nearly flat lawns; the pending value/weather
+changes must be judged on rebuilt exports, not inferred from their masks.

@@ -79,9 +79,12 @@ def context(seed):
     parked=len(actors)
     # On-street weekday parking and two passing cars, clear of the apron.
     for j in range(-5,6):
+        # Keep foreground curb parking beyond the civic frontage; the occupied
+        # staff/police lots carry the weekday traffic in the two compositions.
+        if abs(j*8)<36:continue
         if seed==202 and -24<j*8<0:continue
         if abs(j*8-24)<6:continue
-        car=place(ROOT/'cars/export'/('AlderC150.glb' if j%4==0 else 'AlderS240.glb'),'OnStreetCar_'+str(j),(j*8,ry-rw/2+1.2,-.015),90,parent=a.root)
+        car=place(ROOT/'cars/export'/('AlderC150.glb' if seed==202 or j%4==0 else 'AlderS240.glb'),'OnStreetCar_'+str(j),(j*8,ry-rw/2+1.2,-.015),90,parent=a.root)
         finish(car,['Porcelain','Atlantic','Graphite','Aluminum'][j%4]);actors.append(car)
     if seed==202:
         for j,yy in enumerate((-11,-17)):
