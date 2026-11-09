@@ -793,6 +793,8 @@ and lamp controls into a rebaked proxy. Its extra 512² coverage map costs
 0.333 MiB with compressed mipmaps. Near levels use the original materials and
 maps directly. The adapter is opt-in; each proxy still needs its own visual
 acceptance. [Decoder](src/delivery_materials.py) · [Engine shader](src/paint.glsl).
+The kit can optionally give proxy glass a second material and draw, sharing
+the same maps.
 
 S240 uses its original LOD0; a reduced chain is deferred.
 [LOD review](REVIEW.md#car-lod-round-2--s240-budget-stop).
