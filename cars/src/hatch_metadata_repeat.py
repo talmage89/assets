@@ -30,7 +30,7 @@ def main():
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:])
     args.out.mkdir(parents=True,exist_ok=True)
     reference,binary=glb(args.baseline);expected=copy.deepcopy(reference)
-    del expected['scenes'][0]['extras']['form_source_sha256']
+    expected['scenes'][0]['extras'].pop('form_source_sha256',None)
     receipts=[]
     for index,form in enumerate(args.forms):
         bpy.ops.wm.open_mainfile(filepath=str(args.source.resolve()))

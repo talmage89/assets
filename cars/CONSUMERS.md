@@ -116,3 +116,5 @@ Proof receipt: `build/cars-determinism/round2/hatch-metadata/repeat.json`.
 This isolates the metadata fix and reuses accepted finalized geometry/maps;
 it does not claim three fresh GPU bakes. The three independent one-thread
 form builds are the round-one builds documented in `DETERMINISM.md`.
+The regression also passes against the already-corrected delivery baseline,
+with the same three GLB receipts (`hatch-metadata-current-baseline/repeat.json`).
