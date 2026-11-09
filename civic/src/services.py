@@ -83,3 +83,24 @@ def back_service(a,p):
         m.tube([(xx,y+1.86,1.22),(xx,y+1.82,1.22)],.105,'Glass',sides=12)
         m.tube([(xx,y+2,.05),(xx,y+2,.94)],.022,'Trim',sides=8)
     m.finish()
+
+
+def dumpster(a,p):
+    x,y,z=p;m=a.mesh('DumpsterEnclosure',kind='ServiceEnclosure',brick_strip=1,weather=True)
+    for xx in (x-2,x+2):m.box((xx,y+1,1.0),(.20,3.2,2),'Veneer',r=0)
+    m.box((x,y+2.5,1),(4.2,.20,2),'Veneer',r=0)
+    for xx in (x-2,x+2):m.box((xx,y+1,2.05),(.30,3.3,.10),'Concrete')
+    m.box((x,y+2.5,2.05),(4.2,.30,.10),'Concrete');m.finish()
+    m=a.mesh('DumpsterContainer',kind='Dumpster',trim_strip=5)
+    m.box((x,y+.8,.75),(2.25,1.4,1.30),'Trim',(.035,.095,.07))
+    for xx in (x-.92,x+.92):
+        m.box((xx,y+.80,1.12),(.25,1.47,.19),'Trim',(.035,.085,.06))
+        m.box((xx,y+.8,.12),(.18,1.1,.20),'Trim',(.040,.045,.038))
+    m.finish();a.pivot('DumpsterLid',(x,y+1.5,1.45),axis='X',limits=(0,105))
+    m=a.mesh('DumpsterLidMesh',part='DumpsterLid',kind='DumpsterLid',trim_strip=1)
+    m.box((x,y+.8,1.48),(2.35,1.50,.075),'Trim',(.035,.040,.032));m.finish()
+    for j in range(2):
+        a.pivot('EnclosureGate_'+str(j),(x-2+4*j,y-.60,0),axis='Z',limits=(0,105))
+        m=a.mesh('EnclosureGateMesh_'+str(j),part='EnclosureGate_'+str(j),kind='EnclosureGate',trim_strip=0)
+        for t in range(13):m.box((x-1+j*2+(t-6)*.14,y-.60,1),(.13,.065,1.90),'Trim',(.16,.13,.085),r=.002)
+        m.finish()

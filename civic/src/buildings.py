@@ -4,7 +4,7 @@ from geo import Assembly,orient,text
 from parts import wall_bay,window,cornice,column,front_door,steps
 
 
-def shell(a,name,rect,height,floor=.15,pitch=4.18,stories=1,brick=0,doors=True,modern=False):
+def shell(a,name,rect,height,floor=.15,pitch=4.18,stories=1,brick=0,doors=True,modern=False,entry_face='Front'):
     l,r,f,k=rect;w=r-l;d=k-f
     for face,p,yaw,length in [('Front',((l+r)/2,f,floor),0,w),('Rear',((l+r)/2,k,floor),180,w),('East',(r,(f+k)/2,floor),90,d),('West',(l,(f+k)/2,floor),-90,d)]:
         n=max(1,round(length/pitch));bw=length/n
@@ -13,14 +13,14 @@ def shell(a,name,rect,height,floor=.15,pitch=4.18,stories=1,brick=0,doors=True,m
                 u=-length/2+(j+.5)*bw;rad=math.radians(yaw)
                 at=(p[0]+u*math.cos(rad),p[1]+u*math.sin(rad),floor+story*(height-floor)/stories)
                 hh=(height-floor)/stories
-                if doors and face=='Front' and j==n//2 and story==0:
+                if doors and face==entry_face and j==n//2 and story==0:
                     m=a.mesh(name+'_EntryMasonry',kind='DoorWallBay',brick_strip=brick,weather=True,top=height)
                     dw=1.98;dh=2.75;half=(bw-dw)/2
                     for s in (-1,1):m.box((s*(dw+half)/2,.17,hh/2),(half,.34,hh),'Veneer',r=0)
                     m.box((0,.17,(hh+dh)/2),(dw,.34,hh-dh),'Veneer',r=0)
                     orient(m,at,yaw);m.finish()
-                    front_door(a,name+'_DoorL',(at[0]-.49,at[1],floor),.9652,2.70)
-                    front_door(a,name+'_DoorR',(at[0]+.49,at[1],floor),.9652,2.70)
+                    front_door(a,name+'_DoorL',(at[0]-.49*math.cos(rad),at[1]-.49*math.sin(rad),floor),.9652,2.70,yaw)
+                    front_door(a,name+'_DoorR',(at[0]+.49*math.cos(rad),at[1]+.49*math.sin(rad),floor),.9652,2.70,yaw)
                 else:wall_bay(a,f'{name}_{face}_{story}_{j}',at,bw,hh,.70 if modern else .76,1.65 if modern else 1.3716,1.7 if modern else min(2.4384,hh-1.02),yaw,brick,modern)
         run=a.mesh(name+'_'+face+'_WaterTable',kind='WaterTable',weather=True)
         run.box((0,.16,floor/2),(length,.40,floor),'Concrete')
@@ -59,16 +59,17 @@ def hall(p):
         q.finish()
     if p['order']!='plain':
         ch=top-floor-.55;diam=ch/8.4
+        projection=3.1 if p['order']=='columns' else .50
         for j,x in enumerate((-3.9,-1.3,1.3,3.9)):
-            column(a,'EntryOrder_'+str(j),(x,-d/2-2.7,floor),ch,diam,p['order']=='pilasters')
+            column(a,'EntryOrder_'+str(j),(x,-d/2-(2.7 if p['order']=='columns' else .12),floor),ch,diam,p['order']=='pilasters')
         m=a.mesh('PorticoEntablature',kind='PorticoRoof')
-        m.box((0,-d/2-1.4,top-.13),(9.2,3.4,.65),'Concrete')
-        m.box((0,-d/2-1.4,top+.27),(9.65,3.6,.18),'Concrete');m.finish()
-        cornice(a,'EntryCrowningCornice',(0,-d/2-3.1,top+.07),9.65)
-        text(a,'CivicInscription',p['name'],(0,-d/2-3.111,top-.22),.335)
-        deck=a.mesh('PorticoLanding',kind='EntryLanding');deck.box((0,-d/2-1.5,floor/2),(9.3,3.8,floor),'Concrete');deck.finish()
+        m.box((0,-d/2-projection/2,top-.18),(9.2,projection,.90),'Concrete')
+        m.box((0,-d/2-projection/2,top+.34),(9.65,projection+.20,.18),'Concrete');m.finish()
+        cornice(a,'EntryCrowningCornice',(0,-d/2-projection,top+.15),9.65)
+        text(a,'CivicInscription',p['name'],(0,-d/2-projection-.016,top-.40),.335)
+        deck=a.mesh('PorticoLanding',kind='EntryLanding');deck.box((0,-d/2-projection/2,floor/2),(9.3,projection+.70,floor),'Concrete');deck.finish()
     else:text(a,'CivicInscription',p['name'],(0,-d/2-.025,top-.60),.30,(.66,.64,.55))
-    if floor>.20:steps(a,(0,-d/2-3.4,0),8.6,count=round(floor/.1524))
+    if floor>.20:steps(a,(0,-d/2-(3.45 if p['order']=='columns' else .85),0),8.6,count=round(floor/.1524))
     if p['roof'] in ('hip','cupola'):hip(a,'MainHipRoof',(-w/2,w/2,-d/2,d/2),top+.45,2.5,p['roof']=='cupola')
     else:
         m=a.mesh('Parapet',kind='Parapet',brick_strip=p['brick'])
@@ -76,8 +77,8 @@ def hall(p):
         for xx in (-w/2+.16,w/2-.16):m.box((xx,0,top+.70),(.32,d-.64,.65),'Veneer',r=0);m.box((xx,0,top+1.04),(.45,d-.50,.11),'Concrete')
         m.finish()
     if p['program']=='hall' and p['wings']:
-        shell(a,'Police',(-w/2,-w/2+14.6304,d/2-.34,d/2+11.85),4.42,.1524,3.6576,1,1,True,True)
-        text(a,'PoliceLetters','BRIAR GLEN POLICE',(-w/2+7.315,d/2-.365,3.83),.23,(.64,.64,.57))
+        shell(a,'Police',(-w/2,-w/2+14.6304,d/2-.34,d/2+11.85),4.42,.1524,3.6576,1,1,True,True,'Rear')
+        label=text(a,'PoliceLetters','BRIAR GLEN POLICE',(-w/2+7.315,d/2+11.88,3.83),.23,(.64,.64,.57));label.rotation_euler.z=math.pi
         # 1994 entrance to an internal lift; at grade, beside original stairs.
         x=w/2+1.1;y=1.2
         shell(a,'AccessibleVestibule',(w/2-.34,w/2+3.05,-.2,3.7),3.4,.1524,3.39,1,1,True,True)

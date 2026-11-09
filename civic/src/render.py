@@ -11,16 +11,16 @@ def light():
     sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable()
     sc.cycles.use_denoising=True;sc.cycles.max_bounces=8;sc.cycles.transparent_max_bounces=12
     world=bpy.data.worlds.new('Procedural clear civic sky');world.use_nodes=True;sc.world=world
-    nodes=world.node_tree.nodes;sky=nodes.new('ShaderNodeTexSky');sky.sky_type='NISHITA';sky.sun_elevation=math.radians(22);sky.sun_rotation=math.radians(230);sky.sun_disc=False;sky.air_density=1.1;sky.dust_density=.4
+    nodes=world.node_tree.nodes;sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(22);sky.sun_rotation=math.radians(230);sky.sun_disc=False;sky.air_density=1.1;sky.aerosol_density=.4
     world.node_tree.links.new(sky.outputs[0],nodes['Background'].inputs['Color']);nodes['Background'].inputs['Strength'].default_value=.18
-    d=bpy.data.lights.new('Low front raking sun','SUN');d.energy=3.0;d.angle=math.radians(1.0)
+    d=bpy.data.lights.new('Low front raking sun','SUN');d.energy=4.5;d.color=(1,.94,.83);d.angle=math.radians(1.0)
     ob=bpy.data.objects.new(d.name,d);sc.collection.objects.link(ob);ob.rotation_euler=Vector((.72,.55,-.36)).to_track_quat('-Z','Y').to_euler()
     sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.35
 
 
 SHOTS={
-    '101':dict(hero=((29,-57,1.72),(-6,-4,4.0),42),above=((77,-101,77),(-1,0,0),48),entry=((-1,-21,1.72),(-6,-9,2.7),45),cornice=((-4,-17,1.72),(-6,-11.5,8.3),50),police=((-36,34,1.72),(-14,14,2.2),42),scale=((-2,-23,1.72),(-6,-10,2.0),40)),
-    '202':dict(hero=((28,-63,1.72),(-6,-2,2.8),42),above=((84,-94,72),(0,0,1),48),bays=((-18,-33,1.72),(-12,-5,2.5),45),interior=((-15,-9,1.72),(-15,2,2),35),tower=((-37,32,1.72),(-17,14,7),40),scale=((15,-21,1.72),(-6,-5,2),38))}
+    '101':dict(hero=((24,-46,1.72),(-6,-4,4.0),38),above=((77,-101,77),(-1,0,0),48),entry=((-1,-21,1.72),(-6,-9,2.7),45),cornice=((-4,-17,1.72),(-6,-11.5,8.3),50),police=((-36,34,1.72),(-14,18,2.2),42),scale=((-2,-23,1.72),(-6,-10,2.0),40)),
+    '202':dict(hero=((23,-53,1.72),(-6,-2,2.8),42),above=((84,-94,72),(0,0,1),48),bays=((-18,-33,1.72),(-12,-5,2.5),45),interior=((-15,-9,1.72),(-15,2,2),35),tower=((-37,32,1.72),(-17,14,7),40),scale=((15,-21,1.72),(-6,-5,2),38))}
 
 
 def camera(spec,width):

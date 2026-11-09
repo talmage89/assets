@@ -9,9 +9,10 @@ def overhead(a,name,x,y,z,w=4.2672,h=4.2672):
     count=8;ph=h/count
     for j in range(count):
         pivot=name+'_Section_'+str(j)
-        rt=a.pivot(pivot,(x,y+.07,z+j*ph),axis='X',limits=(0,90))
+        rt=a.pivot(pivot,(x,y+.07,z+j*ph),axis='X',limits=(-90,0))
         rt['overhead_door']=name;rt['section_index']=j;rt['panel_pitch_m']=ph
         rt['door_width_m']=w;rt['door_height_m']=h;rt['track_radius_m']=.42
+        rt['open_translation_m']=(0,.6+(7-j)*ph,h+.17-j*ph);rt['open_rotation_x_degrees']=-90
         m=a.mesh(pivot+'_Mesh',part=pivot,kind='OverheadDoorSection',trim_strip=5)
         color=(.43,.055,.028) if j>0 else (.30,.043,.025)
         if j in (4,5):
@@ -91,6 +92,7 @@ def station(p):
         m=a.mesh('Bay_'+str(j+1)+'_Lintel',kind='BayLintel');m.box((xx,y-.045,4.49),(4.51,.47,.21),'Concrete');m.finish()
         text(a,'BayNumber_'+str(j+1),str(j+1),(xx,y-.04,4.88),.38,(.63,.62,.53))
     roof=a.mesh('ApparatusRoof',kind='RoofPanel');roof.box((x0+p['bayblock']/2,0,5.98),(p['bayblock']+.25,d+.25,.23),'Shingles',r=0);roof.finish()
+    text(a,'StationFrieze','FIRE STATION 3',(x0+p['bayblock']/2,y-.035,5.53),.42,(.65,.64,.57))
     for side in (-1,1):
         cornice(a,'StationFascia_'+str(side),(x0+p['bayblock']/2,side*d/2,6.08),p['bayblock'],0 if side<0 else 180,True)
     if p['office']:

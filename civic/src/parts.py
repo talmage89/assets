@@ -37,7 +37,8 @@ def wall_bay(a,name,p,width,height,sill=.92,opening=1.3716,window_h=2.4384,yaw=0
 
 def cornice(a,name,p,length,yaw=0,plain=False):
     m=a.mesh(name,kind='CorniceRun',weather=True,top=p[2]+.75)
-    for z,depth,h in ((0,.32,.12),(.16,.44,.14),(.33,.63,.17),(.47,.76,.10),(.57,.58,.10)):
+    courses=((0,.43,.24),(.15,.48,.06)) if plain else ((0,.32,.12),(.16,.44,.14),(.33,.63,.17),(.47,.76,.10),(.57,.58,.10))
+    for z,depth,h in courses:
         m.box((0,-depth/2+.14,z),(length,depth,h),'Concrete',r=.007)
     if not plain:
         n=max(1,round(length/.30))
@@ -57,7 +58,11 @@ def column(a,name,p,height=5.0292,diameter=.6096,pilaster=False):
         fs += [(j*n+i,j*n+(i+1)%n,(j+1)*n+(i+1)%n,(j+1)*n+i) for j in range(len(levels)-1) for i in range(n)]
         m.geom(vs,fs,'Concrete')
     for z in (.05,height-.05):m.box((0,0,z),(diameter*1.3,diameter*1.3,.10),'Concrete',r=.004)
-    orient(m,p,0);return m.finish()
+    orient(m,p,0);ob=m.finish()
+    if not pilaster:
+        for f in ob.data.polygons:
+            if abs(f.normal.z)<.3:f.use_smooth=True
+    return ob
 
 
 def front_door(a,name,p,width=.9652,height=2.4384,yaw=0):
@@ -65,7 +70,7 @@ def front_door(a,name,p,width=.9652,height=2.4384,yaw=0):
     for s in (-1,1):m.box((s*(width/2+.045),.08,height/2),(.09,.18,height+.12),'Concrete')
     m.box((0,.08,height+.05),(width+.18,.18,.10),'Concrete')
     orient(m,p,yaw);m.finish()
-    rad=math.radians(yaw);hinge=(p[0]-width/2*math.cos(rad),p[1]-width/2*math.sin(rad)+.08,p[2])
+    rad=math.radians(yaw);hinge=(p[0]-width/2*math.cos(rad)-.08*math.sin(rad),p[1]-width/2*math.sin(rad)+.08*math.cos(rad),p[2])
     a.pivot(name,hinge,limits=(0,100))
     leaf=a.mesh(name+'_Leaf',part=name,kind='FrontDoor',trim_strip=2)
     for s in (-1,1):leaf.box((s*(width/2-.045),.08,height/2),(.09,.055,height),'Trim',(.095,.115,.105))

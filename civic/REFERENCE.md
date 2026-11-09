@@ -7,7 +7,7 @@ Two original buildings, depicted in 2010: Briar Glen City Hall (1928, police win
 | Hall main block | 29.26 × 17.68m; two stories | Authored small-town program; HABS civic office/council organization and National Register brick/limestone construction |
 | Hall floor / story pitch | .9144 / 3.9624m | Authored raised civic plinth, checked against entry/sash proportions in photographs |
 | Hall front bay / sash | 4.18m / 1.37 × 2.44m | Authored seven-bay elevation; 6-over-6 sash, deep masonry reveals |
-| Tuscan column | .61m lower diameter × 5.03m | Authored approximately 8.25 diameters; base, entasis, neck, echinus and abacus modeled |
+| Tuscan column | .878m lower diameter × 7.375m | Authored approximately 8.4 diameters; base, entasis, neck, echinus and abacus modeled |
 | Hall stair | six .1524m risers, .3302m goings | Authored 6in / 13in stone stair; bearing cheek walls and separately jointed treads |
 | Police wing | 14.63 × 12.19m, one story | Authored 1976 addition, changed brick and aluminum sash; at-grade later vestibule |
 | Station room | 3 bays, 5.4864m centers × 18.288m deep | 18ft centers/60ft depth, more room than the 1989 guide's roughly 15×40ft single bay |
@@ -16,4 +16,4 @@ Two original buildings, depicted in 2010: Briar Glen City Hall (1928, police win
 | Station tower | 3.66m square × 12.8m | Authored hose-drying/training tower; louvers, landing, ladders and guardrails |
 | Later walking route | ≥1.524m wide, ≤1:20 | ADA reference; level entries, marked parking aisle and continuous front/lot paths |
 
-HABS drawing endpoints currently return intermittent 403 responses. The register retains exact sheet URLs; downloaded HABS narratives and the published plans in the period town-hall article provide construction context. Any inaccessible sheet is explicitly reported, never described as measured by us.
+The HABS web viewers return intermittent 403 responses; the Library's direct image service supplied all three sheets. They are inspected in `refs/`: MA-995 sheet 1 has a 0–20ft elevation scale; LA-1127 sheet 2 labels the historic station's 40ft4in frontage and separate engine/watch/mess rooms; NJ-357 sheet 1 includes half-size cornice and pilaster-cap sections. These buildings predate our examples and inform construction hierarchy, not a claim that the new fictional envelopes are HABS dimensions. Modern bay clearances come from the separately cited service guides.

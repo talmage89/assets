@@ -11,6 +11,10 @@ Images and PDFs are measurement/comparison inputs only. No reference pixels ente
 | hall-nomination.pdf | https://npgallery.nps.gov/NRHP/GetAsset/NRHP/86000857_text | National Park Service / nomination authors; public record, study only | 1910–11 / 1929–30 brick and limestone civic construction, raised base, projecting cornice and capped parapet |
 | habs-fire.pdf | https://tile.loc.gov/storage-services/master/pnp/habshaer/la/la0000/la0072/data/la0072data.pdf | HABS LA-1127, Library of Congress; US government public domain | 1925 station construction history and residential setting; not the date/style of the new station |
 | habs-hall.pdf | https://tile.loc.gov/storage-services/master/pnp/habshaer/ca/ca0900/ca0996/data/ca0996data.pdf | HABS CA-1, Library of Congress; US government public domain | Civic program combining offices, council, police and fire; later entry alterations |
+| habs-hall-elevation.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/ma/ma0200/ma0298/sheet/00001v.jpg | HABS MA-995, Library of Congress; US government public domain | Sheet 1, west elevation: sash returns, eaves and civic facade hierarchy; scale bar is inspected, not used to reconstruct this building |
+| habs-fire-plan.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/la/la0000/la0072/sheet/00002r.jpg | HABS LA-1127, Library of Congress; US government public domain | Sheet 2, first-floor plan: independent engine rooms, watch room, mess room and circulation; 40ft4in overall front is a historic comparator |
+| habs-post-plan.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/nj/nj0600/nj0699/sheet/00001r.jpg | HABS NJ-357, Library of Congress; US government public domain | Sheet 1, elevations and half-size cornice / pilaster-cap details; earlier wood construction, used for molding hierarchy only |
+| hall-close.jpg | https://commons.wikimedia.org/wiki/Special:Redirect/file/Wareham_Town_Hall_with_sign.jpg | Kenneth C. Zirkel, 2020; CC BY-SA 4.0 | Independent photograph of the 1938 hall: entry-order / cornice comparison, cropped away from the modern sign |
 
 Additional primary sources, viewed online:
 

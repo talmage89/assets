@@ -11,9 +11,10 @@ def building(seed=101,program='hall',style=None,bays=None,bay_width=None,stories
     if not 2<=bays<=11:raise ValueError('2–11 bays')
     stories=stories or (1 if station or program=='post_office' else 2)
     if stories not in (1,2,3):raise ValueError('1–3 stories')
-    style=style or ('municipal_modern' if station else 'classical')
+    style=style or ('municipal_modern' if station else 'colonial' if program=='library' else 'classical')
+    if style not in ('municipal_modern','classical','colonial'):raise ValueError(style)
     order=order or ('plain' if station else 'columns' if program=='hall' else 'pilasters')
-    roof=roof or ('parapet' if station or program!='library' else 'hip')
+    roof=roof or ('hip' if style=='colonial' else 'parapet')
     if order not in ('columns','pilasters','plain'):raise ValueError(order)
     if roof not in ('parapet','hip','cupola'):raise ValueError(roof)
     bayblock=bays*bay_width+(.9144 if station else 0)
@@ -34,8 +35,8 @@ def site(seed=101):
     if hall:
         return dict(seed=seed,kind='downtown',building=p,parcel=(-40,40,-29,39),
             building_at=(-6,0,0),road_y=-35,road_width=12.8,
-            lots=[dict(id='Police',rect=(-21,9,16,35),rows=2,stalls=9,fenced=True),dict(id='Public',rect=(21,38,-9,28),rows=1,stalls=10,fenced=False)],
-            walks=[(-8.1,-3.9,-29,-12),(-2,21,-16,-13),(18.5,21,-16,24)],
+            lots=[dict(id='Police',rect=(-21,9,22,38),rows=1,stalls=9,fenced=True),dict(id='Public',rect=(21,38,-9,28),rows=1,stalls=10,fenced=False)],
+            walks=[(-8.1,-3.9,-29,-14.3),(-8.1,11.8,-16,-14.3),(9.3,11.2,-14.3,.2),(10.4,22,-3,-1.2)],
             trees=[(-32,-19),(27,-22),(-32,8),(-30,34),(34,34),(14,34)],
             flags=[(-21,-19),(12,-20)],occupancy=.78)
     return dict(seed=seed,kind='arterial',building=p,parcel=(-43,43,-32,34),
