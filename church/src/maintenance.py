@@ -35,3 +35,29 @@ def add(parent,p):
                 mm=G.Mesh('Localized copper and splash stain',rr,sheet=True)
                 mm.geom([(-.15,0,.15),(.18,0,.15),(.07,0,1.5),(-.08,0,1.35)],[(0,1,2,3)],'age',color=(.42,.75,.53),uv=[[(.005,.755),(.495,.755),(.495,.995),(.005,.995)]]);mm.finish()
     if m.v:m.finish()
+    ledge_runoff(parent,p)
+
+
+def ledge_runoff(parent,p):
+    """Place broad washes below actual sill/course stations in local frames."""
+    rng=random.Random(p['seed']+911)
+    from surfaces import age_material
+    age_material()
+    for root in [parent,*list(parent.children_recursive)]:
+        kind=root.get('module_kind');rows=[]
+        if kind=='Tower' and p['tower']!='freestanding':
+            for side in range(4):
+                for z in (4.88,12.73,17.23):rows.append((side*math.pi/2,0,-2.286,z,4.4))
+        elif kind in ('WallBay','ExitBay'):
+            rows=[(0,0,-p['wall']/2-.002,2.20,1.7)]
+        elif kind=='ClassroomBay':rows=[(0,0,-.154,1.05,2.6),(0,0,-.154,2.60,2.6)]
+        elif kind=='Buttress':rows=[(0,0,-1.152,2.26,.60),(0,0,-.882,5.36,.60)]
+        for yaw,x,y,z,width in rows:
+            rr=G.root('Sheltered sill and course wash',parent=root);rr.rotation_euler.z=yaw
+            wash=G.Mesh('Broad interrupted water wash',rr,sheet=True)
+            length=rng.uniform(.48,1.15)
+            wash.geom([(x-width/2,y,z-length),(x+width/2,y,z-length),
+                       (x+width/2,y,z),(x-width/2,y,z)],[(0,1,2,3)],
+                      'age',color=(.72,.75,.66),
+                      uv=[[(.005,.755),(.495,.755),(.495,.995),(.005,.995)]])
+            wash.finish()

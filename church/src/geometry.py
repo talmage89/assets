@@ -97,7 +97,8 @@ class Mesh:
             for pp,tt in ([(points,uv)] if uv else charts(points,role,weather_grid=refine)):
                 n=len(vs);vs.extend(pp);fs.append(tuple(range(n,n+len(pp))));uvs.append(tt)
                 normal=(Vector(pp[1])-Vector(pp[0])).cross(Vector(pp[2])-Vector(pp[0])).normalized()
-                props=dict(self.props,name=self.name,normal_z=normal.z)
+                props=dict(self.props,name=self.name,normal_z=normal.z,
+                           normal_world=tuple(matrix.to_3x3()@normal))
                 cols.append([age(tuple(matrix@Vector(p)),role,tint(p,role,col,self.props),props) for p in pp]);roles.append(role);smooth.append(sm)
         me=bpy.data.meshes.new(self.name);me.from_pydata(vs,[],fs);me.update()
         keys=list(dict.fromkeys(roles))

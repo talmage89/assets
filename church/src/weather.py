@@ -9,11 +9,13 @@ def color(point,role,col,props):
     wear=p['wear'];w=p['width'];l=p['length'];floor=p['floor']
     if role=='brick':
         # Splash follows variable grade wetting and corners, never a level band.
-        reach=.32+.24*(.5+.5*math.sin(x*1.7+y*.81))**2
+        reach=.65+.25*(.5+.5*math.sin(x*1.7+y*.81))**2
         damp=max(0,1-max(0,z-floor*.35)/reach)
         salt=max(0,math.sin(x*3.4+y*2.8)+.5*math.sin(x*8.3-y*5.7)-.45)
         salt*=math.exp(-((z-.48-.15*math.sin(x*1.9+y))/.32)**2)*.22
-        col=tuple(c*(1-wear*damp*.36)+salt*a for c,a in zip(col,(.20,.18,.13)))
+        nx,ny,_=props.get('normal_world',(0,-1,0))
+        wall=.88+.055*nx-.035*ny+.045*math.sin(x*.24+y*.19+1)
+        col=tuple(c*wall*(1-wear*damp*.62)+salt*a for c,a in zip(col,(.14,.12,.09)))
         # Copper outlet/sill paths use world stations, not repeated bay marks.
         station=min(abs(y+l/2-.4),abs(y-l/2+.4))
         runoff=math.exp(-(station/.20)**2)*math.exp(-max(0,z-.25)/3.4)
@@ -29,16 +31,17 @@ def color(point,role,col,props):
                 wet+=sum(math.exp(-((x-s)/.22)**2) for s in (-.82,.63))*.26*(z-5.8)/1.4
             col=tuple(c*(1-wet) for c in col)
     if role=='stone':
-        under=.27 if props.get('normal_z',0)<-.4 else 0
-        groove=(.5+.5*math.sin(x*6.3+y*4.8))**10
-        dirt=(under+.21*groove)*wear
+        under=.42 if props.get('normal_z',0)<-.4 else 0
+        joint=min(abs((x+.2)%1.22),abs((y+.17)%1.22))
+        groove=math.exp(-(joint/.055)**2)
+        dirt=(under+.34*groove+.08*(.5+.5*math.sin(x*.8+y*.6)))*wear
         col=tuple(c*(1-dirt) for c in col)
     if role=='timber' and ('Laminated bent' in name or 'rake edges' in name):
         # End grain and exposed front rake weather gray; sheltered spans stay warm.
         end=math.exp(-max(0,z-.45)/.78)
         exposed=math.exp(-((abs(y)-l/2-.55)/.45)**2)*.25
-        amount=min(.72,(end*.65+exposed)*wear)
-        gray=(.21,.205,.175)
+        amount=min(.94,(end*1.35+exposed)*wear)
+        gray=(.19,.205,.20)
         col=tuple(c*(1-amount)+g*amount for c,g in zip(col,gray))
     if role in ('slate','shingle'):
         # Site north is -X. Moss persists below overlapping north eave/slates.
