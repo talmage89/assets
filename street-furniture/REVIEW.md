@@ -450,3 +450,15 @@ returns 2 on images; the independent field audit passes. Archive: `bench-pass3/`
 Try .5 at the same far switch, preserving the 515 goal. Select the canonical
 Bench root explicitly so consolidated geometry stays under its placement
 frame alongside its sidewalk/anchor sockets; no original placement is changed.
+
+### LOD critique 4: coverage requires tighter surface preservation
+
+Opened all three fresh native strips, both construction views and contact.
+The .5 request gives 1908 triangles with the canonical Bench placement root.
+Hue/value and RGB checks hold; side/rear silhouette loss .05479/.05038 still
+fails .05. No complete feature was removed according to the pruning receipt;
+the thin strap boundaries and curvature shift. `check-lod` returns 2 for
+images, with raw/normal/UV audit passing. Archive: `bench-pass4/`.
+One final trial tightens the geometry surface allowance from .75 to .25 switch
+pixels; it does not alter the image gate, target or switch. The other furniture
+kinds remain unbuilt and receive no approval from these bench trials.

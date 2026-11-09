@@ -11,6 +11,7 @@
   "feature_pixels": 1.5,
   "render_samples": 128,
   "levels": [
-    {"ratio": 0.5, "screen_height": 0.09, "target_triangles": 515}
+    {"ratio": 0.5, "screen_height": 0.09, "target_triangles": 515,
+     "surface_pixels": 0.25}
   ]
 }
