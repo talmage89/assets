@@ -77,3 +77,30 @@ baseline rebuilt, and its full repeat check run before becoming exact. The
 same applies to churches, civic, river and the other families' accepted site
 receipts. No whole sites are rebuilt here. On their next build, site counts
 may move by the few triangles contributed by the corrected native car caches.
+
+## H120 metadata proof
+
+The source of the varying metadata is `hatch_detail.py`, which used to copy
+the SHA-256 of its form `.blend` into Scene `form_source_sha256`. This is not
+an exporter timestamp. The compressed containers differ even with identical
+mesh arrays: unpacking their own SDNA locates the first difference in one pair
+at Mesh offset 1560, `face_sets_color_seed`. Three cold forms hold
+−413440761 / −1424484633 / 1491297234 there. Viewport color state cannot identify
+a delivery. Other container differences also exist; their hashes remain useful
+as audit provenance, rather than as stable mesh identifiers.
+
+The detail script now records that receipt in its counts JSON and removes
+any inherited Scene value. `src/hatch_metadata_repeat.py` exercises that actual
+function with three different cold form receipts, then performs three stock
+kit exports of the accepted finalized mesh/UVs and accepted maps. All three
+give **59,852 triangles**, **7,892,160 bytes**, SHA-256
+`4cdbafe2a1436f031eb58caf8fbd3a80b6a4e2eed65842fe0c293e2ff62baeb9`.
+The complete BIN chunk is byte-identical to the accepted H120. The complete
+JSON is identical after removing only Scene `form_source_sha256`. This
+replaces `86104add5c3aaa7bf909af12fc666f9a0ef87f635df2b0e7ce7639c247f1136e`
+(7,892,248 bytes); no geometry, UV, map or docs image changes.
+
+Proof receipt: `build/cars-determinism/round2/hatch-metadata/repeat.json`.
+This isolates the metadata fix and reuses accepted finalized geometry/maps;
+it does not claim three fresh GPU bakes. The three independent one-thread
+form builds are the round-one builds documented in `DETERMINISM.md`.
