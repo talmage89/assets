@@ -41,17 +41,22 @@ def site(seed=101):
     if hall:
         return dict(seed=seed,kind='downtown',building=p,parcel=(-40,40,-29,39),
             building_at=(-6,0,0),road_y=-35,road_width=12.8,
-            lots=[dict(id='Police',rect=(-21,9,22,38),rows=1,stalls=9,fenced=True),dict(id='Public',rect=(21,38,-9,28),rows=1,stalls=10,fenced=False)],
+            lots=[dict(id='Police',rect=(-21,9,22,38),rows=1,stalls=9,fenced=True),dict(id='Public',rect=(21,38,-9,28),rows=1,stalls=10,fenced=False,service_stall=8)],
             walks=[(-8.1,-3.9,-29,-14.3),(-8.1,11.8,-16,-14.3),(9.3,11.2,-14.3,.2),(10.4,20.4,-3,-1.2),(-16,-8.1,-18.5,-14.3),(-1,3,-18.5,-16),(-14.8,-11.8,20.60,22.05)],
             ramps=[dict(rect=(20.4,22.4,-3,-1.2),high=.145,low=-.003)],
-            trees=[(-32,-19),(27,-22),(-32,8),(-30,34),(34,34),(14,34)],
+            drives=[(29,36,-29,-9),(30,37,28,36),(9,30,30,36)],
+            service_pads=[(12.5,21,14,28)],generator=(15,18,0),dumpster=(17.5,24.4,0),
+            vehicle_crossings=[(29,36)],
+            trees=[(-32,-19),(27,-22),(-32,8),(-30,34),(34,38),(17,9)],
             flags=[(-21,-19),(12,-20)],occupancy=.78)
     return dict(seed=seed,kind='arterial',building=p,parcel=(-43,43,-32,34),
         building_at=(-5,4,0),road_y=-41,road_width=15.0,
         lots=[dict(id='Staff',rect=(15,40,-3,26),rows=1,stalls=9,fenced=False)],
         walks=[(2.8,4.6,-32,-5),(4.6,17,-8,-6.2),(11,12.8,-6.2,-1.2),(10.5,15,-13.6,-8)],
         ramps=[dict(rect=(12.8,15,-3,-1.2),high=.145,low=-.003)],
-        trees=[(-36,23),(-34,-20),(33,-26),(38,30),(-20,31)],flags=[(9,-20)],occupancy=.78)
+        drives=[(28,36,-32,-3)],vehicle_crossings=[(28,36)],
+        service_pads=[(24,40,26,38)],generator=(34,31,0),dumpster=(29,34,0),
+        trees=[(-36,23),(-34,-20),(25,-26),(42,30),(-20,31)],flags=[(9,-20)],occupancy=.78)
 
 
 def cases():

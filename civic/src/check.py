@@ -95,6 +95,14 @@ def main():
                 width=sum(h[3] for h in sides);assert slope<=1/12+.0001 and width>=1.524-.001,(name,slope,width)
                 ramps.append(dict(surface_points_m=[list(p) for p in points],measured_running_slope=slope,measured_clear_width_m=width))
             result['measured_ramps']=ramps
+            drive_samples=[]
+            for aa,bb,ff,kk in row['plan']['drives']:
+                for t in (.15,.5,.85):
+                    p=Vector(((aa+bb)/2,ff+(kk-ff)*t,2))-offset
+                    hit=ground_tree.ray_cast(p,Vector((0,0,-1)),4);assert hit[0] is not None
+                    assert abs(hit[0].z+.003)<.002,(name,'Drive surface',list(hit[0]))
+                    drive_samples.append(list(hit[0]))
+            result['measured_drive_surfaces_m']=drive_samples
             if name=='Site-202':
                 # Actual placed shrub/bench bounds must miss every apparatus
                 # corridor. These points come from imported surfaces.

@@ -62,29 +62,33 @@ def parking(a,lot):
                 x=l+3.1;y=f+(j+.5)*(k-f)/n;yaw=-90
                 for s in ((-1,1) if j==0 else (1,)):decal(a,'ParkingPaint_'+lot['id']+f'_{row}_{j}_{s}',(x,y+s*(k-f)/n/2,0),(5.4864,.075),'paint',j+row*7)
             node=a.socket(lot['id']+f'_Stall_{row}_{j}',(x,y,.015),'parked_car');node.rotation_euler.z=math.radians(yaw)
-            reserved=(lot['id']=='Staff' and j==0) or (lot['id']=='Public' and j==1)
+            reserved=(lot['id']=='Staff' and j==0) or (lot['id']=='Public' and j==1) or j==lot.get('service_stall',-1)
             node.location.z=-.003;node['occupied']=((j*7+row*3+a.root.get('seed',0))%10)<8 and not reserved;node['police']=lot['id']=='Police';slots.append((x,y,yaw))
             if j%3!=1:decal(a,'EngineDrips_'+lot['id']+str(row)+'_'+str(j),(x,y+1.1,.004),(1.1,2.0),'oil',j+row*20)
     paint.finish()
     if lot['fenced']:
         fence=ROOT/'fences/chain-link/export/ChainLink.glb'
-        for j in range(math.floor((r-l)/3.048)):
-            x=l+(j+.5)*3.048
-            for y in (f,k):
-                if y==f and j==2:continue
-                place(fence,'PoliceFence',(x,y,0),select='Chain_Section',parent=a.root)
-                place(fence,'PoliceLinePost',(l+j*3.048,y,0),select='Chain_Line',parent=a.root)
-        for x in (l,l+math.floor((r-l)/3.048)*3.048):
-            for j in range(math.floor((k-f)/3.048)):
-                place(fence,'PoliceFenceReturn',(x,f+(j+.5)*3.048,0),90,'Chain_Section',a.root)
-                place(fence,'PoliceReturnPost',(x,f+j*3.048,0),90,'Chain_Line',a.root)
+        def run(start,end,gap=None):
+            aa,bb=Vector((*start,0)),Vector((*end,0));axis=(bb-aa).normalized();length=(bb-aa).length
+            cuts=[0,length]+list(gap or ());cuts=sorted(set(cuts))
+            for lo,hi in zip(cuts,cuts[1:]):
+                if gap and lo>=gap[0] and hi<=gap[1]:continue
+                count=math.ceil((hi-lo)/3.048)
+                for j in range(count):
+                    u=lo+j*(hi-lo)/count;span=(hi-lo)/count;mid=aa+axis*(u+span/2)
+                    rt=place(fence,'PoliceFence',tuple(mid),math.degrees(math.atan2(axis.y,axis.x)),'Chain_Section',a.root);rt.scale.x=span/3.048
+                    place(fence,'PolicePost',tuple(aa+axis*u),select='Chain_Line',parent=a.root)
+                place(fence,'PoliceTerminal',tuple(aa+axis*hi),select='Chain_Terminal',parent=a.root)
+        run((l,f),(r,f),(6.096,9.144));run((l,k),(r,k));run((l,f),(l,k))
+        # The east opening reaches the rear maneuvering aisle, away from stalls.
+        run((r,f),(r,k),(30-f,36-f))
     return slots
 
 
 def build_site(sp,building,off):
     a=Assembly('CivicSite_'+str(sp['seed']));a.root['seed']=sp['seed'];p=sp['building'];pos=sp['building_at'];building.root.parent=a.root;building.root.location=Vector(pos)+off
     l,r,f,k=sp['parcel'];w,d=p['width'],p['depth'];x,y,_=pos
-    excluded=[(x-w/2,x+w/2,y-d/2,y+d/2)]+[lot['rect'] for lot in sp['lots']]+sp['walks']+[q['rect'] for q in sp['ramps']]
+    excluded=[(x-w/2,x+w/2,y-d/2,y+d/2)]+[lot['rect'] for lot in sp['lots']]+sp['walks']+[q['rect'] for q in sp['ramps']]+sp['drives']+sp['service_pads']
     apron=None
     if sp['kind']=='arterial':
         apron=(x-w/2-.5,x-w/2+p['bayblock']+.5,-32,y-d/2);excluded.append(apron)
@@ -100,6 +104,8 @@ def build_site(sp,building,off):
     for j,q in enumerate(sp['ramps']):
         aa,bb,_,_=q['rect'];ground(a,'AccessibleRamp_'+str(j),q['rect'],'Concrete',grade=lambda u,v,l=aa,r=bb:q['high']+(q['low']-q['high'])*(u-l)/(r-l))
     for lot in sp['lots']:ground(a,'Lot_'+lot['id'],lot['rect'],'Asphalt',-.003);parking(a,lot)
+    for j,q in enumerate(sp['drives']):ground(a,'VehicleConnection_'+str(j),q,'Asphalt',-.003)
+    for j,q in enumerate(sp['service_pads']):ground(a,'RearServicePad_'+str(j),q,'Concrete',-.003)
     for j,pole in enumerate(sp['flags']):flagpole(a,(*pole,0),'Flagpole_'+str(j))
     for j,(xx,yy) in enumerate(sp['trees']):place(ROOT/'trees/export'/('PinOak.glb' if j%3==0 else 'RedMaple.glb'),'SiteTree_'+str(j),(xx,yy,-.02),j*61,parent=a.root)
     for j in range(7):
@@ -108,9 +114,9 @@ def build_site(sp,building,off):
     benches=[(x-7,-17,.145),(x+7,-17,.145)] if sp['kind']=='downtown' else [(11.8,-10.3,.145),(13.2,-12.5,.145)]
     for j,at in enumerate(benches):place(LOCAL/'build/context/furniture.glb','EntryBench_'+str(j),at,select='Bench',parent=a.root)
     place(LOCAL/'build/context/furniture.glb','BikeRack',(x+10,-15,.145) if sp['kind']=='downtown' else (13.3,-8.5,.145),select='BikeRack',parent=a.root)
-    back_service(a,(34,31,0))
+    back_service(a,sp['generator'])
     from services import dumpster
-    dumpster(a,(29,34,0))
+    dumpster(a,sp['dumpster'])
     from services import public_details
     public_details(a,(12,-7,.145) if sp['kind']=='arterial' else (11.5,-.5,.145),sp['kind']=='arterial')
     if sp['kind']=='arterial':place(LOCAL/'build/context/hydrant.glb','StreetHydrant',(-25,-30.7,-.012),parent=a.root)
@@ -121,10 +127,14 @@ def build_site(sp,building,off):
         path(a,'StreetToEntry',[(lane,-29,.145),(lane,-14.3,.145)]+treads+[(lane,y-d/2-.12,p['floor'])])
         path(a,'ParkingToAccessible',[(23,-2,.015),(20.4,-2,.145),(10.3,-2,.145),(10.3,-.2,.1524)])
         path(a,'PoliceLotToDoor',[(-13.3,25,.015),(-13.3,22.10,.015),(-13.3,21.9,.145),(-13.3,20.73,.1524)])
+        path(a,'PublicAndPoliceDrive',[(33,-35,-.03),(33,-6,-.003),(33,33,-.003),(9,33,-.003),(-10,33,-.003)],'drive',6)
+        path(a,'ServiceAccess',[(33,22.45,-.003),(17.5,22.45,-.003),(17.5,23.7,-.003)],'drive',3.7)
     else:
         entry=x-w/2+p['bayblock']+p['office']/2
         path(a,'StreetToEntry',[(entry,-32,.145),(entry,-7,.145),(entry,y-d/2-.12,.1524)])
         path(a,'ParkingToAccessible',[(17,-2,.015),(12.8,-2,.145),(12,-2,.145),(12,-7,.145),(entry,-7,.145),(entry,y-d/2-.12,.1524)])
+        path(a,'StaffLotDrive',[(32,-41,-.03),(32,-2,-.003),(32,17,-.003)],'drive',8)
+        path(a,'ServiceAccess',[(29,20,-.003),(29,30,-.003),(29,33.3,-.003)],'drive',4)
     if apron:
         for j in range(p['bays']):
             xx=x-w/2+.4572+(j+.5)*p['bay_width'];path(a,'ApparatusExit_'+str(j),[(xx,y,0),(xx,-27,.04),(xx,-39,0)],'drive',4.2672)
