@@ -426,3 +426,16 @@ at .09 with a .15 request. A changed candidate must also be tested at the old
 .25 distance before its farther switch can be selected; no switch approval
 is inferred from the earlier different mesh. Bench is static; all slats,
 arm rails, supports and feet must retain coarse geometry and contact.
+
+### LOD critique 2: retain the failed far coverage control
+
+Opened all three native far strips, both construction views and contact.
+Color/value remains consistent at .09 / 7.75m, but reduced slat curvature and
+thin boundaries alter coverage. The 1768-triangle candidate misses 515;
+side/rear silhouette loss .06083/.05559 fails .05. Front coverage passes.
+All local RGB, mean/p95 and alpha gates pass; the failure is not relabeled as
+a color error. Independent raw UV/normal/tangent audits pass, while full
+`check-lod` exits 2 on images. The close view exposes angular front strap tips.
+Config, payloads, checks, every image and hashes are archived in `bench-pass2/`.
+Next test more coarse geometry at this same far switch, keeping the original
+515 goal and all image limits. No bench or other furniture chain is accepted yet.
