@@ -2266,6 +2266,10 @@ from the accepted delivery remain unchanged.
 
 # Pin oak / LOD adoption preflight, 2026-11-09
 
+Historical stop: the following brief clarified that the hold covers committed
+files and maple, and authorized rebuilding stale oak artifacts. The accepted
+delivery rebuild below supersedes this preflight's blocker.
+
 The requested maple-style oak adoption stops at the original-delivery prerequisite
 in `kit/LOD.md`, before introducing an oak config or Make hook. Main was already
 merged at `93ad3e8`; the tool/recipe freeze covers 111 files in
@@ -2378,3 +2382,75 @@ diff checks pass. No kit, Makefile, tree generator, top-level README, house or
 original docs image changed. Oak `check-lod` and its two LOD critique passes
 are skipped because no oak chain can be adopted before its original check
 passes. No detached Blender/GPU job remains at handoff.
+
+# Pin oak / accepted delivery rebuild, 2026-11-09
+
+The continued brief authorizes rebuilding ignored oak outputs from the
+committed scripts while preserving committed docs and all maple resources.
+No modeling, material, UV or kit source changed. Main was already up to date.
+Before rebuilding, `build/oak-lod-continued/preserve.json` froze 65 existing
+maple export/chain/map and family docs files; every hash still matches.
+
+```sh
+make -C trees SPECIES=oak clean
+make -C trees SPECIES=oak -o docs all
+make -C trees SPECIES=oak -o docs \
+  OAK_FINAL_SHOTS=lower_pins,crown_up,scale,root_flare,family all
+make -C trees SPECIES=oak check -o renders/oak-final/.stamp
+```
+
+The first full build regenerated native scenes, UVs, 4096 bake, 2048 maps and
+GLB, then received SIGTERM after nine presentation views (exit 143). Its
+completed per-view provenance was retained. The third command resumes only
+the five remaining presentation views, then runs both photo cameras, Eevee
+and every original check; **exit 0**. The explicit check also returns **0**.
+Only its already verified render stamp is held old, to avoid restarting the
+entire presentation because the resume changed the shot-list cache parameter.
+All stale UV, bake, texture and export targets were actually rebuilt; none
+were held old. Logs: `original-make.log`, `original-resume.log` and
+`original-check.log` under `build/oak-lod-continued/`.
+
+The newly frozen original is **11,702,200 bytes**, SHA-256
+`b14f6ce08d6c8057a83e7203951543314b7d37d38c6c222be96e58483cea2e3e`.
+It does **not** match the historical accepted 11,702,192-byte `49ffc243…`
+receipt. Current PNG bytes are **2,522,476 / 4,264,598 / 2,008,760**:
+accepted-size differences **+10 / −4 / +4 bytes**, with packaging alignment
+accounting for the eight-byte whole-file difference. All twelve accessor
+buffers match the preserved original exactly, including tangent rounding;
+the accepted bark-only polish preserved those same buffers. Nodes, mesh
+membership, material settings, samplers, every leaf-region pixel and complete
+alpha also remain exact. `rebuilt-receipt.json` records the measured scope.
+
+An independent 4096 GPU bake/composite/2048 filter into a scratch directory
+passes the existing repeat comparator (maximum 2 byte steps, RMSE .02).
+Only **8 / 12 / 19 RGB channels** differ, each by **one** byte step; RMSE is
+**.000797 / .000977 / .001229**. Foliage and alpha remain exact. The current
+maps also pass the stricter existing family rule from `compare_maple.py`:
+maximum one step and fewer than 100 changed channels per map.
+The current
+scripts' GPU last-bit variation is measured, rather than inferred solely
+from compressed file lengths. The historical accepted PNG payloads are not
+available here, so an exact historical per-texel delta is not claimed.
+Commands and results: `repeat-commands.json`, `repeat/comparison.json`.
+A scratch export of those repeat maps additionally changes one tangent
+component by .000099994, the previously documented exporter-rounding issue;
+that scratch GLB is not adopted. The frozen `b14f6ce0…` source directly retains
+all twelve original accessors, without any restoration.
+
+**Color/value first:** opened all regenerated presentation views, the two
+photo pairs, bark pair, raking image, Eevee hero and contact. Bark median /
+ridge / fissure / dark share are **.414810 / .506710 / .268591 / 13.2240%**,
+reproducing the accepted polish's recorded populations within rounding.
+The warm gray faces and recessed brown channels return; fine photographic
+grain remains richer and the normal-mapped silhouette remains smooth.
+Every existing foliage, bark, retained-median and engine-response gate passes.
+All **16 Cycles + one Eevee** views reference the new GLB; the family view
+references the unchanged maple hash. Source/game geometry digests agree;
+camera projection, topology, bounds, UV, bake coverage, fresh GLB import and
+botanical position/normal/Wind checks all pass.
+
+The original remains **24,816 triangles**, two materials/two draws, three
+2048-square maps and **18.7674 MiB** estimated residency. New immutable source
+and shipped-map hashes are in `build/oak-lod-continued/immutable-source.json`.
+This authorizes using the rebuilt original for LOD review; no historical byte
+identity, source-script edit or relaxed appearance gate is claimed.

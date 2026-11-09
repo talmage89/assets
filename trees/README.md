@@ -296,8 +296,8 @@ Stored counts include the full immutable source container once and every default
 ### Additional LODs
 
 No pin oak LOD chain is adopted yet.
-The local original predates the accepted bark polish and fails its required delivery check; its existing bytes are preserved.
-[Original-check blocker and evidence](REVIEW.md#pin-oak--lod-adoption-preflight-2026-11-09).
+The original has been rebuilt and passes its delivery checks; LOD review is next.
+[Rebuild receipt and evidence](REVIEW.md#pin-oak--accepted-delivery-rebuild-2026-11-09).
 
 ![Pin oak, exported GLB in Cycles](docs/oak-hero.jpg)
 
@@ -340,17 +340,29 @@ is at the trunk base on grade; no armature or moving parts.
 | Wood / alpha-card triangles | **10,536 / 14,280** |
 | Total / cap | **24,816 / 25,000** |
 | Branchlet cards / materials / static meshes | **7,140 / 2 / 2** |
-| GLB, embedded textures included | **11,702,192 bytes** |
+| GLB, embedded textures included | **11,702,200 bytes** |
 | BaseColor-alpha / OpenGL +Y Normal / ORM | **2048² each**, from 4096² bake/composite |
 | Full-mip compressed textures / geometry | **16 MiB / 2,901,792 bytes** |
 | Estimated combined GPU memory | **18.767 MiB**, before engine overhead |
 
-PNG storage is **2,522,466 / 4,264,602 / 2,008,756 bytes**. Both materials
+PNG storage is **2,522,476 / 4,264,598 / 2,008,760 bytes**. Both materials
 share these three images; the lower atlas half intentionally reuses eight leaf
 variants. Each species has its own atlas. Bark priority is concentrated at
 chest height: **648–650 px/m** in every tangent direction.
 Unique wood UV coverage is **30.28% of the whole atlas**, with zero
 overlap, degenerate or out-of-region triangles in the independent delivery check.
+
+The fresh 2026-11-09 rebuild has SHA-256
+`b14f6ce08d6c8057a83e7203951543314b7d37d38c6c222be96e58483cea2e3e`.
+It is eight bytes larger than the accepted `49ffc243…` receipt: the three PNG
+sizes differ by +10 / −4 / +4 bytes. All twelve geometry, UV, normal, tangent
+and Wind accessors, material settings, leaf pixels and alpha retain their
+original bytes. An independent rebake changes only 8 / 12 / 19 RGB channels,
+each by one 8-bit step; worst RGB byte-domain RMSE is .00123. This meets the
+family's existing one-step / fewer-than-100-channels repeat limits. The
+historical PNGs are not present for a direct
+texel comparison with that receipt. The complete original checks and bark gate
+pass; the rebuilt bark populations reproduce the accepted values below.
 
 ### Leaves, bark and engine response
 
