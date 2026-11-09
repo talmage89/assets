@@ -44,12 +44,12 @@ car generation needs no second override:
 - `minigolf/Makefile` (pickup and sedan)
 - `trailer-park/src/dependencies.py` (private source archive when absent)
 
-The pickup override is checked against an independent native one-thread
-source build: all 472 objects / 454 meshes match the accepted source exactly
+The pickup override is checked against three independent native one-thread
+source builds: all 472 objects / 454 meshes match the accepted source exactly
 in transforms, hierarchy, vertices, faces, split normals and material names.
 Its accepted GLB stays at 59,838 triangles with receipt
 `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
-The source comparison is `round2/utility-1/pickup-preservation.json` under
+The comparisons are `round2/utility-{1,2,3}/pickup-preservation.json` under
 `build/cars-determinism/`.
 
 Church, civic and other presentation adapters import existing canonical car
@@ -118,3 +118,43 @@ it does not claim three fresh GPU bakes. The three independent one-thread
 form builds are the round-one builds documented in `DETERMINISM.md`.
 The regression also passes against the already-corrected delivery baseline,
 with the same three GLB receipts (`hatch-metadata-current-baseline/repeat.json`).
+
+## Three-cold native cache proof
+
+Every row has three separate factory-empty native builds per consumer and
+byte-identical GLBs in all three. Downtown and school each build all three
+bodies independently; their corresponding source-cache projections also
+match each other. School's simplified cache uses its actual export adapter.
+Blend-only cache projections use the same stock glTF settings in every run.
+
+| Consumer / native car | Triangles, each run | SHA-256, each run |
+| --- | ---: | --- |
+| Garage H120 | 58,020 | `60b25083a8e6c8c0fde7f3624517ef326827e1b5e7bca5c1204ffc0d09ecb079` |
+| Garage X220 | 73,382 | `8c2230440ab2ca3fdec2255a03ef71672203a19d4194b222569827bd09247b1f` |
+| Downtown and school C150 | 50,434 | `8f9f85bbbdd6c15c48f0f1a0ce9e19534ed4e4027ed56ef434f3065b6bab72b3` |
+| Downtown and school X220 | 73,382 | `7ebf13799ec6b70e6c6732358a654e5e1039c9210e8e460d2445ba3c6db58c6f` |
+| Downtown and school H120 | 58,020 | `f6f9b59db0ce3478c5947e19c22f5f5d9e18cf7a4679b2685c0d6d5accb9209a` |
+| School simplified H120 | 43,179 | `421b26f8fecbdb3156f6791a9b8508f9b1369407e40bdee62c695594cc0b2139` |
+| Apartments C150 form | 38,226 | `d38d0d93fb261ba9e8b1eba00d43624a9c9ced80cf5ddd66b810a0c9d94d62f1` |
+| Utility C150 full source | 59,838 | `4683c56869223b2b177ea97088f4a80c2254e21de6a64b3ceb445b164b322037` |
+
+Combined receipts: `build/cars-determinism/round2/garage-proof.json` and
+`build/cars-determinism/round2/consumer-proof.json`, with the separate build
+folders, generation/export logs and pickup source comparisons beside them.
+The real consumer functions/command constructors generate only their car
+caches; no complete site builder runs. The diagnostic stock exporter follows
+the garage's existing complete-container validation/direct-exit pattern for
+Blender's native-node teardown crash. Its initial failed diagnostic log is
+retained. No native generator failure was ignored.
+
+Only the garage's two expected native cache hashes change in source; its
+immutable accepted surface baselines remain intact. All six new caches pass
+the old guards. H120 is 12 triangles lower than 58,032 (0.02068%), with a
+maximum sampled distance of 0.832915 mm over 7,020 points. X220 is 44 lower
+than 73,426 (0.05993%), maximum 0.855972 mm over 8,250 points. These are
+sampled preservation measurements, not whole-surface maxima.
+
+Each direct consumer family's REVIEW records its receipts and warns that
+site counts may move by these few car triangles on the next site build.
+Existing family deliveries and docs remain accepted; whole-site repeat
+proofs and any change to tolerance guards are deferred.
