@@ -678,6 +678,13 @@ with full mip chains, rather than assuming a particular family texture size.
 
 ## Running all regressions
 
+`blender_command.with_threads(argv, count)` overrides Blender's thread flags
+before its script-argument separator, retaining wrappers and all other flags.
+The CLI is `python3 kit/blender_command.py --threads 1 -- blender ...`.
+Native car consumers use it only for car generation: threaded subdivision UV
+interpolation changes their clipped skin tessellation. Other builds keep their
+existing thread counts. Run `python3 -m unittest kit.test_blender_command`.
+
 Use a fresh Blender process for each `bpy` fixture. The four pure-Python test
 modules run with `python3 -m unittest`:
 

@@ -26,6 +26,7 @@ BAKE_SOURCE := build/bake-source.blend
 DOWNSAMPLE_ARGS := --alpha-mode independent
 FINAL_RENDER_SCRIPT := src/render_final.py
 include ../kit/rules.mk
+BP += -t 1
 
 # Archived source checkpoints remain available separately from delivery.
 .PHONY: checkpoint render preview match colors review check-form check-detail form-diagnostics

@@ -3,10 +3,23 @@
 Accepted geometry/maps are reused where present. Missing local context is
 rebuilt with the original generators. Existing library deliveries never change.
 """
-import hashlib,json,os,subprocess
+import hashlib,json,os,subprocess,sys,shlex
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 LOCAL=ROOT/'school'
+sys.path.insert(0,str(ROOT))
+from kit.blender_command import with_threads
+
+
+def car_cache(kind,target,log_path):
+    """Build only this native car; invalidate caches made before threads=1."""
+    target=Path(target);target.parent.mkdir(parents=True,exist_ok=True)
+    policy=target.with_suffix('.threads')
+    if target.exists() and policy.exists() and policy.read_text()=='1\n':return
+    command=[*shlex.split(os.environ.get('BLENDER','blender')),'-b','--factory-startup','--python-exit-code','1','--python',str(ROOT/'downtown/src/context_build.py'),'--','--kind',kind,'--out',str(target)]
+    with Path(log_path).open('w') as log:
+        subprocess.run(with_threads(command,1),cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT,check=True)
+    policy.write_text('1\n')
 
 
 def snapshot():
@@ -63,22 +76,19 @@ def main():
     # Preserve the native source instance for presentation. The old form-only
     # GLB adapter remains rebuildable but is no longer used in the look views.
     target=out/'context/car.blend'
-    if not target.exists():
-        cmd=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(ROOT/'downtown/src/context_build.py'),'--','--kind','hatchback','--out',str(target)]
-        with (out/'context-car.log').open('w') as log:subprocess.run(cmd,cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT,check=True)
+    car_cache('hatchback',target,out/'context-car.log')
     for kind in ('pickup','crossover'):
         target=out/'context'/('car-'+kind+'.blend')
-        if not target.exists():
-            cmd=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(ROOT/'downtown/src/context_build.py'),'--','--kind',kind,'--out',str(target)]
-            with (out/('context-'+kind+'.log')).open('w') as log:subprocess.run(cmd,cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT,check=True)
+        car_cache(kind,target,out/('context-'+kind+'.log'))
     target=out/'context/shrub/source.blend'
     if not target.exists():
         cmd=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(ROOT/'apartments/src/context_build.py'),'--','shrub']
         with (out/'context-shrub.log').open('w') as log:subprocess.run(cmd,cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT,check=True)
     for kind in ('car','shrub'):
         target=out/'context'/f'{kind}.glb'
-        if not target.exists() or target.stat().st_mtime<(LOCAL/'src/context_export.py').stat().st_mtime:
+        if not target.exists() or target.stat().st_mtime<(LOCAL/'src/context_export.py').stat().st_mtime or (kind=='car' and target.stat().st_mtime<(out/'context/car.blend').stat().st_mtime):
             cmd=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python','src/context_export.py','--',kind]
+            if kind=='car':cmd=with_threads([*shlex.split(cmd[0]),*cmd[1:]],1)
             with (out/f'context-{kind}-export.log').open('w') as log:subprocess.run(cmd,cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT,check=True)
     # The analytic library shrub maps are shared delivery inputs, rather than
     # glTF dependencies on disposable source folders under build/.

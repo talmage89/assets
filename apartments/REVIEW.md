@@ -784,3 +784,27 @@ The selected final JPGs are court 199,826; garden types 193,289; townhouses
 total 985,825 bytes, with no GIF. They are ready for the separate last image
 commit after this text record. No kit, other family source or top-level
 README changed; no additional tools or lead action are needed.
+## Native pickup cache determinism, round two
+
+Only `build/context/car/source.blend` now wraps its existing Blender command
+with `kit/blender_command.py --threads 1`. Tree, shrub, fence and ground
+launches keep four threads. The car rule depends on the helper so an older
+car source cache rebuilds once. Canonical car dependencies use the cars'
+serial Make commands; the pickup now also overrides inherited thread flags.
+
+Three separate empty-folder native pickup caches, through this Make rule's
+same helper/adapter command, give identical stock glTF projections:
+**38,226 triangles**, **1,561,540 bytes**, SHA-256
+`d38d0d93fb261ba9e8b1eba00d43624a9c9ced80cf5ddd66b810a0c9d94d62f1`.
+This is the native form cache, not the baked C150 delivery. Raw blend-file
+hashes remain audit values. Evidence is in
+`build/cars-determinism/round2/apartments-{1,2,3}/`, with combined receipts
+in `build/cars-determinism/round2/consumer-proof.json`. The six consumer
+launch/cache tests include the actual car and tree Make recipes and pass.
+
+Apartment exports, maps and docs images stay unchanged; no complete sites
+were rebuilt. Site counts may move by those few car triangles on their next
+build. Existing tolerance guards remain. An exact site guard needs refreshed
+native inputs/owned site baselines and a complete site repeat; a blend-only
+cache should compare GLBs or mesh arrays rather than raw container hashes.
+See [the consumer inventory and proof](../cars/CONSUMERS.md).
