@@ -2367,9 +2367,10 @@ Updated only that checker's accepted receipt to the documented current pickup
 hash. Its exact-byte comparison remains active; no pickup regeneration or
 payload edit occurred. `make -C cars BODY=suv check` then passed in 5.1 seconds.
 The first failure and successful rerun remain in `round2/suv-source.json`
-(command receipt), `suv-source-recheck.json` and their logs; the immutable
-GLB/dependency and budget receipt is also stored as `suv-source.json` after
-the rebuild. Five fresh LOD0 imports execute all presets through the actual
+(command receipt), `suv-source-recheck.json` and their logs; the separate
+immutable GLB/dependency and budget receipt is `suv-input.json`. A receipt
+filename collision was corrected using the original foreground tool completion;
+no result was discarded. Five fresh LOD0 imports execute all presets through the actual
 `suv_delivery_materials` wrapper, with both lamp states, in
 `build/car-lod/round2/suv-source-routing.json`. The routing probe now accepts
 an explicit decoder module so the SUV's warm projector policy is exercised.
