@@ -541,3 +541,23 @@ at .25/.09; their own actual permitted poses must pass. Shelters start with one
 far .09 level and .05-pixel surface preservation, retaining coarse rails/posts.
 Each shelter variant needs its own native view, root and material/UV proof.
 The Makefile still exposes only the previously accepted bench by default.
+
+### Single meter critique 1 — reject far coverage and head change
+
+Opened all six native strips and three construction views. Color/value first:
+galvanized post, cast housing and dial retain their palette, but the far head's
+top highlight breaks and its outline changes. Counts 1449 -> 921 -> 552,
+goals 580/217, at .25/.09 (5.26/14.62 m). Near images pass. Far front p95
+.08392 exceeds .08; silhouette loss .06435 exceeds .05. Reject that level,
+without widening either limit. The supplied normal-field audit passes; the
+generic check fails only its image gate, not topology or UVs.
+
+The new independent check_lod_parts.py passes placement, grade and permitted
+motion: original coin door sampled at 5 degrees; reduced levels at rest only.
+It uses actual opaque surfaces, matching the original's solid tags. Original
+open graphics/lens sheets are non-solid; material faces are separated for this
+temporary audit when static consolidation combines them. No moving/fixed pair
+is exempted. Every mesh, including graphics, must follow its placement root.
+Hold LOD0 while the coin door is open. Archive exact trial inputs, payloads,
+images and checks in meter-single-pass1/. Try a .2 near request against the
+same 580 goal, and tighten far surface_pixels from .75 to .15.
