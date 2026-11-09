@@ -15,6 +15,7 @@ def instance(path,name,point,yaw=0,scale=1,kind=None,actor='town'):
             if len(selected)!=1:raise ValueError((path,kind,[o.name for o in roots]))
             chosen=set([selected[0],*selected[0].children_recursive])
             for ob in reversed(list(obs-chosen)):bpy.data.objects.remove(ob,do_unlink=True)
+            obs=chosen
             roots=[selected[0]]
             selected[0].location=(0,0,0);selected[0].rotation_euler=(0,0,0)
         if actor=='town':
@@ -22,7 +23,8 @@ def instance(path,name,point,yaw=0,scale=1,kind=None,actor='town'):
             for ob in obs:
                 if ob.name not in bpy.data.objects or ob.type!='MESH':continue
                 if len(ob.data.polygons)<400:continue
-                modifier=ob.modifiers.new('Church distant context reduction','DECIMATE');modifier.ratio=.13
+                modifier=ob.modifiers.new('Church distant context reduction','DECIMATE')
+                modifier.ratio=.070 if 'houses' in path.parts else .13
                 bpy.context.view_layer.objects.active=ob
                 bpy.ops.object.modifier_apply(modifier=modifier.name)
         rt=G.root('Template_'+name)

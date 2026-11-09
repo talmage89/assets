@@ -7,6 +7,7 @@ from mathutils import Vector,Matrix
 ROOT=Path(__file__).resolve().parents[2]
 MATS={}
 STYLE='gothic'
+PLAN={}
 
 
 def root(name,point=(0,0,0),parent=None,**props):
@@ -75,6 +76,10 @@ class Mesh:
         self.geom([(x-w/2,y,z-h/2),(x+w/2,y,z-h/2),(x+w/2,y,z+h/2),(x-w/2,y,z+h/2)],[(0,1,2,3)],role,uv=coords)
     def finish(self):
         from surfaces import charts,tint
+        from weather import color as age
+        matrix=Matrix.Identity(4);ancestor=self.parent
+        while ancestor:
+            matrix=ancestor.matrix_basis@matrix;ancestor=ancestor.parent
         # Preserve authored outward winding. Recalculating normals after UV
         # splitting treats every face as an isolated island and flips some.
         rounded={}
@@ -90,7 +95,9 @@ class Mesh:
             points=[self.v[i] for i in f]
             for pp,tt in ([(points,uv)] if uv else charts(points,role)):
                 n=len(vs);vs.extend(pp);fs.append(tuple(range(n,n+len(pp))));uvs.append(tt)
-                cols.append([tint(p,role,col,self.props) for p in pp]);roles.append(role);smooth.append(sm)
+                normal=(Vector(pp[1])-Vector(pp[0])).cross(Vector(pp[2])-Vector(pp[0])).normalized()
+                props=dict(self.props,name=self.name,normal_z=normal.z)
+                cols.append([age(tuple(matrix@Vector(p)),role,tint(p,role,col,self.props),props) for p in pp]);roles.append(role);smooth.append(sm)
         me=bpy.data.meshes.new(self.name);me.from_pydata(vs,[],fs);me.update()
         keys=list(dict.fromkeys(roles))
         for r in keys:me.materials.append(MATS[r])

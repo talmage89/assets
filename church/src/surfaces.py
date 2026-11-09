@@ -13,7 +13,7 @@ ROLES={}
 
 def paint_material():
     if 'paint' in G.MATS:return
-    ma=tiling.material('GroundTrim',G.ROOT/'ground/textures/ship',alpha=True)
+    ma=tiling.material('GroundTrim',G.ROOT/'ground/textures/ship',alpha=True,tint=True)
     ma.name='Church_Ground_markings';ma.use_backface_culling=False;G.MATS['paint']=ma
 
 
@@ -35,6 +35,7 @@ def palette():
     for role,(name,folder) in specs.items():
         ma=tiling.material(name,G.ROOT/folder,tint=True);ma.name='Church_'+role
         G.MATS[role]=ma
+    G.MATS['copper']=G.MATS['bronze']
     for role,color,rough,metal in [('glass',(.76,.79,.73),.035,0),('storm',(.74,.69,.48),.19,0),('black',(.009,.010,.008),.85,0)]:
         ma=bpy.data.materials.new('Church_'+role);ma.use_nodes=True;ma['tiling_vertex_tint']=False
         p=ma.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(*color,1);p.inputs['Roughness'].default_value=rough;p.inputs['Metallic'].default_value=metal
@@ -46,7 +47,11 @@ def palette():
         ns,ls=ma.node_tree.nodes,ma.node_tree.links;p=ns.get('Principled BSDF')
         tx=ns.new('ShaderNodeTexImage');tx.image=bpy.data.images.load(str((G.ROOT/'church/textures/ship'/file).resolve()),check_existing=True)
         ls.new(tx.outputs['Color'],p.inputs['Base Color']);p.inputs['Roughness'].default_value=.35 if role=='stained' else .65
-        if role=='stained':ls.new(tx.outputs['Color'],p.inputs['Emission Color']);p.inputs['Emission Strength'].default_value=emit
+        if role=='stained':
+            mix=ns.new('ShaderNodeMix');mix.data_type='RGBA';mix.blend_type='MULTIPLY';mix.inputs[0].default_value=1
+            ls.new(tx.outputs['Color'],mix.inputs[6]);mix.inputs[7].default_value=(.16,.16,.16,1)
+            ls.new(mix.outputs[2],p.inputs['Base Color'])
+            ls.new(tx.outputs['Color'],p.inputs['Emission Color']);p.inputs['Emission Strength'].default_value=emit
         else:
             ls.new(tx.outputs['Alpha'],p.inputs['Alpha']);ma.surface_render_method='DITHERED';ma.use_backface_culling=False
         ma.use_backface_culling=False;G.MATS[role]=ma
@@ -58,8 +63,8 @@ def charts(points,role):
     axis=max(range(3),key=lambda k:abs(normal[k]));axes=[(1,2),(0,2),(0,1)][axis]
     if role in ('stone','iron'):
         return [(points,D.strip_uv(points,0 if role=='stone' else 1,4 if role=='stone' else 8,coverage=2))]
-    if role in ('timber','slate','bronze'):
-        idx={'timber':0,'slate':1,'bronze':2}[role];a,b=axes;lo=min(p[b] for p in points);hi=max(p[b] for p in points)
+    if role in ('timber','slate','bronze','copper'):
+        idx={'timber':0,'slate':1,'bronze':2,'copper':2}[role];a,b=axes;lo=min(p[b] for p in points);hi=max(p[b] for p in points)
         if role=='slate' and hi-lo>1e-6:
             # 406mm slate width / 196mm visible gauge. Split at atlas tile
             # boundaries instead of stretching fourteen courses over a roof.
@@ -78,9 +83,11 @@ def charts(points,role):
 def tint(p,role,col,props):
     x,y,z=p;f=1.
     if role=='iron':col=tuple(v*.037 for v in col)
-    if role=='stone':col=tuple(v*.38 for v in col)
+    if role=='stone':col=tuple(v*g for v,g in zip(col,(.38,.345,.285)))
+    if role=='copper':col=tuple(v*g for v,g in zip(col,(.28,1.30,1.08)))
     if role=='timber' and props.get('door'):col=tuple(v*.15 for v in col)
     if role=='brick':
+        col=tuple(v*g for v,g in zip(col,(.88,.82,.77)))
         floor=props.get('floor',.6096);zz=max(0,z-floor)
         reach=.55+.14*math.sin(x*4.9+y*3.2)+.06*math.sin(x*19+y*11)
         damp=.36*max(0,1-zz/reach)
@@ -90,7 +97,8 @@ def tint(p,role,col,props):
         f-=damp+runoff
         patch=props.get('patch',False)
         if patch:col=tuple(a*b for a,b in zip(col,(1.12,1.04,.91)))
-    if role=='asphalt':col=tuple(v*.62 for v in col)
+    if role=='asphalt':col=tuple(v*.70 for v in col)
+    if props.get('mulch') and role=='timber':col=tuple(v*.12 for v in col)
     if role=='lawn':
         from turf import tint as summer
         col=tuple(a*b for a,b in zip(col,summer(x,y)))

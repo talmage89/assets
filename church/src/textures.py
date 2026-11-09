@@ -21,7 +21,10 @@ def make():
     tone=.8+.36*rng.random((43,14))[np.clip(row.astype(int),0,42),np.clip(ix.astype(int),0,13)]
     color[slate]=(np.array((.064,.071,.074))*tone[slate,None]);color[slate&joint]*=.43
     height[slate]=.0013*(~joint[slate])+.00018*rng.random(np.count_nonzero(slate));orm[slate,1]=.83
-    patina=(.5+.5*np.sin(x*.13+np.sin(y*.045)*6))**6
+    # Fine discontinuous oxidation; no broad sinusoidal bronze ribbons.
+    granular=rng.random((n,n))
+    for k in (1,3,7):granular=(granular+np.roll(granular,k,0)+np.roll(granular,k,1))/3
+    patina=np.clip((granular-.47)*13,0,.8)
     color[bronze]=np.array((.19,.115,.038))*(1-patina[bronze,None]*.62)+np.array((.035,.09,.055))*patina[bronze,None]*.62
     orm[bronze,1]=.54;orm[bronze,2]=.78;height[bronze]=rng.random(np.count_nonzero(bronze))*.0002
     dy,dx=np.gradient(height);normal=np.stack((-dx*n/2,dy*n/2,np.ones_like(dx)),axis=2);normal/=np.linalg.norm(normal,axis=2,keepdims=True)

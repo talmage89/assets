@@ -23,10 +23,10 @@ def camera(loc,target,lens=42,aspect=1.5,ortho=None):
     bpy.context.scene.camera=ob;return ob
 
 
-def light(dusk=False,sun_direction=None):
+def light(dusk=False,sun_direction=None,sky_strength=None):
     scene=bpy.context.scene;world=bpy.data.worlds.new('Procedural clear sky');world.use_nodes=True;scene.world=world
     ns=world.node_tree.nodes;ls=world.node_tree.links;sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=.37;sky.sun_rotation=4.1;sky.sun_disc=False
-    bg=ns.get('Background');ls.new(sky.outputs['Color'],bg.inputs['Color']);bg.inputs['Strength'].default_value=.06 if not dusk else .025
+    bg=ns.get('Background');ls.new(sky.outputs['Color'],bg.inputs['Color']);bg.inputs['Strength'].default_value=(sky_strength or .06) if not dusk else .025
     data=bpy.data.lights.new('Low raking morning sun','SUN');data.energy=4.5 if not dusk else .08;data.angle=math.radians(.65);data.color=(1,.90,.78)
     ob=bpy.data.objects.new(data.name,data);bpy.context.collection.objects.link(ob);ob.rotation_euler=Vector(sun_direction or (.55,.85,-.45)).to_track_quat('-Z','Y').to_euler()
     if dusk:
@@ -38,7 +38,7 @@ def light(dusk=False,sun_direction=None):
 
 def shots(seed):
     modern=seed==202
-    return dict(hero=dict(location=(40,-56,1.72) if modern else (34,-40,1.72),target=(9,0,6.9) if modern else (0,0,11.8),lens=38 if modern else 35),
+    return dict(hero=dict(location=(40,-56,1.72) if modern else (34,-40,1.72),target=(9,0,6.9) if modern else (0,0,11.8),lens=38 if modern else 35,sky_strength=.09 if modern else .06,sun_direction=(.95,.30,-.40) if modern else (.55,.85,-.45)),
         above=dict(location=(100,-112,92) if modern else (61,-69,56),target=(21,1,0) if modern else (0,8,0),lens=42 if modern else 45),
         doors=dict(location=(4,-23,1.72),target=(0,-14 if modern else -12.8,1.75),lens=48),
         window=dict(location=(4,-23,5.0) if modern else (13,-1,4.0),target=(1,-14.95,6.4) if modern else (6.65,-2.13,4.8),lens=48),
@@ -67,7 +67,7 @@ def render_file(source,out,name,spec,width,samples,engine):
         shown=set(part.children_recursive);part.parent=None;part.location=(0,0,0);part.rotation_euler=(0,0,0)
         for ob in bpy.context.scene.objects:
             if ob.type=='MESH' and ob not in shown:ob.hide_render=True
-    light(spec.get('dusk',False),spec.get('sun_direction'));scene=bpy.context.scene;scene.render.engine=engine
+    light(spec.get('dusk',False),spec.get('sun_direction'),spec.get('sky_strength'));scene=bpy.context.scene;scene.render.engine=engine
     if spec.get('module_studio'):
         ns=scene.world.node_tree.nodes;ls=scene.world.node_tree.links;bg=ns.get('Background')
         for link in list(bg.inputs['Color'].links):ls.remove(link)

@@ -24,7 +24,7 @@ def roof(parent,p):
             m.prism([(0,y0,ridge),(xx,y0,zz),(xx,y1,zz),(0,y1,ridge)],(0,0,-.13),'shingle' if p['style'] in ('aframe','chapel') else 'slate')
             m.finish()
     m=G.Mesh('Roof ridge caps and rake edges',rt)
-    m.beam((0,-l/2-over,ridge+.02),(0,l/2+over,ridge+.02),.16,.13,'bronze')
+    m.beam((0,-l/2-over,ridge+.02),(0,l/2+over,ridge+.02),.16,.13,'copper')
     for yy in (-l/2-over,l/2+over):
         for s in (-1,1):m.beam((s*(w/2+over),yy,e-over*math.tan(math.radians(p['pitch']))),(0,yy,ridge),.14,.22,'timber' if p['style']=='aframe' else 'stone')
     m.finish();return rt

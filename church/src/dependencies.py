@@ -14,6 +14,8 @@ def main():
         if cached.exists():shutil.copyfile(cached,host)
         else:subprocess.run(['blender','-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(ROOT/'coffee-shop/src/hosts.py'),'--','--kind','downtown-opposite','--out',str(host.resolve())],check=True)
     rows={s:hashlib.sha256((ROOT/s).read_bytes()).hexdigest() for s in required}
+    if any(not Path(f'build/hosts/town-{i}.glb').exists() for i in range(6)):
+        subprocess.run(['blender','-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(ROOT/'church/src/context_hosts.py')],check=True)
     Path('build/dependencies.json').write_text(json.dumps(rows,indent=2))
 
 

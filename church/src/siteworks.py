@@ -6,14 +6,16 @@ from hardware import sign
 
 
 def slab(name,rect,z,role,parent,thick=.12):
-    a,b,c,d=rect;thick=max(thick,z+.10);m=G.Mesh(name,parent,actor_kind='site');m.box(((a+b)/2,(c+d)/2,z-thick/2),(b-a,d-c,thick),role);return m.finish()
+    a,b,c,d=rect;thick=max(thick,z+.10);m=G.Mesh(name,parent,actor_kind='site',mulch='mulch' in name.lower());m.box(((a+b)/2,(c+d)/2,z-thick/2),(b-a,d-c,thick),role);return m.finish()
 
 
 def paving(p,parent):
+    import turf
+    turf.MODERN=p['style']=='aframe'
     modern=p['style']=='aframe';cuts=[]
     def pad(name,rect,z=0,role='concrete'):
         cuts.append(rect);return slab(name,rect,z,role,parent)
-    lot=(12,70,-39,-18) if modern else (-18,13,23,44)
+    lot=(12,70,-36,-18) if modern else (-18,13,23,44)
     pad('Sealed parking lot',lot,.005,'asphalt')
     if modern:
         pad('Arterial driveway connection',(10.6908,13.7388,-39.38,-33),.005,'asphalt')
@@ -55,6 +57,14 @@ def paving(p,parent):
     w=p['width'];l=p['length'];cuts.append((-w/2,w/2,-l/2,l/2))
     if modern:cuts += [(w/2,w/2+21,l/2+1.9,l/2+14.1),(w/2+17.535,w/2+26.065,-10.2,16.8)]
     else:cuts.append((w/2,w/2+10,l/2-11.315,l/2+3.315))
+    cuts+=turf.beds(p)
+    if modern:
+        islands=[(12,15.3,-36,-24),(32.3,35.1,-36,-31.0),(51.5,54.3,-36,-31.0),(67.6,70,-36,-18)]
+        for r in islands:
+            slab('Landscape island curb',r,.13,'concrete',parent)
+            inner=(r[0]+.12,r[1]-.12,r[2]+.12,r[3]-.12)
+            slab('Island mulch',inner,.14,'timber',parent,.04)
+        cuts+=islands
     bounds=(-22.2,73,-39.4,47) if modern else (-22.2,30,-23.4,47)
     xs=sorted({bounds[0],bounds[1],*[max(bounds[0],min(bounds[1],q)) for r in cuts for q in r[:2]],*[x for x in range(math.ceil(bounds[0]),math.floor(bounds[1]),2)]})
     ys=sorted({bounds[2],bounds[3],*[max(bounds[2],min(bounds[3],q)) for r in cuts for q in r[2:]],*[y for y in range(math.ceil(bounds[2]),math.floor(bounds[3]),2)]})
@@ -64,7 +74,7 @@ def paving(p,parent):
             x=(a+b)/2;y=(c+d)/2
             if any(r[0]<x<r[1] and r[2]<y<r[3] for r in cuts):continue
             m.geom([(a,c,-.008),(b,c,-.008),(b,d,-.008),(a,d,-.008)],[(0,1,2,3)],'lawn')
-    m.finish();return lot
+    m.finish();turf.details(p,parent,cuts,bounds);return lot
 
 
 def parking(p,parent,rect):
@@ -75,6 +85,7 @@ def parking(p,parent,rect):
         for j in range(n):
             x=start+j*pitch
             if x+pitch/2>b-.7:continue
+            if modern and (j==19 or (row==0 and j in (7,14))):continue
             if modern and row==1 and (x<24 or 40<x<50 or j==5):continue
             if not modern and row==0 and j==8:continue
             # Keep one generous access aisle at the pedestrian-route end.
@@ -82,12 +93,18 @@ def parking(p,parent,rect):
                 continue
             for xx in (x-pitch/2,x+pitch/2):
                 pts=[(xx-.045,y-2.72,.012),(xx+.045,y-2.72,.012),(xx+.045,y+2.72,.012),(xx-.045,y+2.72,.012)]
-                m.geom(pts,[(0,1,2,3)],'paint',uv=[[(.005,.755),(.12,.755),(.12,.995),(.005,.995)]])
+                m.geom(pts,[(0,1,2,3)],'paint',color=(.57,.55,.45),uv=[[(.005,.755),(.12,.755),(.12,.995),(.005,.995)]])
             yy=y+(2.1 if row else -2.1);m.box((x,yy,.075),(1.70,.17,.15),'concrete')
-            occupied=rng.random()<p['occupancy'];accessible=(modern and row==1 and j==4) or (not modern and row==0 and j==9)
+            occupied=((row,j) in ((0,3),(0,5),(0,10),(0,16),(1,4),(1,11),(1,17))) if modern else rng.random()<p['occupancy']
+            accessible=(modern and row==1 and j==4) or (not modern and row==0 and j==9)
             stall=G.root(f'Stall_{row}_{j}',(x,y,.01),parent,socket_kind='parked_car',stall_width=pitch,stall_depth=5.4864,occupied=occupied,accessible=accessible)
             p['stalls'].append(dict(name=stall.name,center=[x,y,.01],yaw=180 if row else 0,occupied=occupied,accessible=accessible))
             if occupied:car(row*20+j,(x+rng.uniform(-.12,.12),y+rng.uniform(-.16,.16),.012),180 if row else 0)
+            # Repeated cause, irregular occurrence: drips below engine/gearbox,
+            # concentrated toward the stall head, never a road-wide noise wash.
+            oy=y+(1.1 if row else -1.1)+rng.uniform(-.35,.35);ox=x+rng.uniform(-.22,.22)
+            rx=rng.uniform(.18,.47);ry=rng.uniform(.30,.72)
+            m.geom([(ox-rx,oy-ry,.014),(ox+rx,oy-ry,.014),(ox+rx,oy+ry,.014),(ox-rx,oy+ry,.014)],[(0,1,2,3)],'paint',color=(.65,.61,.54),uv=[[(.505,.505),(.745,.505),(.745,.745),(.505,.745)]])
     m.finish()
 
 
@@ -136,33 +153,25 @@ def streets(parent,modern):
 
 def town(p,parent):
     modern=p['style']=='aframe';cx,cy=streets(parent,modern)
-    # Locally reduced distant hosts retain their library maps. Their canonical
-    # deliveries are neither rewritten nor counted as this church's geometry.
-    ranch=G.ROOT/'houses/export/HearthfieldRanch-11.gltf';cape=G.ROOT/'houses/export/HearthfieldCape-34.gltf'
-    if modern:
-        points=[(-12,53,0),(15,55,0),(44,54,0),(76,9,0),(-50,-18,90),(-50,12,90),(-7,-69,180),(25,-68,180),(55,-70,180)]
-        for i,(x,y,yaw) in enumerate(points):instance(ranch if i%2 else cape,'Arterial neighbor '+str(i),(x,y,0),yaw,actor='town')
-    else:
-        host=G.ROOT/'church/build/hosts/downtown-opposite.glb'
-        for i,x in enumerate((-20,-10,0,10,20,30,40)):
-            instance(host,'One block from Main Street '+str(i),(x,56,0),actor='town')
-        for i,y in enumerate((-12,15,42)):instance(ranch,'Side street house '+str(i),(-51,y,0),90,actor='town')
-        for i,x in enumerate((-10,18,44)):instance(cape,'Across corner house '+str(i),(x,-54,0),180,actor='town')
+    from neighborhood import build
+    build(p)
     # Native foliage, at varied orientations and credible setbacks. Shrub roots
     # are selected from the single delivered two-species library.
-    plants=[(-18,-17),(20,-17),(-20,17),(23,39),(49,26),(58,-4),(-48,35),(-45,-13)] if modern else [(-18,-20),(21,-20),(-21,8),(26,27),(-42,46),(43,48)]
+    plants=[(-18,-17),(20,-17),(-20,17),(23,39),(49,26),(58,-4),(33.7,-33),(52.9,-33)] if modern else [(-18,-25),(21,-25),(-25,8),(26,35),(-42,46),(43,48)]
     for i,(x,y) in enumerate(plants):
         instance(G.ROOT/('trees/export/PinOak.glb' if i%3==0 else 'trees/export/RedMaple.glb'),'Established street tree '+str(i),(x,y,0),i*53,.70 if modern else .61,actor='vegetation')
     for i in range(12 if modern else 7):
         point=(36.2,-7+i*1.65,0) if modern else (17.1,4+i*1.65,0)
         instance(G.ROOT/'shrubs/export/Shrubs.glb','Foundation shrub '+str(i),point,i*37,.75 if not modern else .87,kind='Hydrangea' if i%4==0 else 'Boxwood',actor='vegetation')
-    for i,(x,y) in enumerate(((-22,-21),(22,-21),(49,-23)) if modern else ((-22,-22),(22,-22),(-22,20))):
+    for i,(x,y) in enumerate(((-22,-40),(14,-27),(69,-24)) if modern else ((-25,-22),(22,-25),(-25,20))):
         instance(G.ROOT/'street-light/export/StreetLight.glb','Street light '+str(i),(x,y,0),0,actor='site')
     instance(G.ROOT/'street-signs/export/StreetSigns.glb','Corner street names',(cx+5,cy+6,0),actor='site')
     if not modern:
-        for i,(x,y,yaw) in enumerate(((8,-28.0,90),(20,-28.0,90),(-27,1,0),(-27,13,0))):car(80+i,(x,y,-.13),yaw)
+        for i,(x,y,yaw) in enumerate(((-12,-28,90),(-4,-28,90),(8,-28,90),(20,-28,90),(33,-28,90),(45,-28,90),(-27,-8,0),(-27,4,0),(-27,16,0),(-27,28,0))):car(80+i,(x,y,-.13),yaw)
     # A distant district plane closes the horizon below all authored surfaces.
     slab('Distant town ground',(-600,600,-600,600),-.18,'lawn',parent,.02)
+    from turf import imported_lawns
+    __import__('bpy').context.view_layer.update();imported_lawns()
 
 
 def site(p,church):

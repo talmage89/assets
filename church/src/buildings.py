@@ -62,11 +62,11 @@ def services(parent,p):
     for s in (-1,1):
         xx=s*(w/2+over+.04)
         # Open U trough, hemmed outside lip, outlet and supported offset pipe.
-        m.box((xx,0,edge_h-.17),(.18,l+.5,.035),'bronze')
-        for sx in (-.09,.09):m.box((xx+sx,0,edge_h-.10),(.025,l+.5,.15),'bronze')
+        m.box((xx,0,edge_h-.17),(.18,l+.5,.035),'copper')
+        for sx in (-.09,.09):m.box((xx+sx,0,edge_h-.10),(.025,l+.5,.15),'copper')
         for yy in (-l/2+.4,l/2-.4):
             xp=s*(w/2+.10);pts=[(xx,yy,edge_h-.17),(xx,yy,edge_h-.54),(xp,yy,edge_h-.76),(xp,yy,.32),(xp+s*.2,yy,.16)]
-            m.tube(pts,.058,'bronze',10)
+            m.tube(pts,.058,'copper',10)
             for z in (1.0,3.5,6.3):
                 if z<edge_h-.6:m.box((xp,yy,z),(.13,.15,.045),'iron')
             m.box((xp+s*.12,yy,.05),(.64,.40,.10),'concrete')
@@ -97,7 +97,7 @@ def rear_steps(parent,p):
 
 
 def build(p):
-    G.STYLE=p['style']
+    G.STYLE=p['style'];G.PLAN=p
     rt=G.root('Church_'+str(p['seed']),asset_set='Church',static_root=True,seed=p['seed'],style=p['style'])
     w=p['width'];l=p['length'];modern=p['style']=='aframe'
     if modern:
@@ -134,6 +134,8 @@ def build(p):
     additions(rt,p)
     from details import fittings
     fittings(rt,p)
+    from weather import repairs
+    repairs(rt,p)
     import bpy
     bpy.context.view_layer.update()
     points=[ob.matrix_world@v.co for ob in rt.children_recursive if ob.type=='MESH' for v in ob.data.vertices]

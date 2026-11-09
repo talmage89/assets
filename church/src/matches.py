@@ -10,16 +10,27 @@ from kit.photo_match import calibrate
 def prepared():
     if not Path('refs/straight-front-28.jpg').exists():
         subprocess.run(['pdftoppm','-f','28','-l','28','-scale-to','1800','-jpeg','refs/straight-aframe-nomination.pdf','refs/straight-front'],check=True)
-    # The corner tower is on the opposite side of the reference. Mirror only
-    # this comparison image, and document it; never change a model to trace it.
-    im=Image.open('refs/historic-street.jpg').convert('RGB').crop((15,35,720,1009))
-    ImageOps.mirror(im).save('refs/match-historic.jpg',quality=96)
+    def balanced(file,box,out,size=None,crop=None):
+        im=ImageOps.exif_transpose(Image.open(file)).convert('RGB')
+        if size:im=im.resize(size,Image.Resampling.LANCZOS)
+        a=np.asarray(im).astype(float)/255;x0,y0,x1,y1=box
+        med=np.median(a[y0:y1,x0:x1].reshape(-1,3),axis=0);gain=med.mean()/med
+        im=Image.fromarray(np.uint8(np.clip(a*gain,0,1)*255+.5))
+        if crop:im=im.crop(crop)
+        im.save(out,quality=97)
+        return dict(neutral_patch=box,neutral_rgb=med.tolist(),gain=gain.tolist(),crop=crop,prepared_size=im.size)
+    # Period color photograph, not mirrored. Neutral: the concrete sidewalk
+    # at lower right, away from grass, asphalt, red brick and cast shadows.
+    historic=balanced('refs/color-columbus.jpg',(360,925,420,934),'refs/match-historic.jpg',(1000,960))
     im=Image.open('refs/straight-front-28.jpg').convert('RGB').crop((160,195,1038,850))
     # Neutral: unmarked gray arrival drive, excluding curb/leaf litter.
     a=np.asarray(im).astype(float)/255;patch=a[465:477,350:450];med=np.median(patch.reshape(-1,3),axis=0);gain=med.mean()/med
     a=np.clip(a*gain,0,1);Image.fromarray(np.uint8(a*255)).save('refs/match-modern.jpg',quality=96)
-    Image.open('refs/historic-entry.jpg').convert('RGB').crop((790,180,960,550)).save('refs/match-window.jpg',quality=96)
-    return dict(modern_neutral_rgb=med.tolist(),modern_white_balance_gain=gain.tolist(),historic='monochrome; no chromatic balance',window='monochrome white painted siding; no chromatic balance')
+    # Brick tower lancet, with exterior protective sheet/bar and deep reflection.
+    # Keep native photo pixels in this close comparison; concrete is in the
+    # whole frame and supplies the balance before the window crop is taken.
+    window=balanced('refs/color-dayton.jpg',(1371,3468,1589,3494),'refs/match-window.jpg',crop=(806,2218,1109,2822))
+    return dict(modern_neutral_rgb=med.tolist(),modern_white_balance_gain=gain.tolist(),historic=historic,window=window)
 
 
 def definitions():
@@ -27,12 +38,12 @@ def definitions():
     def point(plan,xyz):return [xyz[k]-plan['placement_offset'][k] for k in range(3)]
     def marks(plan,rows):return [dict(world=point(plan,xyz),pixel=xy) for xyz,xy in rows]
     w=p['width'];l=p['length'];tx,ty=p['tower_xy']
-    classic=dict(title='Town Gothic street elevation (mirrored reference)',photo='refs/match-historic.jpg',crop=[0,0,705,974],location=point(p,(21,-64,1.72)),target=point(p,(0,-7,10)),lens=42,lens_bounds_mm=(28,85),camera_height_m=(1.72,.8),landmarks=marks(p,[
-        ((-w/2,-l/2,0),(192,760)),((w/2,-l/2,0),(498,760)),
-        ((-w/2,-l/2,p['eave']),(190,491)),((w/2,-l/2,p['eave']),(493,458)),
-        ((0,-l/2,p['ridge']),(308,355)),
-        ((tx-2.285,ty-2.285,0),(40,774)),((tx+2.285,ty-2.285,0),(180,775)),
-        ((tx,ty,28.95),(112,125)),((tx-2.285,ty-2.285,17.35),(51,340)),((tx+2.285,ty-2.285,17.35),(179,348))]))
+    classic=dict(title='Period brick Gothic church across its street',photo='refs/match-historic.jpg',crop=[0,0,1000,960],location=point(p,(-20,-65,1.72)),target=point(p,(0,-9,12)),lens=42,lens_bounds_mm=(20,85),camera_height_m=(1.72,.8),landmarks=marks(p,[
+        ((-w/2,-l/2,0),(500,888)),((w/2,-l/2,0),(790,899)),
+        ((-w/2,-l/2,p['eave']),(503,659)),((w/2,-l/2,p['eave']),(790,676)),
+        ((0,-l/2,p['ridge']),(650,479)),
+        ((tx-2.285,ty-2.285,0),(372,892)),((tx+2.285,ty-2.285,0),(500,895)),
+        ((tx,ty,28.95),(418,23))]))
     w=q['width'];l=q['length'];e=q['eave'];h=q['ridge']
     modern=dict(title='Postwar church across its arrival drive',photo='refs/match-modern.jpg',crop=[0,0,878,655],location=point(q,(25,-58,1.72)),target=point(q,(0,0,7)),lens=42,lens_bounds_mm=(28,85),camera_height_m=(1.72,.8),landmarks=marks(q,[
         ((-w/2,-l/2,0),(51,442)),((w/2,-l/2,0),(327,448)),
@@ -41,11 +52,10 @@ def definitions():
     # Compare the exported wall module: the photograph has a flat wall,
     # whereas a neighboring buttress occludes this oblique view in the nave.
     y=-.235;sill=2.30;stem=3.10;r=.70
-    window=dict(title='Isolated exported wall bay: storm-protected lancet',photo='refs/match-window.jpg',crop=[0,0,170,370],location=(-12,-8,1.72),target=(0,y,4.7),lens=48,lens_bounds_mm=(28,100),camera_height_m=(1.72,1.2),landmarks=[dict(world=xyz,pixel=xy) for xyz,xy in [
-        ((-r,y,sill),(86,302)),((r,y,sill),(114,303)),
-        ((-r,y,sill+stem),(88,141)),((r,y,sill+stem),(117,139)),
-        ((0,y,sill+stem+3**.5*r),(111,91)),
-        ((-r,y,sill+1.0),(87,245)),((r,y,sill+1.0),(115,245))]])
+    window=dict(title='Brick lancet and protective glazing',photo='refs/match-window.jpg',crop=[0,0,303,604],location=(4,-9,1.72),target=(0,y,4.6),lens=48,lens_bounds_mm=(20,160),camera_height_m=(1.72,1),landmarks=[dict(world=xyz,pixel=(xy[0]*3.36-806,xy[1]*3.36-2218)) for xyz,xy in [
+        ((-r,y,sill),(267,813)),((r,y,sill),(297,806)),
+        ((-r,y,sill+stem),(268,714)),((r,y,sill+stem),(301,707)),
+        ((0,y,sill+stem+3**.5*r),(285,688))]])
     return dict(gothic=classic,modern=modern,window=window)
 
 
