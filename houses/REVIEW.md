@@ -2392,3 +2392,7 @@ No digest was refreshed. `interrupted-original-check.json` lists those files.
 The corrected command passes the same explicit frozen-input list through
 `MAKE` as well as the outer invocation; its full argv is retained in the
 original-check receipt. This is an interrupted validation, not a passing one.
+
+The corrected `make TYPE=ranch check` returns 0 in 69.64 s, including the
+recursive colonial check. Construction, motion, imported surfaces/frames,
+shared maps and original delivery checks pass; the 136-file ledger is exact.
