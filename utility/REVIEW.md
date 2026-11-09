@@ -827,3 +827,37 @@ both pass; zero triangles leave their stock charts. Brand support gaps are
 .345–.436 mm, below the original's 1 mm maximum. Preserve that trial's config,
 payload and images in build/lod-round2/utility/tangent-pass1 before testing
 .5-pixel surface preservation for a cheaper witness. No delivery claim yet.
+
+### Tangent critique 2 — stop on guarded-chart regression
+
+Opened the three new native strips and both construction views. Color/value
+first: no broad pole-color change appears; the difference is concentrated at
+hardware and the loop. Thin braces remain rather than disappear. The cheaper
+trial measures 1620 triangles against 1453; all native image limits and both
+generic check-lod stages pass. Those passes do not approve the delivery.
+
+The independent family audit finds **34 new guarded-chart crossings**, versus
+zero in LOD0 and the first trial. Brand support still passes. A triangle that
+crosses a stock boundary can interpolate unrelated material even when these
+three views hide it. This is the frozen simplifier's chart defect, not a reason
+to relax the original chart limits. The utility family stops here, as required;
+no other pole, transformer, crossarm or street-wire kind inherits an approval.
+No general tool change is in scope. The 280-triangle GuyAssembly remains
+LOD0-only: its thin guard, guy and anchor already use coarse geometry.
+
+Both trials' exact configs, payloads, native images and hashes stay in
+build/lod-round2/utility/tangent-pass{1,2}/. The final chart failure is
+tangent-pass2/atlas.json; rejected measured cost reports are in
+build/lod-round2/utility/rejected-report/. The live rejected mesh is removed
+from export/lod. The src config is evidence, wired to no Makefile target.
+No README trial table or public LOD hook is added. The original check is
+rerun with accepted generated inputs frozen explicitly; its complete command
+is in original-check-command.json. Receipt and freeze outcomes are recorded
+in the closing entry below.
+
+Closing result: original make check exits 0, including seven unit tests,
+physical construction, raw/imported delivery and render-input validation.
+All 103 frozen tool hashes match; all 18 newly built source files and all
+1206 pre-existing delivery/texture/docs files retain their hashes. Repository
+check and diff whitespace check pass. Utility has no lod/check-lod targets.
+Its two rejected trials have no runtime residency or placement recommendation.

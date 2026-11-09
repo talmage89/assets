@@ -381,5 +381,5 @@ TIMBER, RILL ELECTRIC and RV IDs use installed DejaVu Sans, resolved through
 `kit/fonts.py` (open Bitstream Vera/DejaVu license). Neighboring family scripts
 supply presentation context without changing their source or delivery paths.
 
-No LOD chain yet. Distant pole hardware and wire coverage have not been verified.
+No LOD chain yet. Reduced geometry can sample the wrong material where atlas regions meet.
 See [the LOD review](REVIEW.md).
