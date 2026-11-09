@@ -35,6 +35,14 @@ def main():
     files=[*sorted((stage/'export').rglob('*.*')),*sorted((stage/'textures/ship').glob('*.png'))]
     files += [p for p in sorted((stage/'build/hosts').rglob('*')) if p.suffix in ('.glb','.json','.png')]
     files += [stage/'build'/s for s in ('plan-101.json','plan-202.json','metrics.json','letters.json','dependencies.json','matched-cameras.json','photo-balance.json')]
+    gallery=ASSET/'build/delivery.json'
+    if gallery.exists():
+        sys.path.insert(0,str(HERE))
+        from delivery import encode
+        for row in json.loads(gallery.read_text())['gallery']:
+            target=stage/row['file'];inputs=[ASSET/p for p in row['inputs']]
+            cols=2 if target.name=='places.jpg' else 3 if len(inputs)>2 else 1
+            encode(inputs,target,cols);files.append(target)
     for path in files:
         accepted=ASSET/path.relative_to(stage)
         if path.suffix=='.json':
