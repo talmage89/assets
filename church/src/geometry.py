@@ -49,6 +49,7 @@ class Mesh:
                 if (p-a).length<1e-7 or (b-p).length<1e-7 or (p-a).cross(b-p).length<1e-10:
                     poly.pop(i);changed=True;break
         if len(poly)<3:return
+        if (poly[1]-poly[0]).cross(poly[2]-poly[0]).dot(Vector(depth))<0:poly.reverse()
         n=len(poly);self.geom([*poly,*[Vector(p)+Vector(depth) for p in poly]],
             [tuple(reversed(range(n))),tuple(range(n,2*n)),*[(i,(i+1)%n,(i+1)%n+n,i+n) for i in range(n)]],role,color)
     def loft(self,rings,role='iron',caps=True,smooth=False,color=(1,1,1)):
@@ -74,6 +75,14 @@ class Mesh:
         self.geom([(x-w/2,y,z-h/2),(x+w/2,y,z-h/2),(x+w/2,y,z+h/2),(x-w/2,y,z+h/2)],[(0,1,2,3)],role,uv=coords)
     def finish(self):
         from surfaces import charts,tint
+        # Preserve authored outward winding. Recalculating normals after UV
+        # splitting treats every face as an isolated island and flips some.
+        rounded={}
+        def key(p):return tuple(round(float(v),8) for v in p)
+        for f,sm in zip(self.f,self.smooth):
+            if not sm:continue
+            pts=[Vector(self.v[i]) for i in f];normal=(pts[1]-pts[0]).cross(pts[2]-pts[0])
+            for p in pts:rounded[key(p)]=rounded.get(key(p),Vector())+normal
         # Author final triangles first. UVs follow each original face's physical
         # coordinates; source walls contain true apertures rather than decals.
         vs=[];fs=[];uvs=[];cols=[];roles=[];smooth=[]
@@ -89,7 +98,14 @@ class Mesh:
         for face,tt,cc,r,sm in zip(me.polygons,uvs,cols,roles,smooth):
             face.material_index=keys.index(r);face.use_smooth=sm
             for li,tx,co in zip(face.loop_indices,tt,cc):uv.data[li].uv=tx;t.data[li].color=(*co,1)
-        bm=bmesh.new();bm.from_mesh(me);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(me);bm.free();me.update()
+        bm=bmesh.new();bm.from_mesh(me);bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(me);bm.free();me.update()
+        if rounded:
+            normals=[None]*len(me.loops)
+            for face in me.polygons:
+                for li in face.loop_indices:
+                    p=me.vertices[me.loops[li].vertex_index].co
+                    normals[li]=tuple(rounded.get(key(p),face.normal).normalized() if face.use_smooth else face.normal)
+            me.normals_split_custom_set(normals)
         ob=bpy.data.objects.new(self.name,me);bpy.context.collection.objects.link(ob);ob.parent=self.parent
         ob['asset_set']='Church'
         if self.props.get('sheet'):ob['allow_boundary']=True

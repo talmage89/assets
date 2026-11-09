@@ -39,7 +39,7 @@ def light(dusk=False,sun_direction=None):
 def shots(seed):
     modern=seed==202
     return dict(hero=dict(location=(40,-56,1.72) if modern else (34,-40,1.72),target=(9,0,6.9) if modern else (0,0,11.8),lens=38 if modern else 35),
-        above=dict(location=(73,-85,70) if modern else (61,-69,56),target=(11,0,0) if modern else (0,8,0),lens=45),
+        above=dict(location=(100,-112,92) if modern else (61,-69,56),target=(21,1,0) if modern else (0,8,0),lens=42 if modern else 45),
         doors=dict(location=(4,-23,1.72),target=(0,-14 if modern else -12.8,1.75),lens=48),
         window=dict(location=(4,-23,5.0) if modern else (13,-1,4.0),target=(1,-14.95,6.4) if modern else (6.65,-2.13,4.8),lens=48),
         window_dusk=dict(location=(4,-23,5.0) if modern else (13,-1,4.0),target=(1,-14.95,6.4) if modern else (6.65,-2.13,4.8),lens=48,dusk=True),
@@ -68,7 +68,19 @@ def render_file(source,out,name,spec,width,samples,engine):
         for ob in bpy.context.scene.objects:
             if ob.type=='MESH' and ob not in shown:ob.hide_render=True
     light(spec.get('dusk',False),spec.get('sun_direction'));scene=bpy.context.scene;scene.render.engine=engine
+    if spec.get('module_studio'):
+        ns=scene.world.node_tree.nodes;ls=scene.world.node_tree.links;bg=ns.get('Background')
+        for link in list(bg.inputs['Color'].links):ls.remove(link)
+        bg.inputs['Color'].default_value=(.22,.22,.22,1);bg.inputs['Strength'].default_value=.7
     if engine=='CYCLES':enable();scene.cycles.samples=samples;scene.cycles.use_denoising=True;scene.cycles.max_bounces=8;scene.cycles.transparent_max_bounces=12
+    else:
+        scene.eevee.use_raytracing=True;scene.eevee.ray_tracing_options.resolution_scale='1';scene.eevee.taa_render_samples=samples
+        for ma in bpy.data.materials:
+            bs=ma.node_tree.nodes.get('Principled BSDF') if ma.use_nodes else None
+            if bs and bs.inputs['Transmission Weight'].default_value>0:
+                ma.use_raytrace_refraction=True;ma.thickness_mode='SLAB'
+                value=ma.node_tree.nodes.new('ShaderNodeValue');value.outputs[0].default_value=.006
+                output=next(n for n in ma.node_tree.nodes if n.type=='OUTPUT_MATERIAL');ma.node_tree.links.new(value.outputs[0],output.inputs['Thickness'])
     cam=camera(spec['location'],spec['target'],spec.get('lens',42),ortho=spec.get('ortho'));cam.rotation_euler.rotate_axis('Z',spec.get('roll',0))
     if name=='scale':
         height=spec.get('scale_ground_z',0);human((4.03,-18.4,height))
@@ -98,7 +110,12 @@ def main():
     if a.modules:
         for source in sorted(Path('export/modules').glob('*.gltf')):
             meta=json.loads(source.with_suffix('.json').read_text());lo,hi=map(Vector,(meta['bounds_min'],meta['bounds_max']));center=(lo+hi)/2;span=max(hi-lo)
-            spec=dict(location=list(center+Vector((span*.85,-span*1.9,span*.70))),target=list(center),lens=48,ortho=span*1.48)
+            if source.stem=='BentShoe':
+                # Inspect one of the paired shoes at its actual scale.
+                bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
+                pts=[o.matrix_world@v.co for o in bpy.context.scene.objects if o.type=='MESH' for v in o.data.vertices if (o.matrix_world@v.co).x<center.x]
+                lo=Vector(tuple(min(p[k] for p in pts) for k in range(3)));hi=Vector(tuple(max(p[k] for p in pts) for k in range(3)));center=(lo+hi)/2;span=max(hi-lo)
+            spec=dict(location=list(center+Vector((span*.85,span*1.9*(1 if source.stem=='RearSteps' else -1),span*.70))),target=list(center),lens=48,ortho=span*1.48,module_studio=True)
             render_file(source,a.out,source.stem,spec,a.width,a.samples,a.engine)
         return
     if a.matches:
@@ -108,7 +125,7 @@ def main():
             render_file(source,a.out,name,spec,a.width,a.samples,a.engine)
         return
     if a.range:
-        render_file(Path('export/Range.gltf'),a.out,'range',dict(location=(60,-170,90),target=(16,0,6),lens=42,ortho=166),a.width,a.samples,a.engine);return
+        render_file(Path('export/Range.gltf'),a.out,'range',dict(location=(60,-170,90),target=(16,0,6),lens=42,ortho=166,module_studio=True),a.width,a.samples,a.engine);return
     for seed in map(int,a.seeds.split(',')):
         source=Path(f'export/Church-{seed}.gltf' if a.building_only else f'export/ChurchSite-{seed}.gltf')
         for name in a.shots.split(','):

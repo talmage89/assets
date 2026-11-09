@@ -75,6 +75,21 @@ def run():
         # Footprint-centered standalone exports: horizontal envelope center.
         assert max(abs((a+b)/2) for a,b in zip(meta['bounds_min'][:2],meta['bounds_max'][:2]))<.0001
         p=json.loads(Path(f'build/plan-{seed}.json').read_text());cx,cy,_=p['placement_offset']
+        outward=0
+        for ob in bpy.context.scene.objects:
+            if ob.type!='MESH' or not ob.name.startswith(('Roof panel','Front rose gable')):continue
+            points=[ob.matrix_world@v.co for v in ob.data.vertices];front=min(v.y for v in points)
+            for face in ob.data.polygons:
+                pp=[points[i] for i in face.vertices];n=(pp[1]-pp[0]).cross(pp[2]-pp[0]).normalized()
+                if ob.name.startswith('Front rose gable') and all(abs(v.y-front)<1e-5 for v in pp):
+                    assert n.y<-.99,('Front masonry winding',ob.name,face.index);outward+=1
+                if ob.name.startswith('Roof panel'):
+                    distances=[v.z-(p['ridge']-abs(v.x+cx)*math.tan(math.radians(p['pitch']))) for v in pp]
+                    if max(abs(v) for v in distances)<1e-5:
+                        assert n.z>0,('Roof outward winding',ob.name,face.index);outward+=1
+                    elif max(abs(v+.13) for v in distances)<1e-5:
+                        assert n.z<0,('Roof underside winding',ob.name,face.index);outward+=1
+        assert outward>=8*p['bays'];result['outward_face_checks']=outward
         if seed==101:
             hall=next(o for o in bpy.context.scene.objects if o.get('module_kind')=='ParishHall')
             hall_top=max((o.matrix_world@v.co).z for o in hall.children_recursive if o.type=='MESH' for v in o.data.vertices)
