@@ -27,7 +27,7 @@ def main():
     images={};balances={}
     for n,roi,d in [('hall',(800,1555,860,1567),'Sunlit concrete walk in front of the hall; approximate neutral, not a gray card'),
                     ('station-second',(1160,1290,1250,1305),'Concrete apron in front of the middle bay; approximate neutral'),
-                    ('hall-close',(900,1638,980,1645),'Concrete sidewalk below the hall; approximate neutral')]:
+                    ('hall-close',(1910,1485,1930,1496),'Shaded concrete stair landing beside the right-hand rail; approximate neutral')]:
         images[n],balances[n]=balance(n,roi,d)
     sp=site(101);p=next(p for p in cases() if p['seed']==707);x,y,_=sp['building_at'];l=x-p['width']/2;r=x+p['width']/2;f=y-p['depth']/2;top=p['floor']+p['stories']*p['story_pitch']+.63
     definitions={}

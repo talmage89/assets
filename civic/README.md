@@ -1,8 +1,8 @@
-# Civic buildings — form and construction checkpoint
+# Civic buildings — form and look checkpoint
 
 An original civic kit for a maintained American town in 2010: a 1928 brick and limestone city hall with a 1976 police wing and 1994 accessible vestibule, and a 1974 three-bay fire station with a later exhaust retrofit. Seven building examples and two different parcels use the library's existing baked surfaces. Every vertex and texel comes from this repository's scripts.
 
-**This stops before look-dev and final delivery.** There is no committed gallery. Full-size exported-asset evidence is in [renders/checkpoint](renders/checkpoint/), its [contact sheet](renders/checkpoint/contact.jpg), and the [photographic comparisons](renders/matches/contact.jpg). [REVIEW.md](REVIEW.md) records rejected views, construction fixes and remaining CG tells. [REFERENCE.md](REFERENCE.md) distinguishes published comparators from original dimensions; [refs/SOURCES.md](refs/SOURCES.md) records exact sources and rights.
+**This stops before final delivery.** There is no committed gallery. Full-size exported-asset evidence is in [renders/checkpoint](renders/checkpoint/), its [contact sheet](renders/checkpoint/contact.jpg), and the [photographic comparisons](renders/matches/contact.jpg). [Same-camera changes](renders/changes/contact.jpg) retain 1400px before/after panels. [REVIEW.md](REVIEW.md) records rejected views, construction fixes and remaining CG tells. [REFERENCE.md](REFERENCE.md) distinguishes published comparators from original dimensions; [refs/SOURCES.md](refs/SOURCES.md) records exact sources and rights.
 
 ## Program grammar
 
@@ -22,7 +22,7 @@ Historic programs are `hall`, `post_office` and `library`: Classical or Colonial
 | Feature | Authored size / source comparison |
 | --- | --- |
 | Main hall | 29.2608 × 17.6784m / 96 × 58ft; two 3.9624m story pitches over a .9144m plinth |
-| Hall entry | Four Tuscan columns, 7.3748m shaft/order height, .878m nominal diameter; molded bases, tapered shafts, necks, capitals and bearing architrave |
+| Hall entry | Four Tuscan columns, 7.3748m order height, .878m nominal diameter; square plinths, torus/scotia, entasis, neck/astragal, echinus and abacus; full architrave/frieze/dentilled cornice and pediment |
 | Stair | Six 152.4mm risers, 330.2mm goings, 8.6m width, jointed stone treads, bearing cheeks and 42mm handrail tube |
 | Historic sash | 1.3716 × 2.4384m / 4ft6in × 8ft; six-over-six glazing with masonry returns, separate frames, lintels and projecting sills |
 | Police wing | 14.6304 × 12.192m / 48 × 40ft; different brick, aluminum windows and yard-facing operating entry |
@@ -33,7 +33,7 @@ Historic programs are `hall`, `post_office` and `library`: Classical or Colonial
 
 HABS MA-995, LA-1127 and NJ-357 supply elevation, plan and molding studies. The National Register brick/limestone nomination documents civic masonry, raised bases, cornices and later additions. Fire Engineering's 1989 guide describes roughly 15ft-wide / 40ft-deep single bays and larger apparatus doors; the new design deliberately uses more width/depth. Tubac supplies a later 14×14ft cross-check. USFA and the NFPA source-capture report inform the exhaust retrofit and separation of the shallow bay from living quarters. The 2018 USFA guide recommends a taller 16ft opening; this asset represents an older 14ft station. All town names, dates, inscriptions and agency graphics are fictional.
 
-The hall assembly including additions/portico spans 33.271 × 35.600 × 10.377m; the station including tower/landings spans 28.839 × 22.882 × 13.078m. Their parcels are 80 × 68m and 86 × 66m. These are original design envelopes, not measurements attributed to a real building.
+The hall assembly including additions/portico spans 33.271 × 35.600 × 11.845m; the station including tower/landings spans 28.839 × 22.882 × 13.078m. Their parcels are 80 × 68m and 69 × 66m. A separate native corner office occupies the station's western neighbor. These are original design envelopes, not measurements attributed to a real building.
 
 Windows have actual openings, glazing, blinds and dim room layers. `CivicRoomGlow` and `CivicBayDiffusers` carry `switch_kind=interior_lights`; a game can change their emission. Only the apparatus volume has a modeled inspection interior: floor, beams, racks, hanging coats/helmets/boots, 150mm exhaust hoses, ducts, lights and door tracks. There is no apparatus model or playable civic interior.
 
@@ -45,30 +45,30 @@ Windows have actual openings, glazing, blinds and dim room layers. `CivicRoomGlo
 | --- | ---: | --- | ---: |
 | Wall bay with sash | 776 | Tall sash | 644 |
 | Aluminum sash | 572 | Cornice run | 836 |
-| Tuscan column | 756 | Pilaster | 132 |
-| Operating entry/frame | 528 | Stone stair/rails | 872 |
-| Complete overhead door/track | 1,856 | HVAC | 484 |
-| Turnout rack/gear | 736 | Bollard | 88 |
+| Tuscan column | 1,092 | Pilaster | 132 |
+| Operating entry/frame | 528 | Stone stair/rails | 1,736 |
+| Complete overhead door/track | 1,976 | HVAC | 484 |
+| Turnout rack/gear | 736 | Bollard | 280 |
 | Scupper/downspouts | 504 | Plain fascia | 88 |
 | Roof panel | 24 | Hose/training tower | 10,708 |
 
-Small planar/simple parts remain below the nominal modular range; no triangles are added to meet a minimum. The tower uses its separate 12k allowance. Per-construction-object counts for every building are in `build/family.json`, and the complete module measurements are in `build/modules.json`.
+Small planar/simple parts remain below the nominal modular range; no triangles are added to meet a minimum. The tower uses its separate 12k allowance. Per-construction-object triangle/material/image costs are in `build/piece-costs.json`, `build/family.json` and `build/modules.json`. `build/resource-report.md` separates package, car, vegetation and neighboring-town costs. Image dependencies are shared resident resources, never allocations to sum across modules.
 
 ## Proof packages and resources
 
 | Export | Triangles | Materials | glTF + BIN bytes |
 | --- | ---: | ---: | ---: |
-| Civic-101, city hall + police | 84,044 | 6 | 11,691,917 |
-| Civic-202, three-bay station | 39,800 | 8 | 5,276,570 |
-| Civic-303, post office | 38,192 | 6 | 5,374,717 |
-| Civic-404, cupola library | 54,552 | 6 | 7,810,099 |
-| Civic-505, two-bay/two-story station | 43,564 | 8 | 5,845,399 |
-| Civic-606, small plain hall | 36,048 | 6 | 4,936,557 |
-| Civic-707, larger 11-bay hall | 87,948 | 6 | 12,467,114 |
-| Site-101, including plants | 325,768 | 21 | 20,702,927 |
-| Site-202, including plants | 228,810 | 22 | 14,513,140 |
+| Civic-101, city hall + police | 100,190 | 7 | 12,810,931 |
+| Civic-202, three-bay station | 49,629 | 9 | 5,726,304 |
+| Civic-303, post office | 45,693 | 7 | 5,790,862 |
+| Civic-404, cupola library | 64,813 | 7 | 8,410,015 |
+| Civic-505, two-bay/two-story station | 53,057 | 9 | 6,283,800 |
+| Civic-606, small plain hall | 43,476 | 7 | 5,331,377 |
+| Civic-707, larger 11-bay hall | 107,228 | 7 | 13,696,338 |
+| Site-101, including plants | 357,603 | 22 | 23,974,084 |
+| Site-202, including plants | 255,289 | 23 | 16,704,200 |
 
-Static site counts excluding vegetation are **142,300** and **69,022**, within 250k. Included trees/shrubs account for **183,468** and **159,788** placed triangles respectively. The hall has 13/19 occupied stalls and the station 6/9, with reserved route/service access kept free. Cars are presentation actors outside those packages; `build/cars-101.json` and `cars-202.json` report their actual placed/stored counts. Native vehicle geometry/maps are shared, with documented factory color decoding, parked lamps off and a separate fictional police roof upfit. The presentation car totals are 1,573,994 placed / 130,816 unique triangles for 23 hall actors and 945,752 / 129,496 for 14 station actors, with 13/11 material resources. Their two native 2048 triples add about 32 MiB shared across the actors. Context has no frame-rate guarantee; an engine needs instance batching, LODs and culling.
+Static site counts excluding vegetation are **174,135** and **95,501**, within 250k. Included trees/shrubs account for **183,468** and **159,788** placed triangles respectively. The hall has 13/19 occupied stalls and the station 6/9, with reserved route/service access kept free. Cars are presentation actors outside those packages; `build/cars-101.json` and `cars-202.json` report actual placed/stored counts, including the station's two neighboring-office cars. Native vehicle geometry/maps are shared, with documented factory color decoding, parked lamps off and a separate fictional police roof upfit. Their two native 2048 triples add 32 MiB shared across actors; the police upfit reuses the civic finish set already resident. `build/town-costs-*.json` reports the separate native buildings, street construction and yard trees. Context has no frame-rate guarantee; an engine needs instance batching, LODs and culling.
 
 All packages are stock glTF + BIN with external images. Canonical relative image URIs are shared across modules and seeds. Preserve that layout or remap resolved URIs to an engine image cache. `build/review/*.glb` embeds the **same BIN and exact images** solely for fresh-import evidence. Building roots are centered on their physical footprint at grade, Blender −Y front / +Z up; glTF +Z front / +Y up. Site roots are parcel centers; `origin_offset_m` converts their construction-plan coordinates. All authored mesh scales are applied.
 
@@ -76,12 +76,14 @@ All packages are stock glTF + BIN with external images. Canonical relative image
 | --- | --- |
 | Downtown masonry, mineral/roof, finish | 2048 triple + 1024 triple + 2048 triple / 36 MiB |
 | Commercial painted block | 1024 triple / 4 MiB |
-| Ground asphalt, concrete, lawn, trim/decals | Three 2048 triples + one 1024 triple / 52 MiB |
+| Ground asphalt, concrete, lawn, trim/decals | Four 2048 triples / 64 MiB; lawn uses the garden's existing July albedo recipe |
 | Native maple and oak | Two 2048 triples / 32 MiB |
 | Native boxwood/hydrangea atlas, boxwood root selected | 2048 triple / 16 MiB |
-| Native chain-link | 2048 triple / 16 MiB |
+| Native chain-link | 1024 triple / 4 MiB |
 
-**36 unique images / 156 MiB shared across this family, zero new civic image sets.** The resolved PNGs total 91,629,693 disk bytes. PNG disk bytes and uniform glass/emission materials are separate from that allocation. Missing Downtown/Commercial maps are rebuilt through their unchanged 4096 recipes inside civic-owned folders. No existing delivery is rewritten. Furniture and utility context use native form adapters; this is explicitly weaker than their final material deliveries.
+**36 unique images / 156 MiB shared across this family, zero new civic image sets.** Each hall binds 36 MiB, each station 40 MiB, and each complete planted site 152 MiB. The resolved PNG union totals 91,892,698 disk bytes. The July lawn albedo is generated by the garden's accepted recipe in a private folder; normal/ORM resolve to exact native Ground bytes. Caused age uses vertex color/coverage over the existing baked charts: irregular repointing, salts, splash, sill/cornice wash, chalked column bases, worn treads, hardware rust, door fading/dents, rubber/oil lanes and block-scupper discharge. One shared weather material adds coverage without a new map. Missing Downtown/Commercial maps rebuild through their unchanged 4096 recipes inside civic-owned folders. No existing delivery is rewritten. Furniture, utility and house context still use native form adapters, which are weaker than their final material deliveries.
+
+The masonry's pigment value is calibrated separately from weather: standard glTF vertex multipliers .65 for historic programs and .35 for stations, also applied to their corresponding module prototypes. Reference/view lighting differs, so `build/value-audit.json` records a display-value comparison rather than claiming measured physical albedo. The unchanged native maps remain shared.
 
 ## Pivots, sockets and paths
 
@@ -98,13 +100,17 @@ Custom axis/vector extras (`pivot_axis`, `points_m` and door guide vectors) reta
 make                  # refs, shared dependencies, programs/sites, checks, exports, Cycles evidence, pairs, contact
 make check            # raw glTF, fresh import, UV/normal/scale, ramps, drives, parked-car/walk envelopes, door motion, repository
 make repeat           # exact 56-file package/map repeat; clean Blender geometry rebuild, shared maps retained
+make source-matches   # supplemental source views, with the exported pairs' recorded camera/light
+make changes          # same-camera historical/current pairs; needs the retained local checkpoint
 make WIDTH=1000 SAMPLES=20 render
 ```
 
 All Cycles work uses `kit/with_gpu.sh` and the inherited GPU lock, one lock per render set. `build/check.json`, `motion-check.json`, `repeat.json` and `render-check.json` retain measured evidence. Door sweeps use the existing kit BVH/edge-interval check and Downtown's oriented-solid-angle membership, including its positive/negative fixtures. Rolling guide contact is explicitly excluded; all other fixed surfaces remain. This is sampled geometry, not continuous mechanical simulation. A separate route check uses the measured native sedan box at occupied sockets, expanded by each walking path half-width: 182 + 42 segment/vehicle pairs, zero overlaps. It certifies that conservative parking-placement envelope, not full traffic motion.
 
-The native oak has one known MikkTSpace corner that may re-encode by .0001. New civic packages restore its accepted original tangent with the kit's existing exact position/normal/UV signature guard; no other field or canonical file changes. Exact repeats are measured after that bounded preservation step. Shared GPU maps are retained during `repeat`, not claimed as a fresh byte-identical GPU rebake.
+The native oak has one known MikkTSpace corner that may re-encode by .0001. The station's curved corner-cut sheet also has one tangent component on that rounding boundary (.2175/.2176). New civic packages use the kit's existing exact position/normal/UV signature guard to retain the original oak and first measured weather-sheet encodings. No other field or canonical file changes; larger differences or changed signatures fail. Exact repeats are measured after that bounded step. Shared GPU maps are retained during `repeat`, not claimed as a fresh byte-identical GPU rebake.
 
 The source-surface bearing audit rays all 20 lowest foot vertices of five rooftop units against actual roof triangles: maximum measured gap is zero. Hip/cupola examples omit that rooftop unit. This proves source bearing; the separate fresh-import bounds/count audit proves serialization, and image receipts prove which exports were rendered. Neither substitutes for the photographic critique.
 
-Remaining weaknesses: stone/roof aging is still too clean; masonry repairs and caused deposits need the look-dev pass; the lawns and repeated context parcels remain too orderly; apron oil/scuff stamps remain patterned in close view; there are no pigeon/dropping details yet. Generic gear and window-room layers are inexpensive exterior cues. The photo fits compare different original designs, including an 11-bay generator example for the larger hall photograph; they do not certify a reconstruction or every feature of the two seeded sites. Native family exports and Ground/tree/shrub maps are prerequisites supplied by the library; `make dependencies` rebuilds only the missing Downtown/Commercial recipes and local form adapters. No kit or top-level README changes.
+The primary comparison fits are 3.32 px for the entry, 8.40 px for the larger hall and 8.58 px for all twelve opening corners of the clear three-bay brick-station photo. Concrete neutrals, gains, crops and calibration overlays are retained with the pairs. They compare different original designs and do not certify a reconstruction. The 11-bay example is used for the larger hall photograph. Source pairs supplement the exported pairs to expose consolidation/color loss.
+
+Remaining weaknesses: the flat roofs remain too uniformly clean, the context repeats house/tree silhouettes, and broad lawns still reveal the tile at oblique distance. Weather reads more strongly in close views than in the heroes, and broad stone planes remain evenly maintained. Paint/stone tooling and the small finial retain facets in close inspection. Door dents and scuffs are modest; the shallow bay's gear, exhaust drops and room layers are inexpensive exterior cues. There are no pigeon/dropping details. Native family exports and Ground/tree/shrub maps are prerequisites supplied by the library; `make dependencies` rebuilds missing Downtown/Commercial recipes and local form adapters. No kit, top-level README or committed gallery changes.

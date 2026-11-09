@@ -11,7 +11,7 @@ SAMPLES ?= 40
 SOURCE := $(addprefix src/,aging.py build.py buildings.py delivery.py door_motion.py flags.py geo.py library.py order.py parts.py plans.py services.py sheets.py sites.py station.py turf.py wear.py)
 BUILD_IDS := 101 202 303 404 505 606 707
 MODEL := build/family.json build/modules.json $(foreach s,$(BUILD_IDS),export/Civic-$(s).gltf export/Civic-$(s).bin build/review/Civic-$(s).glb) $(foreach s,101 202,export/Site-$(s).gltf export/Site-$(s).bin build/review/Site-$(s).glb) export/CivicPieces.gltf export/CivicPieces.bin build/review/CivicPieces.glb
-.PHONY: all refs dependencies model render matches review check repeat clean
+.PHONY: all refs dependencies model render matches source-matches changes review check repeat clean
 all: refs model check render matches review
 refs:
 	$(PYTHON) ../kit/fetch_refs.py refs
@@ -29,6 +29,11 @@ matches: model refs
 	$(BP) --python ../kit/photo_match.py -- verify --calibration build/matched-cameras.json
 	../kit/with_gpu.sh $(BP) --python src/render.py -- --matches --out renders/matches --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) ../kit/photo_match.py compose --calibration build/matched-cameras.json --renders renders/matches --out renders/matches
+source-matches: matches
+	../kit/with_gpu.sh $(BP) --python src/source_matches.py
+	$(PYTHON) ../kit/photo_match.py compose --calibration build/matched-cameras.json --renders renders/source-matches --out renders/source-matches
+changes:
+	$(PYTHON) src/compare.py
 review:
 	$(PYTHON) src/review.py
 check: model
