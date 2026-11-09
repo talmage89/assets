@@ -2821,3 +2821,49 @@ poor buffer costs. The split-level stays LOD0-only, with no LOD hook and
 three plain README lines. General reducer/transfer changes are deferred
 to a separate tool proof; no accepted source or gate is adjusted here.
 The post-build original family check follows, with accepted inputs frozen.
+
+## LOD adoption — final proof and remaining work
+
+The post-build `make TYPE=split check`, with explicit accepted-input `-o`
+arguments propagated through every nested make, returns 0 in 120.73 s.
+Its full command/log is `build/houses-lod/split-original-check.{json,log}`.
+The corresponding ranch and Cape postchecks returned 0 in 70.41/172.83 s.
+Source scripts were rebuilt for all delivered seeds; LOD appearance proofs
+cover only representative ranch 12, Cape 36 and split 51, for the reasons
+recorded above. Cape/split publication repeats are byte exact. The ranch
+rebuild's glTF generator label and one-code-value rebake drift remain
+explicitly distinguished from the unchanged accepted delivery.
+
+Final `make TYPE=ranch check-lod LOD_THREADS=4` returns 0 in 4.12 s.
+The fresh measured report/contact is `build/houses-lod/handoff-ranch-report/`.
+Final rejected Cape/split full checks each return 2 only for images; their
+earlier near trials also fail raw geometry. They are never selected by
+default family LOD hooks, which retain the approved colonial and ranch only.
+No full four-level chain is newly adopted. The ranch far proxy is a partial
+adoption; the requested shared-map near reductions remain deferred.
+
+`originals.json` still matches all 136 accepted geometry, metadata, image
+and docs files. Literal `sha256sum -c` checks pass all ranch 109, Cape 109
+and split 111 frozen entries; `*-final-freeze.log` records them. This includes
+the original recipe, builder, independent auditor, renderer and reporter.
+`python3 kit/repo_check.py` passes 2,657 tracked sources with zero errors;
+`git diff --check` passes. No authored changes touch `kit/`, `cars/`, the
+top-level README or original docs. No bake/render/check process remains.
+
+For the three representative seeds together, counting only the adopted
+ranch proxy and the other originals, `representative-union.json` measures
+135,416 stored triangles, nineteen material resources, 31 stored primitive
+placements and 20,274,004 distinct payload bytes. Canonical original maps
+deduplicate to 28.0005 MiB, the one proxy adds 1.3334 MiB, and all meshes
+occupy 11.4651 MiB: 40.7991 MiB total versus 39.3756 MiB for those LOD0s.
+This is the three-seed union, not the whole delivered house family or the
+colonial chain. One selected level draws per instance; the active original
+draw counts are ranch 10, Cape 8 and split 12, or one for the ranch proxy.
+
+Remaining work needs separate general tool proofs: economical reduction
+within tiled/trim regions without new float-serialized degenerate faces,
+and far transfer that preserves pale siding and window/trim response.
+The retained ranch proxy still loses close masonry/shingle detail and has
+an entry-roof crease; it is approved only at its tested 4.5% switch and
+cannot replace an interacting door hierarchy. No engine frame-time or
+continuous motion-clearance claim is made by these LOD checks.
