@@ -2597,3 +2597,27 @@ PNGs total 6,155,272 bytes per dependency set; the four 512-square proxy maps
 total 384,900. Geometry bytes are 3,244,354 / 3,614,991 / 3,587,402 / 101,311.
 These measured costs do not approve the failed near levels or the unreviewed
 far appearance. Complete dimensions and resources remain in the saved manifest.
+
+### Cape LOD critique pass 1 — reject the 4.5% proxy
+
+Built the direct far-only config independently from immutable LOD0. Opened
+all three native four-panel strips, source/new/preceding raw-PNG pages and
+x6 differences, both construction views and contact. Color/value first:
+the front windows/trim become brighter, the lap and shingles blur, and the
+close view exposes pale triangular window fields. At the intended 48.6-pixel
+height this changes the frontal appearance; it is not approved as mere loss
+of subpixel granules. Coverage and the main gable/dormer silhouette pass.
+
+The 1,798/1,800-triangle proxy meets its count and is one material/draw.
+Front mean/p95/local are .034095/.133333/.117586; side
+.023323/.101961/.096181. Both fail the unchanged .02/.08/.08 gates;
+rear .015240/.054902/.039542 passes. Alpha/IoU maxima .025770/.027926 pass.
+`check-lod` returns 2 solely for rendered differences; geometry, source bytes,
+re-import, pivots and normal-map audit pass. There is no image-limit override.
+
+Preserved the exact config as `src/lod-cape-proxy045-trial.json`, all payloads,
+maps, manifest, raw checks, metrics and native images in
+`build/houses-lod/cape-proxy045/` before tuning. The measured failed report is
+`build/houses-lod/cape-proxy045-report/`, explicitly using `--allow-failed`
+without updating the README. A 3% / 32.4-pixel switch is tested next with
+the same triangle goal, 512 maps, shader policy and original image limits.
