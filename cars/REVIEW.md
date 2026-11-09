@@ -2288,6 +2288,88 @@ retain all 454 source meshes, 150 GLB accessors, maps and graph; the complete
 11,530,736-byte GLB retains SHA-256
 `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
 
+## Factory proxy adapter, 2026-11-09
+
+The adapter closes factory routing, but does not close the native appearance
+gate. No new car chain is adopted. Main merged cleanly in `7391810`; the opt-in
+kit implementation is `490b6e8`, with its literal source/recipe freeze recorded
+under `build/car-lod/freeze.sha256` before this control. The integration uses
+the delivered decoder, not a substituted whole-car tint.
+
+The ignored H120 inputs were absent. `make -C cars BODY=hatch` rebuilt both
+source densities, construction/motion/UV checks, baked maps, the GLB and full
+gallery/pairs successfully. Actual game/export count is 59,852 triangles.
+`build/car-lod/hatch-source.json` records the new immutable source receipt;
+`build/car-lod/hatch-make.log` records the complete cold build. All 2,996
+pre-existing delivery/map/image files matched the preservation ledger afterwards.
+
+### LOD critique 1: rerun the rejected rollout control
+
+Opened all three native four-panel strips, both 960px construction views and
+the contact in `renders/lod/hatch-proxy-control/`. Color/value first: blue paint
+is recognizable, but the windshield loses the pale cabin band; front lamps
+spread and rear optics/trim change. The closer view exposes coarse wheels and
+blurred optical borders. These remain failures at the native switch, independent
+of whether their silhouette reads as a hatchback.
+
+The unchanged `src/lod-hatch-probe.json` gives the recorded 2,498/2,500 triangles
+at .04 / 43.2px / 32.5845m. Means .05930/.03374/.03873 reproduce the earlier
+control; p95 .29020/.17255/.23922 fails .08. Both coverage gates pass.
+The raw routing check still returns failure, and actual fresh imports still
+raise `StopIteration` for all five presets: `build/car-lod/hatch-control-routing.json`
+and `hatch-negative-decoder.json`. Full `check-lod` returns 2 for images;
+the independent normal audit passes. These are the original 24-sample control,
+not a converged attribution of every optical error.
+
+### LOD critique 2: contract preserved, appearance rejected
+
+Opened all three native strips/differences, both construction views and contact
+in `renders/lod/hatch-adapter/`, then reopened the windshield, nose and rear
+native panels. The immutable delivered LOD0 under identical procedural light
+is the color reference; no photographic white-balance inference is used.
+Body paint retains its hue, but the windshield still loses the broad pale
+interior band and its reflection changes. The lamp highlight changes in value
+and shape; the rear window/trim also changes. Those visible faults survive
+512 samples and the fourfold bake filtered to the same 512 atlas.
+
+All five presets now execute on LOD0 and the proxy after ten fresh imports,
+with the original tint/metallic tables and both lamp states. The delivered
+helper delegates only when `lod_factory_coverage` is present. Its ordinary
+materials retain their source color/metal/transmission links. The general GPU
+fixture independently evaluates decoded color/metal fields on paint, metallic
+trim, glass and lamps: maximum linear component error .001557; nonpaint tint
+and metallic coverage are zero at all three nonpaint probes. These establish
+routing and field isolation, not the optical appearance of this car.
+
+`src/lod-hatch-adapter.json` keeps 2,498/2,500 triangles, one material/draw and
+the same .04 switch. Mean RGB .060548/.033157/.031670, p95
+.270588/.168627/.207843 and worst 8px-patch mean .2186/.2134/.2221 fail the
+unchanged .02/.08/.08 gates. Alpha/IoU pass. `check-lod` returns 2 with only
+`render differences exceed threshold`; normal, topology, fresh-import and
+immutable-source checks pass. This is not a target miss or a reason for a
+color-limit exception. Different sample counts/decodes mean the two trials
+are not a one-variable measurement of optical improvement.
+
+The extra linear AO/tint/clean-metal coverage map adds 349,552 compressed-mip
+bytes at 512: .333 MiB, no extra draw. Eight 512 maps total 2.667 MiB; proxy
+mesh buffers add .1499 MiB. LOD0 alone is 19.837 MiB, the control together with
+LOD0 is 22.654 MiB. Stored totals are 62,350 triangles, five material resources,
+37 primitive placements and 8,754,064 payload bytes; only 36 or one draws are
+active per instance. No intermediate atlas or level is present in this control.
+
+Evidence: `build/car-lod/adapter-report/` and `control-report/` contain measured
+tables/contact sheets generated with reporting-only `--allow-failed`.
+`hatch-decoder.json`, `hatch-adapter-routing.json`, `hatch-check-lod.log` and
+`hatch-control-check-lod.log` retain the independent results. The original
+`make BODY=hatch check` also passes afterwards with explicit accepted-input
+`-o` arguments; exact command/exit are in `build/car-lod/finish-proof.json`.
+
+Stopped at the brief's adapter gate. S240, X220 and the full H120 chain are
+not attempted; pickup re-adoption is deferred with them. The missing cabin
+band and changed optical response require more than carrying factory fields.
+Neither counts nor a mathematical decoder proof approves the proxy's look.
+Full kit/opt-out regression closeout is recorded separately after completion.
+
 ## LOD rollout, 2026-11-09
 
 This family is blocked, not adopted. Frozen tool revision: `1d9d429`;

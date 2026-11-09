@@ -827,6 +827,41 @@ original scripts; photographs remain comparison material in ignored folders.
 
 ## Car rollout status: blocked
 
+The opt-in factory adapter now preserves all five presets and metallic/lamp
+routing on the H120 proxy, but its native image gate still fails. No S240,
+X220 or H120 chain is adopted, and the pickup pilot remains unchanged.
+The earlier rollout control and its table below remain rejected evidence.
+[Two follow-up critiques](REVIEW.md#factory-proxy-adapter-2026-11-09).
+
+Reproduce the new control with `make lod
+LOD_CONFIG=src/lod-hatch-adapter.json LOD_THREADS=4`, then the same override for
+`make check-lod`. It is a far-only diagnostic: its LOD1 row is tested at the
+proposed LOD3 switch and provides no intermediate moving-part proof.
+The delivered Python decoder and [GLSL helpers](src/paint.glsl) understand the
+proxy's opt-in coverage channels; existing LOD0 behavior is unchanged.
+
+| Factory adapter control | Measured result |
+| --- | ---: |
+| LOD0 / proxy triangles | 59,852 / 2,498 (target 2,500 met) |
+| Proxy materials / active color-pass draws | 1 / 1 |
+| Switch | 4% / 43.2 pixels / 32.5845 m |
+| Proxy maps | Eight 512² maps, 686,859 PNG bytes |
+| Added factory map allocation | .333 MiB compressed with mips |
+| All proxy textures / mesh buffers | 2.667 / .1499 MiB |
+| LOD0 / whole control residency | 19.837 / 22.654 MiB |
+| Stored triangles / material resources / placements | 62,350 / 5 / 37 |
+| Stored distinct payload / proxy load bytes | 8,754,064 / 861,816 |
+| Preset routing on LOD0 and proxy | Five of five; both lamp states pass |
+| Full `check-lod` / independent normals | FAIL images / PASS |
+
+Actual native RGB means are .06055/.03316/.03167 against .02. The windshield
+loses its pale cabin band and lamp/window response changes; coverage passes.
+Native strips, amplified differences and construction views are in
+`renders/lod/hatch-adapter/`; the contact is `contact.jpg`. The generated cost
+report is `build/car-lod/adapter-report/report.md`. This adds .333 MiB to the
+ordinary seven-map proxy policy, with one material/draw retained. GPU figures
+are compressed mip estimates before engine overhead, not driver measurements.
+
 The H120 far-only control below is rejected. Its one-material proxy loses the
 factory-color decoder and paint-only binding; the existing delivery decoder
 cannot select any of the five presets on it. The original GLB still supports
