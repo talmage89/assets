@@ -72,6 +72,7 @@ def main():
             from town import context
             context(101 if building_only else int(seed))
         light();sc=bpy.context.scene;sc.render.engine=args.engine;sc.cycles.samples=args.samples;cam=camera(spec,args.width)
+        if name in ('tower','scupper'):sc.view_settings.exposure+=.55
         if match:
             sc.render.resolution_y=round(args.width/match['shot']['aspect']);cam.rotation_euler.rotate_axis('Z',match['shot']['roll'])
             estimates={'hall-street':((-.45,.60,-.72),3.4,.23),'station-bay':((.72,.50,-.50),3.0,.22),'entry-order':((.55,.40,-.65),2.6,.24)}

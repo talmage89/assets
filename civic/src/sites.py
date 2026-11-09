@@ -11,7 +11,7 @@ def ground(a,name,rect,kind='Lawn',z=0,slope=None,grade=None):
     from kit.tiling import material,world_uv
     ma=bpy.data.materials.get('CivicGround_'+kind)
     if not ma:
-        ma=material('GardenLawn' if kind=='Lawn' else kind,LOCAL/'textures/lawn' if kind=='Lawn' else ROOT/'ground/textures/ship',tint=True);ma.name='CivicGround_'+kind
+        ma=material('GardenLawn' if kind=='Lawn' else kind,LOCAL/'textures/lawn/ship' if kind=='Lawn' else ROOT/'ground/textures/ship',tint=True);ma.name='CivicGround_'+kind
     l,r,f,k=rect;m=a.mesh(name,kind='Site'+kind,authored_winding=True,allow_boundary=True)
     height=lambda u,v:grade(u,v) if grade else slope(v) if slope else z
     step=.85 if kind=='Lawn' and r-l<150 else 3.048

@@ -55,7 +55,7 @@ def main():
     import importlib.util
     spec=importlib.util.spec_from_file_location('_civic_july',ROOT/'community-garden/src/groundcover.py')
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
-    module.maps(ROOT,LOCAL/'textures/lawn')
+    module.maps(ROOT,LOCAL/'textures/lawn/ship')
     (out/'dependencies.json').write_text(json.dumps(dict(preserved_files=len(before),passed=True),indent=2)+'\n')
 
 

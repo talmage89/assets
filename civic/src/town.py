@@ -21,7 +21,7 @@ def context(seed):
         for side in (-1,1):decal(a,'DoubleYellowCenter',(j*3.048,ry+side*.105,-.026),(3.048,.1016),'paint',j,color=(1,.64,.025))
     for side in (-1,1):
         yy=ry+side*(rw/2+1.524)
-        crossings=sorted(sp['vehicle_crossings']+([(-20.4,-1.3)] if seed==202 else [])) if side>0 else []
+        crossings=sorted(sp['vehicle_crossings']+([(-32.4,-28),(-20.4,-1.3)] if seed==202 else [])) if side>0 else []
         spans=[];last=-240
         for aa,bb in crossings:spans.append((last,aa));last=bb
         spans.append((last,240))
@@ -36,7 +36,7 @@ def context(seed):
     for j in range(-36,37):
         x=j*3.048
         for side in (-1,1):
-            crossings=sp['vehicle_crossings']+([(-20.4,-1.3)] if seed==202 else [])
+            crossings=sp['vehicle_crossings']+([(-32.4,-28),(-20.4,-1.3)] if seed==202 else [])
             if side>0 and any(x+1.524>aa and x-1.524<bb for aa,bb in crossings):continue
             yy=ry+side*rw/2
             place(ROOT/'ground/export/Ground.glb','StreetCurb',(x,yy,-.012),90 if side<0 else -90,'Curb_Straight',a.root)
@@ -83,10 +83,19 @@ def context(seed):
         if abs(j*8-24)<6:continue
         car=place(ROOT/'cars/export'/('AlderC150.glb' if j%4==0 else 'AlderS240.glb'),'OnStreetCar_'+str(j),(j*8,ry-rw/2+1.2,-.015),90,parent=a.root)
         finish(car,['Porcelain','Atlantic','Graphite','Aluminum'][j%4]);actors.append(car)
+    if seed==202:
+        for j,yy in enumerate((-11,-17)):
+            car=place(ROOT/'cars/export/AlderS240.glb','NeighborOfficeCar_'+str(j),(-38,yy,-.003),90,parent=a.root)
+            finish(car,['Porcelain','Graphite'][j]);actors.append(car)
     from delivery import counts
     label=f'cars-{seed}' if parked else f'cars-context-{seed}'
     receipt=Path('build',label+'.json');recipe=hashlib.sha256(b''.join(p.read_bytes() for p in sorted((LOCAL/'src').glob('*.py')))+repr([(rt.name,tuple(rt.location),tuple(rt.rotation_euler)) for rt in actors]).encode()).hexdigest()
     previous=json.loads(receipt.read_text()) if receipt.exists() else {}
     if previous.get('recipe_sha256')!=recipe:
         metrics=counts([o for rt in actors for o in rt.children_recursive]);metrics.update(actors=len(actors),parked_stall_actors=parked,on_street_actors=len(actors)-parked,recipe_sha256=recipe);receipt.write_text(json.dumps(metrics,indent=2)+'\n')
+        car_objects={o for rt in actors for o in rt.children_recursive if o.type=='MESH'}
+        veg_objects={o for rt in a.root.children_recursive if rt.get('category')=='vegetation' for o in rt.children_recursive if o.type=='MESH'}
+        static=[o for o in a.root.children_recursive if o.type=='MESH' and o not in car_objects|veg_objects]
+        report=dict(seed=seed,static_context=counts(static),vegetation=counts(veg_objects),cars=metrics,scope='Presentation context only; civic/site package budgets reported independently; shared image dependencies are not additive')
+        Path('build',label.replace('cars','town-costs')+'.json').write_text(json.dumps(report,indent=2)+'\n')
     clear();return a

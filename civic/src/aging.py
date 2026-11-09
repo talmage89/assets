@@ -4,7 +4,7 @@ Alpha and color are ordinary glTF vertex data. No new image set, photographic
 projection, shader noise, or repeated circular stain stamp is introduced.
 """
 import math,random
-import bpy
+import bpy,bmesh
 from mathutils import Vector
 
 
@@ -49,24 +49,31 @@ def walls(a,p):
         patch(a,'RainSplash_'+face,origin,u,vertical,length,.55,(.075,.063,.038),
             lambda s,t:.55*max(0,1-t/(.45+.35*math.sin(s*19+phase)**2))*(.45+.55*math.sin(s*31+phase)**2),nx=round(length/.45),ny=5)
         if face!='front' or p['program']!='station':
-            o=Vector(origin)+Vector((0,0,top-1.0))
-            patch(a,'CorniceShelterAndWash_'+face,o,u,vertical,length,1.0,(.050,.049,.036),
-                lambda s,t:.33*t**2*(.42+.58*math.sin(s*43+phase)**6),nx=round(length/.48),ny=5)
+            o=Vector(origin)+Vector((0,0,top-1.35))
+            leaks=[(rng.uniform(.025,.975),rng.uniform(.008,.027),rng.uniform(.24,.52),rng.uniform(.25,.65)) for _ in range(rng.randint(6,10))]
+            def runoff(s,t,leaks=leaks):
+                return .055*t**4+sum(strength*math.exp(-((s-center)/width)**2)*max(0,(t-end)/(1-end))**.55 for center,width,strength,end in leaks)
+            patch(a,'CorniceShelterAndWash_'+face,o,u,vertical,length,1.35,(.050,.049,.036),
+                runoff,nx=round(length/.35),ny=8)
         # Damp masonry discharges salts in distinct low patches near drains.
         for j in range(2 if face=='front' else 1):
             start=length*(.18+.53*j)+rng.uniform(-.5,.5);ww=rng.uniform(1.25,2.1)
             origin2=Vector(origin)+Vector(u)*start+Vector((0,0,floor+.04))
+            # Salts creep out along irregular mortar/capillary fronts, rather
+            # than making a pale round spot or a repeated row of stamps.
             patch(a,'SaltBloom_'+face+str(j),origin2,u,vertical,ww,.65,(.62,.60,.49),
-                lambda s,t:.31*math.sin(s*math.pi)**2*math.sin(t*math.pi)**2*(.45+.55*math.sin(s*17+t*11)**2),nx=12,ny=6)
+                lambda s,t,ph=phase:.42*math.sin(s*math.pi)**.65*max(0,1-abs(t-(.26+.09*math.sin(s*19+ph)))/(.09+.07*math.sin(s*31+ph)**2)),nx=16,ny=9)
     # Sill-edge water tracks, placed from the actual exported sash geometry.
     for ob in list(a.objects):
         if ob.get('module_kind') not in ('TallSash','AluminumWindow'):continue
         angle=math.radians(ob['weather_yaw_degrees']);axis=Vector((math.cos(angle),math.sin(angle),0));normal=Vector((math.sin(angle),-math.cos(angle),0))
-        center=Vector(ob['weather_origin_m']);center.z-=.77
         for side in (-1,1):
-            o=center+axis*(side*ob['weather_width_m']*.48-.13)+normal*.003
-            patch(a,'SillRunoff_'+ob.name+str(side),o,axis,(0,0,1),.26,.62,(.083,.078,.050),
-                lambda s,t:.27*math.sin(s*math.pi)**2*t**.65,nx=3,ny=5)
+            if rng.random()<.18:continue
+            length=rng.uniform(.55,1.10);width=rng.uniform(.22,.41);strength=rng.uniform(.34,.52)
+            center=Vector(ob['weather_origin_m']);center.z-=length+.15
+            o=center+axis*(side*(ob['weather_width_m']/2+width/2+.015)-width/2)+normal*.003
+            patch(a,'SillRunoff_'+ob.name+str(side),o,axis,(0,0,1),width,length,(.083,.078,.050),
+                lambda s,t,st=strength:st*math.sin(s*math.pi)**2*t**.55,nx=4,ny=9)
     repairs(a,p)
     if p['program']=='station' and p['office']:
         # An open scupper discharges down the exposed block wall behind the
@@ -76,6 +83,38 @@ def walls(a,p):
         m.box((xx+.16,yy,5.88),(.35,.32,.12),'Trim',(.22,.23,.20));m.finish()
         patch(a,'BlockScupperRunoff',(xx+.004,yy-.6,2.4),(0,1,0),(0,0,1),1.2,3.37,(.058,.067,.044),
             lambda s,t:.45*math.exp(-((s-.5)/(.095+.16*(1-t)))**2)*t**.35,nx=8,ny=16)
+    guard_openings(a)
+
+
+def guard_openings(a):
+    """Weather belongs on wall surfaces; it cannot bridge a glazing/door hole.
+
+    Expand the real opening bounds by more than the weather grid cell. Every
+    corner of a triangle over an opening then has zero coverage, including
+    triangles straddling its edge. This is coverage, not a collision solid.
+    """
+    holes=[]
+    for ob in a.objects:
+        if 'weather_origin_m' not in ob:continue
+        angle=math.radians(ob['weather_yaw_degrees']);cs,sn=math.cos(angle),math.sin(angle)
+        holes.append((Vector(ob['weather_origin_m']),Vector((cs,sn,0)),Vector((sn,-cs,0)),ob['weather_width_m']/2+.50,ob['weather_height_m']))
+    for ob in list(a.objects):
+        if ob.get('module_kind')!='CausedWeather' or not any(s in ob.name for s in ('RainSplash','CorniceShelter','SaltBloom','SillRunoff')):continue
+        zero=set()
+        for vertex in ob.data.vertices:
+            for origin,axis,normal,half,height in holes:
+                delta=vertex.co-origin
+                if abs(delta.dot(normal))<.02 and abs(delta.dot(axis))<half and -.20<delta.z<height+.20:
+                    zero.add(vertex.index);break
+        tint=ob.data.color_attributes['Tint']
+        for loop in ob.data.loops:
+            if loop.vertex_index in zero:tint.data[loop.index].color[3]=0
+        # No invisible sheet faces across openings, or empty-mask geometry.
+        bm=bmesh.new();bm.from_mesh(ob.data);layer=bm.loops.layers.float_color['Tint']
+        discard=[face for face in bm.faces if all(loop[layer][3]<.000001 for loop in face.loops)]
+        bmesh.ops.delete(bm,geom=discard,context='FACES');bm.to_mesh(ob.data);bm.free();ob.data.update()
+        if not ob.data.polygons:
+            a.objects.remove(ob);bpy.data.objects.remove(ob,do_unlink=True)
 
 
 def repairs(a,p):

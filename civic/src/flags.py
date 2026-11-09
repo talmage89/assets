@@ -1,6 +1,6 @@
 """Light-breeze cloth under gravity, original graphics using shared paint maps."""
 import math
-import bpy
+import bpy,bmesh
 from geo import orient
 
 
@@ -16,7 +16,7 @@ def point(u,v):
 def cloth(a,p,name,national=True):
     x,y,z=p;pivot=name+'_Flag';a.pivot(pivot,p,axis='Z',limits=(-180,180))
     m=a.mesh(name+'_Cloth',part=pivot,kind='Flag',trim_strip=4,authored_winding=True,allow_boundary=True)
-    xs=sorted(set([i/26 for i in range(27)]+[.4]));ny=26
+    xs=sorted(set([i/26 for i in range(27)]+[.4]));ny=26;charts=[]
     white=(.72,.70,.62);red=(.36,.018,.027);blue=(.016,.035,.12)
     for j in range(ny):
         for u,uu in zip(xs,xs[1:]):
@@ -24,6 +24,7 @@ def cloth(a,p,name,national=True):
             color=blue if national and uu<=.400001 and j<14 else red if national and (j//2)%2==0 else white
             if not national:color=(.018,.10,.145) if j<18 else (.53,.35,.065)
             m.geom([point(u,v),point(uu,v),point(uu,vv),point(u,vv)],[(0,1,2,3)],'Trim',color)
+            charts += [(u,v),(uu,v),(uu,vv),(u,vv)]
     if national:
         # Fifty five-point stars; no borrowed flag texture or decal sheet.
         for row in range(9):
@@ -35,6 +36,7 @@ def cloth(a,p,name,national=True):
                     t=-math.pi/2+j*math.pi/5;r=.014 if j%2==0 else .006
                     q=point(u+math.cos(t)*r/1.615,v+math.sin(t)*r/.85)
                     points.append((q[0],q[1]-.001,q[2]))
+                    charts.append((u+math.cos(t)*r/1.615,v+math.sin(t)*r/.85))
                 m.geom(points,[tuple(range(10))],'Trim',white)
     else:
         # Fictional Briar Glen: limestone diamond around a three-tier pine.
@@ -42,13 +44,16 @@ def cloth(a,p,name,national=True):
             ([(.33,.62),(.49,.29),(.65,.62)],(.025,.12,.065)),
             ([(.37,.48),(.49,.21),(.61,.48)],(.025,.12,.065))]:
             pts=[point(u,v) for u,v in poly];m.geom([(xx,yy-.001,zz) for xx,yy,zz in pts],[tuple(range(len(pts)))],'Trim',color)
+            charts += poly
     orient(m,p,0);ob=m.finish()
+    for loop in ob.data.loops:
+        u,v=charts[loop.vertex_index];ob.data.uv_layers.active.data[loop.index].uv=(u*1.615/4,.504+v*.117)
+    # Cell colors remain CORNER data across the stripe/canton boundaries,
+    # while coincident positions share a smooth cloth normal field.
+    bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.000001);bm.to_mesh(ob.data);bm.free();ob.data.update()
     ma=bpy.data.materials.get('CivicFlagCloth')
     if not ma:
         ma=a.materials[4].copy();ma.name='CivicFlagCloth';ma.use_backface_culling=False
-        bs=ma.node_tree.nodes.get('Principled BSDF')
-        for link in list(bs.inputs['Roughness'].links):ma.node_tree.links.remove(link)
-        bs.inputs['Roughness'].default_value=.88
     ob.data.materials.clear();ob.data.materials.append(ma)
     for face in ob.data.polygons:face.material_index=0;face.use_smooth=True
     ob['flag_design']='United States, 50 stars / 13 stripes' if national else 'Fictional Briar Glen pine and limestone'

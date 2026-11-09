@@ -21,7 +21,7 @@ def window(a,name,p,w=1.3716,h=2.4384,yaw=0,modern=False):
         for s in (-1,1):m.box((s*w/6,.018,h/2),(.024,.040,h-.13),'Trim',(.60,.59,.53),r=0)
         for j in (1,2,4,5):m.box((0,.016,h*j/6),(w-.10,.045,.025),'Trim',(.60,.59,.53),r=0)
     orient(m,p,yaw);ob=m.finish()
-    ob['weather_origin_m']=p;ob['weather_width_m']=w;ob['weather_yaw_degrees']=yaw
+    ob['weather_origin_m']=p;ob['weather_width_m']=w;ob['weather_height_m']=h;ob['weather_yaw_degrees']=yaw
     # Switchable dim room layer sits behind the blinds and real glazing.
     import bpy
     ma=bpy.data.materials.get('CivicRoomGlow')
@@ -94,7 +94,8 @@ def front_door(a,name,p,width=.9652,height=2.4384,yaw=0):
         if name.endswith('_DoorR') and s==-1:continue
         m.box((s*(width/2+.045),.08,height/2),(.09,.18,height+.12),'Concrete')
     m.box((0,.08,height+.05),(width+.18,.18,.10),'Concrete')
-    orient(m,p,yaw);m.finish()
+    orient(m,p,yaw);frame=m.finish()
+    frame['weather_origin_m']=p;frame['weather_width_m']=width;frame['weather_height_m']=height;frame['weather_yaw_degrees']=yaw
     rad=math.radians(yaw);width-=.010
     hinge=(p[0]-width/2*math.cos(rad)-.115*math.sin(rad),p[1]-width/2*math.sin(rad)+.115*math.cos(rad),p[2])
     a.pivot(name,hinge,limits=(0,90))

@@ -68,7 +68,17 @@ def interior(a,p,x0,y0):
     from services import gear
     w=p['bayblock'];d=p['depth'];z=p['floor']
     m=a.mesh('ApparatusInterior',kind='BayInterior',trim_strip=2)
-    m.box((x0+w/2,y0+d/2,z-.08),(w-.5,d-.4,.16),'Concrete',(.29,.285,.255),r=0)
+    # A connected floor slab with 1m chart stations: the old single 18m face
+    # stretched a limestone normal strip until it resembled brushed wood.
+    ny=math.ceil(d-.4);vs=[]
+    for j in range(ny+1):
+        for xx in (x0+.25,x0+w-.25):vs.append((xx,y0+.2+(d-.4)*j/ny,z))
+    fs=[(j*2,j*2+1,j*2+3,j*2+2) for j in range(ny)];offset=len(vs)
+    vs += [(x0+.25,y0+.2,z-.16),(x0+w-.25,y0+.2,z-.16),(x0+w-.25,y0+d-.2,z-.16),(x0+.25,y0+d-.2,z-.16)]
+    fs += [(offset+3,offset+2,offset+1,offset),(0,offset,offset+1,1),(2*ny+1,offset+2,offset+3,2*ny)]
+    fs += [tuple(range(0,2*ny+1,2))+(offset+3,offset),
+        (1,offset+1,offset+2)+tuple(range(2*ny+1,1,-2))]
+    m.geom(vs,fs,'Concrete',(.29,.285,.255))
     for yy in (y0+3,y0+8,y0+13,y0+17):
         m.box((x0+w/2,yy,5.55),(w-.5,.16,.28),'Trim',(.18,.20,.18))
         for xx in (x0+.45,x0+w-.45):m.box((xx,yy,2.9),(.14,.14,5.5),'Trim',(.18,.20,.18))
@@ -81,6 +91,14 @@ def interior(a,p,x0,y0):
         m.box((x+1.85,y0+7.65,.76),(.23,.23,.25),'Trim',(.025,.028,.025))
         for k in range(3):gear(a,'Gear_'+str(j)+'_'+str(k),(x-1+k*.75,y0+d-1.1,z))
     m.finish()
+    from aging import patch
+    for j in range(p['bays']):
+        xx=x0+.4572+(j+.5)*p['bay_width']
+        for side in (-1,1):
+            patch(a,f'InteriorWheelLane_{j}_{side}',(xx+side*.94-.15,y0+1,z+.002),(1,0,0),(0,1,0),.30,d-2,(.035,.037,.029),
+                lambda s,t,j=j:.28*math.sin(s*math.pi)**2*math.sin(t*math.pi)**.35*(.7+.3*math.sin(t*19+j)**2),nx=4,ny=36)
+        patch(a,f'InteriorEngineTrail_{j}',(xx-.30,y0+1.7,z+.003),(1,0,0),(0,1,0),.60,d-3.4,(.027,.029,.022),
+            lambda s,t,j=j:.38*math.sin(s*math.pi)**4*math.sin(t*math.pi)**.35*(.3+.6*math.exp(-((t-.35-.12*j)/.14)**2)),nx=4,ny=28)
     import bpy
     ma=bpy.data.materials.get('CivicBayDiffusers')
     if not ma:

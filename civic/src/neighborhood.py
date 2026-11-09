@@ -42,9 +42,11 @@ def build(a,sp):
     # shops beyond the west cross street and houses immediately east of it.
     shops=LOCAL/'textures/shared/downtown/build/blocks/midwest/block.glb'
     place(shops,'WestArterialShops',(-62,-3,0),90,parent=a.root)
-    place(shops,'AdjacentArterialOffice',(-35,-1,0),0,'Midwest_411_02',a.root)
-    ground(a,'NeighborOfficeParking',(-42,-27,-32,-12),'Asphalt',-.003)
-    ground(a,'NeighborOfficeEntry',(-36,-34,-13,-9),'Concrete',.145)
+    place(shops,'AdjacentArterialOffice',(-34,9,0),0,'Midwest_411_05',a.root)
+    # Keep the existing street tree in an actual unpaved parking island.
+    for rect in [(-42,-35.3,-32,-6),(-32.7,-27,-32,-6),(-35.3,-32.7,-32,-21.3),(-35.3,-32.7,-18.7,-6)]:
+        ground(a,'NeighborOfficeParking',rect,'Asphalt',-.003)
+    ground(a,'NeighborOfficeEntry',(-35,-33,-6,-4.7),'Concrete',.018)
     for j in range(3):
         yy=-14+j*22.5;xx=65+rng.uniform(0,1.1)
         place(cape if j==1 else house,'EastNeighborHouse_'+str(j),(xx,yy,-.01),-90,parent=a.root)
