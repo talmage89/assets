@@ -9,3 +9,6 @@ SAMPLES ?= 80
 SHOTS := hero_closed,controls,casting,front,side,back,top,scale
 FINAL_SHOTS := hero_closed,front,side,back,top,controls,casting,scale
 include ../kit/rules.mk
+
+# Additive, explicitly requested delivery reductions; LOD0 remains read-only.
+include ../kit/lod_rules.mk

@@ -89,3 +89,25 @@ saturated than the direct-sun reference; wear is more orderly than incidental
 real damage. This is a street-scale prop, with those close-range compromises
 reported rather than called an exact photographic replica. No more source
 critique rounds are justified for this importance tier.
+
+## LOD rollout, 2026-11-09
+
+Frozen tool/recipe revision `3dd7bc3`; literal hashes are retained in
+`build/lod-rollout/fire-hydrant/freeze.sha256`. Original `make check` passes
+with accepted blends/export frozen by explicit `-o` arguments; exact command
+and result are `original-before-{command,result}.json` in that directory.
+
+### LOD critique 1: one shared-map standard-prop level
+
+Opened all three native strips and their original/preceding/reduced/difference
+panels, both construction views and contact sheet. Color/value first: red
+enamel, pale bonnet, dark cap recesses and zinc chains retain their response.
+Caps and linked chain coverage remain readable at 25% / 270px / 2.82m.
+The reduction changes tiny bonnet/flange highlight contours; the deliberately
+closer construction view exposes simpler beads and chain wire. There is no
+new atlas or material. All native gates and `make check-lod` pass, but
+3524/5980 triangles (58.93%) miss the 2392-triangle goal. Worst mean/p95/local
+are .00557/.03137/.07949; alpha/IoU remain below .0089.
+Archived config, complete generated output, checks, payload hashes and every
+native image at `build/lod-rollout/fire-hydrant/pass1/` before further tuning.
+Next: lower the optimization request at the same switch and unchanged gates.
