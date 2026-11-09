@@ -1,5 +1,12 @@
 # Morrow C75 school bus
 
+LOD rollout preflight is blocked: the accepted C75-101/102/103 glTF/BIN pairs
+and generated check inputs are absent in this worktree. No bus chain, motion
+retention, color/lamp routing proof or new measured delivery cost is claimed.
+The original build is not rerun to replace those missing inputs. See [the
+rollout preflight](REVIEW.md); the delivery figures below are historical
+documentation of the accepted asset, not new LOD measurements.
+
 ![Three Morrow C75 buses in the school's loading lane](docs/hero.jpg)
 
 | Turnaround | Front, optics and mechanisms |

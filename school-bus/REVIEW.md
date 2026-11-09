@@ -864,3 +864,25 @@ keeps the authorized, serial batch queued; its log is
 holder if this wait is abandoned. After release, inspect the regenerated
 images, run `make check` and finish this critique before calling the checkpoint
 complete. No docs or README gallery has been created.
+
+## LOD rollout preflight — blocked, 2026-11-09
+
+Merged current main (already up to date). Tool freeze revision `5dc0c50` and
+all 103 literal hashes: `build/lod-rollout/school-bus/freeze*`. The actual
+availability receipt `preflight.json` records C75-101/102/103 glTF and BIN
+all absent, with zero generated build files. There is no immutable vehicle
+input for the LOD builder or the original family's check graph. Do not
+substitute the README's historical constants for measured staged-source costs.
+
+No config/build, native LOD comparison, check-lod or two render-critique passes
+is claimed. Original make check is not run through its source/export
+generation dependencies. Doors, exits, stop/crossing arms, steering carriers,
+wheels, four surface bindings and independent BaseColor-alpha state routing
+must each be proved from the actual accepted packages through LOD2 before
+this vehicle can be adopted. No result from the cars or street props approves it.
+
+The lead needs the accepted three glTF/BIN pairs, canonical shared maps and
+generated original-check inputs staged for the next proof. No tool fix,
+source/texture/docs image change or bus render job is made here. Historical
+render-supervisor notes above describe earlier work, not a job started or
+left running by this rollout. All 103 frozen hashes still match.
