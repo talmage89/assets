@@ -867,8 +867,8 @@ factory-color decoder and paint-only binding; the existing delivery decoder
 cannot select any of the five presets on it. The original GLB still supports
 all five. The control also fails its native image comparisons. No H120 or X220
 chain is adopted. The X220 uses the same unsupported decoder convention; its
-chain was stopped at preflight. The accepted S240 GLB and its generated inputs
-are absent from this worktree, so it was not rebuilt or substituted.
+chain was stopped at preflight. At that rollout checkpoint the accepted S240
+GLB and generated inputs were absent, so it was not rebuilt or substituted.
 
 Reproduce the diagnostic with `make lod LOD_CONFIG=src/lod-hatch-probe.json
 LOD_THREADS=4`, then the same override for `make check-lod`. Run
