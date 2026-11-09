@@ -19,7 +19,7 @@ def main():
         accepted=ASSET/path.relative_to(stage);same=path.read_bytes()==accepted.read_bytes()
         compared.append(dict(file=str(path.relative_to(stage)),bytes=path.stat().st_size,exact=same))
         if not same:errors.append(str(accepted))
-    receipt=dict(passed=not errors,scope='Own church/range/module geometry BIN and analytic craft/glass/letter PNG bytes; imported car/tree inputs are covered by immutable library hashes, not regenerated here.',files=compared,errors=errors)
+    receipt=dict(passed=not errors,scope='Own church/range/module geometry BIN, analytic craft/glass/letter PNG and garden-summer lawn recipe/map bytes; imported car/tree inputs are covered by immutable library hashes, not regenerated here.',files=compared,errors=errors)
     (ASSET/'build/repeat.json').write_text(json.dumps(receipt,indent=2))
     assert not errors,errors
     print('PASS',len(compared),'deterministic geometry/map payloads,',sum(r['bytes'] for r in compared),'bytes')

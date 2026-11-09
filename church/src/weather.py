@@ -79,11 +79,11 @@ def repairs(parent,p):
             x=side*1.98
             for j in (0,3):
                 yy=y-2.34-j*.3302;z=p['floor']-j*.1524+.001
-                m.geom([(x-.12,yy,z),(x+.11,yy,z),(x+.15,yy-.29,z),(x-.09,yy-.27,z)],[(0,1,2,3)],'age',color=(.83,.35,.13),uv=[[(.005,.505),(.495,.505),(.495,.995),(.005,.995)]])
+                m.geom([(x-.12,yy,z),(x+.11,yy,z),(x+.15,yy-.29,z),(x-.09,yy-.27,z)],[(0,1,2,3)],'age',color=(.83,.35,.13),uv=[[(.005,.755),(.495,.755),(.495,.995),(.005,.995)]])
         for j in (1,2,3):
             yy=y-2.34-j*.3302;z=p['floor']-j*.1524+.0013
             reach=(.57,.89,.68)[j-1]
-            m.geom([(-2.13,yy,z),(-2.13+reach,yy,z),(-2.20+reach,yy-.26,z),(-2.13,yy-.28,z)],[(0,3,2,1)],'age',color=(.30,.78,.19),uv=[[(.005,.505),(.495,.505),(.495,.995),(.005,.995)]])
+            m.geom([(-2.13,yy,z),(-2.13+reach,yy,z),(-2.20+reach,yy-.26,z),(-2.13,yy-.28,z)],[(0,3,2,1)],'age',color=(.30,.78,.19),uv=[[(.005,.505),(.495,.505),(.495,.745),(.005,.745)]])
     if m.v:m.finish()
     roof_growth(parent,p)
     if p['style']=='aframe':fascia(parent,p)
@@ -100,7 +100,7 @@ def roof_growth(parent,p):
         length=rng.uniform(.20,.65);width=rng.uniform(.25,.85)
         poly=[(x,yy),(x+length,yy+.035),(x+length*.86,yy+width),(x-.03,yy+width*.92)]
         points=[(xx,y,p['ridge']+xx*slope+.007) for xx,y in poly]
-        m.geom(points,[(0,1,2,3)],'age',color=(.30,.78,.19),uv=[[(.005,.505),(.005,.995),(.495,.995),(.495,.505)]])
+        m.geom(points,[(0,1,2,3)],'age',color=(.30,.78,.19),uv=[[(.005,.505),(.005,.745),(.495,.745),(.495,.505)]])
     m.finish()
 
 

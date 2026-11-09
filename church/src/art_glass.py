@@ -66,17 +66,27 @@ def glass(out):
     # The unused upper-left chart carries gravity deposits. Alpha is ignored
     # by the three opaque glass compositions and consumed only by Church_age.
     # Reusing this quarter adds no images or GPU allocation.
-    alpha=np.ones((n,n));gy,gx=np.mgrid[:512,:512];rng=np.random.default_rng(7841)
-    field=np.zeros((512,512))
+    alpha=np.ones((n,n));gy,gx=np.mgrid[:256,:512];rng=np.random.default_rng(7841)
+    field=np.zeros((256,512))
     for j in range(24):
         cx=rng.uniform(12,500);width=rng.uniform(8,30);reach=rng.uniform(.35,1)
-        t=gy/512;wav=cx+3*np.sin(t*9+j)
+        t=gy/256;wav=cx+3*np.sin(t*9+j)
         track=np.exp(-((gx-wav)/(width*(1-.65*t)))**4)*np.clip(1-t/reach,0,1)**.6
         field=np.maximum(field,track*rng.uniform(.45,.95))
-    edge=np.clip(np.minimum(gx,511-gx)/18,0,1)*np.clip((511-gy)/28,0,1)
+    edge=np.clip(np.minimum(gx,511-gx)/18,0,1)*np.clip((255-gy)/20,0,1)
     field*=edge*(.84+.16*np.sin(gx*.13+np.sin(gy*.07)*2)**2)
-    a[:512,:512,:]=np.array((.32,.33,.30))*(.94+.06*np.sin(gx*.23+gy*.08))[:,:,None]
-    alpha[:512,:512]=field
+    alpha[:256,:512]=field
+    # The lower half follows a damp slate/tread joint. Growth meanders along
+    # that joint, breaks into colonies and fades across it, rather than using
+    # the vertical runoff chart as a rectangular stamp on roofs.
+    seam=130+25*np.sin(gx*.019)+14*np.sin(gx*.073)+5*np.sin(gx*.21)
+    spread=26+12*np.sin(gx*.037+1)**2
+    colony=np.clip(.48+.39*np.sin(gx*.029)+.28*np.sin(gx*.091+1.2),0,1)
+    growth=np.exp(-((gy-seam)/spread)**4)*colony
+    growth*=np.clip(np.minimum(gx,511-gx)/42,0,1)*(.68+.32*np.sin(gx*.27+gy*.34)**2)
+    alpha[256:512,:512]=growth*.93
+    ay,ax=np.mgrid[:512,:512]
+    a[:512,:512,:]=np.array((.32,.33,.30))*(.94+.06*np.sin(ax*.23+ay*.08))[:,:,None]
     rgba=np.dstack((np.clip(a,0,1),alpha))
     Image.fromarray(np.uint8(np.clip(rgba*255,0,255))).save(out/'T_ChurchGlass_BaseColor.png')
     leadfield=np.max(a,axis=2)<.075

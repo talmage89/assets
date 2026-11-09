@@ -19,7 +19,7 @@ def add(parent,p):
     age_material();m=G.Mesh('Runoff below projecting courses and sills',parent,sheet=True)
     def track(x,y,head,length,width,color):
         poly=[(x-width*.28,y,head-length),(x+width*.35,y,head-length),(x+width*.55,y,head),(x-width*.55,y,head)]
-        m.geom(poly,[(0,1,2,3)],'age',color=color,uv=[[(.005,.505),(.495,.505),(.495,.995),(.005,.995)]])
+        m.geom(poly,[(0,1,2,3)],'age',color=color,uv=[[(.005,.755),(.495,.755),(.495,.995),(.005,.995)]])
     if not modern:
         tx,ty=p['tower_xy']
         for j in range(13 if p['tower'] in ('corner','center') else 0):
@@ -33,5 +33,5 @@ def add(parent,p):
                 rr=G.root('Copper outlet runoff',(side*(w/2+.002),end*(l/2-.4),0),parent)
                 rr.rotation_euler.z=side*math.pi/2
                 mm=G.Mesh('Localized copper and splash stain',rr,sheet=True)
-                mm.geom([(-.15,0,.15),(.18,0,.15),(.07,0,1.5),(-.08,0,1.35)],[(0,1,2,3)],'age',color=(.42,.75,.53),uv=[[(.005,.505),(.495,.505),(.495,.995),(.005,.995)]]);mm.finish()
+                mm.geom([(-.15,0,.15),(.18,0,.15),(.07,0,1.5),(-.08,0,1.35)],[(0,1,2,3)],'age',color=(.42,.75,.53),uv=[[(.005,.755),(.495,.755),(.495,.995),(.005,.995)]]);mm.finish()
     if m.v:m.finish()

@@ -85,7 +85,7 @@ def render_file(source,out,name,spec,width,samples,engine):
                 output=next(n for n in ma.node_tree.nodes if n.type=='OUTPUT_MATERIAL');ma.node_tree.links.new(value.outputs[0],output.inputs['Thickness'])
     cam=camera(spec['location'],spec['target'],spec.get('lens',42),ortho=spec.get('ortho'));cam.rotation_euler.rotate_axis('Z',spec.get('roll',0))
     if name=='scale':
-        height=spec.get('scale_ground_z',0);human((4.03,-18.4,height))
+        height=spec.get('scale_ground_z',0);human((8,-19,height))
         before=set(bpy.context.scene.objects)
         bpy.ops.import_scene.gltf(filepath=str((HERE.parents[1]/'cars/export/AlderH120.glb').resolve()))
         obs=set(bpy.context.scene.objects)-before
