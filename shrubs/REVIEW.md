@@ -631,3 +631,47 @@ remain engine responsibilities, not animation supplied by the GLB.
 No further tool or lead approval is needed. The known visual limits are above;
 engine thin-leaf/wind/LOD integration is documented rather than claimed shipped
 as stock glTF animation. Shared kit changes are isolated in their own commits.
+
+## LOD rollout preflight — blocked, 2026-11-09
+
+Merged current main (already up to date). Frozen revision `afdfb7d` and 103
+literal hashes are in `build/lod-rollout/shrubs/freeze*`. No kit change is made.
+Raw accessor inspection in `preflight.json` measures Boxwood 5588 triangles /
+two draws, Hydrangea 5908 / two. Boxwood foliage is 2326 quad components;
+hydrangea foliage is 1688 quad and 204 eight-triangle components under the
+kit's position-welded island convention. These are measured groups, not a
+claim that every group corresponds to one botanical blade.
+
+The source's documented shader uses .12 diffuse transmission/specular, .30
+roughness, true-normal glancing coverage and a UV-restricted pale/.88-rough
+hydrangea back response. The frozen comparison path supports the maple adapter
+only. The recipe explicitly requires a new shader/card convention to have its
+own adapter and regression; substituting maple or stock PBR would not judge
+the shown exported appearance. The card selector budgets target_triangles/2,
+which needs a mixed-component count regression here. Code inspection also
+finds that the impostor branch passes the full overlapping two-root source
+without forwarding include_nodes; selected-root impostors need their own
+proof. No runtime impostor failure is claimed from that inspection alone.
+
+Original check preflight finds two accepted check inputs missing:
+`build/hydrangea/game-audit.blend` and `build/bake-loss.json`. The complete
+planned command and actual missing paths are retained in `original-command.json`
+and `check-inputs.json`; no absent input is falsely frozen with make -o.
+The original check is not run, since its missing bake-loss dependency would
+regenerate original source/export comparison images. No LOD config/build,
+native comparison, check-lod or two render-critique passes is claimed.
+
+Both shrubs stay LOD0 pending that adapter/card/root-selection work and staged
+check inputs. Whole original container: 11496 stored triangles, two materials,
+four primitive placements, 6066148 physical bytes, 17.3713 MiB resident including
+the shared 16.0001 MiB images once. A selected shrub draws two primitives;
+the four container placements are not one selected shrub's draw cost. Added
+images and meshes are zero. `full-family-costs.json` records the measured union.
+All 103 frozen hashes match. Original GLB/maps/docs remain unchanged.
+
+Cache availability follow-up: all eight source/export matched PNGs and their
+four shots.json receipts required by bake_loss.py are absent too; exact paths
+are in `check-inputs.json`. Recomputing that source-validation report would
+therefore require the original image pipeline. This preflight stops on the
+missing shader/card adapter and leaves that additional work unrun, rather than
+claiming a passing original check from absent cache files.

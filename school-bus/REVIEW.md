@@ -864,3 +864,61 @@ keeps the authorized, serial batch queued; its log is
 holder if this wait is abandoned. After release, inspect the regenerated
 images, run `make check` and finish this critique before calling the checkpoint
 complete. No docs or README gallery has been created.
+
+## LOD rollout preflight — blocked, 2026-11-09
+
+Merged current main (already up to date). Tool freeze revision `5dc0c50` and
+all 103 literal hashes: `build/lod-rollout/school-bus/freeze*`. The actual
+availability receipt `preflight.json` records C75-101/102/103 glTF and BIN
+all absent, with zero generated build files. There is no immutable vehicle
+input for the LOD builder or the original family's check graph. Do not
+substitute the README's historical constants for measured staged-source costs.
+
+No config/build, native LOD comparison, check-lod or two render-critique passes
+is claimed. Original make check is not run through its source/export
+generation dependencies. Doors, exits, stop/crossing arms, steering carriers,
+wheels, four surface bindings and independent BaseColor-alpha state routing
+must each be proved from the actual accepted packages through LOD2 before
+this vehicle can be adopted. No result from the cars or street props approves it.
+
+The lead needs the accepted three glTF/BIN pairs, canonical shared maps and
+generated original-check inputs staged for the next proof. No tool fix,
+source/texture/docs image change or bus render job is made here. Historical
+render-supervisor notes above describe earlier work, not a job started or
+left running by this rollout. All 103 frozen hashes still match.
+
+## LOD round 2 — rebuild bus originals; stop at the integration gate
+
+Merged current main (already up to date) and ran `make -C school-bus export`
+from empty build/export/texture directories in this worktree. It exits 0 in
+226.54 seconds. It builds the bus alone: no school or car file is edited,
+rebuilt or staged as a substitute. Existing docs JPGs remain unchanged.
+
+All three deliveries match the recorded 86394 triangles, 9192240 BIN bytes
+and 53326/53327/53326 glTF bytes exactly. Shared 2048 maps total 5778025 bytes,
+versus 5778015 recorded: Normal 1711181 exact, ORM 2553449 (+8), BaseColor
+1513395 (+2). All seeds reference the same three image hashes. Absent old maps,
+no pixel-equality or measured-noise claim is made. The delivery uses four
+materials, seventeen mesh groups and thirty draw primitives. Exact costs,
+construction reports, command/resource logs and the immutable twelve-file source receipt are in
+build/lod-round2/school-bus/.
+
+`make -C school-bus check` runs its unchanged graph and exits 2 at
+src/check_school_fit.py: school/export/Campus-101.gltf is absent. Before that
+stop, model construction, determinism, source-front, delivered-front, all three
+delivery checks and the sampled motion report pass. The bus build's 508-pose
+motion test preserves every original exit, stop/crossing arm, steering carrier
+and wheel; this is original construction proof, not a LOD motion approval.
+The unbuilt school 102 presentation would also be required by the later gallery.
+
+The brief expressly scopes this to the bus, not a school rebuild. Do not bypass
+or fabricate the integration report, freeze an absent target, or claim the full
+original make check passed. The recipe gates adoption on that completed check,
+so no LOD config, comparison, two-pass visual claim or public LOD hook is added.
+This family stops on the recorded original-validation blocker. A future change
+could separate bus construction checks from optional campus presentation checks;
+it is not made in this rollout.
+
+All twelve frozen source files and all 103 tool hashes match after the proof.
+Freeze revision is 5d380b6; the unused LOD tool stays unchanged. No accepted
+delivery, map, documentation JPG, kit file or car file is modified.

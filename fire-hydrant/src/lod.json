@@ -1,0 +1,10 @@
+{
+  "kind": "standard prop: Bellford H-54 hydrant",
+  "source": "export/FireHydrant.glb",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "levels": [
+    {"ratio": 0.4, "screen_height": 0.25}
+  ]
+}

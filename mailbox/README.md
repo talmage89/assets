@@ -84,3 +84,36 @@ rest height and the flag excludes lower-shell deposits. The texture set is
 unchanged: BaseColor / Normal / ORM 645,381 / 638,621 / 703,649 bytes at 1024².
 The small fibers/checks soften at street distance; broad silvering and the dirty
 foot remain visible in the full hero.
+
+<!-- LOD checkpoint: begin -->
+## Mailbox LODs
+
+`make lod LOD_THREADS=4` builds the extra glTF/BIN level in `export/lod/`;
+`make check-lod` verifies its images, geometry and permitted moving poses.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 1,264 / — | 1 / 3 | 95,129 | 1,987,651 | 2,082,780 | 4.000 + 0.0864 | near |
+| LOD1 | 692 / 190 | 1 / 3 | 53,313 | 1,987,651 | 2,040,964 | 4.000 + 0.0468 | 9.0% / 12.22 m |
+
+LOD1 reduces the fixed shell and post, retaining the original door and flag
+geometry. It misses the 190-triangle goal because cheaper doors intersect the
+shell even when closed. Place the Mailbox root and retain its child transforms.
+
+**Select LOD0 before opening the door, and keep it until the door is fully
+closed.** The flag can animate at either level. Only one level draws at a time.
+Use a 9% screen-height switch with hysteresis in the engine's LOD controller;
+12.22 m assumes 60° vertical FOV and 1080p.
+
+Both levels share the original three 1024² maps and one material. They add no
+image content. Bind them to the same engine resources to keep texture residency
+at 4 MiB. All mesh alternatives plus those shared maps cost about 4.133 MiB,
+compared with 4.087 MiB for LOD0 alone.
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 1,956 | 1 | 6 | 4,123,744 | 4.1333 |
+
+Stored placements count both alternatives; one instance draws three primitives.
+[Verification, target witnesses and limits](REVIEW.md). [Engine setup](../kit/LOD.md).
+<!-- LOD checkpoint: end -->

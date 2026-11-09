@@ -174,3 +174,200 @@ and game paths. Stop after this asset, as required by the phase brief.
 Merged `main`'s `wp/integrate` at 3e8dc84. Main's `policy.py`, canonical density dictionary and SHIP_SIZE path control UVs, bake/downsample/export verification and invalidation. Ported only variant selection/staging, source budgets, delivery-envelope verification, WebP references and interior bake diagnostics; no competing density resolver remains. Fixed the pre-existing Blender Vector-minus-float fallback in finalize separately (55a0585). `python3 -m unittest kit.test_delivery`, Python compilation and Blender `kit/test_policy.py` pass.
 
 Ran `make -C trash-cart clean`, then `make -C trash-cart` and `make -C trash-cart check` to successful exit 0, resuming incomplete bakes after transient server interruptions. All five 4096 bake channels have zero missed interior samples across 8,327,739 checked texels; BaseColor has zero black interior samples. Rebuilt all 13 exported-GLB shots, opened each individually and the contact sheet, and found no visual regression. Both delivery checks, atlas byte-identity, four moving/static mesh objects, footprint and pivot checks pass. Triangles remain 5,556 / 5,776. The unified exporter preserves the asset tag correctly, adding eight bytes to each GLB: 2,387,504 / 2,409,624. Shared 1024 texture sizes and measured dimensions remain unchanged. Updated final docs from the rebuilt exports.
+
+## LOD rollout — 2026-11-09
+
+Merged current main (already up to date). Freeze revision `7e266d5` and 103
+literal tool hashes: `build/lod-rollout/trash-cart/freeze*`. The original check
+passes before adoption with explicit `-o build/lookdev.blend`,
+`-o build/game-audit.blend`, `-o build/finalized.blend`,
+`-o export/TrashCart.glb`, `-o export/TrashCartRecycling.glb` inputs;
+`original-before.{json,log}` records the complete command. Variant preflight
+`variant-routing.json` measures identical original image hashes but different
+lid UV/vertex data, so each gets its own config/proof. Near chains retain
+Lid/Wheel_Left/Wheel_Right frames and use one canonical texture pool. No
+accepted source/map/docs image is changed. No result yet approves either kind.
+
+### LOD critique 1: trash rest and close construction
+
+Opened every native strip, all three construction views and contact for the
+trash kind. Charcoal body/lid values, hot stamps, grip and wheel coverage hold
+at .25 / 3.81m and .09 / 10.57m. The far construction view exposes a distorted
+lid skirt/reveal and angular wheel/shoulder forms. Counts 3130/2178 miss
+2222/833; this pass does not establish an accepted target exception. Generic
+`check-lod` exits 0, including independent raw UV/tangent/normal checks.
+The blue-lid kind is not built or approved by this proof.
+
+### LOD critique 2: open pose and unresolved joint clearance
+
+Opened both native same-pose strips in
+`build/lod-rollout/trash-cart/motion-views/` (55/145 degrees, lid -71 degrees).
+All three exported levels are imported independently with unchanged shaders.
+Color/value and independent lid/wheels hold; the far rim, corner and skirt
+deformation is obvious in this deliberately closer construction control.
+It is not substituted for the far switch-distance acceptance images.
+
+No cart chain is adopted. The independent actual-surface diagnostic
+`motion-proof.json` samples the lid at one-degree intervals and a full wheel
+turn at five-degree intervals, against all three fixed meshes with no exemptions.
+It reports source contacts too: worst lid depths 16.625/18.917/21.665mm for
+source/LOD1/LOD2; wheel depths source 15.559mm, LOD1 16.024/16.477mm,
+LOD2 14.813/12.760mm. These are measured BVH/solid-parity diagnostic depths,
+not established unintended interference: the test does not distinguish intended
+coaxial pin/hub contacts. Its process exit 0 means the diagnostic finished,
+not clearance passed. Its JSON records all three clearance results false.
+The increased lid depths and deformed skirt remain unresolved without a
+joint-specific fixture. No broad mesh-pair exemption is introduced to hide them.
+
+The original cart check exercises pivot/radius/origin and shared atlas data;
+it is serialization/kinematic evidence, not a sampled clearance certificate.
+Likewise a generic `check-lod` pass cannot certify motion. Target misses also
+lack a reviewed cheaper visible-failure witness, so no target exception is
+claimed. Stop this family before spending its time box on fixture/tool work.
+Recycling stays unbuilt/L0 pending its own proof, rather than inheriting the
+trash result. Complete trash payload/config/hash/check/render archive:
+`build/lod-rollout/trash-cart/trash-pass1/`.
+
+Final receipts: the exact original commands above pass both before and after;
+`trash-pass1-check.json` records the trash generic check exit 0. No recycling
+`check-lod` result is asserted. Tool freeze: all 103 hashes match. The reporter
+ran `--write-readmes --allow-failed` for the trash trial only; its complete
+contact was inspected. Its PASS describes its own generic gates, not motion
+or a target exception. Full-family costs include both immutable source
+containers and their shared maps once. Repository check: 2555 files, zero
+errors. No accepted source/map/docs or kit code changed.
+
+## Archived rejected LOD reports — round 1
+
+These reports are rejected evidence, not delivered chains.
+
+## LOD rollout checkpoint: unresolved clearance
+
+Neither cart kind has an adopted chain. The table below describes the trash
+trial only. Its generic `check-lod` passes, but the independent joint-clearance
+diagnostic remains unresolved and 3130/2178 triangles miss 2222/833 without a
+reviewed cheaper visible-failure witness. See [both LOD critiques](REVIEW.md).
+The diagnostic also finds source pin/hub contacts, so it is not reported as
+proven unintended interference or as a tool regression. More precise joint
+fixtures are needed. The recycling config is staged but unbuilt; it has no
+LOD comparison, check or approval. Its unchanged LOD0 costs 5776 triangles,
+one material and four draws, sharing the original 1024 atlas.
+
+`make lod LOD_CONFIG=src/lod-trash.json LOD_THREADS=4` reproduces the trash
+trial; `src/lod-recycling.json` selects the unproved blue-lid trial. Images are
+`renders/lod/trash/` and `build/lod-rollout/trash-cart/motion-views/`.
+The reporter's generic PASS label does not cover physical clearance.
+
+Full-container accounting (both original variants plus the trash trial) is
+`build/lod-rollout/trash-cart/full-family-costs.{json,md}`: 16640 stored triangles,
+two source-specific material resources, sixteen primitive placements,
+7268239 physical bytes and 5.0478 MiB resident. Original images occupy
+4.0001 MiB once; new images 0, added meshes .3921 MiB. Only one level draws
+per instance: trash 5556/3130/2178 triangles with four draws, recycling 5776
+with four. Both original family checks pass with accepted generated inputs frozen.
+
+<!-- LOD checkpoint trash: begin -->
+## Trash cart LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/trash/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 5,556 / — | 1 / 4 | 338,624 | 2,048,880 | 2,387,504 | 4.000 + 0.3173 | near |
+| LOD1 | 3,130 / 2,222 | 1 / 4 | 237,423 | 2,048,880 | 2,286,303 | 4.000 + 0.2211 | 25.0% / 3.81 m |
+| LOD2 | 2,178 / 833 | 1 / 4 | 184,808 | 2,048,880 | 2,233,688 | 4.000 + 0.1709 | 9.0% / 10.57 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **4.709 MiB**, versus LOD0 alone **4.317 MiB**. Unique textures 4.000 MiB = 4.000 MiB original + 0.000 MiB proxy/impostor; all meshes 0.7094 MiB. Increase over LOD0 0.392 MiB = 0.000 MiB far maps + 0.3921 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/trash/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/trash/check.json` and `export/lod/trash/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 1024×1024; LOD1: 3 × 1024×1024; LOD2: 3 × 1024×1024.
+
+LOD1 separate moving meshes: `LidMesh`, `Wheel_LeftMesh`, `Wheel_RightMesh`.
+
+LOD2 separate moving meshes: `LidMesh`, `Wheel_LeftMesh`, `Wheel_RightMesh`.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 10,864 | 1 | 12 | 4,858,615 | 4.7094 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 4 to 4 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint trash: end -->
+# LOD round 2 — recycling and the interaction hold
+
+Both original GLBs were already present in this worktree. Their measured
+5556/5776 triangles and 2387504/2409624 bytes match the README exactly; no
+original is overwritten to satisfy a from-scripts rebuild. The original family
+make check passes with its accepted scenes and exports explicitly frozen.
+The new source receipt and exact commands live in build/lod-round2/trash-cart/.
+The tool revision 968a3eb and 103 hashes were frozen before this trial.
+
+## Recycling LOD critique 1 — native closed views
+
+Built the previously missing recycling chain with the frozen tool. Opened all
+six native switch strips and all three 960-pixel construction views. Color/value
+first: the blue lid, charcoal body and light stamp keep their original values;
+no broad gray wash appears. The wheels, grip and front lifting recess remain.
+LOD2's construction view shows an uneven skirt and separated bead, while the
+97-pixel switch views remain within the unmodified numeric limits. Counts are
+5776 -> 3214 -> 2208, versus goals 2310/866, at .25/.09 (3.81/10.57 m).
+These image passes alone are not adoption. Generic check-lod passes both stages.
+
+## Recycling LOD critique 2 — permitted poses and real joints
+
+The intended runtime policy restores LOD0 before any lid or wheel angle departs
+from rest; reduced levels only draw closed, stationary carts. The independent
+src/check_lod_motion.py tests that selector and all actual mesh pairs: original
+111 lid / 73 per-wheel samples, reduced levels at rest. It exempts only finite
+source pin/axle volumes plus 0.5 mm, never a complete body/part pair. This
+separates intended filled bearing contacts from other interference. The raw
+unfiltered round-1 results remain valid and unchanged.
+
+Wheel sweeps now pass outside the finite axle region. The original lid still
+intersects a rear handle support by 16.625 mm at -67 degrees, at measured point
+(-.263000, .424442, 1.017375) m, outside the pin volume. Reduced closed lids
+measure 9.660 / 14.575 mm interference, against .2 mm tolerance. Opened every
+new native joint close-up and its sheet in
+build/lod-round2/trash-cart/joint-views/. Color/value remains stable; the open
+original's rotating strap visibly enters the support, and the reduced closed
+skirts separate from their sealing bead. Holding LOD0 resolves reduced open
+poses, but cannot repair that original joint. No accepted delivery is changed.
+
+Stop this family on this physical blocker. A cheaper target witness and further
+trash trial are deferred because there is no verified animatable hold level.
+This does not claim that every reduced part must sweep through every pose.
+Both configs stay unwired; all trial payloads are archived outside export/lod.
+The original make check measures serialization/kinematics, not swept clearance.
+Its passing result cannot approve this failed physical audit.
+
+## Clean original rebuild and closing checks
+
+Also ran the family's own `make variants check BLENDER='blender -t 4'` from
+nothing in build/lod-round2/trash-cart/rebuild/trash-cart, using a source copy,
+the unchanged kit and the same shared GPU lock. This exits 0. The source copy
+avoids overwriting any accepted delivery, texture or doc. Both original counts
+match, and every mesh's expanded position-corner multiset matches exactly.
+Fresh GLBs measure 2382728/2404272 bytes, rather than 2387504/2409624.
+Vertex splits and the normal PNG differ; its byte RMSE is 1.8302, maximum 235,
+so this is **not** certified as mere GPU noise or a byte-identical rebuild.
+BaseColor/ORM maximum difference is one byte, RMSE .001128. Full measurements
+are in original-rebuild-confirmation.json and original-rebuild-difference.json.
+Do not substitute these scratch rebuilds for the accepted originals.
+
+The accepted originals' make check passes before and after the LOD trial.
+Their source receipt and all 103 frozen kit hashes pass. A separate actual
+trash-original sweep also reproduces the 16.625 mm lid/support collision;
+source-only reports retain exact payload and script hashes for each variant.
+No cart chain is adopted and no Makefile exposes either rejected config.

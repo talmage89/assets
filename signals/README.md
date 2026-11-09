@@ -249,3 +249,6 @@ Waycroft, Morrow Controls, Cress and all street names and markings are fictional
 Graphics use installed DejaVu Sans (Bitstream Vera/DejaVu licenses). The shared
 kit and the local procedural rifle establish the build/bake/export workflow.
 No kit code or canonical neighboring delivery is changed by this family.
+
+No LOD chain yet. Reduced meshes cross material regions in the shared texture atlas.
+See [the LOD review](REVIEW.md).
