@@ -34,7 +34,7 @@ def current(path,width,samples):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',default='renders/final');p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=40);p.add_argument('--matches',action='store_true');p.add_argument('--source-matches',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--out',default='renders/final');p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=40);p.add_argument('--matches',action='store_true');p.add_argument('--source-matches',action='store_true');p.add_argument('--max-jobs',type=int,default=0);a=p.parse_args()
     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
     common=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python','src/source_matches.py' if a.source_matches else 'src/render.py','--','--out',a.out,'--width',str(a.width),'--samples',str(a.samples)]
     jobs=[]
@@ -46,6 +46,7 @@ def main():
         jobs.append(([Path('renders/eevee/202/hero.png')],['--seeds','202','--shots','hero','--engine','BLENDER_EEVEE','--out','renders/eevee']))
         jobs.append(([Path(a.out)/(name+'.png') for name in ('modules','range','scale')],['--sheets-only']))
     global ACTIVE
+    completed=0
     for paths,args in jobs:
         if all(current(path,a.width,a.samples) for path in paths):print('REUSE verified',paths,flush=True);continue
         print('CAPTURE',paths,flush=True);ACTIVE=subprocess.Popen(common+args)
@@ -57,6 +58,9 @@ def main():
             ACTIVE=None;raise
         ACTIVE=None
         if code:raise subprocess.CalledProcessError(code,common+args)
+        completed+=1
+        if a.max_jobs and completed>=a.max_jobs:
+            print('Joined bounded capture set:',completed,flush=True);break
 
 
 if __name__=='__main__':main()
