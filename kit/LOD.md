@@ -163,6 +163,34 @@ Every atlas dimension is at most 512 (the accepted tree impostor is separate).
 Misses, bounded repairs, chart coverage and field-normal tests remain reported.
 No high-detail modeling scene or external image enters the transfer.
 
+### Optional factory paint transfer
+
+`"factory_paint": true` opts a chain into the delivered
+`paint_decode=reference_plus_coverage_delta` convention. Near levels retain the
+original materials and maps. The proxy evaluates the reference paint, localized
+coat and lamp-power alpha before transfer, retaining the five tint/metallic
+tables in material extras. One additional linear `FactoryCoverage` atlas stores
+occlusion in R, paint tint coverage in G and clean metallic coverage in B.
+It is bound as the core glTF occlusion texture, so ordinary importers retain it;
+its G/B channels never affect the stock PBR fallback.
+
+The proxy stays one material and one color-pass draw. A 512-square additional
+map costs 349,552 bytes (about .333 MiB) at 8 bpp including all mips; decoded
+RGBA8 costs about 1.333 MiB. `kit.lod_factory.install_paint(material)` installs
+the runtime proxy graph, retaining the delivered decoder's `Factory delta` and
+`Factory metallic` uniforms. Family helpers delegate only when the material has
+`lod_factory_coverage`. Tint adds coverage times the tint delta; metallic adds
+clean coverage times the factor delta to the physical reference metallic field.
+Thus glass, tires, trim, lamps and interiors retain their original response.
+Transferred spatial emission is normalized by `lamp_strength`; toggling it
+uses the same family light switch. The proxy coat stays spatially baked.
+
+The opt-in comparison restores this same documented decode on both LOD0 and
+each level, with reference paint and lamps enabled. Image limits are unchanged.
+`test_lod_factory.py` checks a real bake, five fresh decoder imports, spatial
+coverage, metallic trim isolation and both lamp states. Native car comparisons
+remain required: carrying these fields does not prove a shell reproduces optics.
+
 Transmissive lenses receive an additional emitted-color projection from the original geometry behind them, tinted by the front surface. This preserves powered lenses when their internal emitters merge into a shell; opaque near materials retain their original non-emitting membership.
 Emission keeps the antialiased direct-ray coverage, without nearest-surface
 extrapolation or bake margins that could grow a bright lamp into its surroundings.

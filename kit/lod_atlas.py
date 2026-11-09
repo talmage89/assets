@@ -93,8 +93,9 @@ def _restore_materials(doc,receipt):
     doc.parents={c:i for i,n in enumerate(nodes) for c in n.get('children',[])}
 
 
-def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False,atlas_sampling=None,supersample=1):
-    if proxy or composite_alpha:return _bake(doc,source,path,size,proxy=proxy,projection_m=projection_m,composite_alpha=composite_alpha,atlas_sampling=atlas_sampling,supersample=supersample)
+def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False,atlas_sampling=None,supersample=1,factory_paint=False):
+    if factory_paint and not proxy:raise ValueError('Factory transfer is only supported on the final proxy')
+    if proxy or composite_alpha:return _bake(doc,source,path,size,proxy=proxy,projection_m=projection_m,composite_alpha=composite_alpha,atlas_sampling=atlas_sampling,supersample=supersample,factory_paint=factory_paint)
     from tempfile import TemporaryDirectory
     original=Document(source);materials=original.data.get('materials',[]);target_materials=doc.data.get('materials',[])
     material_map={}
@@ -116,7 +117,7 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     return report
 
 
-def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False,atlas_sampling=None,supersample=1):
+def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False,atlas_sampling=None,supersample=1,factory_paint=False):
     """Replace charts/maps, keeping near-level material response and pivots.
 
     doc extras on each mesh node contain lod_sources (original node indices).
@@ -133,6 +134,14 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
     bpy.ops.import_scene.gltf(filepath=str(source.resolve()),import_pack_images=False)
     from kit.lod_shading import restore
     source_frame_receipt=restore(original)
+    if factory_paint:
+        from kit.lod_factory import apply
+        paint=apply(lights=True)
+        factory_extras=copy.deepcopy(next(m['extras'] for m in original.data['materials']
+                                  if m.get('extras',{}).get('paint_decode')=='reference_plus_coverage_delta'))
+        colors=json.loads(paint['paint_colors']);metallic=json.loads(paint['paint_metallic'])
+        reference=next(k for k,v in colors.items() if list(v)==list(paint['paint_reference_color']))
+        factory_extras['lod_factory_reference_metallic']=metallic[reference]
     sc=bpy.context.scene
     source_objects={n.get('name'):bpy.data.objects.get(n.get('name','')) for n in original.data['nodes'] if 'mesh' in n}
     bpy.context.view_layer.update()
@@ -262,6 +271,12 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
             elif channel=='Coverage':
                 for link in list(emit.inputs['Color'].links):nt.links.remove(link)
                 emit.inputs['Color'].default_value=(1,1,1,1)
+            elif channel=='Factory':
+                from kit.lod_factory import coverage_socket
+                field=coverage_socket(nt)
+                for link in list(emit.inputs['Color'].links):nt.links.remove(link)
+                if field:nt.links.new(field,emit.inputs['Color'])
+                else:emit.inputs['Color'].default_value=(0,0,0,1)
             elif channel=='Position':
                 if nt not in position_nodes:
                     geometry=nt.nodes.new('ShaderNodeNewGeometry');subtract=nt.nodes.new('ShaderNodeVectorMath');subtract.operation='SUBTRACT';subtract.inputs[1].default_value=position_lo
@@ -295,7 +310,8 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
     coat_required=any(m.get('extensions',{}).get('KHR_materials_clearcoat',{}).get('clearcoatFactor',0)>0 for m in doc.data.get('materials',[]))
     channels=('BaseColor','Alpha','Position','ORM','Emission',*(('Transmission',) if proxy or composite_alpha else ()),*(('Clearcoat',) if proxy else ()),*(('CoatNormal',) if coat_required else ()),'Normal')
     if through_required:channels+=('EmissionThrough',)
-    if underlay:channels+=('BaseColorUnder','EmissionUnder','ORMUnder','NormalUnder','AlphaUnder','PositionUnder','TransmissionUnder',*(('ClearcoatUnder',) if proxy else ()),*(('CoatNormalUnder',) if coat_required else ()))
+    if factory_paint:channels+=('Factory',)
+    if underlay:channels+=('BaseColorUnder','EmissionUnder','ORMUnder','NormalUnder','AlphaUnder','PositionUnder','TransmissionUnder',*(('ClearcoatUnder',) if proxy else ()),*(('CoatNormalUnder',) if coat_required else ()),*(('FactoryUnder',) if factory_paint else ()))
     through=None
     for label in channels:
         channel=label.removesuffix('Under').removesuffix('Through')
@@ -388,10 +404,14 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
     coatnormal=_pull_push(arrays['CoatNormal'],visible)*2-1 if has_coatnormal else None
     if has_coatnormal:coatnormal/=np.maximum(np.linalg.norm(coatnormal,axis=2,keepdims=True),1e-20)
     files={}
-    for name,a in [('BaseColor',np.concatenate([linear_to_srgb(base),alpha],axis=2)),('ORM',orm),('Normal',normal*.5+.5)]+([('Emission',linear_to_srgb(emission/strength))] if has_emission else [])+([('Transmission',np.repeat(transmission,3,axis=2))] if has_transmission else [])+([('Clearcoat',clearcoat)] if has_clearcoat else [])+([('CoatNormal',coatnormal*.5+.5)] if has_coatnormal else []):
+    extra=[]
+    if factory_paint:
+        factory=_pull_push(arrays['Factory'],visible)
+        extra=[('FactoryCoverage',np.concatenate([orm[:,:,:1],factory[:,:,:2]],axis=2))]
+    for name,a in [('BaseColor',np.concatenate([linear_to_srgb(base),alpha],axis=2)),('ORM',orm),('Normal',normal*.5+.5)]+([('Emission',linear_to_srgb(emission/strength))] if has_emission else [])+([('Transmission',np.repeat(transmission,3,axis=2))] if has_transmission else [])+([('Clearcoat',clearcoat)] if has_clearcoat else [])+([('CoatNormal',coatnormal*.5+.5)] if has_coatnormal else [])+extra:
         if supersample>1:
             from kit.downsample import filter_pixels
-            a=filter_pixels(a,ship_size,name,alpha_mode='independent')
+            a=filter_pixels(a,ship_size,'Transmission' if name=='FactoryCoverage' else name,alpha_mode='independent')
         f=dest/f'T_{path.stem}_{name}.png';write_png(f,np.clip(a,0,1));files[name]=f
     oldmaterials=copy.deepcopy(doc.data.get('materials',[]))
     doc.data['images']=[dict(name=k,uri=os.path.relpath(v,doc.path.parent)) for k,v in files.items()]
@@ -438,6 +458,14 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
             m.pop('emissiveTexture',None);m['emissiveFactor']=[0,0,0]
         m['name']=f'LOD_Proxy' if proxy else f'LOD_Atlas_{mi}'
     doc.data['materials']=materials
+    if factory_paint:
+        m=materials[0]
+        m['extras']={**factory_extras,'lod_factory_coverage':'occlusion G paint / B clean metallic',
+                     'lamp_strength':strength}
+        m['occlusionTexture']=dict(index=ids['FactoryCoverage'])
+        # The stock reference PBR remains usable without a custom shader.
+        report['factory_paint']=dict(decode=factory_extras['paint_decode'],
+                                    coverage_texture=ids['FactoryCoverage'],extra_maps=1)
     if proxy:
         for _,_,p in doc.primitives():p['material']=0
     report.update(source_shading_frame=source_frame_receipt,layout=layout_report,baked_channels=list(channels),used_underlay=underlay,source_sha256=digest(source),size=size,projection_m=projection_m,isolated_groups=len(used),
