@@ -193,6 +193,15 @@ each level, with reference paint and lamps enabled. Image limits are unchanged.
 coverage, metallic trim isolation and both lamp states. Native car comparisons
 remain required: carrying these fields does not prove a shell reproduces optics.
 
+`"separate_transmission": true` optionally assigns paint-free glass faces to
+a second proxy material, sharing the existing atlas. It retains the source
+glass's double-sided flag and IOR, removes paint clearcoat from that material,
+and keeps spatial lamp emission switchable. Mixed paint/glass triangles stay
+on the first material so the factory decoder still reaches every paint texel.
+The partition adds no map, triangle or UV change; it costs a second material
+and color-pass draw plus its index/accessor packaging. It cannot restore cabin
+geometry removed by the envelope. Native image gates still decide acceptance.
+
 Transmissive lenses receive an additional emitted-color projection from the original geometry behind them, tinted by the front surface. This preserves powered lenses when their internal emitters merge into a shell; opaque near materials retain their original non-emitting membership.
 Emission keeps the antialiased direct-ray coverage, without nearest-surface
 extrapolation or bake margins that could grow a bright lamp into its surroundings.

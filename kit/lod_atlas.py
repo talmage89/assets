@@ -93,9 +93,10 @@ def _restore_materials(doc,receipt):
     doc.parents={c:i for i,n in enumerate(nodes) for c in n.get('children',[])}
 
 
-def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False,atlas_sampling=None,supersample=1,factory_paint=False):
+def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False,atlas_sampling=None,supersample=1,factory_paint=False,separate_transmission=False):
     if factory_paint and not proxy:raise ValueError('Factory transfer is only supported on the final proxy')
-    if proxy or composite_alpha:return _bake(doc,source,path,size,proxy=proxy,projection_m=projection_m,composite_alpha=composite_alpha,atlas_sampling=atlas_sampling,supersample=supersample,factory_paint=factory_paint)
+    if separate_transmission and not proxy:raise ValueError('Transmission partition is only supported on the final proxy')
+    if proxy or composite_alpha:return _bake(doc,source,path,size,proxy=proxy,projection_m=projection_m,composite_alpha=composite_alpha,atlas_sampling=atlas_sampling,supersample=supersample,factory_paint=factory_paint,separate_transmission=separate_transmission)
     from tempfile import TemporaryDirectory
     original=Document(source);materials=original.data.get('materials',[]);target_materials=doc.data.get('materials',[])
     material_map={}
@@ -117,7 +118,7 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     return report
 
 
-def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False,atlas_sampling=None,supersample=1,factory_paint=False):
+def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False,atlas_sampling=None,supersample=1,factory_paint=False,separate_transmission=False):
     """Replace charts/maps, keeping near-level material response and pivots.
 
     doc extras on each mesh node contain lod_sources (original node indices).
@@ -468,6 +469,9 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
                                     coverage_texture=ids['FactoryCoverage'],extra_maps=1)
     if proxy:
         for _,_,p in doc.primitives():p['material']=0
+    if separate_transmission:
+        from kit.lod_optics import split_transmission
+        report['separate_transmission']=split_transmission(doc,original)
     report.update(source_shading_frame=source_frame_receipt,layout=layout_report,baked_channels=list(channels),used_underlay=underlay,source_sha256=digest(source),size=size,projection_m=projection_m,isolated_groups=len(used),
                   uv_covered_texels=int(mask.sum()),zero_alpha_interior_texels=int(np.count_nonzero(interior & (arrays['Alpha'][:,:,0]<.01))),
                   bake_size=size,supersample=supersample,
