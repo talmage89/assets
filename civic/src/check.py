@@ -1,0 +1,181 @@
+"""Independent external glTF, fresh import and real-surface dimensional audit."""
+import hashlib,json,sys
+from pathlib import Path
+import bpy,numpy as np
+from mathutils import Vector
+from mathutils.bvhtree import BVHTree
+HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE),str(HERE.parents[1])]
+from kit.gltf import GLB
+from geo import ROOT
+
+
+def document(path):
+    d=json.loads(path.read_text());raw=object.__new__(GLB);raw.json=d
+    raw.binary=(path.parent/d['buffers'][0]['uri']).read_bytes();return raw
+
+
+def audit(path):
+    from PIL import Image
+    raw=document(path);d=raw.json;stored=0;bad_uv=0;min_area=float('inf');norm_error=0;density={};sizes={}
+    for i,im in enumerate(d.get('images',[])):
+        with Image.open(path.parent/im['uri']) as image:sizes[i]=image.size
+    for m in d['meshes']:
+        for pr in m['primitives']:
+            at=pr['attributes'];pos=raw.accessor(at['POSITION']);normal=raw.accessor(at['NORMAL']);uv=raw.accessor(at['TEXCOORD_0']) if 'TEXCOORD_0' in at else None;idx=raw.accessor(pr['indices']).reshape(-1,3)
+            assert np.isfinite(pos).all() and np.isfinite(normal).all() and (uv is None or np.isfinite(uv).all()),path
+            norm_error=max(norm_error,float(np.abs(np.linalg.norm(normal,axis=1)-1).max()))
+            tri=pos[idx];area=np.linalg.norm(np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0]),axis=1)/2
+            min_area=min(min_area,float(area.min()));assert not np.any(area<1e-12),(path,m['name'],'degenerate geometry')
+            if uv is not None:
+                t=uv[idx];det=(t[:,1,0]-t[:,0,0])*(t[:,2,1]-t[:,0,1])-(t[:,1,1]-t[:,0,1])*(t[:,2,0]-t[:,0,0])
+                bad_uv+=int((np.abs(det)<1e-12).sum())
+                ma=d['materials'][pr['material']];texture=ma.get('pbrMetallicRoughness',{}).get('baseColorTexture')
+                if texture:
+                    w,h=sizes[d['textures'][texture['index']]['source']]
+                    values=np.sqrt(abs(det)*w*h/(2*area));density.setdefault(ma['name'],[]).append((values,area))
+            stored+=len(idx)
+    assert norm_error<.002,(path,norm_error)
+    assert bad_uv==0,(path,'degenerate texture triangles',bad_uv)
+    placed=sum(d['accessors'][p['indices']]['count']//3 for n in d['nodes'] if 'mesh' in n for p in d['meshes'][n['mesh']]['primitives'])
+    images=[]
+    for im in d.get('images',[]):
+        assert 'uri' in im and not im['uri'].startswith(('data:','/')),(path,im)
+        p=(path.parent/im['uri']).resolve();assert p.exists(),p
+        with Image.open(p) as image:w,h=image.size
+        images.append(dict(uri=im['uri'],path=str(p.relative_to(ROOT)),width=w,height=h,bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest(),gpu_mib=w*h*4/3/1048576))
+    bands={}
+    for name,parts in density.items():
+        values=np.concatenate([p[0] for p in parts]);weights=np.concatenate([p[1] for p in parts]);order=np.argsort(values);cumulative=np.cumsum(weights[order]);quantiles=np.interp(np.array((.05,.5,.95))*cumulative[-1],cumulative,values[order])
+        bands[name]=dict(area_weighted_p5_median_p95_px_m=quantiles.tolist(),surface_area_m2=float(weights.sum()))
+        if name=='Civic_Veneer':assert 400<quantiles[1]<440,(path,'Masonry physical texel scale',quantiles.tolist())
+    return dict(stored_triangles=stored,placed_triangles=placed,materials=len(d['materials']),primitives=sum(len(m['primitives']) for m in d['meshes']),min_area_m2=min_area,max_normal_length_error=norm_error,degenerate_uv_triangles=bad_uv,texel_density=bands,images=images,uv_policy='Meter-repeating manufacture / guarded trim charts; overlaps intentional; this is not a unique-atlas pack')
+
+
+def surface(ob):
+    ob.data.calc_loop_triangles();return BVHTree.FromPolygons([ob.matrix_world@v.co for v in ob.data.vertices],[tuple(t.vertices) for t in ob.data.loop_triangles],all_triangles=True)
+
+
+def parking_routes(stalls,paths):
+    # Measure the delivered sedan, including mirrors, rather than checking
+    # against a nominal stall width. Its conservative plan box guards walks.
+    before=set(bpy.context.scene.objects)
+    bpy.ops.import_scene.gltf(filepath=str(ROOT/'cars/export/AlderS240.glb'))
+    added=set(bpy.context.scene.objects)-before;bpy.context.view_layer.update()
+    points=np.concatenate([np.array([o.matrix_world@v.co for v in o.data.vertices]) for o in added if o.type=='MESH'])
+    lo,hi=points.min(0),points.max(0)
+    for o in added:bpy.data.objects.remove(o,do_unlink=True)
+    violations=[];pairs=0
+    for path in paths:
+        if path.get('path_kind')!='walk':continue
+        pts=[path.matrix_world@Vector(p) for p in np.array(path['points_m']).reshape(-1,3)]
+        radius=float(path['clear_width_m'])/2
+        for stall in stalls:
+            if not stall.get('occupied'):continue
+            inv=stall.matrix_world.inverted();local=[inv@p for p in pts]
+            for a,b in zip(local,local[1:]):
+                t0,t1=0.,1.;pairs+=1
+                for axis in (0,1):
+                    delta=b[axis]-a[axis];low,high=lo[axis]-radius,hi[axis]+radius
+                    if abs(delta)<1e-10:
+                        if not low<=a[axis]<=high:t0,t1=1.,0.;break
+                    else:
+                        aa,bb=sorted(((low-a[axis])/delta,(high-a[axis])/delta));t0=max(t0,aa);t1=min(t1,bb)
+                if t0<=t1:violations.append(dict(path=path.name,stall=stall.name))
+    assert not violations,('Walk intersects occupied vehicle envelope',violations)
+    return dict(delivered_sedan_bounds_m=[lo.tolist(),hi.tolist()],segment_vehicle_pairs=pairs,violations=violations,scope='Conservative measured sedan plan box, expanded by each walk half-width; parked stall vehicles only')
+
+
+def station_measurements(p):
+    rt=bpy.data.objects['Station_'+str(p['seed'])];fixed=next(o for o in rt.children if o.type=='MESH' and not o.get('kinematic_guide'));tree=surface(fixed)
+    off=Vector(p['origin_offset_m']);rows=[]
+    for j in range(p['bays']):
+        center=Vector((-p['width']/2+.4572+(j+.5)*p['bay_width'],-p['depth']/2+.22,p['floor']+2))-off
+        hits=[tree.ray_cast(center,Vector((side,0,0)),8) for side in (-1,1)];assert all(h[0] is not None for h in hits)
+        width=sum(h[3] for h in hits)
+        up=tree.ray_cast(center,Vector((0,0,1)),8);down=tree.ray_cast(center,Vector((0,0,-1)),4);assert up[0] and down[0]
+        height=up[0].z-down[0].z;rows.append(dict(bay=j+1,clear_width_m=width,clear_height_m=height))
+        assert abs(width-4.2672)<.003 and abs(height-4.2672)<.003,rows[-1]
+    return rows
+
+
+def roof_bearings(family):
+    rows=[]
+    for name in family:
+        if not name.startswith('Civic-'):continue
+        bpy.ops.wm.open_mainfile(filepath=str(Path('build',name+'-source.blend').resolve()))
+        roofs=[surface(o) for o in bpy.context.scene.objects if o.type=='MESH' and o.get('module_kind')=='RoofPanel']
+        for unit in [o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('module_kind')=='HVAC']:
+            points=[unit.matrix_world@v.co for v in unit.data.vertices];bottom=min(p.z for p in points)
+            feet={tuple(p) for p in points if abs(p.z-bottom)<1e-5};gaps=[]
+            for point in feet:
+                p=Vector(point);hits=[t.ray_cast(p+Vector((0,0,.05)),Vector((0,0,-1)),4) for t in roofs]
+                hits=[h[0] for h in hits if h[0] is not None];assert hits,(name,'Unsupported roof unit',point)
+                gaps.append(abs(p.z-max(h.z for h in hits)))
+            maximum=max(gaps);assert maximum<.001,(name,'Roof bearing gap',maximum)
+            rows.append(dict(building=name,unit=unit.name,foot_vertices=len(feet),maximum_measured_gap_m=maximum))
+    return dict(scope='Actual source HVAC lowest vertices ray-tested against source roof surfaces; export serialization audited separately',contacts=rows,passed=True)
+
+
+def main():
+    family=json.loads(Path('build/family.json').read_text());report={};unique={}
+    for name,row in family.items():
+        path=Path(row['gltf']);result=audit(path);assert result['placed_triangles']==row['placed_triangles']
+        for im in result['images']:unique[im['path']]=im
+        if name.startswith('Civic-'):assert result['placed_triangles']<=120000,(name,result['placed_triangles'])
+        else:assert row['plan']['static_site']['triangles']<250000
+        bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
+        imported=sum(len(o.data.loop_triangles) for o in bpy.context.scene.objects if o.type=='MESH' and not o.data.calc_loop_triangles())
+        assert imported==result['placed_triangles'],(name,imported,result['placed_triangles']);result['fresh_import_triangles']=imported
+        xyz=np.concatenate([np.array([o.matrix_world@v.co for v in o.data.vertices]) for o in bpy.context.scene.objects if o.type=='MESH'])
+        lo,hi=xyz.min(0),xyz.max(0);result['measured_bounds_m']=[lo.tolist(),hi.tolist()];result['measured_size_m']=(hi-lo).tolist()
+        if name.startswith('Civic-'):
+            assert np.allclose(hi-lo,row['source']['size_m'],atol=.002),(name,'Exported dimensions changed')
+            assert np.max(np.abs((lo+hi)[:2]/2))<.002,(name,'Footprint origin')
+        if name.startswith('Civic-') and row['plan']['program']=='station':result['measured_openings']=station_measurements(row['plan'])
+        if name.startswith('Site-'):
+            stalls=[o for o in bpy.context.scene.objects if o.get('socket_kind')=='parked_car'];paths=[o for o in bpy.context.scene.objects if o.get('path_kind')];assert stalls and len(paths)>=2
+            result['stall_sockets']=len(stalls);result['occupied_sockets']=sum(bool(o.get('occupied')) for o in stalls);result['paths']=len(paths)
+            site_root=bpy.data.objects['CivicSite_'+str(row['plan']['seed'])]
+            skin=next(o for o in site_root.children if o.type=='MESH');ground_tree=surface(skin)
+            offset=Vector(row['plan'].get('origin_offset_m',(0,0,0)));ramps=[]
+            for q in row['plan']['ramps']:
+                aa,bb,ff,kk=q['rect'];yy=(ff+kk)/2;points=[]
+                for xx in (aa+.05,bb-.05):
+                    hit=ground_tree.ray_cast(Vector((xx,yy,2))-offset,Vector((0,0,-1)),4);assert hit[0] is not None;points.append(hit[0])
+                slope=abs((points[1].z-points[0].z)/(points[1].x-points[0].x))
+                mid=(points[0]+points[1])/2;mid.z-=.012
+                sides=[ground_tree.ray_cast(mid,Vector((0,s,0)),3) for s in (-1,1)];assert all(h[0] is not None for h in sides)
+                width=sum(h[3] for h in sides);assert slope<=1/12+.0001 and width>=1.524-.001,(name,slope,width)
+                ramps.append(dict(surface_points_m=[list(p) for p in points],measured_running_slope=slope,measured_clear_width_m=width))
+            result['measured_ramps']=ramps
+            drive_samples=[]
+            for aa,bb,ff,kk in row['plan']['drives']:
+                for t in (.15,.5,.85):
+                    p=Vector(((aa+bb)/2,ff+(kk-ff)*t,2))-offset
+                    hit=ground_tree.ray_cast(p,Vector((0,0,-1)),4);assert hit[0] is not None
+                    assert abs(hit[0].z+.003)<.002,(name,'Drive surface',list(hit[0]))
+                    drive_samples.append(list(hit[0]))
+            result['measured_drive_surfaces_m']=drive_samples
+            result['parking_route_clearance']=parking_routes(stalls,paths)
+            if name=='Site-202':
+                # Actual placed shrub/bench bounds must miss every apparatus
+                # corridor. These points come from imported surfaces.
+                p=row['plan']['building'];x,y,_=row['plan']['building_at'];offset=row['plan'].get('origin_offset_m',(0,0,0));x-=offset[0];y-=offset[1];obstacles=[]
+                for o in bpy.context.scene.objects:
+                    if o.type!='MESH' or not any(q in o.name for q in ('FoundationBoxwood','EntryBench','BikeRack')):continue
+                    xyz=np.array([o.matrix_world@v.co for v in o.data.vertices]);lo=xyz.min(0);hi=xyz.max(0)
+                    for j in range(p['bays']):
+                        cx=x-p['width']/2+.4572+(j+.5)*p['bay_width'];overlap=min(hi[0],cx+2.1336)-max(lo[0],cx-2.1336)>0 and min(hi[1],y-p['depth']/2)-max(lo[1],-34-offset[1])>0
+                        if overlap:obstacles.append(o.name)
+                assert not obstacles,obstacles;result['exit_obstructions']=obstacles
+        result['passed']=True;report[name]=result
+    from prepare import snapshot
+    before=json.loads(Path('build/preservation.json').read_text());after=snapshot();changed=[p for p,h in before.items() if after.get(p)!=h];assert not changed,changed
+    modules=json.loads(Path('build/modules.json').read_text())
+    for m in modules['modules']:assert m['triangles']<=(12000 if m['name']=='HoseTower' else 2000),(m['name'],m['triangles'])
+    report['CivicPieces']=audit(Path('export/CivicPieces.gltf'));report['CivicPieces']['passed']=True
+    out=dict(passed=True,files=report,roof_bearings=roof_bearings(family),unique_images=list(unique.values()),shared_gpu_mib=sum(im['gpu_mib'] for im in unique.values()),preserved_files=len(before),scope='Serialization, geometry and selected actual construction measurements; photographic quality judged separately')
+    Path('build/check.json').write_text(json.dumps(out,indent=2)+'\n');print('CIVIC CHECK PASS',len(report),'packages;',len(before),'existing files unchanged')
+
+
+if __name__=='__main__':main()
