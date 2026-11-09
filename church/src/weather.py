@@ -71,20 +71,37 @@ def repairs(parent,p):
             m.finish()
     # Green copper at the exposed roof/wall transitions, on existing metal.
     # Rust stains originate at actual railing feet and are short gravity tracks.
-    from surfaces import paint_material
-    paint_material();m=G.Mesh('Rail-foot rust and step moss',parent,sheet=True)
+    from surfaces import age_material
+    age_material();m=G.Mesh('Rail-foot rust and step moss',parent,sheet=True)
     if p['style']!='aframe':
         y=-p['length']/2
         for side in (-1,1):
             x=side*1.98
-            for j in range(3):
+            for j in (0,3):
                 yy=y-2.34-j*.3302;z=p['floor']-j*.1524+.001
-                m.geom([(x-.08,yy,z),(x+.07,yy,z),(x+.10,yy-.29,z),(x-.06,yy-.27,z)],[(0,1,2,3)],'paint',color=(.65,.32,.13),uv=[[(.755,.505),(.995,.505),(.995,.745),(.755,.745)]])
+                m.geom([(x-.12,yy,z),(x+.11,yy,z),(x+.15,yy-.29,z),(x-.09,yy-.27,z)],[(0,1,2,3)],'age',color=(.83,.35,.13),uv=[[(.005,.505),(.495,.505),(.495,.995),(.005,.995)]])
         for j in (1,2,3):
             yy=y-2.34-j*.3302;z=p['floor']-j*.1524+.0013
-            m.geom([(-2.13,yy,z),(-1.79,yy,z),(-1.83,yy-.26,z),(-2.13,yy-.28,z)],[(0,3,2,1)],'paint',color=(.34,.60,.22),uv=[[(.755,.505),(.995,.505),(.995,.745),(.755,.745)]])
+            reach=(.57,.89,.68)[j-1]
+            m.geom([(-2.13,yy,z),(-2.13+reach,yy,z),(-2.20+reach,yy-.26,z),(-2.13,yy-.28,z)],[(0,3,2,1)],'age',color=(.30,.78,.19),uv=[[(.005,.505),(.495,.505),(.495,.995),(.005,.995)]])
     if m.v:m.finish()
+    roof_growth(parent,p)
     if p['style']=='aframe':fascia(parent,p)
+
+
+def roof_growth(parent,p):
+    """Interrupted moss below joints on the damp north pitch, not all roofs."""
+    rng=random.Random(p['seed']+349);m=G.Mesh('North-pitch sheltered moss',parent,sheet=True)
+    slope=math.tan(math.radians(p['pitch']));half=p['width']/2
+    for j in range(22):
+        # The eave stays wet; a few joints carry growth farther up the pitch.
+        x=-half+rng.uniform(-.05,1.35 if j<17 else half*.65)
+        yy=rng.uniform(-p['length']/2+.5,p['length']/2-.7)
+        length=rng.uniform(.20,.65);width=rng.uniform(.25,.85)
+        poly=[(x,yy),(x+length,yy+.035),(x+length*.86,yy+width),(x-.03,yy+width*.92)]
+        points=[(xx,y,p['ridge']+xx*slope+.007) for xx,y in poly]
+        m.geom(points,[(0,1,2,3)],'age',color=(.30,.78,.19),uv=[[(.005,.505),(.005,.995),(.495,.995),(.495,.505)]])
+    m.finish()
 
 
 def fascia(parent,p):

@@ -44,7 +44,7 @@ def shots(seed):
         window=dict(location=(4,-23,5.0) if modern else (13,-1,4.0),target=(1,-14.95,6.4) if modern else (6.65,-2.13,4.8),lens=48),
         window_dusk=dict(location=(4,-23,5.0) if modern else (13,-1,4.0),target=(1,-14.95,6.4) if modern else (6.65,-2.13,4.8),lens=48,dusk=True),
         tower=dict(location=(-10,-22,1.72) if modern else (-11,-21.5,1.72),target=(-13.84,-12.94,10.8) if modern else (-8.35,-11,16.0),lens=40),
-        wing=dict(location=(48,-44,4.8) if modern else (29,35,7),target=(28,4,2.2) if modern else (9,17,2.4),lens=42 if modern else 38,sun_direction=(.55,.85,-.45) if modern else (-.55,-.85,-.45)),
+        wing=dict(location=(48,-44,4.8) if modern else (30,24,6),target=(28,4,2.2) if modern else (9,10,2.8),lens=42 if modern else 38,sun_direction=(.55,.85,-.45) if modern else (-.55,-.85,-.45)),
         age=dict(location=(11,-23,1.72) if modern else (-8,-25,1.72),target=(7,-14.4,2.2) if modern else (-5,-12,2.5),lens=48),
         north_roof=dict(location=(-22,24,16) if modern else (-17,25,18),target=(-5,6,7) if modern else (-4.8,4,9.8),lens=45,sun_direction=(.55,.85,-.45)),
         sign=dict(location=(11,-47.5,1.72) if modern else (19,-26.5,1.72),target=(7,-37.5,1.9) if modern else (17,-22,1.9),lens=48 if modern else 35),
@@ -119,6 +119,13 @@ def render_modules(out,width,samples,engine):
 
 
 def main():
+    if '--full' in sys.argv:
+        # The kit calls this entry point; the full checkpoint shares one lock.
+        from render_batch import main as batch
+        argv=sys.argv[sys.argv.index('--')+1:]
+        if '--source' in argv:
+            i=argv.index('--source');del argv[i:i+2]
+        batch(argv);return
     ap=argparse.ArgumentParser();ap.add_argument('--source');ap.add_argument('--out',type=Path,default=Path('renders/checkpoint'));ap.add_argument('--width',type=int,default=1200);ap.add_argument('--samples',type=int,default=32);ap.add_argument('--seeds',default='101,202');ap.add_argument('--shots',default='hero,above,doors,window,window_dusk,tower,wing,sign,scale');ap.add_argument('--engine',default='CYCLES');ap.add_argument('--building-only',action='store_true');ap.add_argument('--range',action='store_true');ap.add_argument('--modules',action='store_true');ap.add_argument('--matches',action='store_true');ap.add_argument('--source-scene',action='store_true');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
     if a.modules:
         render_modules(a.out,a.width,a.samples,a.engine)

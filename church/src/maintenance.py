@@ -15,11 +15,11 @@ def add(parent,p):
             aa=a+rng.choice((0,.23,.46));bb=b-rng.choice((0,.23))
             m.geom([(aa,yy,z),(bb,yy,z),(bb,yy,za),(aa,yy,za)],[(0,1,2,3)],'brick',color=(1.24,1.28,1.24))
     m.finish()
-    from surfaces import paint_material
-    paint_material();m=G.Mesh('Runoff below projecting courses and sills',parent,sheet=True)
+    from surfaces import age_material
+    age_material();m=G.Mesh('Runoff below projecting courses and sills',parent,sheet=True)
     def track(x,y,head,length,width,color):
         poly=[(x-width*.28,y,head-length),(x+width*.35,y,head-length),(x+width*.55,y,head),(x-width*.55,y,head)]
-        m.geom(poly,[(0,1,2,3)],'paint',color=color,uv=[[(.755,.505),(.995,.505),(.995,.745),(.755,.745)]])
+        m.geom(poly,[(0,1,2,3)],'age',color=color,uv=[[(.005,.505),(.495,.505),(.495,.995),(.005,.995)]])
     if not modern:
         tx,ty=p['tower_xy']
         for j in range(13 if p['tower'] in ('corner','center') else 0):
@@ -33,5 +33,5 @@ def add(parent,p):
                 rr=G.root('Copper outlet runoff',(side*(w/2+.002),end*(l/2-.4),0),parent)
                 rr.rotation_euler.z=side*math.pi/2
                 mm=G.Mesh('Localized copper and splash stain',rr,sheet=True)
-                mm.geom([(-.15,0,.15),(.18,0,.15),(.07,0,1.5),(-.08,0,1.35)],[(0,1,2,3)],'paint',color=(.42,.75,.53),uv=[[(.755,.505),(.995,.505),(.995,.745),(.755,.745)]]);mm.finish()
+                mm.geom([(-.15,0,.15),(.18,0,.15),(.07,0,1.5),(-.08,0,1.35)],[(0,1,2,3)],'age',color=(.42,.75,.53),uv=[[(.005,.505),(.495,.505),(.495,.995),(.005,.995)]]);mm.finish()
     if m.v:m.finish()

@@ -26,7 +26,7 @@ def tint(x,y):
     traffic=math.exp(-(segment(x,y,a,b)/(.31+.05*math.sin(x*2)))**4)
     dry=.14+.18*math.sin(x*.19+y*.13)**2
     shade=.16*math.exp(-((x-21)**2+(y+21)**2)/22)
-    return (base[0]*(.90+.20*traffic),base[1]*(.91-.49*traffic-dry*.18-shade),base[2]*(.90-.33*traffic-dry*.14-shade))
+    return (base[0]*(.90+.035*traffic),base[1]*(.91-.14*traffic-dry*.18-shade),base[2]*(.90-.10*traffic-dry*.14-shade))
 
 
 def beds(p):

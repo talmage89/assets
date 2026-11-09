@@ -6,13 +6,17 @@ CHECKPOINT_OUTPUTS := build/family.blend build/metrics.json export/Church-101.gl
 CHECKPOINT_OUTPUTS += $(patsubst %.gltf,%.bin,$(filter %.gltf,$(CHECKPOINT_OUTPUTS)))
 CHURCH_MAPS := $(foreach set,Craft Glass,$(foreach map,BaseColor Normal ORM,textures/ship/T_Church$(set)_$(map).png)) textures/ship/T_ChurchLetters_BaseColor.png build/letters.json
 CHURCH_MAPS += $(foreach map,BaseColor Normal ORM,textures/ship/T_GardenLawn_$(map).png)
-CHECKPOINT_DEPS := $(wildcard src/*.py) build/dependencies.json $(CHURCH_MAPS)
+CHECKPOINT_DEPS := $(addprefix src/,build.py geometry.py surfaces.py architecture.py buildings.py modern.py windows.py hardware.py details.py plan.py package.py siteworks.py library.py neighborhood.py weather.py maintenance.py turf.py) build/dependencies.json $(CHURCH_MAPS)
 CHECKPOINT_CHECK = $(PYTHON) src/check.py && $(BP) --python src/construction_check.py && $(BP) --python src/site_check.py
 CHECKPOINT_OUT := renders/checkpoint
-CHECKPOINT_REVIEW = $(PYTHON) src/review.py
-CHECKPOINT_RENDER_ARGS := --shots hero,above,doors,window,window_dusk,tower,wing,sign,scale
+CHECKPOINT_REVIEW = $(PYTHON) src/present.py
+CHECKPOINT_RENDER_ARGS := --full
 include ../kit/checkpoint_rules.mk
 BP := $(BLENDER) -b -t 4 --factory-startup --python-exit-code 1
+$(CHECKPOINT_RENDER_OUTPUTS): build/matched-cameras.json src/render_batch.py
+build/matched-cameras.json: src/matches.py refs/SOURCES.md
+	$(PYTHON) src/matches.py
+	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $@
 
 build/dependencies.json: src/dependencies.py src/context_hosts.py
 	@mkdir -p build $(TMPDIR)
@@ -34,6 +38,5 @@ range-render: model
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --range --out renders/checkpoint --width $(WIDTH) --samples $(SAMPLES)
 eevee: model
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --seeds 101 --shots hero --engine BLENDER_EEVEE --out renders/eevee --width $(WIDTH) --samples $(SAMPLES)
-review: matches module-render range-render eevee
 repeat: model
 	$(PYTHON) src/repeat.py

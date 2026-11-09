@@ -63,10 +63,26 @@ def glass(out):
     a=np.asarray(im).astype(float)/255;yy,xx=np.mgrid[:n,:n]
     ripple=np.sin(xx*.13+np.sin(yy*.034)*2)*np.sin(yy*.17)
     a*=.97+.03*ripple[:,:,None]
-    Image.fromarray(np.uint8(np.clip(a*255,0,255))).save(out/'T_ChurchGlass_BaseColor.png')
+    # The unused upper-left chart carries gravity deposits. Alpha is ignored
+    # by the three opaque glass compositions and consumed only by Church_age.
+    # Reusing this quarter adds no images or GPU allocation.
+    alpha=np.ones((n,n));gy,gx=np.mgrid[:512,:512];rng=np.random.default_rng(7841)
+    field=np.zeros((512,512))
+    for j in range(24):
+        cx=rng.uniform(12,500);width=rng.uniform(8,30);reach=rng.uniform(.35,1)
+        t=gy/512;wav=cx+3*np.sin(t*9+j)
+        track=np.exp(-((gx-wav)/(width*(1-.65*t)))**4)*np.clip(1-t/reach,0,1)**.6
+        field=np.maximum(field,track*rng.uniform(.45,.95))
+    edge=np.clip(np.minimum(gx,511-gx)/18,0,1)*np.clip((511-gy)/28,0,1)
+    field*=edge*(.84+.16*np.sin(gx*.13+np.sin(gy*.07)*2)**2)
+    a[:512,:512,:]=np.array((.32,.33,.30))*(.94+.06*np.sin(gx*.23+gy*.08))[:,:,None]
+    alpha[:512,:512]=field
+    rgba=np.dstack((np.clip(a,0,1),alpha))
+    Image.fromarray(np.uint8(np.clip(rgba*255,0,255))).save(out/'T_ChurchGlass_BaseColor.png')
     leadfield=np.max(a,axis=2)<.075
-    h=leadfield*.0004+.00004*ripple
+    h=leadfield*.0004+.00004*ripple;h[:512,:512]=0
     dy,dx=np.gradient(h);norm=np.stack((-dx*n/3,dy*n/3,np.ones_like(dx)),axis=2);norm/=np.linalg.norm(norm,axis=2,keepdims=True)
     Image.fromarray(np.uint8((norm*.5+.5)*255)).save(out/'T_ChurchGlass_Normal.png')
     orm=np.ones((n,n,3));orm[:,:,1]=np.where(leadfield,.78,.29+.025*ripple);orm[:,:,2]=np.where(leadfield,.32,0)
+    orm[:512,:512,1]=.92;orm[:512,:512,2]=0
     Image.fromarray(np.uint8(orm*255)).save(out/'T_ChurchGlass_ORM.png')

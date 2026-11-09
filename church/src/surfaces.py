@@ -17,6 +17,12 @@ def paint_material():
     ma.name='Church_Ground_markings';ma.use_backface_culling=False;G.MATS['paint']=ma
 
 
+def age_material():
+    if 'age' in G.MATS:return
+    ma=tiling.material('ChurchGlass',G.ROOT/'church/textures/ship',alpha=True,tint=True)
+    ma.name='Church_age';ma.use_backface_culling=False;G.MATS['age']=ma
+
+
 def palette():
     # Initialize Blender's complete importer/exporter AO group before tiling.
     from io_scene_gltf2.blender.com.material_helpers import create_settings_group

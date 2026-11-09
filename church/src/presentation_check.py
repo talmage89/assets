@@ -17,7 +17,7 @@ def package(path):
     return h.hexdigest()
 
 
-def main():
+def main(require_before=True):
     recipe=sha(Path('src/render.py'));paths=[]
     shots='hero,above,doors,window,window_dusk,tower,wing,sign,scale,age,north_roof'.split(',')
     for seed in (101,202):paths += [Path(f'renders/checkpoint/{seed}/{s}.png') for s in shots]
@@ -49,8 +49,10 @@ def main():
         delta=np.abs(a-b);mean=float(delta.mean())
         assert mean<1.0,(name,mean)
         differences[name]=dict(mean_absolute_rgb_byte_delta=mean,p99=float(np.percentile(delta,99)))
-    before=json.loads(Path('renders/before-after/receipts.json').read_text())
-    assert len(before)==8 and all(r['camera_equal'] and min(r['panel_widths'])>=800 for r in before)
+    path=Path('renders/before-after/receipts.json')
+    before=json.loads(path.read_text()) if path.exists() else []
+    if require_before:assert len(before)==8,'The local revision review requires all eight before/after pairs'
+    assert all(r['camera_equal'] and min(r['panel_widths'])>=800 for r in before)
     Path('build/presentation-check.json').write_text(json.dumps(dict(passed=True,images=receipts,tonal_range=tones,source_export_pairs=differences,before_after=before),indent=2))
     print('PASS',len(receipts),'current geometry/map/recipe receipts; source/export pairs, native before/after and hero tonal range')
     print(json.dumps(tones,indent=2))
