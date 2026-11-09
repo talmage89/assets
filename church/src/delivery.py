@@ -6,7 +6,8 @@ import presentation_check
 
 
 def recipe():
-    return {p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(Path('src').glob('*.py'))
+    files=[*Path('src').glob('*.py'),Path('src/tangent_rounding.json')]
+    return {p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)
             if p.name not in ('delivery.py','repeat.py','texture_repeat.py','last_evidence.py')}
 
 

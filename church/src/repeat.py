@@ -22,12 +22,20 @@ def main():
         return Path(os.path.relpath(resolved,target.parent)).as_posix()
     # Relocate only relative image URIs into the original package frame. This
     # removes the independent directory's path depth, not content differences.
-    replacements={}
+    replacements={};package_bytes={}
     for path in sorted((stage/'export').rglob('*.gltf')):
         target=ASSET/path.relative_to(stage);d=json.loads(path.read_text())
         for row in d.get('images',[]):
             old=row['uri'];row['uri']=uri(old,path,target);replacements[old]=row['uri']
         path.write_text(json.dumps(d,separators=(',',':'))+'\n')
+        package_bytes[path.stem]=path.stat().st_size+path.with_suffix('.bin').stat().st_size
+        meta_path=path.with_suffix('.json');meta=json.loads(meta_path.read_text())
+        meta['gltf_bin_bytes']=package_bytes[path.stem]
+        meta_path.write_text(json.dumps(meta,indent=2))
+    metrics_path=stage/'build/metrics.json';metrics=json.loads(metrics_path.read_text())
+    for family in metrics.values():
+        for stem,row in family.items():row['gltf_bin_bytes']=package_bytes[stem]
+    metrics_path.write_text(json.dumps(metrics,indent=2))
     def relocated(value):
         if isinstance(value,dict):return {k:relocated(v) for k,v in value.items()}
         if isinstance(value,list):return [relocated(v) for v in value]

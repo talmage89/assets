@@ -3,7 +3,7 @@ import copy,hashlib,json,os,struct
 from pathlib import Path
 import numpy as np
 import bpy
-from kit.gltf import GLB
+from kit.gltf import GLB,stabilize_tangents
 from kit import tiling
 import geometry as G
 
@@ -57,6 +57,11 @@ def externalize(source,out,known):
 def publish(rt,stem,known,subdir=''):
     folder=Path('export')/subdir;review=Path('build/glb')/subdir;review.mkdir(parents=True,exist_ok=True)
     obs=objects(rt);meta=counts(obs);path=review/(stem+'.glb');tiling.export(path,obs)
+    # Native MikkTSpace corners can straddle the exporter's fourth-decimal
+    # rounding boundary. Exact position/normal/UV signatures guard these five
+    # accepted corners; the kit permits at most one tangent rounding step.
+    anchors=json.loads(Path(__file__).with_name('tangent_rounding.json').read_text())
+    if stem in anchors:stabilize_tangents(path,anchors[stem])
     doc=externalize(path,folder/(stem+'.gltf'),known)
     meta['gltf_bin_bytes']=(folder/(stem+'.gltf')).stat().st_size+(folder/(stem+'.bin')).stat().st_size
     meta['glb_bytes']=path.stat().st_size;meta['images']=[r['uri'] for r in doc.get('images',[])]
