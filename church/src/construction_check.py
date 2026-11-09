@@ -76,6 +76,14 @@ def run():
         assert max(abs((a+b)/2) for a,b in zip(meta['bounds_min'][:2],meta['bounds_max'][:2]))<.0001
         p=json.loads(Path(f'build/plan-{seed}.json').read_text());cx,cy,_=p['placement_offset']
         if seed==101:
+            hall=next(o for o in bpy.context.scene.objects if o.get('module_kind')=='ParishHall')
+            hall_top=max((o.matrix_world@v.co).z for o in hall.children_recursive if o.type=='MESH' for v in o.data.vertices)
+            glass=[]
+            for bay in bpy.context.scene.objects:
+                if not bay.name.startswith('Nave bay 1_') or int(bay.name.rsplit('_',1)[1].split('.')[0])<p['bays']-3:continue
+                glass.extend((o.matrix_world@v.co).z for o in bay.children_recursive if o.type=='MESH' and o.name.startswith('Stained glass') for v in o.data.vertices)
+            lowest=min(glass);assert lowest>hall_top+.10,('Annex roof crosses nave glass',lowest,hall_top)
+            result['annex_glass_clearance_m']=lowest-hall_top
             ob=next(o for o in bpy.context.scene.objects if o.name.startswith('Retrofit ramp and edge curbs'))
             tree=surface(ob)['tree'];x=p['width']/2+2.6-cx;start=-p['length']/2+.5*p['bay']+.9144-cy;run=p['ramp']['run']
             hits=[]

@@ -122,7 +122,9 @@ def build(p):
                 if s==1 and i==0:
                     from details import side_exit
                     side_exit(rt,p,point)
-                else:bay('Nave bay '+str(s)+'_'+str(i),rt,p,point,s*90)
+                else:
+                    raised=s==1 and i>=p['bays']-3 and 'hall' in p['wings'] and p['style']!='chapel'
+                    bay('Nave bay '+str(s)+'_'+str(i),rt,dict(p,raised_window=raised),point,s*90)
             if p['style']!='chapel':
                 for i in range(p['bays']+1):buttress(rt,p,(s*w/2,-l/2+i*p['bay'],0),s*90)
         pierced_gable(rt,p,-l/2);pierced_gable(rt,p,l/2-p['wall'],True)
