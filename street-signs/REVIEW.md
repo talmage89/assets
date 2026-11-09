@@ -355,3 +355,27 @@ afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
 additional mesh buffers total 0.0348 MiB.
 Final native evidence: `renders/lod/yield/`; archived recipe and proof:
 `build/lod-uv/archive/street-signs/yield-final/`.
+
+
+### pedestrian critique 1 — native values and face coverage
+
+Opened every 0/55/145-degree native strip at each retained switch, with source,
+preceding, new and difference panes. Values agree for yellow-green sheeting, dark walking figure and arrow plaque, gray back and zinc support.
+Measured LOD1 738/398 at 25% / 12.282 m, LOD2 594/149 at 9% / 34.116 m, from 994 source triangles.
+Worst mean 0.0001860, local 0.003166, silhouette loss
+0.000241 pass the unchanged gates. Targets remain unmet.
+
+### pedestrian critique 2 — construction and independent fields
+
+Opened all close views and contact, then revisited the walking figure, diamond corners and separate arrow plaque; figure/arrow coverage holds.
+Tiny source print remains limited by original texel/mip resolution; no new
+lettering loss or detached member appears at the switches. Coarse small
+fittings remain visible up close; no close-view equivalence is claimed.
+Exact accessor records find zero new flat UV faces and zero new invalid
+tangent records, while identifying inherited unprinted-metal defects separately
+(`build/lod-uv/sign-fields-pedestrian.json`). Serialized domains, normals,
+source fields and re-import pass. Original `make check set-check` passes
+afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
+additional mesh buffers total 0.1058 MiB.
+Final native evidence: `renders/lod/pedestrian/`; archived recipe and proof:
+`build/lod-uv/archive/street-signs/pedestrian-final/`.

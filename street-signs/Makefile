@@ -47,5 +47,5 @@ set-clean:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('build/set','export/set')]"
 
 # Additional exports only; accepted sources never depend on these targets.
-LOD_CONFIGS := src/lod-school-speed.json src/lod-speed30.json src/lod-speed25.json src/lod-no-parking-both.json src/lod-oneway-r.json src/lod-yield.json
+LOD_CONFIGS := src/lod-school-speed.json src/lod-speed30.json src/lod-speed25.json src/lod-no-parking-both.json src/lod-oneway-r.json src/lod-yield.json src/lod-pedestrian.json
 include ../kit/lod_rules.mk
