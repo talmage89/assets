@@ -35,7 +35,8 @@ def main():
         rows.append(dict(file=str(out),before=str(old),after=str(new),crop=box,panel_width=w,camera_equal=True,
                          light_equal=a.get('sun_direction')==b.get('sun_direction') and a.get('sky_strength')==b.get('sky_strength'),
                          sha256=hashlib.sha256(out.read_bytes()).hexdigest()))
-    (root/'receipts.json').write_text(json.dumps(rows,indent=2));sheet(sorted(root.glob('*.jpg')),root/'contact.jpg')
+    (root/'receipts.json').write_text(json.dumps(rows,indent=2))
+    sheet([p for p in sorted(root.glob('*.jpg')) if p.name!='contact.jpg'],root/'contact.jpg')
     print('PASS',len(rows),'native same-camera final-round comparisons')
 
 
