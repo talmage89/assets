@@ -100,5 +100,6 @@ def hall(p):
     stone=a.mesh('Cornerstone',kind='Cornerstone');stone.box((-w/2+.6,-d/2-.025,.48),(1.05,.06,.47),'Concrete');stone.finish()
     text(a,'CornerstoneDate',str(p['year']),(-w/2+.6,-d/2-.065,.37),.16)
     from services import equipment,drains
-    equipment(a,(w/2-3,d/2-3,top+.29));drains(a,(-w/2,w/2,-d/2,d/2),top)
+    if p['roof']=='parapet':equipment(a,(w/2-3,d/2-3,top+.27))
+    drains(a,(-w/2,w/2,-d/2,d/2),top)
     a.socket('PublicWalk',(0,-d/2-5.5,0),'walk');return a

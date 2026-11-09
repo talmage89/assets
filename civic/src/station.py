@@ -130,6 +130,6 @@ def station(p):
         hip(a,'StationHipRoof',(x0,x0+p['bayblock'],y,d/2),6.25,2.0)
     tower(a,p,x0+2.6,d/2+1.45);interior(a,p,x0,y)
     from services import equipment,drains
-    if p['office']:equipment(a,(w/2-2,1,office_top+.45))
+    if p['office']:equipment(a,(w/2-2,1,office_top+.27))
     drains(a,(x0,x0+p['bayblock'],y,d/2),6.0)
     a.socket('PublicWalk',(w/2-5,y-2,.15),'walk');return a

@@ -98,6 +98,24 @@ def station_measurements(p):
     return rows
 
 
+def roof_bearings(family):
+    rows=[]
+    for name in family:
+        if not name.startswith('Civic-'):continue
+        bpy.ops.wm.open_mainfile(filepath=str(Path('build',name+'-source.blend').resolve()))
+        roofs=[surface(o) for o in bpy.context.scene.objects if o.type=='MESH' and o.get('module_kind')=='RoofPanel']
+        for unit in [o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('module_kind')=='HVAC']:
+            points=[unit.matrix_world@v.co for v in unit.data.vertices];bottom=min(p.z for p in points)
+            feet={tuple(p) for p in points if abs(p.z-bottom)<1e-5};gaps=[]
+            for point in feet:
+                p=Vector(point);hits=[t.ray_cast(p+Vector((0,0,.05)),Vector((0,0,-1)),4) for t in roofs]
+                hits=[h[0] for h in hits if h[0] is not None];assert hits,(name,'Unsupported roof unit',point)
+                gaps.append(abs(p.z-max(h.z for h in hits)))
+            maximum=max(gaps);assert maximum<.001,(name,'Roof bearing gap',maximum)
+            rows.append(dict(building=name,unit=unit.name,foot_vertices=len(feet),maximum_measured_gap_m=maximum))
+    return dict(scope='Actual source HVAC lowest vertices ray-tested against source roof surfaces; export serialization audited separately',contacts=rows,passed=True)
+
+
 def main():
     family=json.loads(Path('build/family.json').read_text());report={};unique={}
     for name,row in family.items():
@@ -156,7 +174,7 @@ def main():
     modules=json.loads(Path('build/modules.json').read_text())
     for m in modules['modules']:assert m['triangles']<=(12000 if m['name']=='HoseTower' else 2000),(m['name'],m['triangles'])
     report['CivicPieces']=audit(Path('export/CivicPieces.gltf'));report['CivicPieces']['passed']=True
-    out=dict(passed=True,files=report,unique_images=list(unique.values()),shared_gpu_mib=sum(im['gpu_mib'] for im in unique.values()),preserved_files=len(before),scope='Serialization, geometry and selected actual construction measurements; photographic quality judged separately')
+    out=dict(passed=True,files=report,roof_bearings=roof_bearings(family),unique_images=list(unique.values()),shared_gpu_mib=sum(im['gpu_mib'] for im in unique.values()),preserved_files=len(before),scope='Serialization, geometry and selected actual construction measurements; photographic quality judged separately')
     Path('build/check.json').write_text(json.dumps(out,indent=2)+'\n');print('CIVIC CHECK PASS',len(report),'packages;',len(before),'existing files unchanged')
 
 
