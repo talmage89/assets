@@ -91,64 +91,25 @@ source pair; landmark RMS is 18.01 px. Its original lid and handle construction
 differs from the estate photograph, and studio illumination is brighter than
 the shaded outdoor reference.
 
-## LOD selection and motion evidence
-
-The opt-in chain selects 3224 triangles at .25 screen height / 2.62m, down
-from 4928. It misses the unchanged 1971 goal. Two reviewed requests retain
-3284/3224; an actual 1968-triangle ordinary-collapse control shows dark vertical
-streaks, a damaged lower silhouette and lid response errors at that same
-switch. See [both LOD critiques and target witness](REVIEW.md). This is the
-lowest reviewed passing count, not proof of a global minimum. No farther row
-is added. Original 1024 maps, one material and four active draws stay canonical.
-
-Lid, Handle_Left and Handle_Right retain the original separate frames, meshes
-and ranges listed above. `make check-lod` also tests their actual imported
-surfaces, including LOD_Static, at the original sample steps/tolerances. The
-selected lid's measured .347733mm seating depth stays within .5mm; both handle
-depths measure zero within .4mm. The source control passes too. Counts and
-surface results are in `build/lod-motion.json`; this is sampled physical
-evidence, separate from serialization. The original family check passes after
-the LOD build, with accepted generated inputs explicitly frozen.
-
-Native strips, differences and close views: `renders/lod/`; measured summary
-and contact: `build/lod-rollout/metal-trash-can/report/`; cheaper native control:
-`build/lod-rollout/metal-trash-can/goal-control/`. The table below is generated
-by the frozen reporter. All 103 frozen tool hashes match; the original delivery,
-maps and docs remain byte-identical.
-
 <!-- LOD checkpoint: begin -->
 ## Additional LODs
 
-`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+`make lod LOD_THREADS=4` builds the extra glTF/BIN level in `export/lod/`; `make check-lod` verifies it. The original delivery remains LOD0.
 
 | Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | LOD0 | 4,928 / — | 1 / 4 | 256,678 | 3,228,330 | 3,485,008 | 4.000 + 0.2393 | near |
 | LOD1 | 3,224 / 1,971 | 1 / 4 | 173,892 | 3,228,330 | 3,402,222 | 4.000 + 0.1607 | 25.0% / 2.62 m |
 
-Chain check: True; image check: True; normal check: True.
+Both levels retain the removable lid and folding handle pivots. LOD1 stays above its triangle goal to preserve the thin shell and finish.
 
+The levels share the original three 1024² maps and add no image content. Keeping the whole chain resident costs about 4.400 MiB, versus 4.239 MiB for LOD0 alone. Reuse the original material and image resources when importing the extra level.
 
-Whole-chain resident GPU estimate: **4.400 MiB**, versus LOD0 alone **4.239 MiB**. Unique textures 4.000 MiB = 4.000 MiB original + 0.000 MiB proxy/impostor; all meshes 0.3999 MiB. Increase over LOD0 0.161 MiB = 0.000 MiB far maps + 0.1607 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
-
-Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
-
-Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
-
-Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
-
-Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/check.json` and `export/lod/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
-
-Shipped PNG dimensions: LOD0: 3 × 1024×1024; LOD1: 3 × 1024×1024.
-
-LOD1 separate moving meshes: `Handle_LeftMesh`, `Handle_RightMesh`, `LidMesh`.
-
-Whole default chain:
+Use the listed screen heights in Unity LODGroup, Godot visibility ranges or Unreal component LODs. Only one level draws at a time. Distances assume 60° vertical FOV and 1080p.
 
 | Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
 | ---: | ---: | ---: | ---: | ---: |
 | 8,152 | 1 | 8 | 6,887,230 | 4.4000 |
 
-Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 4 to 4 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
-
+The stored table includes both alternatives; draw calls in the level table describe one instance. [Verification, target exceptions and limits](REVIEW.md). [Engine setup](../kit/LOD.md).
 <!-- LOD checkpoint: end -->

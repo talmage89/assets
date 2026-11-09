@@ -28,7 +28,3 @@ renders/recycling/.stamp: export/TrashCartRecycling.glb $(CONFIG) $(KIT)/studio.
 check: check-cart
 check-cart: export/TrashCart.glb export/TrashCartRecycling.glb
 	$(BP) --python src/check_cart.py -- --out build/cart-check.json
-
-# One opt-in chain per delivered lid; share canonical original map content.
-LOD_CONFIGS := src/lod-trash.json src/lod-recycling.json
-include ../kit/lod_rules.mk

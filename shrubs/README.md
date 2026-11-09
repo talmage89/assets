@@ -1,12 +1,5 @@
 # Foundation shrubs
 
-LOD rollout preflight is blocked; neither shrub has an adopted chain. The
-frozen kit restores the maple shader, while these shrubs require their own
-documented thin-leaf response and hydrangea back-face mask. The measured
-hydrangea foliage mixes 1688 two-triangle and 204 eight-triangle components;
-the kit's two-triangle card-budget convention needs a separate regression.
-No maple adapter is substituted. See [the preflight evidence](REVIEW.md).
-
 Two original scripted summer shrubs: a sheared hybrid boxwood and a blooming
 bigleaf hydrangea. One shared baked atlas and one stock glTF library.
 
@@ -212,20 +205,5 @@ credits and rights are in the source register; committed files contain no
 private-home address, owner identity or listing link. Every asset vertex and
 texel is original scripted output.
 
-## LOD preflight and retained cost
-
-The rollout builds no shrub LOD. Source-only component measurements and adapter
-requirements are in `build/lod-rollout/shrubs/preflight.json`; no runtime
-selected-root impostor proof is claimed. `build/hydrangea/game-audit.blend`
-and `build/bake-loss.json` are also absent, so the original `make check` was
-not run through its image-regeneration dependencies. No `check-lod` result
-or native LOD comparison exists. The lead needs the documented shrub shader,
-mixed-card budget and selected-root impostor regressions, plus accepted check
-inputs, before adopting this family.
-
-Measured LOD0 cost remains 5588 triangles / two draws for Boxwood and 5908 /
-two for Hydrangea. The full immutable library costs 11496 stored triangles,
-two shared materials, four primitive placements and 6066148 physical bytes.
-Its 17.3713 MiB estimated residency includes the shared 16.0001 MiB image set
-once. Added LOD images/meshes: zero. Stored/container and selected-root draw
-costs are separate; instantiate the chosen root as documented above.
+No LOD chain yet. Shrub-specific leaf shading and curved cards need supported distance rendering.
+See [the LOD review](REVIEW.md).

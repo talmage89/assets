@@ -119,45 +119,25 @@ is CC0; manufacturer drawings/photos are copyrighted local research material,
 not redistributed. The rifle project and approved gas-grill pilot informed the
 scripted pipeline.
 
-The additional level retains 58.93% of LOD0, above its 40% target. The lower
-bounded request costs more (3598 triangles); an actual 2392-triangle ordinary
-collapse breaks bonnet/barrel chart correspondence at the native switch.
-The selected count is the lowest tested passing result, not a geometric minimum.
-[Two LOD critiques and the rejected goal-count control](REVIEW.md#lod-rollout-2026-11-09)
-record that exception. All parts remain fixed, as in LOD0. Original `make check`,
-`make check-lod`, immutable-source and 103-entry frozen-tool checks pass.
-
 <!-- LOD checkpoint: begin -->
 ## Additional LODs
 
-`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+`make lod LOD_THREADS=4` builds the extra glTF/BIN level in `export/lod/`; `make check-lod` verifies it. The original delivery remains LOD0.
 
 | Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | LOD0 | 5,980 / — | 1 / 1 | 371,370 | 3,756,126 | 4,127,496 | 4.000 + 0.3521 | near |
 | LOD1 | 3,524 / 2,392 | 1 / 1 | 251,069 | 3,756,126 | 4,007,195 | 4.000 + 0.2375 | 25.0% / 2.82 m |
 
-Chain check: True; image check: True; normal check: True.
+Both levels are fixed assemblies. LOD1 stays above its triangle goal to preserve the bonnet, barrel and baked finish.
 
+The levels share the original three 1024² maps and add no image content. Keeping the whole chain resident costs about 4.590 MiB, versus 4.352 MiB for LOD0 alone. Reuse the original material and image resources when importing the extra level.
 
-Whole-chain resident GPU estimate: **4.590 MiB**, versus LOD0 alone **4.352 MiB**. Unique textures 4.000 MiB = 4.000 MiB original + 0.000 MiB proxy/impostor; all meshes 0.5896 MiB. Increase over LOD0 0.238 MiB = 0.000 MiB far maps + 0.2375 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
-
-Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
-
-Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
-
-Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
-
-Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/check.json` and `export/lod/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/FireHydrant/simplification.json` and manifest assembly receipts. [Family critiques, target miss and rejected control](REVIEW.md#lod-rollout-2026-11-09).
-
-Shipped PNG dimensions: LOD0: 3 × 1024×1024; LOD1: 3 × 1024×1024.
-
-Whole default chain:
+Use the listed screen heights in Unity LODGroup, Godot visibility ranges or Unreal component LODs. Only one level draws at a time. Distances assume 60° vertical FOV and 1080p.
 
 | Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
 | ---: | ---: | ---: | ---: | ---: |
 | 9,504 | 1 | 2 | 8,134,691 | 4.5897 |
 
-Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 1 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
-
+The stored table includes both alternatives; draw calls in the level table describe one instance. [Verification, target exceptions and limits](REVIEW.md). [Engine setup](../kit/LOD.md).
 <!-- LOD checkpoint: end -->
