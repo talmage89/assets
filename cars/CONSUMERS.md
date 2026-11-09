@@ -158,3 +158,19 @@ Each direct consumer family's REVIEW records its receipts and warns that
 site counts may move by these few car triangles on the next site build.
 Existing family deliveries and docs remain accepted; whole-site repeat
 proofs and any change to tolerance guards are deferred.
+
+## Corresponding form geometry
+
+The native source adapter adds exterior construction to the cars' form stage.
+`suv_exterior.fuel_pocket` cuts the left rear quarter; `hatch_exterior.py`
+partitions front side glazing into fixed and moving panes. These documented
+stage changes explain the differing form/detail meshes in the array probe.
+
+All other shared skins match the cars' original one-thread cold forms exactly:
+**44 X220 meshes / 38,856 triangles**, **27 H120 meshes / 28,521 triangles**,
+including positions, corner indices/polygon topology, split normals, transforms
+and UV layers. The receipt is
+`build/cars-determinism/round2/form-cache-match.json`, which records the
+expected detail operations and zero unexpected changes. The modified detail
+objects remain included in every complete native GLB repeat above. Utility's
+three full C150 sources also match the accepted source, as recorded earlier.
