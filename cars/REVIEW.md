@@ -2270,6 +2270,44 @@ no result was discarded. Five fresh LOD0 imports execute all presets through the
 `build/car-lod/round2/suv-source-routing.json`. The routing probe now accepts
 an explicit decoder module so the SUV's warm projector policy is exercised.
 
+## X220 LOD critique 1 — closed and open native control
+
+Color/value first: the 36,477-triangle shared-map control keeps the blue body,
+dark rubber/cavities, pale cabin band, red rear guides and white projectors.
+Opened all three native strips, both 960-pixel construction views and contact.
+Global RGB means are .004004/.002949/.002231; p95, silhouette and alpha pass.
+At azimuth 145 the local patch reaches .102594 against .08. The worst patch
+at (852,472) hits `Door_FRMesh` / Opaque: its mirror reflection moves. Do not
+waive it because the global mean is small. Its 36,477 triangles also miss
+the unchanged 35,713 goal. Two open-pose strips fail local limits as well.
+
+## X220 LOD critique 2 — mirror fix, remaining posed failure
+
+Retain the original `Door_FLMesh` and `Door_FRMesh` using the kit's existing
+geometry-retention option; original materials, maps, pivots and support-driver
+frames remain. The result is 40,265 triangles, still above the original goal.
+The cheaper control is preserved as its visible-fault witness under
+`build/car-lod/round2/suv-first-near/`. Reopened all native rest strips,
+differences, construction views and contact. Body value, glass/cabin response,
+lamp powers and the mirror reflection now agree. Rest patches are
+.067708/.058926/.053411; means .003858/.002664/.001953. Full `check-lod`,
+independent normals, ten fresh actual-decoder imports (five paints on LOD0/1,
+both lamp states) and the original `make check` pass. No new image is allocated.
+
+Open-pose review still rejects this candidate: local patch means .115107 and
+.097712 exceed .08, with changed specular detail around the rotated wheels
+and open assembly. Pivots and the eight support-driver memberships match;
+that serialization proof cannot approve appearance. The image gates stay
+unchanged. No X220 chain is adopted; LOD2 and its proxy were not built under
+the car budget. The roughly seven-minute GPU queue was waited out normally.
+The complete retained payload/config/checks and rejection status are under
+`build/car-lod/round2/suv-retained-near/`; native rest and posed comparisons
+remain at `renders/lod/suv/`. Measured cost report:
+`build/car-lod/round2/suv-retained-report/report.md`. Production `src/` no
+longer contains this rejected config. All original delivery/map/image bytes
+remain unchanged. Source mirrors stay on the doors and wipers stay static,
+as in the immutable LOD0; no independent pivot is claimed.
+
 ## Factory proxy adapter, 2026-11-09
 
 The adapter closes factory routing, but does not close the native appearance
