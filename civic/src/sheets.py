@@ -67,4 +67,5 @@ def render(out,width,samples):
         sc.render.image_settings.file_format='PNG';sc.render.filepath=str((out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
         sources=[Path('build/review/CivicPieces.glb')] if name=='modules' else [Path('build/review')/f'Civic-{s}.glb' for s in (101,202,303,404)] if name=='range' else [source,ROOT/'cars/export/AlderS240.glb']
         receipt=dict(image=str(out/(name+'.png')),sources=[dict(path=str(p) if not p.is_absolute() else str(p.relative_to(ROOT)),sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in sources],camera=(loc,target,lens),width=width,samples=samples,stage='fresh exported GLB subjects; original ground only for review')
+        receipt.update(render_recipe_sha256=hashlib.sha256(Path(__file__).with_name('render.py').read_bytes()).hexdigest(),sheet_recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
         (out/(name+'.json')).write_text(json.dumps(receipt,indent=2)+'\n')

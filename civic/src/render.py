@@ -29,8 +29,12 @@ SHOTS={
 SHOTS['101']['flag']=((-18,-25,7.7),(-20.6,-19,8.5),60)
 SHOTS['202']['scupper']=((10,17,3.8),(-1.8,9.3,4.7),50)
 for seed in ('101','202'):SHOTS[seed]['hero-fixed']=SHOTS[seed]['hero']
-SHOTS['101']['hero']=((20,-46,1.72),(-6,-4,4.0),40)
+SHOTS['101']['hero']=((20,-48,1.72),(-6,-4,4.0),38)
 SHOTS['202']['hero']=((14,-49,1.72),(-6,-2,3.1),45)
+for seed in ('101','202'):
+    SHOTS[seed].update(front=((-6,-57,7),(-6,0,5),45),
+        side=((60,0,9),(-6,0,5),45),back=((-6,65,9),(-6,0,5),45),
+        top=((-6,0,100),(-6,0,0),46))
 
 
 def camera(spec,width):
@@ -52,15 +56,19 @@ def open_bay():
 
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,default=Path('renders/checkpoint'));ap.add_argument('--width',type=int,default=1400);ap.add_argument('--samples',type=int,default=40);ap.add_argument('--shots',default='all');ap.add_argument('--seeds',default='101,202');ap.add_argument('--buildings-only',action='store_true');ap.add_argument('--matches',action='store_true');ap.add_argument('--sheets',action='store_true');ap.add_argument('--engine',default='CYCLES');args=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+    ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,default=Path('renders/final'));ap.add_argument('--width',type=int,default=1400);ap.add_argument('--samples',type=int,default=40);ap.add_argument('--shots',default='all');ap.add_argument('--seeds',default='101,202');ap.add_argument('--buildings-only',action='store_true');ap.add_argument('--matches',action='store_true');ap.add_argument('--sheets',action='store_true');ap.add_argument('--sheets-only',action='store_true');ap.add_argument('--engine',default='CYCLES');args=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+    if args.sheets_only:
+        from sheets import render
+        args.out.mkdir(parents=True,exist_ok=True);render(args.out,args.width,args.samples);return
     if args.matches:
         recipes=json.loads(Path('build/matched-cameras.json').read_text())
         jobs=[(name,str(row['seed']),(row['shot']['location'],row['shot']['target'],row['shot']['lens']),row) for name,row in recipes.items() if args.shots=='all' or name in args.shots.split(',')]
     else:jobs=[(name,seed,spec,None) for seed in args.seeds.split(',') for name,spec in SHOTS[seed].items() if args.shots=='all' or name in args.shots.split(',')]
+    if args.sheets:jobs.append(('eevee','202',SHOTS['202']['hero'],None))
     rows=[]
     for name,seed,spec,match in jobs:
         bpy.ops.wm.read_factory_settings(use_empty=True)
-        building_only=args.buildings_only or (match and match.get('building_only'))
+        building_only=args.buildings_only or name in ('front','side','back','top') or (match and match.get('building_only'))
         source=Path('build/review')/(('Civic-' if building_only else 'Site-')+seed+'.glb')
         bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
         if not building_only:
@@ -75,7 +83,12 @@ def main():
         if not building_only or (match and match.get('building_only')):
             from town import context
             context(101 if building_only else int(seed))
-        light(int(seed));sc=bpy.context.scene;sc.render.engine=args.engine;sc.cycles.samples=args.samples;cam=camera(spec,args.width)
+        elif not match:
+            from sites import ground
+            from geo import Assembly
+            ground(Assembly('InspectionGround'),'InspectionConcrete',(-120,120,-120,120),'Concrete',-.035)
+        light(int(seed));sc=bpy.context.scene;sc.render.engine=args.engine if name!='eevee' else 'BLENDER_EEVEE'
+        sc.cycles.samples=args.samples;cam=camera(spec,args.width)
         if name in ('tower','scupper'):sc.view_settings.exposure+=.55
         if match:
             sc.render.resolution_y=round(args.width/match['shot']['aspect']);cam.rotation_euler.rotate_axis('Z',match['shot']['roll'])
@@ -86,9 +99,9 @@ def main():
             from kit.studio import human
             desired=Vector((-6,-15.4,.145) if seed=='101' else (3.7,-9,.145))
             for ob in human():ob.location+=desired-Vector((-1.03,.24,0))
-        out=args.out/(name+'.png') if args.matches else args.out/seed/(name+'.png');out.parent.mkdir(parents=True,exist_ok=True)
+        out=Path('renders/eevee')/seed/'hero.png' if name=='eevee' else args.out/(name+'.png') if args.matches else args.out/seed/(name+'.png');out.parent.mkdir(parents=True,exist_ok=True)
         sc.render.image_settings.file_format='PNG';sc.render.filepath=str(out.resolve());bpy.ops.render.render(write_still=True)
-        row=dict(image=str(out),source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),camera=spec,width=args.width,samples=args.samples,engine=args.engine,exposure=sc.view_settings.exposure)
+        row=dict(image=str(out),source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),camera=spec,width=args.width,samples=args.samples,engine=sc.render.engine,exposure=sc.view_settings.exposure)
         sun=bpy.data.objects['Low front raking sun'];sky=next(n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY')
         row['lighting']=dict(sun_rotation=list(sun.rotation_euler),sun_energy=sun.data.energy,sun_angle=sun.data.angle,sky_strength=sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value,air=sky.air_density,aerosol=sky.aerosol_density)
         row['camera_matrix_world']=[list(v) for v in cam.matrix_world];row['render_recipe_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()

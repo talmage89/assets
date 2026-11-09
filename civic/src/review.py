@@ -1,4 +1,4 @@
-"""Checkpoint sheets and measured resources; no committed gallery generation."""
+"""Final exported evidence and measured resources; gallery is a separate step."""
 import hashlib,json,sys
 from pathlib import Path
 import numpy as np
@@ -19,11 +19,14 @@ def receipt(path):
         source=Path(__file__).parent
         current=hashlib.sha256(b''.join((source/n).read_bytes() for n in ('town.py','neighborhood.py','actors.py','library.py','sites.py','geo.py','turf.py'))).hexdigest()
         assert current==data['context_recipe_sha256'],(path,'Stale town/actor recipe')
+    if data.get('render_recipe_sha256'):
+        assert hashlib.sha256(Path('src/render.py').read_bytes()).hexdigest()==data['render_recipe_sha256'],(path,'Stale render recipe')
     return sources
 
 
 def main():
-    folder=Path('renders/checkpoint');images=sorted(folder.glob('*/*.png'))+sorted(folder.glob('*.png'))
+    folder=Path('renders/final');images=sorted(folder.glob('*/*.png'))+sorted(folder.glob('*.png'))
+    images+=sorted(Path('renders/eevee').glob('*/*.png'))
     assert images,'Render the exports first'
     rows=[]
     for path in images:
@@ -31,7 +34,13 @@ def main():
         row=dict(image=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),export_sources=receipt(path),display_y_percentiles=np.percentile(y,[1,10,50,90,99]).tolist(),fraction_below_01=float((y<.01).mean()),fraction_any_channel_above_995=float((pix.max(2)>.995).mean()))
         assert row['fraction_below_01']<.85,(path,'Rejected near-black frame')
         rows.append(row)
-    contact(images,folder/'contact.jpg',width=2000,title='Civic / form and look checkpoint / exported glTF and shared maps',captions={str(p):str(p.relative_to(folder).with_suffix('')) for p in images})
+    required=[folder/seed/(name+'.png') for seed in ('101','202') for name in ('hero','hero-fixed','above','front','side','back','top')]
+    required += [folder/'101'/f'{n}.png' for n in ('entry','cornice','police','flag')]
+    required += [folder/'202'/f'{n}.png' for n in ('bays','interior','tower','scupper')]
+    required += [folder/f'{n}.png' for n in ('modules','range','scale')]+[Path('renders/eevee/202/hero.png')]
+    assert all(p in images for p in required),'Incomplete final evidence'
+    assert all(Image.open(p).width>=800 for p in required),'Full-size evidence required'
+    contact(images,folder/'contact.jpg',width=2200,title='Civic / final delivery / exported glTF and shared maps',captions={str(p):str(p.with_suffix('')) for p in images})
     pairs=sorted(Path('renders/matches').glob('*-pair.jpg'))
     for pair in pairs:receipt(pair.with_name(pair.name.replace('-pair.jpg','.png')))
     if pairs:review_sheet([[p] for p in pairs],Path('renders/matches/contact.jpg'),width=2200,title='Civic / photographic type comparisons / fit residuals retained')
@@ -45,12 +54,18 @@ def main():
         assert source['width']==exported['width'] and source['width']>=800,(path,'Source/export width differs')
         assert Image.open(path).size==Image.open(source['export_pair']).size,(path,'Source/export dimensions differ')
     family=json.loads(Path('build/family.json').read_text());checks=json.loads(Path('build/check.json').read_text());modules=json.loads(Path('build/modules.json').read_text())
-    lines=['# Measured checkpoint resources','', '| Export | Placed triangles | Materials | glTF + BIN bytes | Image MiB |', '| --- | ---: | ---: | ---: | ---: |']
+    lines=['# Measured final resources','', '| Export | Placed triangles | Materials | glTF + BIN bytes | Image MiB |', '| --- | ---: | ---: | ---: | ---: |']
     for name,r in family.items():
         memory=sum(im['gpu_mib'] for im in checks['files'][name]['images'])
         lines.append(f"| {name} | {r['placed_triangles']:,} | {r['materials']} | {r['gltf_bytes']+r['bin_bytes']:,} | {memory:.3f} |")
-    lines+=['','| Module | Triangles | Materials | Shared image MiB |','| --- | ---: | ---: | ---: |']
-    for m in modules['modules']:lines.append(f"| {m['name']} | {m['triangles']:,} | {m['materials']} | {m['image_gpu_mib']:.3f} |")
+    from resources import module_costs,package_costs
+    lines+=['','| Module | Triangles | Accessor bytes | Materials | Shared image MiB |','| --- | ---: | ---: | ---: | ---: |']
+    for m in module_costs():lines.append(f"| {m['module']} | {m['triangles']:,} | {m['accessor_bytes']:,} | {m['materials']} | {m['shared_image_mib']:.3f} |")
+    packages,actors=package_costs()
+    lines+=['','| Package category | Placed triangles | Unique accessor bytes |','| --- | ---: | ---: |']
+    for r in packages:
+        for name,c in r['categories'].items():lines.append(f"| {r['package']} / {name} | {c['placed_triangles']:,} | {c['unique_accessor_bytes']:,} |")
+    for r in actors:lines.append(f"\nNative {r['model']}: {r['native_glb_bytes']:,} GLB bytes, {r['unique_accessor_bytes']:,} unique geometry accessor bytes, shared across its actors.")
     pieces=[]
     for name,r in family.items():
         if name.startswith('Civic-'):pieces += [dict(building=name,**p) for p in r['source']['pieces']]

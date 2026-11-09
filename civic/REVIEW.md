@@ -153,3 +153,29 @@ view. Tighten the hall to 40mm from a different eye position. The inherited
 cameras remain as `hero-fixed` for honest full-size comparisons. The test still
 shows evenly maintained stone and nearly flat lawns; the pending value/weather
 changes must be judged on rebuilt exports, not inferred from their masks.
+
+## Pass 15 — exported values; freeze the last-round look
+
+Color and value: opened the three completed 1400px age-pass frames (hall hero,
+above and entry) and the first four 1400px final frames, against the retained
+concrete-balanced photographs. The brick remains warm and darker than the
+limestone; cornice recesses are deep and sunlit highlights retain headroom.
+The lawn is darker yellow-green, with less of the former bright even field.
+The final hall's wider 38mm view restores the complete national flag, which
+the intermediate 40mm view cropped. Its street foreground now reads as road.
+
+The larger splash, shelter and runoff masks, unequal facade reflectance and
+stronger wheel lanes cost only 92/128 additional building triangles. The stone
+still reads too uniform in the full hero; the column bases remain much cleaner
+than decades of real maintenance would produce. The stair centers and rust
+under-read. From above, lawn values improve but the flat lawn and clean roof
+remain conspicuous. In the cornice macro the profiles cast a useful shadow,
+but geometric facets and overly manufactured edges remain. These are partial
+age/lawn fixes, not photographic realism approval. Freeze the look and deliver
+them explicitly as known flaws rather than starting another modeling round.
+
+The first multi-frame age process ended after three completed images. A later
+batch interruption exposed a reentrant signal-handler join: unwind the wait
+before terminating/joining the child. Final captures now use fresh serial
+Blender workers, with one GPU lease and hash-validated resumption; completed
+frames survive a joined interruption. No interrupted partial frame is evidence.
