@@ -995,3 +995,26 @@ source diameters rather than pruning thin conductors to meet a ratio.
 Diagnostic config is unwired; the control is archived in
 `build/lod-uv/archive/utility/wires-101-no-saving/` and removed from live export.
 Its two rejected trials have no runtime residency or placement recommendation.
+
+
+### Angle pole LODs critique 1 — native values and coverage
+
+Opened all three native strips and difference panes. Timber and hardware
+values agree with LOD0; crossarm, braces, porcelain, shaft taper and lower cable loop remain.
+At 25% / 36.315 m, the protected level has
+2834/3632 triangles against 1453.
+Worst mean 0.0006771, local 0.002296 and silhouette loss
+0.002997 pass the unchanged gates. The goal is missed.
+
+### Angle pole LODs critique 2 — construction and independent checks
+
+Opened both construction views and contact, then revisited native details:
+the angled framing and brace seats; original low-sided fittings remain evident. No new missing support or thin member appears.
+Chart crossings are zero and maximum measured marking gap is 0.4003 mm.
+Re-import, UV area, tangent and source-field checks pass independently of images.
+The original family check passes after these variants; every original resource
+and frozen tool hash matches. Counts are the tested protected result, not a
+mathematical minimum. Original maps allocate no new image. Final evidence:
+`build/lod-uv/archive/utility/angle-final/`; native views:
+`renders/lod/angle/`. This proves rest appearance/data and measured gaps,
+not engine performance or continuous motion.

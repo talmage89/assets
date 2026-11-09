@@ -96,7 +96,7 @@ clean-family:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('textures','export')]"
 
 # Additional checked kinds only; the original delivery graph is unchanged.
-LOD_CONFIGS := src/lod-tangent.json src/lod-transformer-pole.json
+LOD_CONFIGS := src/lod-tangent.json src/lod-transformer-pole.json src/lod-angle.json
 include ../kit/lod_rules.mk
 .PHONY: check-lod-atlas
 check-lod: check-lod-atlas
