@@ -922,6 +922,9 @@ No full interiors, arbitrary footprints or engineering certification are
 claimed. Fonts are system open-license faces; references remain inspection
 only. Credits and rights are in [refs/SOURCES.md](refs/SOURCES.md).
 
+No additional Cape LODs are delivered yet: reduced meshes fail geometry/import
+checks and the tested far replacements change window and trim brightness.
+Use the original mesh; [LOD review](REVIEW.md).
 
 ---
 

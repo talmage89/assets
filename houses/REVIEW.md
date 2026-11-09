@@ -2660,3 +2660,38 @@ is adopted and no limit changes. The last bounded trial moves to 2% / 21.6px,
 keeps .97 coverage and uses a finer quarter-pixel grid with .15-pixel inflation.
 It tests a smaller far silhouette with less envelope expansion; a failure
 will end this type's attempt rather than authorize a general tool edit.
+
+### Cape LOD critique pass 4 — final far rejection and hold
+
+Opened every final 2% native strip, all six unscaled comparison/difference
+pages, both construction views and the contact. Color/value remains wrong
+at the front window/trim fields; the closer view also exposes dark triangular
+dormer-apex artifacts, coarse steps and lost roof/lap detail. At 21.6 nominal
+pixels / 337.75 m, front mean/p95/local are .029275/.118235/.055592;
+side .019967/.082353/.047376; rear .011807/.039216/.024422. Alpha/IoU
+maxima .015886/.018900 pass. Front color still fails strongly, and side p95
+still exceeds .08; no tolerance is relaxed for the smaller excess.
+
+The final full check returns 2 only for images; topology, normals, re-import,
+pivots and immutable inputs pass. The 1,800/1,800-triangle shell has one
+material/draw, 100,041 geometry bytes and four 512-square PNGs / 414,704 bytes,
+514,745 cold-load bytes altogether. This rejected two-level package would
+store 38,183 triangles, seven material resources and nine placements, with
+28.8414 MiB resident versus the original's 27.4158 MiB. No intermediate
+image is added. Its saved recipe is `src/lod-cape-proxy020-trial.json`;
+current payload/native evidence is `export/lod/cape-36-proxy/` and
+`renders/lod/cape-36-proxy/`, with measured failed tables/contact in
+`build/houses-lod/cape-final-failed-report/`.
+
+No passing proxy was found at 4.5%, 3% or 2%, including the opening/finer-grid
+controls. Both near levels are raw failures and poor cost reductions, so
+ending at LOD2 would also be invalid. Cape stays LOD0-only. All rejected
+configs remain unwired; the README gets three plain lines and no failed
+tables. General near serialization and far appearance fixes are deferred,
+as required by this adoption scope. The post-build original check follows.
+
+The post-build frozen `make TYPE=cape check` returns 0 in 172.83 s, including
+both older types. All 136 accepted files and all literal Cape tool/recipe
+freeze entries match. `repo_check.py` and `git diff --check` pass. There is no
+Cape LOD hook or active `lod-cape.json`; only explicitly named rejected trials
+remain in `src/`. Default family LOD hooks still select adopted chains only.
