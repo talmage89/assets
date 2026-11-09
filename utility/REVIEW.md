@@ -945,4 +945,33 @@ zero crossings and the same sub-millimeter rating support. The far row retains
 not justify another almost-complete buffer. Keep this already coarse module
 at LOD0; no new runtime allocation or switch is recommended. Config is unwired;
 final evidence is `build/lod-uv/archive/utility/transformer-far-cost-rejected/`.
+
+### Transformer pole critique 1 — original switch
+
+Opened all three native strips, both construction views and contact at
+.25 / 36.315 m. Source timber, gray tank, porcelain and black lead values
+agree; the source coarse leads retain their sag/loops and connection points.
+5614/6668 triangles pass every generic image/field/re-import check and the
+independent atlas/support audit, with zero crossings and both labels supported.
+Archived before the density control in
+`build/lod-uv/archive/utility/transformer-pole-first-density/`.
+
+### Transformer pole critique 2 — lower request, same maps and switch
+
+A .15 request with the unchanged 2667 goal keeps 5604 triangles, saving 1064
+(15.96%). Opened every regenerated native strip, both construction views and
+contact, revisiting the can mounts, bushings, lead loops, cable case and shaft.
+Values/coverage remain consistent; the close view retains original coarse
+porcelain and fixture silhouettes. Both labels remain supported: Brand max
+.4008 mm, Rating max .39995 mm. All chart/area/tangent, re-import and original
+image gates pass. The goal is explicitly missed; this is the lowest tested
+protected count, not proof of a global minimum. Boundary protection and the
+original coarse can/lead geometry limit the saving. It adds one mesh buffer
+and no new image, retaining the full original container in stored accounting.
+
+Post-build original `make check` passes; all 30 immutable utility resources
+match. Final evidence is archived in
+`build/lod-uv/archive/utility/transformer-pole-final/`. This proves native
+appearance, source fields, serialized frames and measured label gaps, not
+engine performance or a new electrical/structural certification.
 Its two rejected trials have no runtime residency or placement recommendation.
