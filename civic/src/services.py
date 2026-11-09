@@ -1,0 +1,130 @@
+"""Visible service construction, routed drains, gear and supported accessories."""
+import math
+from geo import orient,text
+
+
+def equipment(a,p):
+    x,y,z=p;m=a.mesh('RoofMechanical',kind='HVAC',trim_strip=7)
+    m.box((x,y,z+.18),(2.20,1.65,.36),'Trim',(.21,.23,.21))
+    m.box((x,y,z+.70),(2.05,1.48,.75),'Trim',(.48,.49,.43))
+    m.box((x,y,z+1.10),(2.16,1.57,.12),'Trim',(.43,.44,.40))
+    for xx in (x-.53,x+.53):
+        m.tube([(xx,y,z+1.15),(xx,y,z+1.23)],.40,'Trim',(.08,.09,.08),sides=24)
+        for j in range(7):m.box((xx,y+(j-3)*.105,z+1.24),(.76,.014,.015),'Trim',(.28,.29,.27),r=0)
+    m.finish()
+
+
+def drains(a,rect,top):
+    l,r,f,k=rect;m=a.mesh('Drainage',kind='ScupperDownspout',trim_strip=2)
+    for x,y in ((l+.38,f-.08),(r-.38,k+.08)):
+        m.box((x,y,top-.12),(.26,.23,.20),'Trim',(.24,.25,.21))
+        pts=[(x,y,top-.10),(x,y,top-.45),(x,y-.12,top-.65),(x,y-.12,.30),(x,y-.40,.17)]
+        m.tube(pts,.058,'Trim',(.24,.25,.21),sides=8)
+        for z in (.7,2.7,4.7,6.7):
+            if z<top:m.box((x,y-.10,z),(.17,.15,.035),'Trim',(.32,.34,.30))
+        m.box((x,y-.52,.07),(.40,.75,.12),'Concrete',(.32,.32,.28))
+    m.finish()
+
+
+def gear(a,name,p):
+    x,y,z=p;m=a.mesh(name,kind='TurnoutGearRack',trim_strip=2)
+    for xx in (x-.31,x+.31):
+        m.tube([(xx,y,z),(xx,y,z+2.05)],.018,'Trim',(.30,.32,.30),sides=8)
+        for zz in (.15,1.8,2.05):m.tube([(xx,y-.30,z+zz),(xx,y+.25,z+zz)],.014,'Trim',sides=6)
+    for zz in (.15,1.8,2.05):m.tube([(x-.31,y,z+zz),(x+.31,y,z+zz)],.018,'Trim',sides=8)
+    # Hanging coat has an elliptical body, sagging hem and separate drooping sleeves.
+    vs=[];levels=[(.55,.22,.14),(.61,.24,.15),(1.05,.23,.15),(1.45,.24,.16),(1.60,.16,.13)]
+    n=12
+    for zz,rx,ry in levels:
+        for j in range(n):
+            t=j*math.tau/n;fold=.012*math.cos(t*5+zz*2)
+            vs.append((x+(rx+fold)*math.cos(t),y+(ry+fold)*math.sin(t)-.07,z+zz+.015*math.sin(t*3)))
+    fs=[tuple(reversed(range(n))),tuple(range(len(vs)-n,len(vs)))]
+    fs += [(j*n+i,j*n+(i+1)%n,(j+1)*n+(i+1)%n,(j+1)*n+i) for j in range(len(levels)-1) for i in range(n)]
+    m.geom(vs,fs,'Trim',(.25,.20,.11))
+    for s in (-1,1):
+        m.tube([(x+s*.19,y-.07,z+1.47),(x+s*.30,y-.08,z+1.28),(x+s*.34,y-.12,z+1.0)],.080,'Trim',(.25,.20,.11),sides=10)
+        m.box((x+s*.115,y-.08,z+.30),(.13,.28,.42),'Trim',(.030,.033,.026))
+    for zz in (.69,1.18):m.tube([(x-.20,y-.18,z+zz),(x+.20,y-.18,z+zz)],.024,'Trim',(.65,.64,.23),sides=6)
+    m.tube([(x,y,z+1.84),(x,y,z+1.97)],.18,'Trim',(.59,.43,.020),sides=16)
+    m.tube([(x,y,z+1.96),(x,y,z+2.09)],.14,'Trim',(.59,.43,.020),sides=16)
+    m.finish()
+
+
+def bollard(a,p,name='Bollard'):
+    m=a.mesh(name,kind='Bollard',trim_strip=5,weather=True)
+    x,y,z=p;m.tube([(x,y,z+zz) for zz in (0,.12,.18,.25,.32,.39,.47,.64,.83,1)],.0825,'Trim',(.64,.38,.020),sides=12)
+    m.tube([(x,y,z+.90),(x,y,z+.98)],.086,'Trim',(.24,.24,.17),sides=12);ob=m.finish()
+    tint=ob.data.color_attributes['Tint']
+    for loop in ob.data.loops:
+        q=ob.data.vertices[loop.vertex_index].co
+        scuff=max(0,math.sin((q.z-z)*42+(x%3)*7))**12 if .15<q.z-z<.64 else 0
+        if q.y<y:scuff*=.8
+        else:scuff*=.2
+        c=tint.data[loop.index].color;tint.data[loop.index].color=(*(c[i]*(1-scuff)+(.16,.15,.12)[i]*scuff for i in range(3)),1)
+    return ob
+
+
+def flagpole(a,p,name):
+    from flags import pole
+    return pole(a,p,name)
+
+
+def back_service(a,p):
+    x,y,z=p;m=a.mesh('RearServiceEquipment',kind='GeneratorMeterBank',trim_strip=7)
+    m.box((x,y,.08),(3.4,2.1,.16),'Concrete',(.34,.34,.30))
+    m.box((x,y,.78),(2.7,1.4,1.4),'Trim',(.25,.29,.23))
+    m.box((x,y,1.52),(2.85,1.52,.13),'Trim',(.29,.32,.26))
+    for j in range(4):
+        xx=x-1+j*.65;m.box((xx,y+2,1.2),(.35,.22,.55),'Trim',(.43,.45,.41))
+        m.tube([(xx,y+1.86,1.22),(xx,y+1.82,1.22)],.105,'Glass',sides=12)
+        m.tube([(xx,y+2,.05),(xx,y+2,.94)],.022,'Trim',sides=8)
+    m.finish()
+
+
+def dumpster(a,p):
+    x,y,z=p;m=a.mesh('DumpsterEnclosure',kind='ServiceEnclosure',brick_strip=1,weather=True)
+    for xx in (x-2,x+2):m.box((xx,y+1,1.0),(.20,3.2,2),'Veneer',r=0)
+    m.box((x,y+2.5,1),(4.2,.20,2),'Veneer',r=0)
+    for xx in (x-2,x+2):m.box((xx,y+1,2.05),(.30,3.3,.10),'Concrete')
+    m.box((x,y+2.5,2.05),(4.2,.30,.10),'Concrete');m.finish()
+    m=a.mesh('DumpsterContainer',kind='Dumpster',trim_strip=5)
+    m.box((x,y+.8,.75),(2.25,1.4,1.30),'Trim',(.035,.095,.07))
+    for xx in (x-.92,x+.92):
+        m.box((xx,y+.80,1.12),(.25,1.47,.19),'Trim',(.035,.085,.06))
+        m.box((xx,y+.8,.12),(.18,1.1,.20),'Trim',(.040,.045,.038))
+    m.finish();a.pivot('DumpsterLid',(x,y+1.5,1.45),axis='X',limits=(-105,0))
+    m=a.mesh('DumpsterLidMesh',part='DumpsterLid',kind='DumpsterLid',trim_strip=1)
+    m.box((x,y+.8,1.48),(2.35,1.50,.075),'Trim',(.035,.040,.032));m.finish()
+    for j in range(2):
+        a.pivot('EnclosureGate_'+str(j),(x-2+4*j,y-.60,0),axis='Z',limits=(-105,0) if j==0 else (0,105))
+        m=a.mesh('EnclosureGateMesh_'+str(j),part='EnclosureGate_'+str(j),kind='EnclosureGate',trim_strip=0)
+        for t in range(13):m.box((x-1+j*2+(t-6)*.14,y-.60,1),(.13,.065,1.90),'Trim',(.16,.13,.085),r=.002)
+        m.finish()
+
+
+def public_details(a,p,station=False,signal_y=None):
+    x,y,z=p;m=a.mesh('PublicDropAndPlaque',kind='PublicHardware',trim_strip=2)
+    # Folded stainless payment/document drop, projecting rain hood and slot.
+    m.box((x,y,z+.87),(.52,.30,.95),'Trim',(.32,.34,.31))
+    m.box((x,y-.18,z+1.38),(.59,.39,.055),'Trim',(.37,.39,.36))
+    m.box((x,y-.158,z+1.16),(.42,.016,.062),'Trim',(.018,.021,.017))
+    m.box((x,y-.17,z+.80),(.30,.025,.37),'Trim',(.29,.31,.28))
+    m.box((x,y-.20,z+.87),(.075,.035,.018),'Trim',(.40,.42,.39));m.finish()
+    m=a.mesh('DropPedestal',kind='DropPedestal',trim_strip=2)
+    for xx in (x-.16,x+.16):
+        m.tube([(xx,y+.04,z),(xx,y+.04,z+.43)],.028,'Trim',(.28,.30,.27),sides=8)
+        m.box((xx,y+.04,z+.012),(.12,.14,.024),'Trim',(.26,.28,.25),r=0)
+    m.finish()
+    text(a,'DropLabel','DOCUMENT DROP',(x,y-.185,z+1.27),.055,(.65,.65,.60))
+    if station:
+        sy=y-14 if signal_y is None else signal_y
+        m=a.mesh('EmergencyStreetSignal',kind='EmergencySignal',trim_strip=2)
+        m.tube([(x-5,sy,0),(x-5,sy,6)],.065,'Trim',(.30,.32,.29),sides=12)
+        m.tube([(x-5,sy,5.8),(x-4.5,sy,6.3),(x-.5,sy,6.3)],.045,'Trim',(.30,.32,.29),sides=10)
+        for xx,direction in ((x-2.5,-1),(x-.8,1)):
+            m.tube([(xx,sy,6.3),(xx,sy,6.15)],.018,'Trim',(.30,.32,.29),sides=8)
+            m.box((xx,sy,5.93),(.23,.38,.55),'Trim',(.025,.030,.023))
+            m.tube([(xx+direction*.14,sy,5.94),(xx+direction*.11,sy,5.94)],.135,'Trim',(.32,.009,.006),sides=16)
+        m.finish()
+        a.socket('EmergencySignal',(x-1.7,sy,5.94),'emergency_signal')
