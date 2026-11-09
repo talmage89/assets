@@ -62,7 +62,7 @@ def parking(a,lot):
                 x=l+3.1;y=f+(j+.5)*(k-f)/n;yaw=-90
                 for s in ((-1,1) if j==0 else (1,)):decal(a,'ParkingPaint_'+lot['id']+f'_{row}_{j}_{s}',(x,y+s*(k-f)/n/2,0),(5.4864,.075),'paint',j+row*7)
             node=a.socket(lot['id']+f'_Stall_{row}_{j}',(x,y,.015),'parked_car');node.rotation_euler.z=math.radians(yaw)
-            reserved=(lot['id']=='Staff' and j==0) or (lot['id']=='Public' and j==1) or j==lot.get('service_stall',-1)
+            reserved=(lot['id']=='Staff' and j==0) or (lot['id']=='Public' and j==1) or (lot['id']=='Police' and j==2) or j==lot.get('service_stall',-1)
             node.location.z=-.003;node['occupied']=((j*7+row*3+a.root.get('seed',0))%10)<8 and not reserved;node['police']=lot['id']=='Police';slots.append((x,y,yaw))
             if j%3!=1:decal(a,'EngineDrips_'+lot['id']+str(row)+'_'+str(j),(x,y+1.1,.004),(1.1,2.0),'oil',j+row*20)
     paint.finish()
@@ -118,7 +118,7 @@ def build_site(sp,building,off):
     from services import dumpster
     dumpster(a,sp['dumpster'])
     from services import public_details
-    public_details(a,(12,-7,.145) if sp['kind']=='arterial' else (11.5,-.5,.145),sp['kind']=='arterial')
+    public_details(a,(12,-7,.145) if sp['kind']=='arterial' else (11.5,-.5,.145),sp['kind']=='arterial',sp['road_y']+sp['road_width']/2+.6)
     if sp['kind']=='arterial':place(LOCAL/'build/context/hydrant.glb','StreetHydrant',(-25,-30.7,-.012),parent=a.root)
     if sp['kind']=='downtown':
         # Follow a stair lane beside the center handrail to the real leaf.

@@ -55,6 +55,36 @@ def surface(ob):
     ob.data.calc_loop_triangles();return BVHTree.FromPolygons([ob.matrix_world@v.co for v in ob.data.vertices],[tuple(t.vertices) for t in ob.data.loop_triangles],all_triangles=True)
 
 
+def parking_routes(stalls,paths):
+    # Measure the delivered sedan, including mirrors, rather than checking
+    # against a nominal stall width. Its conservative plan box guards walks.
+    before=set(bpy.context.scene.objects)
+    bpy.ops.import_scene.gltf(filepath=str(ROOT/'cars/export/AlderS240.glb'))
+    added=set(bpy.context.scene.objects)-before;bpy.context.view_layer.update()
+    points=np.concatenate([np.array([o.matrix_world@v.co for v in o.data.vertices]) for o in added if o.type=='MESH'])
+    lo,hi=points.min(0),points.max(0)
+    for o in added:bpy.data.objects.remove(o,do_unlink=True)
+    violations=[];pairs=0
+    for path in paths:
+        if path.get('path_kind')!='walk':continue
+        pts=[path.matrix_world@Vector(p) for p in np.array(path['points_m']).reshape(-1,3)]
+        radius=float(path['clear_width_m'])/2
+        for stall in stalls:
+            if not stall.get('occupied'):continue
+            inv=stall.matrix_world.inverted();local=[inv@p for p in pts]
+            for a,b in zip(local,local[1:]):
+                t0,t1=0.,1.;pairs+=1
+                for axis in (0,1):
+                    delta=b[axis]-a[axis];low,high=lo[axis]-radius,hi[axis]+radius
+                    if abs(delta)<1e-10:
+                        if not low<=a[axis]<=high:t0,t1=1.,0.;break
+                    else:
+                        aa,bb=sorted(((low-a[axis])/delta,(high-a[axis])/delta));t0=max(t0,aa);t1=min(t1,bb)
+                if t0<=t1:violations.append(dict(path=path.name,stall=stall.name))
+    assert not violations,('Walk intersects occupied vehicle envelope',violations)
+    return dict(delivered_sedan_bounds_m=[lo.tolist(),hi.tolist()],segment_vehicle_pairs=pairs,violations=violations,scope='Conservative measured sedan plan box, expanded by each walk half-width; parked stall vehicles only')
+
+
 def station_measurements(p):
     rt=bpy.data.objects['Station_'+str(p['seed'])];fixed=next(o for o in rt.children if o.type=='MESH' and not o.get('kinematic_guide'));tree=surface(fixed)
     off=Vector(p['origin_offset_m']);rows=[]
@@ -78,6 +108,11 @@ def main():
         bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
         imported=sum(len(o.data.loop_triangles) for o in bpy.context.scene.objects if o.type=='MESH' and not o.data.calc_loop_triangles())
         assert imported==result['placed_triangles'],(name,imported,result['placed_triangles']);result['fresh_import_triangles']=imported
+        xyz=np.concatenate([np.array([o.matrix_world@v.co for v in o.data.vertices]) for o in bpy.context.scene.objects if o.type=='MESH'])
+        lo,hi=xyz.min(0),xyz.max(0);result['measured_bounds_m']=[lo.tolist(),hi.tolist()];result['measured_size_m']=(hi-lo).tolist()
+        if name.startswith('Civic-'):
+            assert np.allclose(hi-lo,row['source']['size_m'],atol=.002),(name,'Exported dimensions changed')
+            assert np.max(np.abs((lo+hi)[:2]/2))<.002,(name,'Footprint origin')
         if name.startswith('Civic-') and row['plan']['program']=='station':result['measured_openings']=station_measurements(row['plan'])
         if name.startswith('Site-'):
             stalls=[o for o in bpy.context.scene.objects if o.get('socket_kind')=='parked_car'];paths=[o for o in bpy.context.scene.objects if o.get('path_kind')];assert stalls and len(paths)>=2
@@ -103,6 +138,7 @@ def main():
                     assert abs(hit[0].z+.003)<.002,(name,'Drive surface',list(hit[0]))
                     drive_samples.append(list(hit[0]))
             result['measured_drive_surfaces_m']=drive_samples
+            result['parking_route_clearance']=parking_routes(stalls,paths)
             if name=='Site-202':
                 # Actual placed shrub/bench bounds must miss every apparatus
                 # corridor. These points come from imported surfaces.

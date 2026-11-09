@@ -111,7 +111,7 @@ def dumpster(a,p):
         m.finish()
 
 
-def public_details(a,p,station=False):
+def public_details(a,p,station=False,signal_y=None):
     x,y,z=p;m=a.mesh('PublicDropAndPlaque',kind='PublicHardware',trim_strip=2)
     # Folded stainless payment/document drop, projecting rain hood and slot.
     m.box((x,y,z+.87),(.52,.30,.95),'Trim',(.32,.34,.31))
@@ -126,11 +126,13 @@ def public_details(a,p,station=False):
     m.finish()
     text(a,'DropLabel','DOCUMENT DROP',(x,y-.185,z+1.27),.055,(.65,.65,.60))
     if station:
+        sy=y-14 if signal_y is None else signal_y
         m=a.mesh('EmergencyStreetSignal',kind='EmergencySignal',trim_strip=2)
-        m.tube([(x-5,y-14,0),(x-5,y-14,6)],.065,'Trim',(.30,.32,.29),sides=12)
-        m.tube([(x-5,y-14,5.8),(x-4.5,y-14,6.3),(x-.5,y-14,6.3)],.045,'Trim',(.30,.32,.29),sides=10)
-        for xx in (x-2.5,x-.8):
-            m.box((xx,y-14,5.93),(.38,.23,.55),'Trim',(.025,.030,.023))
-            m.tube([(xx,y-14.14,5.94),(xx,y-14.11,5.94)],.135,'Trim',(.32,.009,.006),sides=16)
+        m.tube([(x-5,sy,0),(x-5,sy,6)],.065,'Trim',(.30,.32,.29),sides=12)
+        m.tube([(x-5,sy,5.8),(x-4.5,sy,6.3),(x-.5,sy,6.3)],.045,'Trim',(.30,.32,.29),sides=10)
+        for xx,direction in ((x-2.5,-1),(x-.8,1)):
+            m.tube([(xx,sy,6.3),(xx,sy,6.15)],.018,'Trim',(.30,.32,.29),sides=8)
+            m.box((xx,sy,5.93),(.23,.38,.55),'Trim',(.025,.030,.023))
+            m.tube([(xx+direction*.14,sy,5.94),(xx+direction*.11,sy,5.94)],.135,'Trim',(.32,.009,.006),sides=16)
         m.finish()
-        a.socket('EmergencySignal',(x-1.7,y-14,5.94),'emergency_signal')
+        a.socket('EmergencySignal',(x-1.7,sy,5.94),'emergency_signal')
