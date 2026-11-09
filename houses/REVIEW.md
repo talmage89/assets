@@ -2588,3 +2588,12 @@ the active config. Evidence: `build/houses-lod/cape-trial-*` and
 topology or image check is disabled; no kit edit is attempted. These near
 levels are blocked by both serialization/topology and cost. A separate direct
 far configuration is being proved from the original, not from this trial.
+
+The failed full chain would store 107,299 triangles, seven material resources,
+25 primitive placements and 17,088,230 distinct payload bytes, with eight or
+one active draws. Resident estimate: 35.689 MiB versus 27.416 MiB original;
+1.333 MiB new proxy maps and 6.9394 MiB additional mesh buffers. Original/near
+PNGs total 6,155,272 bytes per dependency set; the four 512-square proxy maps
+total 384,900. Geometry bytes are 3,244,354 / 3,614,991 / 3,587,402 / 101,311.
+These measured costs do not approve the failed near levels or the unreviewed
+far appearance. Complete dimensions and resources remain in the saved manifest.
