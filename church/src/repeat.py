@@ -33,6 +33,7 @@ def main():
         if isinstance(value,list):return [relocated(v) for v in value]
         return replacements.get(value,value) if isinstance(value,str) else value
     files=[*sorted((stage/'export').rglob('*.*')),*sorted((stage/'textures/ship').glob('*.png'))]
+    files += [p for p in sorted((stage/'build/hosts').rglob('*')) if p.suffix in ('.glb','.json','.png')]
     files += [stage/'build'/s for s in ('plan-101.json','plan-202.json','metrics.json','letters.json','dependencies.json','matched-cameras.json','photo-balance.json')]
     for path in files:
         accepted=ASSET/path.relative_to(stage)
