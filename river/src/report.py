@@ -51,12 +51,13 @@ def main():
     lines+=['','| Seed | glTF + BIN bytes | Material states / unbatched placed draws |','| --- | ---: | ---: |']
     for r in rows:lines.append(f'| {r["seed"]} | {r["gltf_bytes"]+r["bin_bytes"]:,} | {r["material_states"]} / {r["placed_draws"]} |')
     resources=json.loads(Path('build/resources.json').read_text())
-    lines += ['', '| Seed | Shared external PNG bytes | Scene + standalone copies of shared PNG bytes |',
-              '| --- | ---: | ---: |']
+    lines += ['', '| Seed | Scene + river-owned PNG bytes | All referenced PNG bytes | Scene + standalone copies of all PNGs |',
+              '| --- | ---: | ---: | ---: |']
     for seed in (101,202):
         r=resources[f'RiverCrossing-{seed}']
-        lines.append(f'| {seed} | {r["external_png_bytes"]:,} | {r["standalone_copy_bytes"]:,} |')
-    lines += ['', 'The 120 MB scene target uses the same glTF + BIN accounting as the original 367 MB measurement. Canonical library PNGs remain external, shared and byte-identical. A fully copied standalone folder costs the additional bytes above.']
+        assert r['scene_and_river_images_bytes']<120000000
+        lines.append(f'| {seed} | {r["scene_and_river_images_bytes"]:,} | {r["external_png_bytes"]:,} | {r["standalone_copy_bytes"]:,} |')
+    lines += ['', 'The original 367 MB measurement counted glTF + BIN. Both scenes also remain below 120 MB including their river-owned PNGs. Canonical library PNGs remain external, shared and byte-identical. Copying every shared dependency into a standalone folder costs the larger total above.']
     lines += ['','| Seed / category | Placed triangles | Unique triangles | Geometry bytes | Shared image MiB |',
               '| --- | ---: | ---: | ---: | ---: |']
     for seed in (101,202):

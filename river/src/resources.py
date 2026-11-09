@@ -42,9 +42,13 @@ def measure(path):
         row['shared_image_mib']=sum(v['bc8_full_mips_mib'] for v in row['images'].values())
     scene_bytes=path.stat().st_size+path.with_suffix('.bin').stat().st_size
     png_bytes=sum(v['png_bytes'] for v in all_images.values())
+    owned_png_bytes=sum(v['png_bytes'] for v in all_images.values()
+                        if (path.parent/v['uri']).resolve().is_relative_to(Path('export/textures').resolve()))
     return dict(categories=categories,unique_images=all_images,shared_image_mib=sum(v['bc8_full_mips_mib'] for v in all_images.values()),
                 gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,
-                external_png_bytes=png_bytes,standalone_copy_bytes=scene_bytes+png_bytes)
+                external_png_bytes=png_bytes,river_owned_png_bytes=owned_png_bytes,
+                scene_and_river_images_bytes=scene_bytes+owned_png_bytes,
+                standalone_copy_bytes=scene_bytes+png_bytes)
 
 
 def bearing_units(path):
