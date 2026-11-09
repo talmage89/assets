@@ -181,7 +181,9 @@ the runtime proxy graph, retaining the delivered decoder's `Factory delta` and
 `Factory metallic` uniforms. Family helpers delegate only when the material has
 `lod_factory_coverage`. Tint adds coverage times the tint delta; metallic adds
 clean coverage times the factor delta to the physical reference metallic field.
-Thus glass, tires, trim, lamps and interiors retain their original response.
+Factory changes therefore affect paint alone; glass, tires, trim, lamps and
+interiors receive no factory tint or metallic delta. Their transferred optical
+appearance still has to pass the native image gates.
 Transferred spatial emission is normalized by `lamp_strength`; toggling it
 uses the same family light switch. The proxy coat stays spatially baked.
 

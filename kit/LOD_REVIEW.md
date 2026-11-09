@@ -2728,3 +2728,26 @@ checks pass. `build/car-lod/final-audit.json` deliberately reports
 `car_image_checks_passed: false`, `compatibility_proof_complete: false` and no
 car adoptions. These remaining failures prevent calling the adapter/adoptions
 complete; no new car delivery or documentation image is committed.
+
+## Maple repeat proof, 2026-11-09
+
+Four fresh 32-view camera-facing atlas builds isolate the optional maple
+variation: two with every archived Python source verified literally against
+`1d9d429`, then two with the accepted factory adapter. All four commands finish
+successfully, serially through the GPU lock, with four Blender threads. The
+source GLB SHA-256 is unchanged. Each output directory starts empty, so no
+capture cache can approve this comparison.
+
+The frozen pair differs in three pixels/channels, each by one 8-bit code;
+the current pair differs in two, also by one code. Frozen run 1 and current
+run 2 are byte-identical (atlas SHA-256 beginning `6f419578596f30c4`). Thus the
+frozen tool alone varies, and the previously reported one-code optional-atlas
+difference is a pre-existing bake variation, not evidence of an opt-out change.
+The fixed crossed maple payload and cone regression remain byte-identical,
+including manifest semantics except the required tool-source receipt. Literal
+optional atlas byte determinism is not claimed. The pickup's hour-long full
+baseline remains explicitly skipped at the lead's request.
+
+Commands, all four full atlas hashes, pairwise pixel counts and source hash:
+`build/car-lod/maple-proof/proof.json`; capture images and logs are alongside.
+No runtime or accepted delivery bytes changed for this proof.
