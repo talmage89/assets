@@ -1006,3 +1006,28 @@ explicitly missed and no optimality or engine timing claim is made. Rest checks
 and original sampled motion are separate; keep LOD0 during door interaction.
 Final native evidence: `renders/lod/cabinet/`; archived proof:
 `build/lod-uv/archive/signals/cabinet-final/`.
+
+### Mast arm critique 1 — native values and coverage
+
+Opened all three native .25 / 27.151 m strips, both construction views and
+contact. Yellow cases, dark visors, red indications, gray support and green
+street-name values agree with LOD0. Arm/pole width, three head coverage and
+letter shapes hold. The source coarse fasteners and head construction remain
+visible close up. This row is 7196/8174 triangles against 3270, adding 3997
+triangles over the rejected 3199 trial. All original image gates pass; no
+palette, image, powered-surface or acceptance setting changes.
+
+### Mast arm critique 2 — original trim gate and state routing
+
+Revisited the native arm/head joints, street name and lens outlines after
+the field audit. No new seam, missing member or changed indication appears.
+The family's own `make check` now includes both new files and passes its
+unchanged manufacturing-cell/domain/UV-area checks: the old 30 crossings and
+four out-of-domain vertices are gone. Re-import, normals and tangents pass too.
+The asset state audit measures ten original lens nodes, preserving every
+state flag, lit/off material name and world frame; receipt is
+`build/lod-mast-arm-state.json`. It is now part of public `check-lod`.
+Saving 978 triangles is modest (11.96%); the 3270 goal remains unmet. Fields,
+names and rest appearance are proved, not flexible-cable motion or engine
+phase timing. Original 52-file receipt is unchanged. Final evidence:
+`build/lod-uv/archive/signals/mast-arm-final/`, native `renders/lod/mast-arm/`.
