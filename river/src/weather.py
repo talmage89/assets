@@ -25,6 +25,18 @@ def add(p,parent):
     bottom=p.deck_z-.32-1.143;seat=bottom-.30;outer=p.deck_width/2-.95
     def vertical(x,y,z,w,h,k=0,color=(1,1,1,1)):
         b.geom([(x-w/2,y,z-h),(x+w/2,y,z-h),(x+w/2,y,z),(x-w/2,y,z)],[(0,1,2,3)],'maintenance',color,uv=chart(k))
+    def cap_run(x,side,w,h,color,offset=0):
+        # Follow the real 50mm cap chamfer before continuing down its face.
+        # The long axis of the reserved chart follows gravity, with a single
+        # soft run rather than eighteen short mask fingers in each strip.
+        end=p.deck_width/2-.3+offset
+        stations=((side*(end-.05),seat,0),(side*(end+.002),seat-.05,.07),
+                  (side*(end+.002),seat-h,1))
+        for (y0,z0,t0),(y1,z1,t1) in zip(stations,stations[1:]):
+            uv=[((16+239*t)/512,1-yy/512) for t,yy in
+                ((t1,118.4),(t1,125.6),(t0,125.6),(t0,118.4))]
+            b.geom([(x-w/2,y1,z1),(x+w/2,y1,z1),(x+w/2,y0,z0),(x-w/2,y0,z0)],
+                   [(0,1,2,3)],'maintenance',color,uv=uv)
     for j in (0,p.spans):
         x=-p.length/2+j*p.span+(.4 if j==0 else -.4)
         for side in (-1,1):
@@ -53,14 +65,13 @@ def add(p,parent):
     for j in range(1,p.spans):
         x=-p.length/2+j*p.span
         for side in (-1,1):
-            yy=side*(p.deck_width/2-.3+.002)
             # Joint leakage and seat drainage make separate narrow gravity
             # fingers. Most of the cap remains its weathered concrete field.
             for k in range(9):
                 dx=rng.uniform(-.48,.48);h=rng.uniform(.28,.91);w=rng.uniform(.045,.115)
-                vertical(x+dx,yy,seat-.045,w,h,0,(.65,.63,.54,1))
+                cap_run(x+dx,side,w,h,(.10,.095,.08,1))
                 if k%3!=0:
-                    vertical(x+dx+w*.40,yy+side*.001,seat-.075,w*.70,h*.90,1,(1,1,.94,1))
+                    cap_run(x+dx+w*.40,side,w*.17,h*.90,(.32,.31,.28,1),.0008)
         for side in (-1,1):
             for dx in (-.4,.4):
                 # Oxide originates at the steel/elastomer bearing interface.

@@ -72,11 +72,19 @@ def audit(path):
             a=d['accessors'][pr['attributes']['POSITION']]
             assert a['componentType']==(5123 if decode else 5126)
     assert error<.0005
+    maintenance=[]
+    for mesh in d['meshes']:
+        for pr in mesh['primitives']:
+            if d['materials'][pr['material']].get('name')!='River_maintenance':continue
+            if 'COLOR_0' in pr['attributes']:
+                colors=array(d,binary,pr['attributes']['COLOR_0'])
+                maintenance.append(int((colors[:,:3]<.95).any(axis=1).sum()))
+    assert sum(maintenance)>100,('Maintenance vertex tints lost during export',path)
     total=Path(path).stat().st_size+len(binary)
     assert total<120_000_000,(path,total)
     source=Path('build/embedded')/(Path(path).stem+'.glb')
     correspondence=compare(d,binary,source) if source.exists() else None
-    return dict(package_bytes=total,mesh_nodes=len(mesh_nodes),unique_meshes=len(counts),serialization=correspondence,
+    return dict(package_bytes=total,maintenance_nonwhite_vertices=sum(maintenance),mesh_nodes=len(mesh_nodes),unique_meshes=len(counts),serialization=correspondence,
                 maximum_mesh_references=max(counts.values()),quantized_context_meshes=quantized,
                 maximum_context_position_half_step_m=error)
 

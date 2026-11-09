@@ -777,3 +777,74 @@ varied depths and gaps survive. The four frames are archived in the worktree's
 The render process again ended with SIGTERM without a Blender diagnostic.
 No worker remains. Use bounded serial workers with verified image receipts
 under one GPU-lock acquisition, then rejudge every frame. No docs are approved.
+
+## Pass 20 — exported shape control, stones and foam rejected
+
+Color/value first: opened all eleven downtown candidate frames at native
+1280px, including the concrete-balanced hero, underside, pier and bar. The
+new medium is muted green brown in shade, with blue sky and warm bank
+reflections; submerged bed and stones show at the bar. Raking sun lights the
+fascia, web and flange, the walk and the panelled wall; cavities remain dark.
+The stair, ties, weeps and access detail survive export. Preserve this tone.
+
+Reject the riprap: changing cubes into eight-plane hulls did not remove their
+common horizontal bedding and cuboid proportions. Give every fracture a full
+three-axis orientation and less orthogonal cleavage. Reject the riffle foam:
+flow-aligned geometry still carries isolated spot charts, so it remains
+confetti. Replace that chart with a connected porous streak and lower the
+urban riffle eye now that both comparisons use the same accepted bend.
+The wind normal is too isotropic and cellular; use weaker, directional waves.
+Cap runoff is narrow but its cropped heads form a printed comb. Follow the
+actual chamfer with continuous soft gravity runs and adjacent mineral edges.
+
+Stopped the render dispatcher deliberately after these failures; its managed
+children terminated and the GPU lease released. All eleven produced images
+were opened. They are archived in `build/river-review-history/pass20/` in the
+worktree. This clean build's model/check passed, but its render/delivery did
+not complete. No final docs are authorized by this visual pass.
+
+## Pass 21 — focused export previews, geometric causes isolated
+
+Color/value first: opened eight 1280px partial-export controls, two abutments,
+piers, riffles and bars. These omit native town and trees, so their blue sky
+reflection is not a final water-color control. The white cap lines are too
+bright compared with the concrete-balanced FHWA cap; reduce their width and
+reflectance. Preserve the full-scene medium from pass 20.
+
+The new continuous foam reads as flow streaks over the standing waves, and
+the weaker directional normals remove the cellular silver surface. The low
+urban bank eye resolves the wave profile. Quarry orientation removes common
+flat tops, but the trial's oblique halfspaces produce unbounded long shards.
+Reject them. Bound fragments by actual radius, use four balanced corner cuts
+and keep fewer, better graded blocks within the same civil budget.
+
+The shallow-water bands are a separate geometry defect: a bottom offset at
+sparse samples can interpolate above the actual triangulated bed. Put the
+invisible closing interface below the whole bed, retaining physical depth
+from the actual bed hit. Require an independent imported surface-clearance
+check. The first corrected core counts predict 148,770 / 85,646 civil
+triangles including the existing site and water continuation. All eight
+previews were opened; archived in `build/river-review-history/probe21/`.
+No final appearance claim is made from this partial scene.
+
+## Pass 22 — bounded fragments and the real export tint path
+
+Color/value first: inspected all eight revised partial-export controls and
+both final cap controls at 1280px. Quarry stones are gray with varied brown
+mineral tint, dark where wet; their axes and clipped corners now vary, with
+no tall shards. Less exposure keeps sunlit abutment concrete from whitening.
+The shallow bed is visible and the false underwater bright strips are gone.
+Continuous foam follows the shoal's wave trains instead of scattering spots.
+
+The cap control exposed a separate serialization failure: legacy MixRGB did
+not export the authored maintenance vertex tints. Its COLOR_0 was entirely
+white. Replace it with the kit's supported ShaderNodeMix pattern. Independent
+raw accessors now range down to .102/.094/.075; both reimported cap controls
+show narrow dark runs and thin, subdued mineral edges instead of toothpaste.
+Require nonwhite maintenance values in the storage audit. Preserve all native
+images; the accepted plant and legacy weather chart regions remain pixel exact.
+
+Remaining CG cues in these controls are hard low-poly stone edges, very regular
+analytic wave spacing and simple snagged wood. The previews prove the local
+corrections, not the complete places: final approval still requires freshly
+imported complete crossings, both heroes and photographic comparisons.

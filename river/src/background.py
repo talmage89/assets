@@ -25,7 +25,7 @@ def water_reach(p,parent,side,ground):
         l,r=p.water_edges(y)
         rows.append([(l+(r-l)*j/nx,y,p.water_z(y)) for j in range(stride)])
     top=[v for row in rows for v in row];count=len(top)
-    bottom=[(x,y,min(surface_z(p,x,y)-.02,z-.025)) for x,y,z in top]
+    bottom=[(x,y,z-3.5) for x,y,z in top]
     faces=[(i*stride+j,i*stride+j+1,(i+1)*stride+j+1,(i+1)*stride+j)
            for i in range(len(rows)-1) for j in range(nx)]
     ground.geom([(x,y,p.bed(x,y)) for x,y,z in top],faces,'bank',(.48,.4704,.432,1),smooth=True,up=True)

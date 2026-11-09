@@ -36,25 +36,33 @@ def surface_z(p,x,y):
 
 def stone(b,x,y,z,r,rng,role='riprap',water_z=0):
     # A quarried block is bounded by fracture planes, not a pointed top ring.
-    # Six uneven primary cleavages and two corner breaks yield broad planar
+    # Six uneven primary cleavages and four corner breaks yield broad planar
     # facets. Each block's bedding is independently tilted and rotated.
     from mathutils import Matrix
     planes=[]
     for axis in range(3):
         for sign in (-1,1):
-            n=Vector([rng.uniform(-.23,.23) for _ in range(3)]);n[axis]=sign
+            n=Vector([rng.uniform(-.15,.15) for _ in range(3)]);n[axis]=sign
             planes.append((n.normalized(),rng.uniform(.62,1.0)))
-    for _ in range(2):
-        n=Vector([rng.choice((-1,1))*rng.uniform(.7,1.3) for _ in range(3)]).normalized()
-        planes.append((n,rng.uniform(.93,1.17)))
-    rotation=Matrix.Rotation(rng.random()*math.tau,3,'Z')@Matrix.Rotation(rng.uniform(-.43,.43),3,'Y')
-    vertices=[];sx=rng.uniform(.8,1.35);sy=rng.uniform(.7,1.2)
+    for signs in ((1,1,1),(1,-1,-1),(-1,1,-1),(-1,-1,1)):
+        n=Vector([sign*rng.uniform(.85,1.15) for sign in signs]).normalized()
+        planes.append((n,rng.uniform(.64,.92)))
+    # Blast fragments have no common horizontal bedding after placement.
+    rotation=(Matrix.Rotation(rng.random()*math.tau,3,'Z')
+              @Matrix.Rotation(rng.uniform(-1.4,1.4),3,'Y')
+              @Matrix.Rotation(rng.uniform(-1.4,1.4),3,'X'))
+    local=[];sx=rng.uniform(.8,1.35);sy=rng.uniform(.7,1.2)
     for (a,da),(c,dc),(d,dd) in itertools.combinations(planes,3):
         determinant=a.dot(c.cross(d))
         if abs(determinant)<1e-6:continue
         point=(da*c.cross(d)+dc*d.cross(a)+dd*a.cross(c))/determinant
         if any(n.dot(point)>limit+1e-5 for n,limit in planes):continue
-        point=rotation@Vector((point.x*sx,point.y*sy,point.z*.75))
+        local.append(point)
+    # Grade by the actual fragment radius, not a plane's offset: nearly
+    # parallel fractures must never produce meter-long shards from a 0.3m rock.
+    radius=max(point.length for point in local);vertices=[]
+    for point in local:
+        point=rotation@Vector((point.x*sx,point.y*sy,point.z*.75))/radius
         vertices.append((x+r*point.x,y+r*point.y,z+r*point.z))
     if BED_TREE is not None:
         for vx,vy,vz in vertices:
@@ -69,7 +77,7 @@ def stone(b,x,y,z,r,rng,role='riprap',water_z=0):
         point=vertex.co
         hit=BED_TREE.ray_cast(Vector((point.x,point.y,100)),Vector((0,0,-1)),120)[0] if BED_TREE is not None else None
         floors[vertex]=hit.z if hit is not None else z-.04
-    v=rng.uniform(.45,.83);brown=rng.random()
+    v=rng.uniform(.42,.68);brown=rng.random()
     faces=[]
     for face in bm.faces:
         if all(vertex.co.z<=floors[vertex]+.01 for vertex in face.verts):continue
@@ -81,7 +89,7 @@ def stone(b,x,y,z,r,rng,role='riprap',water_z=0):
     # exported indices and the per-fracture mineral variation across runs.
     for points in sorted(faces):
         variation=rng.uniform(.96,1.04)
-        tint=(v*(1+.04*brown)*variation,v*1.06*variation,v*(1.15-.13*brown)*variation,1)
+        tint=(v*(1+.20*brown)*variation,v*1.04*variation,v*(1.13-.30*brown)*variation,1)
         b.geom(points,[tuple(range(len(points)))],role,tint)
     bm.free()
 
@@ -123,24 +131,24 @@ def terrain(p,parent):
     bm.to_mesh(bed.data);bm.free();bed.data.update()
     BED_TREE=BVHTree.FromPolygons([v.co for v in bed.data.vertices],[list(f.vertices) for f in bed.data.polygons],all_triangles=True)
     rng=random.Random(p.seed);rocks=G.Batch('BarCobbleAndScourRiprap',rt,'reach')
-    for i in range(1150):
+    for i in range(800):
         y=rng.uniform(p.bar_y-26,p.bar_y+27);x=p.center(y)+p.outside*p.halfwidth(y)*rng.uniform(-1.04,-.49)
         z=surface_z(p,x,y)
         if z>p.water_z(y)-.32:stone(rocks,x,y,z,rng.uniform(.035,.14),rng,water_z=p.water_z(y))
     # Armored, keyed slope and toe at both abutments and each pier.
     for side in (-1,1):
-        for i in range(580):
-            if i<400:
+        for i in range(390):
+            if i<275:
                 x=side*rng.uniform(p.length/2-4,p.length/2+6.5)
                 y=rng.choice((-1,1))*rng.uniform(p.deck_width/2-.3,p.deck_width/2+6)
             else:
                 x=side*rng.uniform(p.length/2-7,p.length/2-2)
                 y=rng.uniform(-p.deck_width/2,p.deck_width/2)
             if abs(x)>p.length/2-.8 and abs(y)<6.8:continue
-            z=surface_z(p,x,y);stone(rocks,x,y,z+.04,rng.uniform(.16,.39),rng,water_z=p.water_z(y))
+            z=surface_z(p,x,y);stone(rocks,x,y,z+.04,rng.uniform(.16,.45),rng,water_z=p.water_z(y))
     for j in range(1,p.spans):
         xx=-p.length/2+j*p.span
-        for i in range(170):
+        for i in range(125):
             x=xx+rng.uniform(-2.0,2.0);y=rng.uniform(-p.deck_width*.48,p.deck_width*.48)
             z=surface_z(p,x,y);stone(rocks,x,y,z+.06,rng.uniform(.15,.33),rng,water_z=p.water_z(y))
     stones=rocks.finish();colors=stones.data.color_attributes['Tint']
@@ -222,7 +230,10 @@ def water(p,parent):
     volume=G.Batch('WaterVolumeClosure',parent,'water')
     def bottom(v):
         x,y,_=v
-        return (x,y,min(surface_z(p,x,y)-.02,p.water_z(y)-.025))
+        # A sampled bed offset can interpolate above the actual triangulated
+        # bed between samples. Keep the invisible closing interface buried;
+        # camera/shadow paths still meet the real bed at its physical depth.
+        return (x,y,p.water_z(y)-3.5)
     for row in (rows[0],rows[-1]):
         for a,c in zip(row,row[1:]):volume.geom([a,c,bottom(c),bottom(a)],[(0,1,2,3)],'water')
     for side in (0,-1):
@@ -247,7 +258,7 @@ def water(p,parent):
         # Ribbons follow local flow, seeded behind wave crests on the shoal.
         y=p.riffle_y+rng.choice((-.9,.75,2.4,4.05))+rng.uniform(-.20,.20)
         l,r=p.water_edges(y);x=rng.uniform(l+1.0,r-1.0)
-        length=rng.uniform(.8,3.1);width=rng.uniform(.06,.17);segments=7
+        length=rng.uniform(1.6,4.8);width=rng.uniform(.08,.19);segments=9
         tx,ty=p.tangent(y)
         for k in range(segments):
             t0=k/segments;t1=(k+1)/segments

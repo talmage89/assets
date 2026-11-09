@@ -40,12 +40,21 @@ def generate(folder=Path('textures/checkpoint')):
     # Eight bank colonies occupy the lower half. The upper half carries the
     # plaques and four alpha maintenance masks; no extra image allocation.
     im=Image.new('RGBA',(512,512));d=ImageDraw.Draw(im)
+    foam_rng=np.random.default_rng(5201)
     for j in range(4):
         ox=j%2*128;oy=128+j//2*64
-        for k in range(120):
-            px=rng.uniform(3,124);py=31+math.sin(px*.083+j)*rng.uniform(2,13)+rng.normal(0,6)
-            r=rng.uniform(1.5,4.5);alpha=int(rng.uniform(125,255))
-            d.ellipse((ox+px-r,oy+py-r*.55,ox+px+r,oy+py+r*.55),fill=(202,205,181,alpha))
+        # Retain the accepted plant/weather draws after replacing foam art.
+        for _ in range(120):
+            rng.uniform(3,124);rng.uniform(2,13);rng.normal(0,6)
+            rng.uniform(1.5,4.5);rng.uniform(125,255)
+        py,px=np.mgrid[:64,:128];t=py/63
+        center=63+7*np.sin(t*5+j)+3*np.sin(t*13+j*.3)
+        width=25+6*np.sin(t*7+j)
+        profile=np.clip(1-((px-center[:,0,None])/width[:,0,None])**2,0,1)
+        bubbles=.45+.55*foam_rng.random((64,128))
+        rgba=np.zeros((64,128,4),np.uint8);rgba[:,:,:3]=(188,194,179)
+        rgba[:,:,3]=np.uint8(profile*bubbles*205)
+        im.paste(Image.fromarray(rgba),(ox,oy))
     for j in range(8):
         ox=j%4*128;oy=256+j//4*128
         for k in range(23):
@@ -85,17 +94,25 @@ def generate(folder=Path('textures/checkpoint')):
     # A tiny form-tie recess occupies the unused strip beneath the plaques.
     d.ellipse((1,117,11,127),fill=(118,116,103,200))
     d.ellipse((3,119,9,125),fill=(25,27,23,255))
+    # One continuous gravity run in the unused 240x9 strip. Its rotated UV
+    # chart gives cap runoff soft heads and tapering tails, without a comb.
+    py,px=np.mgrid[:9,:240];t=px/239;s=(py-4)/4
+    width=.72*(1-.68*t)+.07*np.sin(t*18)
+    run=np.exp(-((s-.055*np.sin(t*14))/width)**4)
+    run*=np.clip(t*65,0,1)*np.clip((1-t)*8,0,1)*(.85-.35*t)
+    rgba=np.full((9,240,4),255,np.uint8);rgba[:,:,3]=np.uint8(run*185)
+    im.paste(Image.fromarray(rgba),(16,118))
     im.save(folder/'T_RiverPlants_BaseColor.png')
     n=512;y,x=np.mgrid[:n,:n]/n
     # Several wind/current wave trains, with different phases and scales.
     # Integer modes tile exactly without a dominant regular comb.
     rng=np.random.default_rng(381);h=np.zeros((n,n))
     for i in range(12):
-        kx=int(rng.integers(2,15));ky=int(rng.integers(-14,15))
-        amplitude=.0018/(1+math.hypot(kx,ky)/8)
-        phase=1.4*np.sin(2*np.pi*(x*2+y*3)+i)+.5*np.sin(2*np.pi*(y*5-x*3)+i*.73)
+        kx=int(rng.integers(2,15));ky=int(rng.integers(-2,3))
+        amplitude=.0010/(1+math.hypot(kx,ky)/8)
+        phase=.35*np.sin(2*np.pi*(x*2+y*3)+i)+.15*np.sin(2*np.pi*(y*5-x*3)+i*.73)
         h+=amplitude*np.sin(2*np.pi*(kx*x+ky*y)+rng.uniform(0,6.28)+phase)
-    dy,dx=np.gradient(h,2/n);normal=np.stack((-dx,-dy,np.ones_like(dx)),axis=2)
+    dy,dx=np.gradient(h,2/n);normal=np.stack((-dx,dy,np.ones_like(dx)),axis=2)
     normal/=np.linalg.norm(normal,axis=2)[:,:,None]
     Image.fromarray(np.uint8((normal*.5+.5)*255)).save(folder/'T_RiverWater_Normal.png')
     return height

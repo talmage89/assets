@@ -68,8 +68,8 @@ def palette(repo):
     nodes=maintenance.node_tree.nodes;links=maintenance.node_tree.links
     bs=nodes.get('Principled BSDF');bs.inputs['Roughness'].default_value=.92
     image=next(n for n in nodes if n.type=='TEX_IMAGE');vc=nodes.new('ShaderNodeVertexColor');vc.layer_name='Tint'
-    mix=nodes.new('ShaderNodeMixRGB');mix.blend_type='MULTIPLY';mix.inputs[0].default_value=1
-    links.new(image.outputs['Color'],mix.inputs[1]);links.new(vc.outputs['Color'],mix.inputs[2]);links.new(mix.outputs[0],bs.inputs['Base Color'])
+    mix=nodes.new('ShaderNodeMix');mix.data_type='RGBA';mix.blend_type='MULTIPLY';mix.inputs[0].default_value=1
+    links.new(image.outputs['Color'],mix.inputs[6]);links.new(vc.outputs['Color'],mix.inputs[7]);links.new(mix.outputs[2],bs.inputs['Base Color'])
     G.M['maintenance']=maintenance
     water=plain('River_water',(.92,.94,.82),.14)
     b=water.node_tree.nodes.get('Principled BSDF');b.inputs['Transmission Weight'].default_value=1

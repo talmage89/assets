@@ -91,6 +91,26 @@ def bvh(ob):
     return BVHTree.FromPolygons(verts,faces,all_triangles=True)
 
 
+def quarry_dimensions(ob):
+    """Measure connected fracture fragments after weld-by-position, on import."""
+    positions=[tuple(round(c,6) for c in ob.matrix_world@v.co) for v in ob.data.vertices]
+    unique=list(dict.fromkeys(positions));lookup={p:i for i,p in enumerate(unique)}
+    parent=list(range(len(unique)))
+    def root(i):
+        while parent[i]!=i:parent[i]=parent[parent[i]];i=parent[i]
+        return i
+    for face in ob.data.polygons:
+        ids=[lookup[positions[i]] for i in face.vertices];first=root(ids[0])
+        for i in ids[1:]:parent[root(i)]=first
+    groups={}
+    for i,p in enumerate(unique):groups.setdefault(root(i),[]).append(p)
+    diameters=[]
+    for points in groups.values():
+        a=np.asarray(points);diameters.append(float(np.linalg.norm(a[:,None]-a[None,:],axis=2).max()))
+    assert max(diameters)<1.30,('Overlong quarry fragment',max(diameters))
+    return dict(visible_fragments=len(diameters),diameter_p10_p50_p90_max_m=np.percentile(diameters,[10,50,90,100]).tolist())
+
+
 def crop_cells(bed):
     """Measure crop consistency across exported terrain-cell diagonals.
 
@@ -149,7 +169,17 @@ def construction(seed):
     assert max(seat_gaps)<.002,('Plinth/support gap',max(seat_gaps))
     # Sample actual imported reach cross-sections, not declared width constants.
     bed=next(o for o in obs if o.name=='BedBanksFloodplain');tree=bvh(bed);water=next(o for o in obs if o.name=='WaterSurface')
+    closure_clearances=[]
+    for face in water.data.polygons:
+        center=water.matrix_world@face.center
+        level=-.0006*center.y
+        if abs(center.y)>=149.99 or center.z>level-3.0:continue
+        soil=tree.ray_cast(Vector((center.x,center.y,100)),Vector((0,0,-1)),200)[0]
+        assert soil is not None,('Water floor beyond sampled bed',center)
+        closure_clearances.append(soil.z-center.z)
+    assert closure_clearances and min(closure_clearances)>.50,('Visible water closing interface',min(closure_clearances))
     crop_audit=crop_cells(bed) if seed==202 else None
+    quarry=quarry_dimensions(next(o for o in obs if o.name=='BarCobbleAndScourRiprap'))
     rail_gaps=[]
     for rail in [o for o in obs if o.type=='MESH' and o.name.startswith('ApproachRail_')]:
         tips=rail.data.attributes.get('_GROUND_TIP');assert tips is not None,('No post-tip semantics',rail.name)
@@ -264,7 +294,8 @@ def construction(seed):
         soil=tree.ray_cast(point+Vector((0,0,100)),Vector((0,0,-1)),200)[0]
         assert soil is not None and point.z-soil.z>.65,('Photo camera in bank',point,soil)
         photo_camera=dict(nearest_support_surface_m=distance,ground_clearance_m=point.z-soil.z)
-    return dict(categories=counts,crop_cell_audit=crop_audit,inspection_camera_ground_clearance_m=camera_clearance,under_photo_camera_clearance=photo_camera,bearing_surface_samples=len(gaps),max_girder_pad_gap_m=max(gaps),
+    return dict(categories=counts,quarry_dimensions=quarry,water_floor_centroid_samples=len(closure_clearances),
+                minimum_water_floor_below_bed_m=min(closure_clearances),crop_cell_audit=crop_audit,inspection_camera_ground_clearance_m=camera_clearance,under_photo_camera_clearance=photo_camera,bearing_surface_samples=len(gaps),max_girder_pad_gap_m=max(gaps),
                 plinth_support_samples=len(seat_gaps),max_plinth_support_gap_m=max(seat_gaps),girder_lengths_m=sorted(set(round(x,5) for x in lengths)),water_width_samples=samples,
                 riverwalk_headroom_samples=len(headroom),minimum_sampled_riverwalk_headroom_m=min(headroom) if headroom else None,
                 gameplay_socket_surface_gaps_m=socket_gaps,building_walk_bounds_checks=building_walk_checks,
