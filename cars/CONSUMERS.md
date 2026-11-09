@@ -132,6 +132,17 @@ bodies independently; their corresponding source-cache projections also
 match each other. School's simplified cache uses its actual export adapter.
 Blend-only cache projections use the same stock glTF settings in every run.
 
+The projection worker opens the native cache in a fresh one-thread Blender
+process and calls:
+
+```python
+bpy.ops.export_scene.gltf(
+    filepath=str(target), export_format='GLB', export_extras=True,
+    export_animations=False, export_apply=True, export_tangents=False)
+```
+
+It checks the declared GLB and BIN lengths before the direct worker exit.
+
 | Consumer / native car | Triangles, each run | SHA-256, each run |
 | --- | ---: | --- |
 | Garage H120 | 58,020 | `60b25083a8e6c8c0fde7f3624517ef326827e1b5e7bca5c1204ffc0d09ecb079` |
