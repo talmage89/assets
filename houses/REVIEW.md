@@ -2481,3 +2481,9 @@ every full nested argv. Dry checks of the family check graph and a direct
 nested ranch export return 0 with no publication scheduled. This changes no
 Makefile or kit file. The wrapper, complete inputs, commands and dry output
 remain in `build/houses-lod/`; the original 136 digests still match.
+
+The corrected fresh source rebuild returns 0: `make TYPE=ranch export
+-W src/ranch_sweep.py -W src/ranch_bake.py`, 1,676.95 s including the shared
+GPU queue. All six BINs and all six metadata files match accepted bytes;
+the six glTFs still differ only in the exporter label. The accepted 136-file
+ledger remains exact. This complete run supersedes the initial scratch bake.
