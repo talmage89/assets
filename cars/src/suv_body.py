@@ -13,6 +13,7 @@ from mathutils.bvhtree import BVHTree
 from mathutils.kdtree import KDTree
 from mathutils.geometry import barycentric_transform
 from kit import model as G
+from regular_chart import restore as restore_chart
 import suv_spec as S
 END_ALLOWANCE={True:.052,False:.022}
 
@@ -224,6 +225,7 @@ def section_field(p):
 
 def fit_control_net(ob):
     sub=ob.modifiers.new('Refine section-fit controls','SUBSURF');sub.levels=2;G.apply(ob)
+    restore_chart(ob,2)
     for v in ob.data.vertices:
         p=v.co
         # A single radial chart has no switch between two projection centers.
@@ -319,6 +321,7 @@ def master(level):
     bm.free()
     sub=ob.modifiers.new('Fair continuous quad sheet','SUBSURF');sub.subdivision_type='CATMULL_CLARK';sub.levels=level;sub.render_levels=level
     G.apply(ob)
+    restore_chart(ob,2+level)
     ob['construction']='One regular all-quad sheet folded over both ends; Catmull-Clark before projected cuts'
     return ob,names
 
@@ -798,6 +801,12 @@ def build(b):
             ob.data.calc_loop_triangles();raw_count=len(ob.data.loop_triangles)
             simplify_inner_gauge(ob,parent_tree)
             reduce_gauge(ob)
+            report=json.loads(ob['gauge_reduction_report'])
+            if ob.name=='Rear molded fascia' and not report['accepted'] and not report['closed']:
+                # Keep the rear return efficient when the exact parameter
+                # lattice exposes a rejected corner patch. Bounds on gauge
+                # depth, manifoldness and immutable exposed skin still apply.
+                reduce_gauge(ob,tile_size=.18,protect_rejected=True)
             ob.data.calc_loop_triangles();ob['gauge_total_saved']=raw_count-len(ob.data.loop_triangles);ob['gauge_raw_triangles']=raw_count
         material=next((m for m in ob.data.materials if m),None)
         if material is None:raise ValueError(('Missing form material',ob.name,len(ob.data.vertices),len(ob.data.polygons)))

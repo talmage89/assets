@@ -29,6 +29,15 @@ Both authored charts are regular integer grids; their five subdivision levels
 have an exact **1/32** parameter lattice. This is an internal construction
 chart, separate from the delivery's later atlas unwrap.
 
+In the changing X220 four-thread pair, the final mesh differences are in
+`Liftgate outer`, `Rear molded fascia`, `Rear quarter_L` and the rear lower
+bumper cladding;
+the liftgate changes from 2,860 to 2,856 triangles. In H120 the changing
+meshes include the rear fascia and right rear quarter, which change from
+5,238 to 5,250 and 2,403 to 2,406 triangles. The first differing BMesh input
+is already the resampled sheet; bisects, aperture cuts and gauge allocation
+amplify the parameter difference rather than originating it.
+
 ### Source-workaround trials
 
 An experimental lattice restoration removes the varying subdivision values.
@@ -48,3 +57,38 @@ fragment has a **0.0000229806634 m** gap against the unchanged **0.000020 m**
 limit. Log: `build/cars-determinism/fixed2-hatch-0/build.log`. These trial results
 do not establish a valid export, a surface-tolerance pass, or cold baked-map
 identity. Accepted exports, maps and documentation images remain untouched.
+
+### Mesh repair and proof
+
+`regular_chart.restore()` restores the authored lattice after each subdivision.
+It rejects nonfinite coordinates and charts farther than 0.0001 units from the
+expected lattice, rather than quantizing arbitrary UVs. It changes construction
+parameters only; it never rounds positions, normals or the delivery atlas.
+No environment variable or caller thread count is pinned.
+
+The H120 coverage failure above is a float32 BVH false positive: the complete
+old skinny triangle is present, with exactly the same three coordinates, in the
+new triangulation. Recognizing that exact footprint proves coverage everywhere
+on that triangle. Changed triangles still pass the original sampled physical
+gate. The captured regression has zero misses with the triangle present, and
+one miss at 0.0000229806634 m when that triangle is removed. Reducing CDT's
+epsilon from 1e-7 to 1e-10 does not repair the false spatial-query result.
+
+X220 first attempts its established gauge reduction. Only a rejected, unclosed
+rear-fascia candidate retries with 180 mm cells and the rejected boundaries
+pinned. The original gauge-depth, closed-mesh and exact exterior-soup tests
+remain mandatory. Other panels retain their established allocation.
+
+Three fresh four-thread builds per body now give exact vertices, polygons,
+corner normals, transforms, parents and material assignments:
+
+| Body | Form triangles, all three builds | Mesh-array receipt, not a GLB hash |
+| --- | ---: | --- |
+| X220 | 62,916 | `87a5e6979799efe795ca8728aaedadf114e23556ad1bc1fafb0aa334f588ac87` |
+| H120 | 46,698 | `cc39975696ef957f54c3e8a6b350806dcdac4a166b239f650914f78ab87d3303` |
+
+The independent kit source audits pass for both bodies, including scale,
+normals, topology and their source budgets. Receipts are
+`build/cars-determinism/fixed3-{suv,hatch}-audit.json`; complete cold source
+folders are `fixed3-{suv,hatch}-{0,1,2}`. Export/map byte identity and accepted
+surface comparisons remain separate delivery gates.

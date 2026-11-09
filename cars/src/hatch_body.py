@@ -11,6 +11,7 @@ from mathutils.bvhtree import BVHTree
 from mathutils.kdtree import KDTree
 from mathutils.geometry import barycentric_transform
 from kit import model as G
+from regular_chart import restore as restore_chart
 import hatch_spec as S
 END_ALLOWANCE={True:.025,False:.015}
 
@@ -226,6 +227,7 @@ def section_field(p,gate_relief_fn=None):
 
 def fit_control_net(ob):
     sub=ob.modifiers.new('Refine section-fit controls','SUBSURF');sub.levels=3;G.apply(ob)
+    restore_chart(ob,3)
     parameter_u=[0.]*len(ob.data.vertices)
     for loop in ob.data.loops:parameter_u[loop.vertex_index]=ob.data.uv_layers.active.data[loop.index].uv.x
     center_u=(ob['grid_width']-1)/2
@@ -301,6 +303,7 @@ def master(level):
                     if v in unseen:unseen.remove(v);stack.append(v)
     ob['cage_report']=json.dumps(dict(vertices=len(bm.verts),quads=quads,connected_components=components,interior_valence_four=True,fit='Control vertices only; no evaluated projection'))
     bm.free();sub=ob.modifiers.new('Fair continuous quad sheet','SUBSURF');sub.levels=level;sub.render_levels=level;G.apply(ob)
+    restore_chart(ob,3+level)
     ob['construction']='One regular all-quad sheet folded over both ends; Catmull-Clark before projected cuts'
     return ob,names
 

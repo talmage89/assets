@@ -392,7 +392,12 @@ def cut_mesh(ob,cutters,surface):
         # Require coverage of every old centroid and edge midpoint. If a
         # narrow fragment crosses a new chord, retain its edges explicitly.
         new_tree=BVHTree.FromPolygons(chart,disk,all_triangles=True);missed=set()
+        retained={tuple(sorted(tuple(chart[i]) for i in face)) for face in disk}
         for f in bm.faces:
+            # An identical retained triangle proves coverage of its complete
+            # footprint. Float32 BVH queries can miss its skinny edge and
+            # return a false gap even though that exact face is in the output.
+            if len(f.verts)==3 and tuple(sorted(tuple(v.co) for v in f.verts)) in retained:continue
             if f.calc_area()<1e-9:continue
             probes=[f.calc_center_median()]+[(e.verts[0].co+e.verts[1].co)/2 for e in f.edges]
             for q in probes:
