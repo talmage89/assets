@@ -97,6 +97,10 @@ Schools
 - [Elementary schools](school/README.md): three neighborhood public schools of 1956, 1964 and 1976 on their own
   parcels, with furnished classrooms behind window walls, gyms, covered walks, bus lanes, blacktops and ball fields.
 
+Churches and civic buildings
+- [Churches](church/README.md): a generator for town churches from a frame chapel to a brick Gothic nave, with
+  stained glass that glows at dusk and a changeable-letter sign, in a 1908 downtown church and a 1963 A-frame.
+
 Vehicles
 - [Cars](cars/README.md): late-2010s vehicles in five factory colors on one baked atlas each; doors, closures,
   steering and wheels move.
