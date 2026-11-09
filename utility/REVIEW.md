@@ -784,3 +784,26 @@ No kit/source delivery/docs image changes. The lead needs to stage the accepted
 packages, maps and generated check inputs before this family can be adopted.
 The tool hashes were recorded without invoking the builder at revision
 `b132747`; `build/lod-rollout/utility/freeze.sha256` remains checkable.
+
+## LOD round 2 — rebuild the originals
+
+Round 1's absent ignored products are not an asset defect or a reason to ask
+for staged deliveries. `make -C utility export check` rebuilt them here from
+empty build/texture/export directories, exiting 0. It runs the family's complete
+original geometry, bake, external delivery and checks, leaving existing docs
+JPGs unchanged. Context construction stays inside utility/build and verifies
+neighboring exports/textures unchanged. No car source or delivery was edited.
+
+All five glTF+BIN sizes match the README exactly: Parts 2268943 bytes; streets
+101/102/103/104 2905687/2412537/2780181/3004135. Street triangle counts also
+match exactly: 45804/37628/41734/48116. The parts library measures 29932
+triangles in nine primitives, with the documented individual module counts.
+Shared PNGs total 10052350 bytes, matching the recorded trio. Actual confirmation,
+full command/exit/resource log and the new 18-file immutable export receipt are
+in build/lod-round2/utility/{original-confirmation.json,original-build.json,
+source-frozen.json}. Source UV/chart, normals, socket and physical checks pass.
+
+Tool revision e375b58 and literal hashes were frozen before use. Start with an
+unwired Tangent config: .4 at .25 with .05-pixel surface preservation for the
+thin shaft. Experimental builds explicitly add kit/lod_rules.mk on the command
+line; no public Makefile exposes a candidate before it passes its own proof.
