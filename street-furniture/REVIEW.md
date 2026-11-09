@@ -408,3 +408,21 @@ the dry run confirms no original generator runs. Start with one static bench
 chain at the standard .4 / .25 switch. Other kinds, especially glazing and
 moving cabinets, need independent config/build/review/check proof; no bench
 result approves them. Original source/map/docs bytes remain immutable.
+
+### LOD critique 1: reject the bench near row
+
+Opened all three wide native strips, both construction views and contact,
+then all six unscaled original/LOD/difference pages in `bench-native-pass1/`.
+Color/value stays consistent, with dark painted straps and shaded underside.
+The 2448/3436 candidate retains 71.25%, above 1374, and changes repeated
+slat-tip highlights. Side local error .08465 fails .08; the front/rear pass.
+`check-lod` exits 2 for that image gate; independent UV/normal/tangent/raw
+checks pass. Close views expose sharp slat toes and flatter support response.
+Full config, payload hashes, checks and every image are archived in
+`build/lod-rollout/street-furniture/bench-pass1/`. No gate is relaxed.
+
+Omit this costly, failed near row and try the standard farther starting point
+at .09 with a .15 request. A changed candidate must also be tested at the old
+.25 distance before its farther switch can be selected; no switch approval
+is inferred from the earlier different mesh. Bench is static; all slats,
+arm rails, supports and feet must retain coarse geometry and contact.
