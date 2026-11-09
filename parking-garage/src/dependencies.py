@@ -13,8 +13,8 @@ from kit.blender_command import with_threads
 CONTEXT={
     'downtown':(2,'e5c9853c0e95981151e82c7742c73a91332bb3ce65a8061c59b3f9e46afdb0bc'),
     'commercial':(2,'d69066cbc85bb8bd64a82963792354fc3cd5c63afc5eae3ac8275efcff73d471'),
-    'hatchback':(1,'18436abe2fbde7a2bcdcbe1ee45959dc7b48e6f8f291ca94b57250b39da892b4'),
-    'crossover':(1,'a9926128e7b30cb24cdeba4d8203eaab317094b4cc5d24acc73877298f15d6ef'),
+    'hatchback':(1,'60b25083a8e6c8c0fde7f3624517ef326827e1b5e7bca5c1204ffc0d09ecb079'),
+    'crossover':(1,'8c2230440ab2ca3fdec2255a03ef71672203a19d4194b222569827bd09247b1f'),
 }
 
 
