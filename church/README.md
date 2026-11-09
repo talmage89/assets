@@ -447,7 +447,8 @@ pack was downloaded or adapted.
   shoes. Center wear exposes faceted rectangular bands, and oxidation at
   the feet resembles a collar. The stone is still too precisely manufactured, and patch repairs
   and irregular door-finish loss are weaker than decades of real use.
-- Beam ends are grayer, but checks and fascia paint loss remain simplified.
+- Beam ends are grayer, but checked end grain is not achieved. Surviving
+  fascia paint still resembles thick rectangular tabs.
   Cross rust and fine bird/ledge deposits under-read. Memorial glass is
   deliberately simple; it does not approach historical pictorial craft.
   The sign case's inherited edge pattern repeats visibly in its close-up.
