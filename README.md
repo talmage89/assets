@@ -100,6 +100,8 @@ Schools
 Churches and civic buildings
 - [Churches](church/README.md): a generator for town churches from a frame chapel to a brick Gothic nave, with
   stained glass that glows at dusk and a changeable-letter sign, in a 1908 downtown church and a 1963 A-frame.
+- [Civic buildings](civic/README.md): a generator for town halls, fire stations, post offices and libraries, in a
+  1928 brick city hall with a Tuscan portico, flags and police wing, and a 1974 three-bay fire station.
 
 Vehicles
 - [Cars](cars/README.md): late-2010s vehicles in five factory colors on one baked atlas each; doors, closures,
