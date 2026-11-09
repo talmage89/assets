@@ -150,8 +150,9 @@ To spell a new sign message, retain the case and horizontal tracks, remove
 the existing character quads, then instance one quad per non-space character
 using its rectangle from `letters.json`. Character centers are .137m apart;
 rows are .25m apart. Each .13 × .225m quad sits at local Y = −.1615m, with
-the existing transparent letter material. Center a line by subtracting half
-its character count from its column positions; spaces advance without a quad.
+the existing transparent letter material. In Blender local meters use
+`x = (column - (length - 1)/2) * .137`, `z = 2.06 - row * .25`;
+spaces advance without a quad.
 Keep the original open-license atlas or regenerate it with `src/textures.py`.
 
 `Church_stained` retains the authored emissive color map with strength zero
