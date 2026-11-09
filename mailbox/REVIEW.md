@@ -261,3 +261,23 @@ Start with a .3 near / .08 far target witness at the established .25/.09
 switches. Keep the previous .6/.12 payloads, config and native comparisons in
 build/lod-round2/mailbox/prior/. No public LOD hook is added until the chain
 passes its own images, normals, permitted poses, original check and receipts.
+
+### Round 2 critique 1 — cheaper count witness fails at rest
+
+The clean scratch original rebuild exits 0 and measures 1264 triangles,
+2082784 GLB bytes (+4). All expanded POSITION/NORMAL/UV/TANGENT arrays match
+the accepted original exactly; maps differ by at most one byte, RMSE at most
+.001128, within the kit's GPU rebake limits. The accepted GLB is unchanged.
+original-rebuild-{confirmation,difference}.json records the separate facts.
+
+The .3/.08 trial reaches 494/196 triangles, goals 506/190, without new maps.
+Opened all six native strips and all construction views. Color/value first:
+black coating, red flag, silvered pine and the dirty foot hold. The near front
+crown is visibly pointed, repeating the rejected round-1 tell; the distant
+flag is angular in construction view. All image/raw/normal checks pass, but
+that cannot approve the crown. More decisively, actual closed-door penetration
+is 1.592/.234 mm, exceeding .05 mm. The original full door and every flag sweep
+pass at zero; placement errors are .000119 mm. The interaction hold therefore
+cannot approve these *rest* geometries. Archive all payloads, hashes, native
+views and motion results under build/lod-round2/mailbox/target-pass1/. Retry
+the conservative .6/.12 chain with the same switches, goals and hold policy.
