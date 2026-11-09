@@ -126,42 +126,9 @@ packed print parallelogram, retaining all word-axis pixels. This corrects the
 rectangular pack's .72-squared aspect distortion without disturbing neighbors
 or relaxing the original .30 unique-coverage / 35 px/m p5 gates. The baked GLB still requires its visual gate.
 
-Earlier UV/bake delivery passes 1–4 are retained in
+Earlier UV/bake delivery passes 1–5 are retained in
 [the early X220 delivery review](REVIEW_X220_EARLY.md). Later passes below
 record the superseding fixes and final acceptance.
-
-## Delivery pass 5 — reject subpixel material contamination
-
-Color/value first: a saturated red fleck at the lower intake is impossible on
-its neutral molded cladding. The 9,725,396-byte trial passes all geometric UV
-checks but fails its image review. Camera rays locate face 789 of the front
-lower bumper cladding at UV (.99488,.33085); the shipped RGB sample is
-203/18/10. That chart is valid yet smaller than one shipped texel, so it samples
-nearby lamp padding. Several lower fins also pick up brighter material colors.
-This is atlas sampling loss, not red light, a shape defect or grille warping.
-
-Keep every vertex/normal/pivot. Before repacking, expand tiny unique charts to
-hold their own sampled material, using principal chart axes and measured UV
-area. The revised minimum is 4.03 shipped pixels of area; no unique chart is
-below four. The atlas stays within one set. Independently bilinear-sample
-cladding/gloss-black triangles for impossible substrate colors, and require
-that check as well as another full-size face/front inspection. Generic
-non-overlap and successful serialization did not prove this bake correct.
-
-The Aluminum exposure bracket already has zero clipped painted pixels in
-both gallery three-quarters (max channels 250/253); the final new atlas must
-repeat that result. The quarter source control also retains faint paint
-microtexture inside the soft return, with a smooth reflection edge across
-the rear cuts. No geometry change is justified by that shader grain.
-
-The first footprint rebake clears the face but the independent color check
-still rejects nine samples on a thin rear-arch gauge strip. The color extension
-was 12 bake pixels while the packed gap was only about six: reduce opposing
-extensions to three pixels each. All 39,948 bilinear material-color samples now
-pass. Also use the height codec's unset-zero sentinel: flat surfaces encode .5,
-whereas Cycles can retain alpha 1 on uncovered raster-border pixels. Exclude
-those data holes from physical derivatives instead of interpreting them as
-−5 mm relief. The accepted corner fields remain geometry data throughout.
 
 ## Delivery pass 6 — reject the generic dielectric response
 
