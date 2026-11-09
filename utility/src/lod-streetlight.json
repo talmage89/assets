@@ -1,0 +1,9 @@
+{
+  "kind": "standard prop: utility light-bracket pole", "name": "Streetlight",
+  "source": "export/UtilityParts.gltf", "include_nodes": ["Streetlight"],
+  "output": "export/lod/streetlight", "renders": "renders/lod/streetlight",
+  "readme_key": "streetlight", "readme_title": "Light-bracket pole LODs",
+  "screen_space": true, "feature_pixels": 1.5, "render_samples": 128,
+  "levels": [{"ratio": 0.15, "target_triangles": 1610, "screen_height": 0.25,
+              "surface_pixels": 0.05, "preserve_uv_regions": true}]
+}

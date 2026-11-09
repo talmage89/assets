@@ -11,6 +11,7 @@
   "feature_pixels": 1.5,
   "render_samples": 128,
   "levels": [
-    {"ratio": 0.4, "screen_height": 0.25, "surface_pixels": 0.5}
+    {"ratio": 0.4, "screen_height": 0.25, "surface_pixels": 0.05,
+     "preserve_uv_regions": true}
   ]
 }

@@ -1,0 +1,17 @@
+{
+  "kind": "modular piece: street 101 utility wires",
+  "name": "StreetWires101",
+  "source": "export/UtilityStreet-101.gltf",
+  "include_nodes": ["Conductors_comm_drop", "Conductors_communication", "Conductors_neutral", "Conductors_primary", "Conductors_service"],
+  "output": "export/lod/wires-101",
+  "renders": "renders/lod/wires-101",
+  "readme_key": "wires-101",
+  "readme_title": "Street 101 wire LODs",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "levels": [
+    {"ratio": 0.4, "screen_height": 0.25, "surface_pixels": 0.02,
+     "preserve_uv_regions": true}
+  ]
+}

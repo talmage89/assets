@@ -153,4 +153,4 @@ Toolkit
   renders of the exported GLB.
 - [Levels of detail](kit/LOD.md): opt-in `make lod` chains that reuse each asset's own maps, piloted on the pickup,
   colonial, gas station, grill, cone and maple and adopted by the street light, fences, hydrant, metal trash can,
-  mailbox, bench, parking meters and bus shelter.
+  mailbox, trash carts, bench, parking meters, bus shelter, utility poles, traffic signals and street signs.

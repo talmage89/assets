@@ -1,0 +1,16 @@
+{
+  "kind": "shared-set small prop: bent-post 25 mph assembly",
+  "name": "Speed25",
+  "source": "export/set/RoadSign_speed25.gltf",
+  "shared_textures": "export/lod",
+  "output": "export/lod/speed25",
+  "renders": "renders/lod/speed25",
+  "readme_key": "speed25",
+  "readme_title": "25 mph assembly LODs",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "levels": [
+    {"ratio": 0.15, "screen_height": 0.09, "preserve_uv_regions": true}
+  ]
+}

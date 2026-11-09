@@ -22,7 +22,7 @@ def main():
   assert len(ground)>=4
   midpoint=[(min(v[i] for v in ground)+max(v[i] for v in ground))/2 for i in (0,1)]
   assert max(map(abs,midpoint))<1e-5,('Footprint origin',midpoint)
-  expected={'Lid':(0,.391075,1.032),'Wheel_Left':(-.305,.314925,.127),'Wheel_Right':(.305,.314925,.127)}
+  expected={'Lid':(0,.430,1.010),'Wheel_Left':(-.305,.314925,.127),'Wheel_Right':(.305,.314925,.127)}
   for name,pos in expected.items():
    pivot=bpy.data.objects[name];assert (pivot.matrix_world.translation-Vector(pos)).length<1e-6
    assert pivot['pivot_axis']=='X'

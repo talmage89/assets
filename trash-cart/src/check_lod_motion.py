@@ -27,8 +27,8 @@ def bearing(point, name):
     # Finite source pin/axle envelopes, plus 0.5 mm. These are intended solid
     # bearing interfaces, not exemptions for a whole lid/body or wheel/body pair.
     if name == 'Lid':
-        return any(abs(point.x-sign*.263) <= .0425 and
-                   math.hypot(point.y-.391075, point.z-1.032) <= .0085
+        return any(.1975 <= sign*point.x <= .3055 and
+                   math.hypot(point.y-.430, point.z-1.010) <= .0085
                    for sign in (-1, 1))
     return abs(point.x) <= .3315 and math.hypot(
         point.y-.314925, point.z-.127) <= .0084375
@@ -104,6 +104,19 @@ def main():
         manifest = json.loads((output/'manifest.json').read_text())
         assert baseline == manifest['baseline']
         paths += [output/r['path'] for r in manifest['levels'][1:]]
+    # Exercise nonzero requested LODs too: testing only the geometry poses below
+    # would test all non-rest angles with requested=0, which cannot prove a hold.
+    selector_cases = []
+    for requested in range(len(cfg['levels'])+1):
+        for name in NAMES:
+            values = [-110, -67, -.0001, 0] if name == 'Lid' else [0, .0001, 73, 360]
+            for angle in values:
+                angles = dict.fromkeys(NAMES, 0.)
+                angles[name] = angle
+                chosen = selected_level(requested, angles)
+                assert chosen == (0 if angle else requested)
+                selector_cases.append(dict(requested=requested, node=name,
+                                           degrees=angle, selected=chosen))
     rows = []
     for level, path in enumerate(paths):
         bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -126,6 +139,7 @@ def main():
             else:
                 values = list(range(0, 361, 5))
             maximum, allowed, worst, bearing_depth = 0., 0, None, 0.
+            poses = []
             for angle in values:
                 angles = dict.fromkeys(NAMES, 0.)
                 angles[name] = angle
@@ -133,17 +147,21 @@ def main():
                 pivot.matrix_basis = rest@Matrix.Rotation(math.radians(angle), 4, 'X')
                 bpy.context.view_layer.update()
                 current = surface(moving[0])
+                pose_depth = 0.
                 for ob in fixed:
                     result = contact(current, stationary[ob.name], name)
                     allowed += result['bearing_samples']
                     bearing_depth = max(bearing_depth, result['bearing_depth_m'])
+                    pose_depth = max(pose_depth, result['depth_m'])
                     if result['depth_m'] > maximum:
                         maximum = result['depth_m']
                         worst = dict(angle=angle, fixed=ob.name, point_m=result['point_m'])
+                poses.append(dict(angle_degrees=angle, max_penetration_m=pose_depth,
+                                  passed=pose_depth <= TOLERANCE))
             pivot.matrix_basis = rest
             bpy.context.view_layer.update()
             motions.append(dict(node=name, samples=len(values), range=[min(values), max(values)],
-                max_penetration_m=maximum, worst=worst, bearing_samples=allowed,
+                max_penetration_m=maximum, worst=worst, bearing_samples=allowed, poses=poses,
                 max_intended_bearing_depth_m=bearing_depth, passed=maximum <= TOLERANCE))
             print('CART MOTION', level, name, maximum, allowed, flush=True)
         rows.append(dict(level=level, path=str(path.relative_to(ROOT)), sha256=digest(path),
@@ -152,6 +170,7 @@ def main():
     result = dict(passed=all(r['passed'] for r in rows), levels=rows,
         tolerance_m=TOLERANCE, config_sha256=digest(Path(args.config)),
         script_sha256=digest(Path(__file__)), source_only=args.source_only,
+        selector_cases=selector_cases, interaction_hold_level=0,
         scope='Original full sampled sweep; reduced levels at rest only; finite source bearing volumes')
     suffix = '-source-motion.json' if args.source_only else '-motion.json'
     dest = family/'build'/('lod-'+cfg['readme_key']+suffix)

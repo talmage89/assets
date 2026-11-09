@@ -371,3 +371,211 @@ Their source receipt and all 103 frozen kit hashes pass. A separate actual
 trash-original sweep also reproduces the 16.625 mm lid/support collision;
 source-only reports retain exact payload and script hashes for each variant.
 No cart chain is adopted and no Makefile exposes either rejected config.
+
+## Joint repair — source construction, 2026-11-09
+
+The first repair moved the support inboard but left the old pin location. A new
+part-resolved source sweep exposed more than the aggregated delivery diagnostic:
+the rear skirt also crossed the body rim, and a large stationary knuckle crossed
+the skirt. A second external-pin construction cleared the body but met the grip
+near full opening. These failed logs remain in `build/joint-repair/source-sweep*`.
+
+The final construction moves the X hinge to (0, 430, 1010) mm, behind the body
+rim and below the rear skirt. Bent straps reach two 28 mm rotating knuckles;
+inboard stationary knuckles carry the 16 mm pins. The support's outer side ends
+at X 224 mm; the rotating knuckle starts at 227 mm. The grip and supports sit
+39 mm lower to clear the last part of the swing. The supports extend around
+the lower half of each fixed knuckle; evaluated-surface contact checks cover
+knuckle/support, support/body and support/grip in both game and high scenes.
+The crowned skin and bead move
+5.85 mm rearward to center their skirt over the body rim; their shapes, lid ribs,
+front tab and the cart's overall dimensions stay the same.
+
+`make check-scene check-motion BLENDER='blender -t 4'` passes on game and high
+sources: 111 samples per lid, 73 per wheel, zero measured unintended penetration
+at a 0.2 mm tolerance. The staged blue source has no body beside it; the delivered
+blue cart's independent full sweep is the proof of its assembled clearance.
+Only named strap/barrel versus pin and hub versus axle bore contacts are allowed
+in the source test. The delivered test instead bounds these contacts to the
+finite pin and axle envelopes, and records every sampled pose. Neither check
+exempts a complete lid/body pair. These are sampled solid-surface proofs, not
+continuous collision detection.
+
+### Rebuild normal-map investigation
+
+Archived the accepted scenes/maps/exports before editing. Repeating the 4096 / 32
+sample OptiX bake from those unchanged saved scenes gives normal maximum delta
+1 byte and RMSE 0.000797; BaseColor is the same, ORM maximum 1 / RMSE 0.001261.
+`build/joint-repair/old-scene-repeat.json` passes the kit's default repeat bounds.
+Thus this rebake does **not** reproduce the clean rebuild's maximum 235 / RMSE
+1.8302 normal difference. Comparing accepted versus round-2 rebuilt scenes finds
+identical source positions/normals, and identical finalized geometry/UVs, but
+different finalized corner normals on beveled parts (maximum 37.5006 degrees).
+`frame-comparison.json` records every part. The discrepancy follows regenerated
+finalized normals, not ordinary bake variation; no shared kit code is changed
+and no claim of byte-identical historical rebuild is made.
+
+### Delivered joint and visual proof
+
+`make variants all repeat BLENDER='blender -t 4'` exits 0
+(`build/joint-repair/final-delivery.log`). Exports measure **5,724 / 5,944 triangles**,
+**2,558,388 / 2,580,844 bytes**, four meshes, one material each, with identical
+1024-square maps of **792,744 / 525,974 / 897,541 bytes** (BaseColor/Normal/ORM).
+UV coverage is 47.49% / 47.62%, with zero measured overlaps, outside or flat UV
+triangles; density p5/median/p95 is 212/249/252 px/m. Re-imported positions and
+pivots match exactly. All five bake channels cover 9,331,952 interior texels
+without misses; BaseColor has no black interior samples. Both delivered lid
+sweeps (111 poses) and both full wheel turns (73 poses each) measure zero
+unintended penetration. Game/high repeat geometry and pivot frames match exactly.
+
+Opened all six 960px exported-GLB joint views in
+`renders/joint-TrashCart/` and `renders/joint-TrashCartRecycling/` at 0/-67/-110°,
+and both camera-matched pairs plus their raw renders in
+`renders/joint-repair-glb/`. Color/value first: using the photograph's white
+background as neutral, the inherited studio appearance remains smoother and
+lighter than the manufacturer's dark, granite-textured resin. The blue lid also
+keeps its accepted pale studio response. Materials are unchanged for this repair;
+these remain limitations of the original. No bright cut-through or new color
+patch appears at the joint. The inboard/outboard knuckles have a visible dark
+gap; the strap clears the support and lowered grip in both open views. The skin
+and sealing reveal keep their closed silhouette. At extreme close range the
+coarse barrel facets, normal-map waviness and simplified support remain visible.
+The manufacturer photograph establishes construction; it contains no open-lid
+pose, so the open views establish our authored assembly, not a matched open photo.
+`renders/joint-review/contact.jpg` indexes the six views and the reference crop.
+
+After embedding the fixed knuckles, reran the full delivery and all views above.
+`make repeat joint-views BLENDER='blender -t 4'` passes; the repeat now compares
+exact finalized positions, indices, UVs, corner normals and frames on all 68
+meshes, as well as both source builds. All 21 studio/joint/photo render receipts
+match the final exported GLB hashes (`build/joint-repair/render-receipt.json`).
+Opened every final render, the contact and all three refreshed docs sheets.
+The open pose and hinge construction visibly changed, so docs are refreshed in
+their own final commit. Repository check and `git diff --check` pass. Kit unchanged.
+
+## Repaired-cart LOD adoption — frozen tool a646238
+
+109 kit source/recipe hashes are frozen in `build/lod-cart-repair/freeze*`.
+`sources.json` freezes both repaired deliveries, after the original full build,
+checks, repeat and visual review. All LOD work reads these exports; it does not
+regenerate LOD0. Both carts retain their three separate moving meshes and use
+LOD0 whenever any lid or wheel angle departs from rest.
+
+### Trash LOD critique 1 — cheaper reduction witness
+
+Built the existing .4/.15 requests at .25/.09 without region protection first.
+Opened every native 0/55/145-degree strip and all three 960px construction views.
+Color/value stays charcoal, without a broad new gray wash or changed stamp hue.
+The 3,202-triangle near level develops a dark, uneven sealing reveal in the
+construction view. The 1,952-triangle far level visibly kinks/separates the skirt
+and bead, and shifts the rear grip highlight in the native rear strip. Its
+8x8 patch maxima are .10304 against LOD0 / .10039 against LOD1, over .08.
+Thus generic `check-lod` fails images; raw topology, supplied normal fields,
+re-import and source immutability pass. Targets 2,290/859 remain missed.
+
+The repaired original full sweep and both reduced rest poses pass the finite-
+bearing joint check, all measuring zero unintended penetration. This clears
+the physical blocker but does not approve the visual fault. Exact config,
+payloads, their hashes and all native images are retained in
+`build/lod-cart-repair/trash-unsafe/`; the trial is unwired. The next trial
+pins UV regions to preserve the thin sealing construction instead of accepting
+that deformation or increasing image limits.
+
+### Recycling LOD critique 1 — independent cheaper witness
+
+Opened all six native strips, their difference panels, the contact and all three
+construction views. Color/value and blue hue remain stable; the municipal stamp
+does not turn into a bright block. The near level's sealing reveal develops the
+same uneven dark line. The far skirt/bead visibly folds away from the body;
+the recycling relief becomes subpixel in the switch view, without a new bright
+patch. Counts are 3,284/1,988 against 2,378/892. At the rear far switch the local
+maxima are .09626 against LOD0 / .09138 against LOD1, over .08; generic
+`check-lod` fails images while topology, normal fields and re-import pass.
+
+The independent blue original sweep and both reduced rest poses pass, with
+zero measured unintended penetration. Its exact original config, all payloads,
+hashes, checks and native images are in `build/lod-cart-repair/recycling-unsafe/`.
+Both cheaper trials are archived and hash-verified before clearing their live
+output folders. No rejected chain is exposed by the family's Makefile.
+
+### Trash LOD critique 2 — region-safe construction
+
+Enabled `preserve_uv_regions` on both requests; opened all six native strips,
+their LOD0/preceding/difference panels and the three construction views.
+Color/value and stamp brightness stay stable. The skirt and bead now keep their
+continuous source shape, with no folded black strip or displaced rear highlight.
+Wheel holes, front recess and grip remain covered. Counts rise to 4,234/3,998;
+UV/material boundaries and their texture routing remain fixed. All original
+image limits pass; worst near local change is .04727 and worst far local change
+against LOD0 is .01288. Raw/normal/re-import and finite-bearing checks pass;
+original full sweep and reduced rest poses measure zero unintended penetration.
+
+### Recycling LOD critique 2 — independent region-safe review
+
+Opened all six blue-lid native strips/differences and all three construction
+views. Blue and charcoal values match LOD0, lettering retains its brightness,
+and the molded recycling relief retains its source shape in the close view.
+The source sealing reveal survives; the rejected folded skirt is gone.
+Counts are 4,456/4,218; local maxima .05214 near / .01431 far against LOD0,
+with unchanged .08 limits. Generic `check-lod`, independent normal fields and
+the full-original/rest-reduced joint check pass. Every sampled unintended
+depth is zero. The selector check now explicitly requests each reduced level
+while each mechanism is non-rest, proving selection of LOD0 before motion;
+the original sweep supplies that held level's physical proof.
+
+### Chain cost decision
+
+The near region-safe alternatives keep 74–75% of LOD0, and differ from their
+far replacements by only 236/238 triangles. Keeping those intermediate buffers
+adds 291,420/313,872 GPU bytes, or .577 MiB across the family. Retain one useful
+far reduction per cart at the existing .09 switch (97.2 pixels / 10.57 m);
+remove the .25 switch rather than moving either threshold. Both complete
+two-level proofs/configs are archived under `*-regions-two-level/`.
+
+Final requested ratios stay .15: the 859/892 goals remain explicit target
+misses. Achieved counts 3,998/4,218 retain fixed chart boundaries, thin sealing
+construction and moving membership; they save 30.15% / 29.04% from LOD0. The
+cheaper 1,952/1,988 witnesses visibly fold that construction and fail native
+local image checks. These target exceptions are measured cost/appearance
+tradeoffs, not successful achievement of the requested counts. No intermediate
+map, private far atlas or proxy is added. LOD0 stays active while interacting.
+
+### Final retained chains and closing proof
+
+Rebuilt the retained .15 / .09 requests as LOD1, independently from each
+immutable LOD0. Opened all final native strips, their difference panels and both
+construction views per cart. They retain the region-safe appearance described
+above. `make lod check-lod BLENDER='blender -t 4' LOD_THREADS=4` exits 0 for both
+adopted configs with the ordinary family Makefile (`adopted-targets.log`).
+`make check-lod check repeat BLENDER='blender -t 4' LOD_THREADS=4` also exits 0
+(`final-checks.log`). These logs live under `build/lod-cart-repair/`.
+
+Each final motion report exercises 24 selector cases, including nonzero
+requested LODs with non-rest mechanisms. Each original lid has 111 samples,
+each original wheel 73, and every reduced mechanism is tested at rest. All
+unintended penetration is zero against .2 mm. This proves the sampled original
+motion and allowed reduced rest poses; generic raw checks prove serialization,
+UV/frame/topology preservation and imported surfaces separately. No reduced
+open-lid clearance or engine performance is claimed.
+
+Measured final chains: trash 5,724 -> 3,998 triangles, recycling 5,944 -> 4,218;
+four draws / one material per selected cart at either level. Each shares the
+three original 1024 maps and adds zero images. Per-chain resident estimates
+are 4.5916 / 4.6343 MiB; stored triangles 9,722 / 10,162; eight primitive
+placements each; physical dependencies 5,064,193 / 5,109,116 bytes.
+The family union is 19,884 stored triangles, two canonical source material
+resources, sixteen primitive placements, 7,957,050 physical bytes and
+5.2259 MiB resident. Shared maps occupy 4.0001 MiB once; original meshes
+.6626 MiB and additional meshes .5631 MiB. This is not the sum of duplicated
+per-chain map allocations. Only one level is drawn per instance.
+
+Generated the measured README tables with both configs explicitly supplied to
+`python3 kit/lod_report.py ... --write-readmes --out build/lod-cart-repair/final-report`.
+The union and receipts are in that folder's `families.json`, `report.json`,
+`report.md` and `contact.jpg`; native contacts are `renders/lod/trash/contact.jpg`
+and `renders/lod/recycling/contact.jpg`. Both original source receipts and all
+109 frozen tool hashes match after the final builds. No kit changes; no lead
+input required. The weakest result remains the large target misses imposed by
+fixed chart boundaries; the original smooth/light studio response and close
+normal waviness also remain. The cheaper visual failures and omitted near
+buffers are documented above rather than represented as deliveries.
