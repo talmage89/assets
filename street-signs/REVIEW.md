@@ -223,7 +223,7 @@ Worst mean 0.0001127, local 0.001286, silhouette loss
 
 ### speed30 critique 2 — construction and independent fields
 
-Opened all close views and contact, then revisited the square perforated post, blank rim and two fasteners; 30 reads at both switches.
+Opened all close views and contact, then revisited the square perforated post, blank rim and two fasteners; 30 retains source legibility at the tested switch.
 Tiny source print remains limited by original texel/mip resolution; no new
 lettering loss or detached member appears at the switches. Coarse small
 fittings remain visible up close; no close-view equivalence is claimed.
@@ -247,7 +247,7 @@ Worst mean 0.0001127, local 0.001286, silhouette loss
 
 ### speed30 critique 2 — construction and independent fields
 
-Opened all close views and contact, then revisited the square perforated post, blank rim and two fasteners; 30 reads at both switches.
+Opened all close views and contact, then revisited the square perforated post, blank rim and two fasteners; 30 retains source legibility at the tested switch.
 Tiny source print remains limited by original texel/mip resolution; no new
 lettering loss or detached member appears at the switches. Coarse small
 fittings remain visible up close; no close-view equivalence is claimed.
@@ -343,7 +343,7 @@ Worst mean 0.0001434, local 0.000854, silhouette loss
 
 ### yield critique 2 — construction and independent fields
 
-Opened all close views and contact, then revisited the triangular tips, rolled tube and fastening seats; the triangular form and YIELD remain legible.
+Opened all close views and contact, then revisited the triangular tips, rolled U section and fastening seats; the triangular form and YIELD retain source legibility.
 Tiny source print remains limited by original texel/mip resolution; no new
 lettering loss or detached member appears at the switches. Coarse small
 fittings remain visible up close; no close-view equivalence is claimed.
@@ -379,3 +379,27 @@ afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
 additional mesh buffers total 0.1058 MiB.
 Final native evidence: `renders/lod/pedestrian/`; archived recipe and proof:
 `build/lod-uv/archive/street-signs/pedestrian-final/`.
+
+
+### school-crossing critique 1 — native values and face coverage
+
+Opened every 0/55/145-degree native strip at each retained switch, with source,
+preceding, new and difference panes. Values agree for yellow-green sheeting, dark paired figures and arrow plaque, gray back and zinc support.
+Measured LOD1 744/400 at 25% / 11.702 m, LOD2 600/150 at 9% / 32.505 m, from 1000 source triangles.
+Worst mean 0.0001643, local 0.003697, silhouette loss
+0.000209 pass the unchanged gates. Targets remain unmet.
+
+### school-crossing critique 2 — construction and independent fields
+
+Opened all close views and contact, then revisited the two figures, pentagonal corners and arrow plaque; both figures/arrow retain their source shapes.
+Tiny source print remains limited by original texel/mip resolution; no new
+lettering loss or detached member appears at the switches. Coarse small
+fittings remain visible up close; no close-view equivalence is claimed.
+Exact accessor records find zero new flat UV faces and zero new invalid
+tangent records, while identifying inherited unprinted-metal defects separately
+(`build/lod-uv/sign-fields-school-crossing.json`). Serialized domains, normals,
+source fields and re-import pass. Original `make check set-check` passes
+afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
+additional mesh buffers total 0.1059 MiB.
+Final native evidence: `renders/lod/school-crossing/`; archived recipe and proof:
+`build/lod-uv/archive/street-signs/school-crossing-final/`.
