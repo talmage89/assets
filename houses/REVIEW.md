@@ -2487,3 +2487,9 @@ The corrected fresh source rebuild returns 0: `make TYPE=ranch export
 GPU queue. All six BINs and all six metadata files match accepted bytes;
 the six glTFs still differ only in the exporter label. The accepted 136-file
 ledger remains exact. This complete run supersedes the initial scratch bake.
+
+The sixteen fresh ranch PNGs have maximum independent channel drift 1/255
+against the accepted maps, within the family's documented GPU repeat bound.
+Per-map maximum and RMS code errors are in
+`build/houses-lod/ranch-rebaked-maps.json`. All accepted source PNG hashes are
+unchanged; the source-repeat variation is not baked into a replacement LOD0.
