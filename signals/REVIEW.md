@@ -1060,3 +1060,17 @@ The saving is 3702 triangles (21.21%), with 25 active primitive placements
 instead of 27 and no new texture. The original 52-file receipt is unchanged.
 Final native evidence: `renders/lod/span-set/`; archived recipe and checks:
 `build/lod-uv/archive/signals/span-set-final/`.
+
+### Signal family closeout
+
+Public `make check-lod LOD_THREADS=4` passes all three chains and state audits
+(`build/lod-uv/signals-public-final.json`). The original frozen-input check
+passes after the span trial; all 52 original files are byte-identical.
+Full 15-container accounting, including every unadopted part/town, is in
+`build/lod-uv/signals-full-costs.json`: 233196 stored triangles, 43 canonical
+per-container material references, 973 stored placements and 15838625 distinct
+payload bytes. Maps remain 17.5001 MiB; new meshes add 1.1049 MiB, taking full
+family residency from 27.1526 to 28.2575 MiB. Original town containers draw up
+to 228 primitives; adopted cabinet/mast/span draw 3/15/25, with only one level
+active per instance. Stored placements are not simultaneous draws.
+The combined report/contact is `build/lod-uv/signals-final-report/`.
