@@ -346,5 +346,5 @@ fonts are found through `kit/fonts.py` (SIL OFL). Reference authors, URLs,
 licenses and measurement uses are recorded in [refs/SOURCES.md](refs/SOURCES.md).
 No reference photograph, downloaded mesh, texture or HDRI enters the asset.
 
-No LOD chain yet. Reduced doors, wheels and lamp states have not been verified.
+No LOD chain yet. Full family validation still requires its school-scene checks.
 See [the LOD review](REVIEW.md).
