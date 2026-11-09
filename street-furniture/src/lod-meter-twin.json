@@ -1,0 +1,18 @@
+{
+  "kind": "small prop: twin mechanical parking meter",
+  "source": "export/MeterTwin.gltf",
+  "include_nodes": ["MeterTwin"],
+  "name": "MeterTwin",
+  "output": "export/lod/meter-twin",
+  "renders": "renders/lod/meter-twin",
+  "readme_key": "meter-twin",
+  "readme_title": "Twin parking meter LODs",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "protected_nodes": ["*CoinDoor*"],
+  "levels": [
+    {"ratio": 0.4, "screen_height": 0.25},
+    {"ratio": 0.15, "screen_height": 0.09}
+  ]
+}

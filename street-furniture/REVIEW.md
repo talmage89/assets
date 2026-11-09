@@ -503,3 +503,41 @@ include all sixteen original containers plus this level: 89434 stored triangles,
 is 1–57 across these alternatives; a bench draws one primitive. Repository
 check: 2603 files, zero errors; diff check passes. No kit, accepted delivery,
 map or original docs image changed.
+## LOD round 2 — independent kinds and original motion preflight
+
+Merged current main (already up to date). Existing standalones match every
+recorded triangle count and glTF/BIN size exactly. The original make check
+passes with accepted scenes, exports and the original sign-set inputs explicitly
+frozen; complete commands and costs are in build/lod-round2/street-furniture/.
+Freeze revision 8ca54fc and 103 tool hashes precede these trials. The source
+receipt includes original packages/maps and the accepted bench LOD payloads;
+another kind's proof cannot alter or approve the bench.
+
+Reran the family's independent source-part make check-motion with its accepted
+motion-parts scene frozen. It exits 2, reproducing the documented failures:
+
+| Original kind | Measured worst penetration | Outcome before LOD work |
+| --- | ---: | --- |
+| Litter | 4.976 mm | Lid/rear rim; no verified animatable hold |
+| Recycling | 4.976 mm | Own lid/rear rim proof; no verified animatable hold |
+| NewsDaily | 6.000 mm | Coin lid and lower door both interfere |
+| NewsPedestal | 6.000 mm | Own coin lid and door both interfere |
+| NewsWeekly | 6.000 mm | Own coin lid and door both interfere |
+| CollectionBox | 9.054 mm | Service leaf; chute also 5.736 mm |
+| MeterSingle | 0 mm | Source coin-door sweep passes |
+| MeterTwin | 0 mm | Both source coin-door sweeps pass |
+
+These use actual solid source surfaces, the unchanged .5 mm tolerance and
+documented sampled ranges, without whole-pair exceptions. Original export
+serialization is independently checked. Holding LOD0 during interaction cannot
+repair a collision already in that original. Preserve those accepted deliveries;
+do not create a pretend passing chain or count old pictures as new LOD critiques.
+The receptacle and news/collection kinds stop before LOD trials. NewsRow retains
+its members' original limitations. Their evidence is original-motion.json, not
+an adopted delivery. Racks remain minimal LOD0: 1020 per U, 4080 for four.
+
+Prepare separate, unwired meter and shelter configs. Meters start with .4/.15
+at .25/.09; their own actual permitted poses must pass. Shelters start with one
+far .09 level and .05-pixel surface preservation, retaining coarse rails/posts.
+Each shelter variant needs its own native view, root and material/UV proof.
+The Makefile still exposes only the previously accepted bench by default.
