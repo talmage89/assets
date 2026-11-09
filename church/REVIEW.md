@@ -427,3 +427,53 @@ The independent rebuild reproduces 42 own BIN/new-and-lawn PNG payloads,
 62,053,256 bytes exactly. Other deliveries' 1,080 recorded files are unchanged.
 No kit change, docs images or README gallery is included. Stop at this review
 checkpoint; final delivery remains the next round.
+
+## Final round I — the ten exported correction views
+
+Color and value first: opened both 1400px heroes, both obliques, both age
+macros, both north roofs and both entries in the last-pass1 capture. The
+photographic neutrals remain the concrete steps in the MDAH street photo,
+the unmarked arrival drive in the Connecticut view and the white-painted
+storm bar in the NCPTT photograph. The accepted red-brown brick hue is kept;
+the new change is wall value and caused dampness. These are display-domain
+comparisons, not a physical albedo measurement. The downtown composition,
+sun, neighbors, curb parking and window composition are unchanged.
+
+The A-frame's opposite-side 16-degree sun puts light on the wing's brick,
+casts beam/mullion shadows across the clear front and removes the ambiguous
+large shadow from the foreground road. Its .045 sky strength is deeper than
+the former .09. This is the strongest landed fix. The sanctuary backing is
+still plainly simplified in the close entry, and 32-sample glazing has grain.
+
+The downtown tower now shows runoff from actual courses at hero distance,
+but the close view reveals a repeated narrow-track pattern. The slate's
+first increased value range also looks checker-like on the spire. Before
+the final rebuild, reduce that range and replace 24 narrow runoff tracks
+with seven broader, softer washes. The north asphalt now uses only the
+three-tab half of RanchRoof, at its actual 143mm exposure, rather than
+alternating both atlas styles. Its first long algae layers look like barcode
+columns. Reduce them from seven regular stations to four irregular areas,
+starting at the ridge, with lower contrast and the broader runoff chart.
+Do not call the first north-roof test a successful age treatment.
+
+Larger moss colonies are visible instead of dots but remain flat, brush-like
+stamps. Roof replacement packets read more clearly, although their rectangle
+boundaries are regular. The new wall/base values are subtler from the hero
+than the tower runoff; front cars hide useful lower-wall evidence. Upper
+walls and long buff trims still read too fresh beside the used photograph.
+
+The lawns are darker yellow-green with low-frequency drought patches and
+walk-edge wear. Obliques expose their coarse interpolation and planar base;
+mulch is a dark strip, not a rich bed. The stone treads now have real 14mm
+center hollows, darker footfall zones and small nosing losses, but the close
+view exposes faceted rectangular color bands. Door touch wear under-reads;
+rail-foot oxidation looks like a simplified orange collar. The beam ends
+are grayer, yet the fascia still has thick, rectangular surviving-paint
+pieces and lacks convincing checks. These are partial fixes, retained as
+known flaws rather than grounds for another open-ended look round.
+
+All ten frames were inspected before gallery creation. The last-pass1
+evidence is retained under the worktree's ignored build/church-handoff
+archive; final correction crops compare directly with the c655bb4 handoff.
+Proceed to clean export, all finals and delivery checks. No more form or
+place redesign is authorized by this critique.
