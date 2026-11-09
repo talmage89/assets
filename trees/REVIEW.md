@@ -2325,3 +2325,56 @@ level, switch, target result or additional resident/stored cost is claimed.
 No rejected chain is wired to `make lod` or `make check-lod`. Resuming adoption
 requires resolving the stale original delivery under that preservation hold;
 it does not require a new simplification method or relaxed image gates.
+
+## Maple regression and final preservation
+
+The existing maple recipe, Makefiles and README LOD block are unchanged from
+main. No generated maple LOD package existed locally at session start. Its
+unchanged config was built to provide an independent regression while oak
+adoption was held. The first `make -C trees SPECIES=maple lod check-lod
+LOD_THREADS=4` completed mesh/impostor generation, then received SIGTERM during
+rendering (exit 143); that partial render is not a passing check.
+The serial retry `make -C trees SPECIES=maple lod-render check-lod LOD_THREADS=4`
+returns **0**, including raw re-import and independent normal-field checks.
+Logs: `build/oak-lod/maple-lod.log` and `maple-lod-retry.log`.
+
+Opened all 32 capture views at native size, all twelve native comparison strips
+with their original/preceding/difference panels, five construction views and
+the contact. Color/value and crown coverage remain consistent at the existing
+switches. Enlarged cards remain visible close up, and the elevated fixed
+impostor exposes its planar star; the camera-facing alternative is softer and
+retains its controller/frozen-light/wind limitations. All twelve image gates
+pass unchanged. Maximum original/adjacent mean / p95 / local / alpha / IoU loss
+are **.019545 / .066667 / .048660 / .048864 / .069287**.
+
+Maple retains **11,840 / 4,736 / 8 triangles** at **8.0% / 3.2% / 1.5%**,
+plus the optional two-triangle card at 1.5%; all targets are met. Near levels
+retain two materials/two draws; each far alternative has one material/one draw.
+The fixed chain stores **40,264 triangles, three material resources, seven
+primitive placements and 15,769,144 payload bytes**. Texture residency is
+**16.333 MiB**, with zero new intermediate images; every mesh brings total
+residency to **21.2044 MiB**, versus LOD0's 18.5496 MiB. Substituting the optional
+camera-facing card gives **23.537 MiB**. Measured tables and contacts are in
+`build/oak-lod/maple-report/`; native evidence is `renders/lod/`.
+
+All **13 generated payload files** match the first completed local mesh build
+byte for byte after the retry, including both far alternatives. Receipt:
+`build/oak-lod/maple-repeat.json`. This proves local repeat preservation, not
+equality with an unavailable pre-session LOD payload. The existing maple GLB,
+maps and docs retain their original receipt hashes throughout.
+
+Post-LOD original regression returns **0** (`build/oak-lod/maple-original-check.log`):
+
+```sh
+make -C trees SPECIES=maple check \
+  -o build/lookdev.blend -o build/game-audit.blend -o build/finalized.blend \
+  -o build/baked.stamp -o build/textures.stamp -o export/RedMaple.glb \
+  -o renders/final/.matched -o renders/final/.stamp
+```
+
+Final preservation verifies **23/23 original files** and **111/111 literal
+tool/recipe hashes** (`sha256sum -c build/lod-freeze.sha256`). Repository and
+diff checks pass. No kit, Makefile, tree generator, top-level README, house or
+original docs image changed. Oak `check-lod` and its two LOD critique passes
+are skipped because no oak chain can be adopted before its original check
+passes. No detached Blender/GPU job remains at handoff.
