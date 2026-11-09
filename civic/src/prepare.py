@@ -26,7 +26,8 @@ def main():
     for family in ('downtown','commercial'):
         folder=LOCAL/'textures/shared'/family;folder.mkdir(parents=True,exist_ok=True)
         script=ROOT/family/'src/textures.py'
-        if not (folder/'textures/ship/textures.json').exists():
+        sentinel='textures.json' if family=='downtown' else 'texture-report.json'
+        if not (folder/'textures/ship'/sentinel).exists():
             if not (folder/'build/procedural/fields.json').exists():
                 run([sys.executable,script,'source','--size','4096'],folder,out/f'{family}-source.log')
             run([ROOT/'kit/with_gpu.sh',blender,'-b','-t','4','--factory-startup','--python-exit-code','1','--python',script,'--','bake','--size','4096','--samples','1'],folder,out/f'{family}-bake.log')
@@ -43,6 +44,8 @@ def main():
         target=context/(kind+'.glb')
         if target.exists():continue
         run([blender,'-b','-t','4','--factory-startup','--python-exit-code','1','--python',script,'--',*args,'--out',target],LOCAL,out/f'context-{kind}.log')
+    if not (context/'hydrant.glb').exists() or (context/'hydrant.glb').stat().st_mtime<(LOCAL/'src/native_props.py').stat().st_mtime:
+        run([blender,'-b','-t','4','--factory-startup','--python-exit-code','1','--python',LOCAL/'src/native_props.py'],LOCAL,out/'context-hydrant.log')
     before=json.loads(receipt.read_text());after=snapshot()
     changed=[p for p,h in before.items() if after.get(p)!=h]
     assert not changed,changed

@@ -10,13 +10,17 @@ from sites import ground
 
 
 def context(seed):
+    from actors import finish,CACHE as AC
+    AC.clear()
     sp=site(seed);a=Assembly('TownPresentation');a.root['presentation_only']=True
     ground(a,'ContinuingTownGround',(-650,650,-650,650),'Lawn',-.055)
     ry=sp['road_y'];rw=sp['road_width'];l,r,ff,k=sp['parcel']
     ground(a,'PublicArterial',(-650,650,ry-rw/2,ry+rw/2),'Asphalt',-.03)
     for side in (-1,1):
         yy=ry+side*(rw/2+1.524)
-        ground(a,'PublicSidewalk',(-240,240,yy-.762,yy+.762),'Concrete',.145)
+        spans=[(-240,240)] if seed==101 or side<0 else [(-240,-20.4),(-1.3,240)]
+        for aa,bb in spans:ground(a,'PublicSidewalk',(aa,bb,yy-.762,yy+.762),'Concrete',.145)
+        if seed==202 and side>0:ground(a,'LoweredApparatusCrossing',(-20.4,-1.3,ry+rw/2-.05,-31.9),'Concrete',-.015)
     # Native crowned road, curb and sidewalk cross streets bound actual blocks.
     for xx in (-48,48):
         ground(a,'CrossStreet',(xx-4.2,xx+4.2,-200,220),'Asphalt',-.028)
@@ -64,11 +68,14 @@ def context(seed):
     for node in list(bpy.context.scene.objects):
         if node.get('socket_kind')!='parked_car' or not node.get('occupied'):continue
         bpy.context.view_layer.update();p=node.matrix_world.translation
-        actors.append(place(ROOT/'cars/export/AlderS240.glb','ParkedPoliceCar' if node.get('police') else 'ParkedStaffCar',tuple(p),math.degrees(node.rotation_euler.z),parent=a.root))
+        car=place(ROOT/'cars/export/AlderS240.glb','ParkedPoliceCar' if node.get('police') else 'ParkedStaffCar',tuple(p),math.degrees(node.rotation_euler.z),parent=a.root)
+        finish(car,'Carbon' if node.get('police') else ['Porcelain','Graphite','Atlantic','Aluminum'][len(actors)%4],bool(node.get('police')));actors.append(car)
     # On-street weekday parking and two passing cars, clear of the apron.
     for j in range(-5,6):
         if seed==202 and -24<j*8<0:continue
-        actors.append(place(ROOT/'cars/export'/('AlderC150.glb' if j%4==0 else 'AlderS240.glb'),'OnStreetCar_'+str(j),(j*8,ry-rw/2+1.2,-.015),90,parent=a.root))
+        if abs(j*8-24)<6:continue
+        car=place(ROOT/'cars/export'/('AlderC150.glb' if j%4==0 else 'AlderS240.glb'),'OnStreetCar_'+str(j),(j*8,ry-rw/2+1.2,-.015),90,parent=a.root)
+        finish(car,['Porcelain','Atlantic','Graphite','Aluminum'][j%4]);actors.append(car)
     from delivery import counts
     metrics=counts([o for rt in actors for o in rt.children_recursive]);Path('build',f'cars-{seed}.json').write_text(json.dumps(metrics,indent=2)+'\n')
     clear();return a

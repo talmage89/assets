@@ -22,7 +22,7 @@ def consolidate(assembly):
     # Preserve modules as source evidence; only fixed immediate children join.
     bpy.context.view_layer.update()
     for parent in [assembly.root]+list(assembly.moving.values()):
-        obs=[o for o in parent.children if o.type=='MESH']
+        obs=[o for o in parent.children if o.type=='MESH' and not o.get('kinematic_guide')]
         if not obs:continue
         bpy.ops.object.select_all(action='DESELECT')
         for ob in obs:ob.select_set(True)

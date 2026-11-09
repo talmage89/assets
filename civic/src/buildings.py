@@ -15,16 +15,20 @@ def shell(a,name,rect,height,floor=.15,pitch=4.18,stories=1,brick=0,doors=True,m
                 hh=(height-floor)/stories
                 if doors and face==entry_face and j==n//2 and story==0:
                     m=a.mesh(name+'_EntryMasonry',kind='DoorWallBay',brick_strip=brick,weather=True,top=height)
-                    dw=1.98;dh=2.75;half=(bw-dw)/2
+                    dw=2.10;dh=2.75;half=(bw-dw)/2
                     for s in (-1,1):m.box((s*(dw+half)/2,.17,hh/2),(half,.34,hh),'Veneer',r=0)
                     m.box((0,.17,(hh+dh)/2),(dw,.34,hh-dh),'Veneer',r=0)
                     orient(m,at,yaw);m.finish()
-                    front_door(a,name+'_DoorL',(at[0]-.49*math.cos(rad),at[1]-.49*math.sin(rad),floor),.9652,2.70,yaw)
-                    front_door(a,name+'_DoorR',(at[0]+.49*math.cos(rad),at[1]+.49*math.sin(rad),floor),.9652,2.70,yaw)
+                    front_door(a,name+'_DoorL',(at[0]-.5025*math.cos(rad),at[1]-.5025*math.sin(rad),floor),.915,2.70,yaw)
+                    front_door(a,name+'_DoorR',(at[0]+.5025*math.cos(rad),at[1]+.5025*math.sin(rad),floor),.915,2.70,yaw)
                 else:wall_bay(a,f'{name}_{face}_{story}_{j}',at,bw,hh,.70 if modern else .76,1.65 if modern else 1.3716,1.7 if modern else min(2.4384,hh-1.02),yaw,brick,modern)
         run=a.mesh(name+'_'+face+'_WaterTable',kind='WaterTable',weather=True)
         run.box((0,.16,floor/2),(length,.40,floor),'Concrete')
-        run.box((0,.11,floor+.045),(length,.51,.09),'Concrete')
+        if doors and face==entry_face:
+            entry_u=-length/2+(n//2+.5)*length/n
+            for aa,bb in ((-length/2,entry_u-1.08),(entry_u+1.08,length/2)):
+                run.box(((aa+bb)/2,.11,floor+.045),(bb-aa,.51,.09),'Concrete')
+        else:run.box((0,.11,floor+.045),(length,.51,.09),'Concrete')
         orient(run,(p[0],p[1],0),yaw);run.finish()
         sections=max(1,math.ceil(length/4.18))
         for j in range(sections):

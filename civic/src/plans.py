@@ -42,13 +42,15 @@ def site(seed=101):
     return dict(seed=seed,kind='arterial',building=p,parcel=(-43,43,-32,34),
         building_at=(-5,4,0),road_y=-41,road_width=15.0,
         lots=[dict(id='Staff',rect=(15,40,-3,26),rows=1,stalls=9,fenced=False)],
-        walks=[(6,9,-32,-7),(8,17,-9,-6)],
+        walks=[(2.8,4.6,-32,-5),(4.6,17,-8,-6.2),(11,12.8,-6.2,-2)],
         trees=[(-36,23),(-34,-20),(33,-26),(38,30),(-20,31)],flags=[(9,-20)],occupancy=.78)
 
 
 def cases():
+    large=building(707,'hall',bays=11,bay_width=4.8768,wings=False)
+    large['name']='MAPLE RIDGE MUNICIPAL HALL'
     return [building(101,'hall'),building(202,'station'),
         building(303,'post_office',bays=5,order='pilasters',wings=False),
         building(404,'library',bays=5,stories=2,roof='cupola',wings=False),
         building(505,'station',bays=2,wings=True),
-        building(606,'hall',bays=5,stories=1,order='plain',roof='hip',wings=False)]
+        building(606,'hall',bays=5,stories=1,order='plain',roof='hip',wings=False),large]

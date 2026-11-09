@@ -8,20 +8,22 @@ export TMPDIR := $(abspath ../build/tmp)
 export ASSETS_GPU_LOCK ?= $(abspath ../build/locks/gpu.lock)
 WIDTH ?= 1400
 SAMPLES ?= 40
-SOURCE := $(wildcard src/*.py)
+SOURCE := $(addprefix src/,build.py buildings.py delivery.py door_motion.py geo.py library.py parts.py plans.py services.py sheets.py sites.py station.py wear.py)
+BUILD_IDS := 101 202 303 404 505 606 707
+MODEL := build/family.json build/modules.json $(foreach s,$(BUILD_IDS),export/Civic-$(s).gltf export/Civic-$(s).bin build/review/Civic-$(s).glb) $(foreach s,101 202,export/Site-$(s).gltf export/Site-$(s).bin build/review/Site-$(s).glb) export/CivicPieces.gltf export/CivicPieces.bin build/review/CivicPieces.glb
 .PHONY: all refs dependencies model render matches review check repeat clean
 all: refs model check render matches review
 refs:
 	$(PYTHON) ../kit/fetch_refs.py refs
-build/dependencies.json: src/prepare.py
+build/dependencies.json: src/prepare.py src/native_props.py
 	@mkdir -p build $(TMPDIR)
 	$(PYTHON) src/prepare.py
 dependencies: build/dependencies.json
-build/family.json: $(SOURCE) build/dependencies.json
+$(MODEL) &: $(SOURCE) build/dependencies.json
 	$(BP) --python src/build.py
-model: build/family.json
+model: $(MODEL)
 render: model
-	../kit/with_gpu.sh $(BP) --python src/render.py -- --out renders/checkpoint --width $(WIDTH) --samples $(SAMPLES)
+	../kit/with_gpu.sh $(BP) --python src/render.py -- --out renders/checkpoint --width $(WIDTH) --samples $(SAMPLES) --sheets
 matches: model refs
 	$(PYTHON) src/matches.py
 	$(BP) --python ../kit/photo_match.py -- verify --calibration build/matched-cameras.json
@@ -31,6 +33,7 @@ review:
 	$(PYTHON) src/review.py
 check: model
 	$(BP) --python src/check.py
+	$(BP) --python src/motion_check.py
 	$(PYTHON) ../kit/repo_check.py
 repeat: model
 	$(PYTHON) src/repeat.py

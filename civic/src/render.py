@@ -32,14 +32,17 @@ def camera(spec,width):
 
 
 def open_bay():
-    for ob in bpy.context.scene.objects:
-        if ob.get('overhead_door')!='Bay_1':continue
-        j=ob['section_index'];ph=ob['panel_pitch_m'];h=ob['door_height_m']
-        ob.location.y+=.6+(7-j)*ph;ob.location.z+=h+.17-j*ph;ob.rotation_euler.x=-math.pi/2
+    from door_motion import pose
+    pose([o for o in bpy.context.scene.objects if o.get('overhead_door')=='Bay_1'],1)
+    bpy.context.view_layer.update()
+    for node in list(bpy.context.scene.objects):
+        if node.get('socket_kind')!='interior_light':continue
+        data=bpy.data.lights.new('Practical bay light','AREA');data.energy=node.get('power_w',240);data.shape='RECTANGLE';data.size=1.6;data.size_y=.25;data.color=(1,.89,.72)
+        ob=bpy.data.objects.new(data.name,data);bpy.context.collection.objects.link(ob);ob.location=node.matrix_world.translation
 
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,default=Path('renders/checkpoint'));ap.add_argument('--width',type=int,default=1400);ap.add_argument('--samples',type=int,default=40);ap.add_argument('--shots',default='all');ap.add_argument('--seeds',default='101,202');ap.add_argument('--buildings-only',action='store_true');ap.add_argument('--matches',action='store_true');ap.add_argument('--engine',default='CYCLES');args=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+    ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,default=Path('renders/checkpoint'));ap.add_argument('--width',type=int,default=1400);ap.add_argument('--samples',type=int,default=40);ap.add_argument('--shots',default='all');ap.add_argument('--seeds',default='101,202');ap.add_argument('--buildings-only',action='store_true');ap.add_argument('--matches',action='store_true');ap.add_argument('--sheets',action='store_true');ap.add_argument('--engine',default='CYCLES');args=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
     if args.matches:
         recipes=json.loads(Path('build/matched-cameras.json').read_text())
         jobs=[(name,str(row['seed']),(row['shot']['location'],row['shot']['target'],row['shot']['lens']),row) for name,row in recipes.items()]
@@ -47,11 +50,21 @@ def main():
     rows=[]
     for name,seed,spec,match in jobs:
         bpy.ops.wm.read_factory_settings(use_empty=True)
-        source=Path('build/review')/(('Civic-' if args.buildings_only else 'Site-')+seed+'.glb')
+        building_only=args.buildings_only or (match and match.get('building_only'))
+        source=Path('build/review')/(('Civic-' if building_only else 'Site-')+seed+'.glb')
         bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
-        if not args.buildings_only:
+        if not building_only:
+            offset=json.loads(Path('build/family.json').read_text())['Site-'+seed]['plan'].get('origin_offset_m',(0,0,0))
+            for ob in list(bpy.context.scene.objects):
+                if ob.parent is None:ob.location+=Vector(offset)
+        if match and match.get('building_only'):
+            data=json.loads(Path('build/family.json').read_text())['Civic-'+seed]
+            off=Vector(data['plan']['origin_offset_m'])+Vector((-6,0,0))
+            for ob in list(bpy.context.scene.objects):
+                if ob.parent is None:ob.location+=off
+        if not building_only or (match and match.get('building_only')):
             from town import context
-            context(int(seed))
+            context(101 if building_only else int(seed))
         light();sc=bpy.context.scene;sc.render.engine=args.engine;sc.cycles.samples=args.samples;cam=camera(spec,args.width)
         if match:
             sc.render.resolution_y=round(args.width/match['shot']['aspect']);cam.rotation_euler.rotate_axis('Z',match['shot']['roll'])
@@ -64,6 +77,9 @@ def main():
         row=dict(image=str(out),source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),camera=spec,width=args.width,samples=args.samples,engine=args.engine,exposure=sc.view_settings.exposure)
         out.with_suffix('.json').write_text(json.dumps(row,indent=2)+'\n');rows.append(row)
     args.out.mkdir(parents=True,exist_ok=True);(args.out/'render-receipts.json').write_text(json.dumps(rows,indent=2)+'\n')
+    if args.sheets:
+        from sheets import render
+        render(args.out,args.width,args.samples)
 
 
 if __name__=='__main__':main()

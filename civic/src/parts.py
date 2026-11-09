@@ -20,7 +20,17 @@ def window(a,name,p,w=1.3716,h=2.4384,yaw=0,modern=False):
     if not modern:
         for s in (-1,1):m.box((s*w/6,.018,h/2),(.024,.040,h-.13),'Trim',(.60,.59,.53),r=0)
         for j in (1,2,4,5):m.box((0,.016,h*j/6),(w-.10,.045,.025),'Trim',(.60,.59,.53),r=0)
-    orient(m,p,yaw);return m.finish()
+    orient(m,p,yaw);ob=m.finish()
+    # Switchable dim room layer sits behind the blinds and real glazing.
+    import bpy
+    ma=bpy.data.materials.get('CivicRoomGlow')
+    if not ma:
+        ma=bpy.data.materials.new('CivicRoomGlow');ma.use_nodes=True;ma['switch_kind']='interior_lights';ma['tiling_vertex_tint']=False
+        bs=ma.node_tree.nodes.get('Principled BSDF');bs.inputs['Base Color'].default_value=(.055,.040,.021,1);bs.inputs['Emission Color'].default_value=(1,.68,.32,1);bs.inputs['Emission Strength'].default_value=.055
+    glow=a.mesh(name+'_RoomLayer',kind='SwitchableRoomLayer')
+    glow.box((0,.70,h/2),(w-.20,.008,h-.20),'Glass');orient(glow,p,yaw);gg=glow.finish();gg.data.materials.clear();gg.data.materials.append(ma)
+    for f in gg.data.polygons:f.material_index=0
+    return ob
 
 
 def wall_bay(a,name,p,width,height,sill=.92,opening=1.3716,window_h=2.4384,yaw=0,brick=0,modern=False):
@@ -67,11 +77,14 @@ def column(a,name,p,height=5.0292,diameter=.6096,pilaster=False):
 
 def front_door(a,name,p,width=.9652,height=2.4384,yaw=0):
     m=a.mesh(name+'_Frame',kind='EntryFrame',trim_strip=2)
-    for s in (-1,1):m.box((s*(width/2+.045),.08,height/2),(.09,.18,height+.12),'Concrete')
+    for s in (-1,1):
+        if name.endswith('_DoorR') and s==-1:continue
+        m.box((s*(width/2+.045),.08,height/2),(.09,.18,height+.12),'Concrete')
     m.box((0,.08,height+.05),(width+.18,.18,.10),'Concrete')
     orient(m,p,yaw);m.finish()
-    rad=math.radians(yaw);hinge=(p[0]-width/2*math.cos(rad)-.08*math.sin(rad),p[1]-width/2*math.sin(rad)+.08*math.cos(rad),p[2])
-    a.pivot(name,hinge,limits=(0,100))
+    rad=math.radians(yaw);width-=.010
+    hinge=(p[0]-width/2*math.cos(rad)-.115*math.sin(rad),p[1]-width/2*math.sin(rad)+.115*math.cos(rad),p[2])
+    a.pivot(name,hinge,limits=(0,90))
     leaf=a.mesh(name+'_Leaf',part=name,kind='FrontDoor',trim_strip=2)
     for s in (-1,1):leaf.box((s*(width/2-.045),.08,height/2),(.09,.055,height),'Trim',(.095,.115,.105))
     for z in (.11,.72,height-.07):leaf.box((0,.08,z),(width-.15,.055,.13),'Trim',(.095,.115,.105))

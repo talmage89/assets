@@ -36,7 +36,7 @@ def apron_wear(a,sp):
         for side in (-1,1):
             for k in range(7):
                 yy=front-1.3-k*2.6;zz=.1524*(yy+32)/(front+32)+.003
-                decal(a,f'Bay{j+1}_WheelLane_{side}_{k}',(xx+side*.94+rng.uniform(-.07,.07),yy,zz),(.24+rng.uniform(0,.09),1.8+rng.uniform(0,.7)),'scuff',j*100+k,90)
+                decal(a,f'Bay{j+1}_WheelLane_{side}_{k}',(xx+side*.94+rng.uniform(-.07,.07),yy,zz),(.24+rng.uniform(0,.09),1.8+rng.uniform(0,.7)),'scuff',j*100+k,rng.uniform(-3,3))
         for k in range(4):
             yy=front-2.3-k*3.8;zz=.1524*(yy+32)/(front+32)+.003
             decal(a,f'Bay{j+1}_OilStanding_{k}',(xx+rng.uniform(-.28,.28),yy,zz),(1.0,1.3+rng.random()),'oil',j*31+k)

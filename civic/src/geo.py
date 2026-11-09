@@ -71,8 +71,9 @@ class Mesh(H.Mesh):
                     joint=abs((q[a]+.3)%2.4384-1.2192)
                     factor-=.24*math.exp(-(joint/.15)**2)*math.exp(-fall/.65)
                 if role=='Veneer':
-                    strip=self.props.get('brick_strip',0);k=math.floor((low+1e-6)/1.2192)
-                    vv=(q.z/1.2192-k) if b==2 else (q[b]-low)/max(span,1e-6)
+                    origin=self.props.get('uv_origin_z',0)
+                    strip=self.props.get('brick_strip',0);k=math.floor((low-origin+1e-6)/1.2192)
+                    vv=((q.z-origin)/1.2192-k) if b==2 else (q[b]-low)/max(span,1e-6)
                     uv.data[li].uv=(q[a]/4.8768,strip/4+8/2048+max(0,min(1,vv))*(.25-16/2048))
                 elif role=='Siding':uv.data[li].uv=(q[a]/2.4384,q[b]/2.4384);c=tuple(v/.278 for v in c)
                 elif role=='Glass':uv.data[li].uv=(q[a],q[b]);c=(1,1,1)
@@ -99,6 +100,7 @@ class Assembly:
 
 def orient(m,p,yaw):
     r=math.radians(yaw);c,s=math.cos(r),math.sin(r)
+    m.props['uv_origin_z']=p[2]
     m.v=[(p[0]+x*c-y*s,p[1]+x*s+y*c,p[2]+z) for x,y,z in m.v];return m
 
 
@@ -111,6 +113,12 @@ def text(a,name,string,p,size,color=(.1,.105,.09)):
     bpy.ops.object.select_all(action='DESELECT');ob.select_set(True);bpy.context.view_layer.objects.active=ob;bpy.ops.object.convert(target='MESH')
     ma=ob.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT');ob.data.color_attributes.active_color=ma
     for c in ma.data:c.color=(*color,1)
-    uv=ob.data.uv_layers.new(name='UVMap')
-    for row in uv.data:row.uv=(.125,.18)
+    for layer in list(ob.data.uv_layers):ob.data.uv_layers.remove(layer)
+    uv=ob.data.uv_layers.new(name='UVMap');uv.active_render=True
+    for f in ob.data.polygons:
+        axis=max(range(3),key=lambda k:abs(f.normal[k]));aa,bb=[(1,2),(0,2),(0,1)][axis]
+        low=min(ob.data.vertices[i].co[bb] for i in f.vertices);high=max(ob.data.vertices[i].co[bb] for i in f.vertices)
+        for li in f.loop_indices:
+            q=ob.data.vertices[ob.data.loops[li].vertex_index].co
+            uv.data[li].uv=(q[aa]/4,.129+(q[bb]-low)/max(high-low,1e-8)*.117)
     a.objects.append(ob);return ob

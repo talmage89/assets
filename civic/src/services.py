@@ -96,11 +96,31 @@ def dumpster(a,p):
     for xx in (x-.92,x+.92):
         m.box((xx,y+.80,1.12),(.25,1.47,.19),'Trim',(.035,.085,.06))
         m.box((xx,y+.8,.12),(.18,1.1,.20),'Trim',(.040,.045,.038))
-    m.finish();a.pivot('DumpsterLid',(x,y+1.5,1.45),axis='X',limits=(0,105))
+    m.finish();a.pivot('DumpsterLid',(x,y+1.5,1.45),axis='X',limits=(-105,0))
     m=a.mesh('DumpsterLidMesh',part='DumpsterLid',kind='DumpsterLid',trim_strip=1)
     m.box((x,y+.8,1.48),(2.35,1.50,.075),'Trim',(.035,.040,.032));m.finish()
     for j in range(2):
-        a.pivot('EnclosureGate_'+str(j),(x-2+4*j,y-.60,0),axis='Z',limits=(0,105))
+        a.pivot('EnclosureGate_'+str(j),(x-2+4*j,y-.60,0),axis='Z',limits=(-105,0) if j==0 else (0,105))
         m=a.mesh('EnclosureGateMesh_'+str(j),part='EnclosureGate_'+str(j),kind='EnclosureGate',trim_strip=0)
         for t in range(13):m.box((x-1+j*2+(t-6)*.14,y-.60,1),(.13,.065,1.90),'Trim',(.16,.13,.085),r=.002)
         m.finish()
+
+
+def public_details(a,p,station=False):
+    x,y,z=p;m=a.mesh('PublicDropAndPlaque',kind='PublicHardware',trim_strip=2)
+    # Folded stainless payment/document drop, projecting rain hood and slot.
+    m.box((x,y,z+.87),(.52,.30,.95),'Trim',(.32,.34,.31))
+    m.box((x,y-.18,z+1.38),(.59,.39,.055),'Trim',(.37,.39,.36))
+    m.box((x,y-.158,z+1.16),(.42,.016,.062),'Trim',(.018,.021,.017))
+    m.box((x,y-.17,z+.80),(.30,.025,.37),'Trim',(.29,.31,.28))
+    m.box((x,y-.20,z+.87),(.075,.035,.018),'Trim',(.40,.42,.39));m.finish()
+    text(a,'DropLabel','DOCUMENT DROP',(x,y-.185,z+1.27),.055,(.65,.65,.60))
+    if station:
+        m=a.mesh('EmergencyStreetSignal',kind='EmergencySignal',trim_strip=2)
+        m.tube([(x-5,y-14,0),(x-5,y-14,6)],.065,'Trim',(.30,.32,.29),sides=12)
+        m.tube([(x-5,y-14,5.8),(x-4.5,y-14,6.3),(x-.5,y-14,6.3)],.045,'Trim',(.30,.32,.29),sides=10)
+        for xx in (x-2.5,x-.8):
+            m.box((xx,y-14,5.93),(.38,.23,.55),'Trim',(.025,.030,.023))
+            m.tube([(xx,y-14.14,5.94),(xx,y-14.11,5.94)],.135,'Trim',(.32,.009,.006),sides=16)
+        m.finish()
+        a.socket('EmergencySignal',(x-1.7,y-14,5.94),'emergency_signal')

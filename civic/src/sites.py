@@ -90,13 +90,18 @@ def build_site(sp,building,off):
     for lot in sp['lots']:ground(a,'Lot_'+lot['id'],lot['rect'],'Asphalt',-.003);parking(a,lot)
     for j,pole in enumerate(sp['flags']):flagpole(a,(*pole,0),'Flagpole_'+str(j))
     for j,(xx,yy) in enumerate(sp['trees']):place(ROOT/'trees/export'/('PinOak.glb' if j%3==0 else 'RedMaple.glb'),'SiteTree_'+str(j),(xx,yy,-.02),j*61,parent=a.root)
-    for j in range(7):place(ROOT/'shrubs/export/Shrubs.glb','FoundationBoxwood_'+str(j),(x-w/2+1+j*2.3,y-d/2-1.2,0),j*47,'Boxwood',a.root)
-    for j,xx in enumerate((x-7,x+7)):
-        place(LOCAL/'build/context/furniture.glb','EntryBench_'+str(j),(xx,-17,.145),select='Bench',parent=a.root)
-    place(LOCAL/'build/context/furniture.glb','BikeRack',(x+10,-15,.145),select='BikeRack',parent=a.root)
+    for j in range(7):
+        at=(x-w/2+1+j*2.3,y-d/2-1.2,0) if sp['kind']=='downtown' else (12.4,-4+j*1.1,0)
+        place(ROOT/'shrubs/export/Shrubs.glb','FoundationBoxwood_'+str(j),at,j*47,'Boxwood',a.root)
+    benches=[(x-7,-17,.145),(x+7,-17,.145)] if sp['kind']=='downtown' else [(12,-11,.145),(13.3,-7,.145)]
+    for j,at in enumerate(benches):place(LOCAL/'build/context/furniture.glb','EntryBench_'+str(j),at,select='Bench',parent=a.root)
+    place(LOCAL/'build/context/furniture.glb','BikeRack',(x+10,-15,.145) if sp['kind']=='downtown' else (12.3,-13,.145),select='BikeRack',parent=a.root)
     back_service(a,(34,31,0))
     from services import dumpster
     dumpster(a,(29,34,0))
+    from services import public_details
+    public_details(a,(12,-7,0) if sp['kind']=='arterial' else (11.5,-.5,.145),sp['kind']=='arterial')
+    if sp['kind']=='arterial':place(LOCAL/'build/context/hydrant.glb','StreetHydrant',(-25,-31.5,0),parent=a.root)
     path(a,'StreetToEntry',[(x,-29,.145),(x,-15,.145),(x,-13,.145)])
     if sp['kind']=='downtown':path(a,'ParkingToAccessible',[(23,-2,.015),(20.4,-2,.145),(10.3,-2,.145),(10.3,-.2,.1524)])
     else:path(a,'ParkingToAccessible',[(17,-2,.015),(12,-2,.145),(7.5,-5,.1524)])
