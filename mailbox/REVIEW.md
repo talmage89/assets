@@ -112,3 +112,17 @@ accepted generated inputs are frozen to prevent source regeneration. The
 small-prop starting chain requests .4 at .25 and .15 at .09; Door/Flag frames
 and independent meshes must remain through both. No original export/map or
 docs image is changed. A build or numeric result alone is not acceptance.
+
+### LOD critique 1: reject a pointed near crown
+
+Opened all six native strips, all three construction views and the contact.
+Black coating, silvered pine, bottom splash and red flag values hold. But the
+570-triangle near candidate has a visibly pointed front crown at .25 / 4.40m;
+the rounded shell is a defining silhouette. Reject that level despite every
+image gate and the independent UV/frame/raw audit passing. The 224-triangle
+far level at .09 / 12.22m keeps recognizable post, shell and flag coverage;
+its close view exposes a much coarser mouth and rear silhouette. Neither
+meets the original 506/190 count targets. Full original config, outputs,
+checks, hashes and every image are archived in `build/lod-rollout/mailbox/pass1/`.
+Next try more near silhouette geometry and a lower far request at the same
+switches; preserve the original goals and image gates. Door/Flag remain separate.
