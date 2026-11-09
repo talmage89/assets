@@ -561,3 +561,41 @@ is exempted. Every mesh, including graphics, must follow its placement root.
 Hold LOD0 while the coin door is open. Archive exact trial inputs, payloads,
 images and checks in meter-single-pass1/. Try a .2 near request against the
 same 580 goal, and tighten far surface_pixels from .75 to .15.
+
+### Single meter critique 2 — one near level and a native goal witness
+
+Opened the second trial's six strips and three close views. Color/value holds;
+the near head remains rounded at its switch. The tighter far head restores
+coverage, but costs 1026 triangles versus near 911. Its image/normal checks
+pass; the raw check correctly rejects increasing triangles down the chain.
+Archive that trial and omit its unhelpful far switch, rather than waive a gate.
+
+Re-rendered the frozen first trial's 552-triangle far mesh at the *near*
+5.264 m switch, alongside original and chosen meshes. This is a negative witness
+at/below the 580 goal, never a delivery or substitute tool. Opened all three
+native strips in meter-single-near-goal/. The cheap housing's pointed crown,
+floating-looking lens seat, faceted vault leaf and changed highlights are clear.
+Front p95 .12549, local mean .10958 and silhouette loss .06433 fail; 55-degree
+p95 .09020 / local .16155 and rear local .12072 also fail the unchanged limits.
+Only local dependency symlinks resolve the archived candidate's unchanged maps;
+payload hashes and the complete script/command are retained with the witness.
+
+Adopt the separately rebuilt 911-triangle level at .25 / 5.264 m, goal 580
+still target_met:false. Opened every final strip, close view and contact again.
+Galvanized post width/coverage, dial routing, rounded crown and footing hold at
+native size. The close view shows some existing cast-skin waviness and reduced
+vault faceting; this is not a new close-range replacement for LOD0.
+Raw/UV/frame/topology, normal-field and permitted-pose/placement checks pass.
+The original coin-door sweep is sampled at 5 degrees, reduced door at rest;
+all measured penetration is zero. Hold original LOD0 during coin-door use.
+The Makefile lists only bench plus this adopted meter; both receive the
+placement/grade check, with physical opaque-surface motion where applicable.
+
+Single-meter closing proof: public check-lod for bench plus meter and original
+make check pass. The reporter writes both measured README sections and their
+shared-resource union under report-single/; only surrounding prose is shortened.
+The meter alone stores 2360 triangles, two material resources, six primitive
+placements and 9716845 distinct payload bytes; it draws 1449 or 911 triangles
+in three calls. Original maps remain 17.333 MiB with no new images; whole-chain
+residency is 17.5030 MiB. All 38 original/accepted-bench payload hashes and all
+103 tool hashes match. Repository and whitespace checks pass.

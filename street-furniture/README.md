@@ -192,29 +192,52 @@ dial internals and hardware are authored estimates. Photo camera fits remain
 comparisons between different original products, with their residuals reported.
 Stock glTF does not reproduce headlight retroreflection for the separate signs.
 
-The bike racks remain LOD0; their pipe geometry is already minimal.
-Other furniture kinds have no LOD chain yet; mechanisms and glazing need separate checks.
-See [the LOD review](REVIEW.md).
+Bike racks stay LOD0: 1,020 triangles per U, or 4,080 for the row; their pipe geometry is already minimal.
+Receptacles and news/collection boxes have no LOD chain yet; their hinges need clearance corrections.
+The twin meter, shelters and bus-stop sign await their own LOD checks. See [the review](REVIEW.md).
 
 <!-- LOD checkpoint bench: begin -->
 ## Bench LODs
 
-`make lod LOD_THREADS=4` builds the extra glTF/BIN level in `export/lod/bench/`; `make check-lod` verifies it. The original delivery remains LOD0.
+Optional glTF/BIN levels live in `export/lod/bench/`. `make lod LOD_THREADS=4` builds all adopted kinds; `make check-lod` verifies them.
 
 | Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | LOD0 | 3,436 / — | 1 / 1 | 320,858 | 9,181,551 | 9,502,409 | 16.000 + 0.3023 | near |
 | LOD1 | 2,360 / 515 | 1 / 1 | 211,684 | 9,181,551 | 9,393,235 | 16.000 + 0.1990 | 9.0% / 7.75 m |
 
-Place the Bench root with its sockets and retain its child transforms. LOD1 stays above its triangle goal to preserve strap and frame coverage.
+Place the Bench root with its sockets and retain its child transforms. The level stays above its triangle goal to keep the straps and frame visible.
 
-The levels share the original three 2048² maps and add no image content. Keeping the whole chain resident costs about 16.501 MiB, versus 16.302 MiB for LOD0 alone. Reuse the original material and image resources when importing the extra level.
+The levels share the original 3 × 2048² maps, about 16.000 MiB. They add no image content. The whole chain costs 16.5014 MiB, versus 16.3024 MiB for LOD0 alone. Reuse the original material and image resources.
 
-Use the listed screen heights in Unity LODGroup, Godot visibility ranges or Unreal component LODs. Only one level draws at a time. Distances assume 60° vertical FOV and 1080p.
+Use the listed screen-height switches with hysteresis in the engine LOD controller. Distances assume 60° vertical FOV and 1080p. Only one level draws per instance.
 
 | Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
 | ---: | ---: | ---: | ---: | ---: |
 | 5,796 | 1 | 2 | 9,714,093 | 16.5014 |
 
-The stored table includes both alternatives; draw calls in the level table describe one instance. [Verification, target exceptions and limits](REVIEW.md). [Engine setup](../kit/LOD.md).
+Stored placements count the resident alternatives; active draw calls are in the level table. [Verification and target witnesses](REVIEW.md). [Engine setup](../kit/LOD.md).
 <!-- LOD checkpoint bench: end -->
+
+<!-- LOD checkpoint meter-single: begin -->
+## Single parking meter LODs
+
+Optional glTF/BIN levels live in `export/lod/meter-single/`. `make lod LOD_THREADS=4` builds all adopted kinds; `make check-lod` verifies them.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 1,449 / — | 2 / 3 | 110,871 | 9,526,421 | 9,637,292 | 17.333 + 0.0988 | near |
+| LOD1 | 911 / 580 | 2 / 3 | 79,553 | 9,526,421 | 9,605,974 | 17.333 + 0.0708 | 25.0% / 5.26 m |
+
+The cast head, post and dial remain readable at the switch. The level stays above its triangle goal to retain the housing silhouette. **Select LOD0 before opening the coin door, and hold it until fully closed.**
+
+The levels share the original 3 × 2048² + 1 × 1024² maps, about 17.333 MiB. They add no image content. The whole chain costs 17.5030 MiB, versus 17.4322 MiB for LOD0 alone. Reuse the original material and image resources.
+
+Use the listed screen-height switches with hysteresis in the engine LOD controller. Distances assume 60° vertical FOV and 1080p. Only one level draws per instance.
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 2,360 | 2 | 6 | 9,716,845 | 17.5030 |
+
+Stored placements count the resident alternatives; active draw calls are in the level table. [Verification and target witnesses](REVIEW.md). [Engine setup](../kit/LOD.md).
+<!-- LOD checkpoint meter-single: end -->
