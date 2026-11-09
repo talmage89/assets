@@ -62,8 +62,9 @@ def apply(preset='Atlantic',lights=False):
             power=mat.node_tree.nodes.get('Lamp power')
             if power:power.inputs[1].default_value=mat['lamp_strength'] if lights else 0
             else:bs.inputs['Emission Strength'].default_value=mat['lamp_strength'] if lights else 0
-    return dict(preset=preset,linear_tint=tint,metallic=json.loads(m['paint_metallic'])[preset],
-                method='shared baked RGB + coverage alpha * (factory tint - reference tint)',lights=lights)
+    method=('shared reference RGB + FactoryCoverage.G * tint delta; independent metallic coverage'
+            if m.get('lod_factory_coverage') else 'shared baked RGB + coverage alpha * (factory tint - reference tint)')
+    return dict(preset=preset,linear_tint=tint,metallic=json.loads(m['paint_metallic'])[preset],method=method,lights=lights)
 
 
 def eevee_glass():
