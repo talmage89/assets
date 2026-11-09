@@ -146,6 +146,14 @@ front −Y. glTF is +Y up, front +Z. Moving parts retain their local pivots:
   remain in authored Blender axes; convert them when using a glTF engine.
   Axis labels in extras also use Blender axes: Z becomes glTF Y; X stays X.
 
+To spell a new sign message, retain the case and horizontal tracks, remove
+the existing character quads, then instance one quad per non-space character
+using its rectangle from `letters.json`. Character centers are .137m apart;
+rows are .25m apart. Each .13 × .225m quad sits at local Y = −.1615m, with
+the existing transparent letter material. Center a line by subtracting half
+its character count from its column positions; spaces advance without a quad.
+Keep the original open-license atlas or regenerate it with `src/textures.py`.
+
 `Church_stained` retains the authored emissive color map with strength zero
 by day; the dusk preview sets strength 4.5. A game can drive that material's
 emissive intensity. The protective storm sheet is separate and non-emissive.
@@ -278,9 +286,9 @@ share most of their maps with the town. Body materials number 14/13, including s
 glass and shadow proxies. Fine grain/lead lives in maps, with causal vertex
 tint at wall bases, repaired patches and runoff. UV charts intentionally
 tile/reuse; this is not a unique lightmap unwrap or a no-overlap claim.
-The module hierarchy is retained for this checkpoint: 315/239 source glTF
-primitives before static batching. Those are mesh-definition counts;
-expanded site draw calls can be higher. Draw-call reduction remains later work.
+The module hierarchy and interactive pivots are retained. These packages
+need engine static batching and instance culling; mesh-definition counts
+are not expanded draw-call counts or a frame-rate claim.
 
 ## Rebuild and checks
 

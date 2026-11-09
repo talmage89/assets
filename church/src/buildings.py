@@ -74,7 +74,7 @@ def worn_tread(m,yy,z,index):
     rim=[*grid[0],grid[1][-1],*reversed(grid[2]),grid[1][0]]
     for a,b in zip(rim,rim[1:]+rim[:1]):
         m.geom([a,(a[0],a[1],0),(b[0],b[1],0),b],[(0,1,2,3)],'stone')
-    m.geom([(x,y,0) for x,y,_ in reversed(rim)],[tuple(range(len(rim)))],'stone')
+    m.geom([(-2.15,ys[0],0),(-2.15,ys[-1],0),(2.15,ys[-1],0),(2.15,ys[0],0)],[(0,1,2,3)],'stone')
 
 
 def services(parent,p):
