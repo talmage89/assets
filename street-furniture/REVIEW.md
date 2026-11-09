@@ -653,3 +653,21 @@ stores 6214 triangles, two material resources, twelve primitive placements,
 2916, 1935 or 1363 triangles in four calls. Texture residency remains the
 original shared 17.333 MiB; new images zero, added mesh buffers 288444 bytes.
 No existing package, accepted bench/meter geometry, map or docs JPG changed.
+
+### Intact shelter critique 1 — thin structure preserved, weak savings
+
+The original passes the new actual construction audit: six independent pads,
+six columns, slab and a rear-right pane ray. Every pad-bottom sample meets the
+actual slab within .000030 mm, and every column enters its own measured pad.
+The .05-pixel LOD trial measures 7730 -> 5958 triangles, goal 1160, at .09 /
+26.385 m. Its raw/UV/frame/normal, native-image, placement and support checks
+all pass; rear pane hit is unchanged on the actual geometry.
+
+Opened all three native strips, both close views and contact. Color/value first:
+roof and slab highlights, dark frame and cloudy glazing stay consistent. The
+roof ribs, columns, knee rails, bench straps and feet remain, without a detached
+or faded thin member. The close view reveals the original economical glazing
+and roof segmentation; this is not new look development. But 23% savings is a
+weak extra level. Archive this complete proof in shelter-pass1/ and try a
+cheaper .05 request with the normal .75-pixel allowance, retaining the 1160
+goal, original maps, original switches and all physical/image gates.
