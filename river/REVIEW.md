@@ -998,3 +998,37 @@ The first cellular texture probe looked like polygonal mosaic and was rejected;
 the revised crowns use rounded radial relief and fines between them. Neither
 probe is a final appearance approval. All five last-round fixes still require
 complete exported views, budget checks and a second critique before docs.
+
+## Pass 30 — six exported controls; freeze the remaining misses
+
+Color/value first: opened all six 1280px last-surfaces exports (101 pier,
+bearings, floodwall; 202 abutment, bar, riffle), against the previously opened
+concrete-balanced urban/underside and bank photographs. Gray concrete is an
+improvement over cream, but the first pore layer is oversized and graphic.
+Reduce its size/opacity. The bearing exposure remains bright and its girder
+faces too uniform. The first snag is light tan: darken bark and broken ends.
+Abutment algae incorrectly follows elevated soil height; confine green growth
+to water height and sample actual triangulated soil for splash darkening.
+
+The abutment has a much denser stone blanket, but its exposed facets remain
+too clean/light and ordered. Darken the gray/brown range, loosen the row jitter
+and retain fewer fracture corners to pay for coverage. The first combined
+export exceeds both the civil budget and 120 MB downtown package. The reduced
+core probe measures 52,095 reach and 64,548 site triangles; adding the previous
+measured complete water projects 148,441 civil triangles. That is a projection,
+not the final independent export measurement. The full clean check must gate it.
+
+The bar is visibly lighter, rounded and continuous rather than chips on mud.
+Its texture still resembles flat discs and repeats; its sand/silt lee and
+specific willow seedlings are incomplete. The first shared gravel field also
+turns ordinary exposed banks gray: retain brown silt there, using the same
+normal/ORM resources. No new image allocation. The wider riffle shows more
+standing trains and long foam, but its center/right is still too calm to call
+fully convincing fast water. The new log has taper, roots and twig packing;
+its bark/root anatomy remains simplified. Stop look changes after these bounded
+tone/classification and budget corrections. The optional town/paving work is
+not attempted. Deliver all five as partial fixes and name their CG cues.
+
+The six previews, earlier concrete controls and their receipts are retained
+under `../build/river-last-round/probes/` through the clean build. Finals must
+come from fresh complete exports and be judged separately before docs commit.

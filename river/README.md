@@ -17,6 +17,9 @@ Local full-size exported views: [downtown hero](renders/final/101/hero.png),
 [complete contact](renders/final/contact.jpg),
 [matched-light photo comparisons](renders/final-matches/contact.jpg),
 [before/after contact](renders/fixes/contact.jpg).
+The last round also has [21 fixed-camera comparisons to 56cce73](renders/last-fixes/contact.jpg),
+with 1280 native pixels per side. See **Known flaws** below for the fixes that
+remain partial; this is the family's final delivery round.
 All presentation imports external-image glTF. Embedded GLBs are inspection
 mirrors under `build/embedded/`, never the scene's high-detail source.
 
@@ -127,7 +130,7 @@ and bearing-contact checks. Loaders must support the required extensions.
 
 ## Materials and measured cost
 
-Ground's Asphalt, Concrete, Lawn and GroundTrim are reused without changes.
+Ground's Asphalt, Lawn and GroundTrim are reused without changes.
 Bridge concrete and galvanized parts use the landed freeway family's 2048
 Concrete and 1024 Zinc sets: 16MiB + 4MiB at 8bpp with full mips. Those images
 are shared external dependencies, not duplicate river allocations.
@@ -163,6 +166,27 @@ masks. No new image allocation is added for weather. Maintenance vertex
 tints use the kit's export-supported mix graph and are checked in the actual
 serialized COLOR_0 data. Quarry stone reuses the freeway's fine mineral field;
 its gray/brown variation and wet/algae tint come from fracture and water height.
+All local bridge, wall, stair and outfall concrete now uses the freeway set.
+Placement-owned COLOR_0 samples neutral cement, variation between pours,
+paste variation, basal splash/dampness and the high-water remnant. Form seams,
+ties and a small air-pore layer reuse the existing maintenance atlas; pores
+are alpha shading, not displaced cavities. The native freeway deliveries stay
+byte-identical. Concrete surface cells retain interpolated original UVs and
+split normals; fine wall detail stays in the atlas rather than a dense grid.
+
+Scour armor uses graded, staggered stone placements with buried lower halves,
+chinking stones, dirt at soil contact and wet/algae tint at normal water.
+Each stone retains up to eight extreme fracture corners to keep the continuous
+blanket affordable. The bar's rounded gravel crowns and fine seams live in the
+same 1024 bank/bed triple, with a small number of rounded silhouette cobbles.
+Dry crowns are lighter, the edge is wet/darker, the downstream lee samples a
+finer scale, and low vegetation cards occupy its upper edge. Other exposed
+banks retain brown silt using the same normal/ORM resources at reduced strength.
+Seven overlapping riffle chutes carry four standing crests each and 57 porous
+downstream foam streaks; the accepted calm-water material and light are retained.
+Snags have a tapered, bark-ridged trunk, root flare, torn ends and packed twigs,
+with water-height darkening. Their mineral micrograin reuses existing images;
+there is no additional bark or concrete texture allocation.
 The water continues to ±800m as one closed medium over a submerged bed.
 Internal closing planes are removed and their boundary vertices welded so
 they cannot refract as artificial dams. The water object's extras distinguish
@@ -266,6 +290,8 @@ make repeat                  # exact geometry/manifests and image identity; excl
 make check-texture-repeat     # independent 4096 GPU bank bake and exact static-image regeneration
 make render WIDTH=1280 SAMPLES=32
 make docs                    # validate current export receipts, collect finals, encode bounded JPGs
+python3 src/last_baseline.py  # recover missing 56cce73 controls from archived original scripts
+python3 src/last_evidence.py  # native-size latest comparisons; verifies camera/light/exposure
 make clean && make           # remove only this family's generated products and rebuild
 ```
 
@@ -291,10 +317,10 @@ normal must regenerate byte for byte. Its receipt is `build/texture-repeat.json`
 The critique log is [REVIEW.md](REVIEW.md). No kit or top-level index change.
 `build/delivery.json` records the 30 final export frames and five gallery
 hashes/sizes. Every frame was inspected at native size before gallery creation.
-The delivered scripts passed a clean build, final `make check`, an exact
-486-file `make repeat` including gallery encoding, and the independent 4096
-texture rebake with zero byte error in all five shipped maps. The repository
-check reports zero errors; all 633 existing delivery files remain byte-identical.
+The previous 56cce73 delivery passed a clean build, a 486-file exact repeat and
+an independent texture rebake. Current last-round verification is recorded in
+`build/check.json`, `repeat.json`, `texture-repeat.json`, `render-check.json`
+and `last-evidence.json`; the final REVIEW entry records their results.
 The regenerated [checkpoint report](build/checkpoint-report.md) links every
 requested fix to its views and lists per-piece/category memory and mesh reuse.
 Imported `_GROUND_TIP` attributes mark all buried rail-post ends for actual
@@ -357,7 +383,7 @@ Baseline eye clearances are measured on the imported accepted terrain in
 Both sides of every comparison must also pass the near-black image gate;
 the downtown riffle camera clears both versions of its shifted bank.
 
-## Credits and limits
+## Credits
 
 All geometry, masks, lettering, normal fields and pixels are original scripts.
 FDOT's Type III section, Tennessee's 1989–1996 I-beam interface drawings,
@@ -368,6 +394,34 @@ author, license and exact use. Photographs are viewed and measured only.
 Installed DejaVu fonts supply fictional county plaques; no real trademark is
 copied. The shared freeway, Ground, downtown, trees, shrubs, school context,
 street-sign and vehicle factories/images remain unchanged.
+
+## Known flaws
+
+- **Concrete — partial.** Gray cement, pour variation, panel marks, pores and
+  caused base/water staining replace the blank substrate. The pore layer has
+  no true depth; the girder webs and brightly exposed bearing seats remain
+  smoother and more uniform than forty-year-old photographed concrete.
+  Bearing rust, salt and leakage still rely on simplified atlas marks.
+- **Riprap — partial.** Placement is substantially denser and keyed into the
+  slope, with darker contact hollows. Large planar fractures, limited chinking
+  and residual placement rhythm still read as low-poly CG, especially in the
+  abutment macro. The coverage audit measures exposed stone, not a filter-bed
+  engineering specification or proof that every gap is filled.
+- **Bar — partial.** The bed is gravel rather than mud with chips, but the
+  rounded tile can read as flat repeated discs close up. Sorting is coarse,
+  and the lee is finer gravel rather than a complete sand/silt transition.
+  Upper cards are generic seedlings/grass; botanically specific willow
+  seedlings have not been built.
+- **Riffle — partial.** Roughening and foam cover more of the width. Their
+  analytic rows and fixed porous streaks remain orderly, and the center/right
+  can still look too calm at bank distance. It is not convincingly turbulent
+  across the entire river in every view.
+- **Drift snag — partial.** Taper, roots, broken ends, submerged darkening and
+  upstream twigs improve its construction. The trunk still lacks a dedicated
+  bark normal field; root forks, branch cuts and the wrack mat remain too stiff
+  and segmented for a natural snag macro.
+- **Optional town/paving changes were not pursued.** Roof and block rhythms,
+  broad lawn strips and simplified riverwalk joints/stains remain visible.
 
 The channel, wakes and standing waves are analytic, with fixed foam placement;
 they are not a hydraulic simulation. Runtime advection and depth shading need
