@@ -4,7 +4,7 @@ from geo import Assembly,orient,text
 from parts import wall_bay,window,cornice,column,front_door,steps
 
 
-def shell(a,name,rect,height,floor=.15,pitch=4.18,stories=1,brick=0,doors=True,modern=False,entry_face='Front'):
+def shell(a,name,rect,height,floor=.15,pitch=4.18,stories=1,brick=0,doors=True,modern=False,entry_face='Front',replaced=()):
     l,r,f,k=rect;w=r-l;d=k-f
     for face,p,yaw,length in [('Front',((l+r)/2,f,floor),0,w),('Rear',((l+r)/2,k,floor),180,w),('East',(r,(f+k)/2,floor),90,d),('West',(l,(f+k)/2,floor),-90,d)]:
         n=max(1,round(length/pitch));bw=length/n
@@ -21,7 +21,9 @@ def shell(a,name,rect,height,floor=.15,pitch=4.18,stories=1,brick=0,doors=True,m
                     orient(m,at,yaw);m.finish()
                     front_door(a,name+'_DoorL',(at[0]-.5025*math.cos(rad),at[1]-.5025*math.sin(rad),floor),.915,2.70,yaw)
                     front_door(a,name+'_DoorR',(at[0]+.5025*math.cos(rad),at[1]+.5025*math.sin(rad),floor),.915,2.70,yaw)
-                else:wall_bay(a,f'{name}_{face}_{story}_{j}',at,bw,hh,.70 if modern else .76,1.65 if modern else 1.3716,1.7 if modern else min(2.4384,hh-1.02),yaw,brick,modern)
+                else:
+                    replacement=face=='Front' and story==0 and j in replaced
+                    wall_bay(a,f'{name}_{face}_{story}_{j}',at,bw,hh,.70 if modern else .76,1.65 if modern else 1.3716,1.7 if modern else min(2.4384,hh-1.02),yaw,brick,modern or replacement)
         run=a.mesh(name+'_'+face+'_WaterTable',kind='WaterTable',weather=True)
         run.box((0,.16,floor/2),(length,.40,floor),'Concrete')
         if doors and face==entry_face:
@@ -63,7 +65,7 @@ def hip(a,name,rect,z,height=2.2,cupola=False):
 
 def hall(p):
     a=Assembly(p['program'].title()+'_'+str(p['seed']));w,d=p['width'],p['depth'];floor=p['floor'];top=floor+p['stories']*p['story_pitch']
-    shell(a,'Main',(-w/2,w/2,-d/2,d/2),top,floor,p['bay_width'],p['stories'],p['brick'])
+    shell(a,'Main',(-w/2,w/2,-d/2,d/2),top,floor,p['bay_width'],p['stories'],p['brick'],replaced=p['replaced_windows'])
     for side in (-1,1):
         q=a.mesh('CornerQuoins_'+str(side),kind='QuoinPier')
         for j in range(round((top-floor)/.42)):

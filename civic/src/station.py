@@ -99,7 +99,18 @@ def station(p):
     masonry.box((x0+p['bayblock']/2,y+.19,5.21),(p['bayblock'],.38,1.58),'Veneer',r=0)
     masonry.box((x0+p['bayblock']/2,d/2-.17,3.0),(p['bayblock'],.34,6.0),'Veneer',r=0)
     masonry.box((x0+.17,0,3),(.34,d-.68,6),'Veneer',r=0)
-    masonry.box((x0+p['bayblock']-.17,0,3),(.34,d-.68,6),'Siding',(.29,.28,.255),r=0);masonry.finish()
+    if p['office']:
+        masonry.box((x0+p['bayblock']-.17,0,3),(.34,d-.68,6),'Siding',(.29,.28,.255),r=0)
+    else:
+        # A compact station still has a pedestrian exit when the wing is omitted.
+        center=-4.5;half=.565
+        for aa,bb in ((y+.34,center-half),(center+half,d/2-.34)):
+            masonry.box((w/2-.17,(aa+bb)/2,3),(.34,bb-aa,6),'Siding',(.29,.28,.255),r=0)
+        masonry.box((w/2-.17,center,(6+z+2.75)/2),(.34,2*half,6-z-2.75),'Siding',(.29,.28,.255),r=0)
+        masonry.box((w/2-.17,center,z/2),(.34,2*half,z),'Concrete',r=0)
+        from parts import front_door
+        front_door(a,'Side_Door',(w/2,center,z),.915,2.70,90)
+    masonry.finish()
     for j in range(p['bays']):
         xx=x0+.4572+(j+.5)*bw
         overhead(a,'Bay_'+str(j+1),xx,y,z)
