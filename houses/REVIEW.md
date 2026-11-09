@@ -2443,3 +2443,25 @@ establish engine performance. The trial remains unwired pending the cost
 decision: its near mesh buffers are 4,967,832 / 4,961,820 bytes versus the
 original's 4,892,352, for only 2.24% / 2.36% triangle savings. They retain
 ten draws and allocate more geometry memory than LOD0.
+
+The complete trial is preserved as `src/lod-ranch-trial.json`, wired to no
+Make target. Its contents and payloads are unchanged by that filename move;
+`build/houses-lod/ranch-trial-report/` was generated from the current passing
+manifest without a failure waiver. This is a cost rejection, not a claim that
+an unsafe cheaper mesh visibly failed or that these counts are minimal.
+
+| Trial level | Triangles / target | Draws | Geometry bytes | Texture / mesh MiB | Switch |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Original | 55,228 / — | 10 | 4,906,874 | 27.3337 / 4.6657 | near |
+| Near | 53,990 / 30,375 | 10 | 4,981,701 | 27.3337 / 4.7377 | 30% / 16.53 m |
+| Middle | 53,926 / 13,807 | 10 | 4,975,687 | 27.3337 / 4.7320 | 12% / 41.32 m |
+| Proxy | 1,800 / 1,800 | 1 | 97,954 | 1.3334 / .0900 | 4.5% / 110.18 m |
+
+Near goals both miss; the proxy goal meets. Original/near dependency PNGs are
+7,277,844 bytes; the four 512-square proxy PNGs total 403,560. Stored costs:
+164,944 triangles, seven canonical materials, 31 primitive placements,
+22,643,620 distinct payload bytes and 42.8926 MiB, versus 31.9995 MiB for
+LOD0 alone. Only one level draws: ten submissions near, one at the proxy.
+No intermediate image is added. The two near buffers would cost 9.4697 MiB
+for negligible benefit. The useful far replacement will be proved separately;
+an engine must hold LOD0 while any door/slider differs from rest.
