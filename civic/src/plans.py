@@ -49,7 +49,7 @@ def site(seed=101):
             vehicle_crossings=[(29,36)],
             trees=[(-32,-19),(27,-22),(-32,8),(-30,34),(34,38),(17,9)],
             flags=[(-21,-19),(12,-20)],occupancy=.78)
-    return dict(seed=seed,kind='arterial',building=p,parcel=(-43,43,-32,34),
+    return dict(seed=seed,kind='arterial',building=p,parcel=(-26,43,-32,34),
         building_at=(-5,4,0),road_y=-41,road_width=15.0,
         lots=[dict(id='Staff',rect=(15,40,-3,26),rows=1,stalls=9,fenced=False)],
         walks=[(2.8,4.6,-32,-5),(4.6,17,-8,-6.2),(11,12.8,-6.2,-1.2),(10.5,15,-13.6,-8)],

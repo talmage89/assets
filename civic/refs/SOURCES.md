@@ -16,6 +16,8 @@ Images and PDFs are measurement/comparison inputs only. No reference pixels ente
 | habs-post-plan.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/nj/nj0600/nj0699/sheet/00001r.jpg | HABS NJ-357, Library of Congress; US government public domain | Sheet 1, elevations and half-size cornice / pilaster-cap details; earlier wood construction, used for molding hierarchy only |
 | hall-close.jpg | https://commons.wikimedia.org/wiki/Special:Redirect/file/Wareham_Town_Hall_with_sign.jpg | Kenneth C. Zirkel, 2020; CC BY-SA 4.0 | Independent photograph of the 1938 hall: entry-order / cornice comparison, cropped away from the modern sign |
 | station-period.jpg | https://upload.wikimedia.org/wikipedia/commons/3/3a/Fire_station_4_Columbus_IN.jpg | Mandy, 2008, CC BY 2.0; Commons license verified at upload | 1967 station by Venturi and Rauch: visible apparatus opening, modern brick/low roof and drying tower, viewed across apron; style comparison, not a reconstruction |
+| station-second.jpg | https://upload.wikimedia.org/wikipedia/commons/5/58/Fire_department%2C_Rushsylvania.jpg | Nyttend, 14 July 2009; public domain (Commons image metadata verified) | Clear color street view of three brick apparatus bays, piers, faded sectional doors and used apron; all twelve opening corners measured for the replacement pair; construction date unverified |
+| station-brick.jpg | https://upload.wikimedia.org/wikipedia/commons/1/1e/Fire_department_in_Zanesfield.jpg | Nyttend, 5 April 2010; public domain (Commons image metadata verified) | Secondary used-brick/open-bay, downspout, apron and grass reference; viewed only, not a camera pair |
 
 Additional primary sources, viewed online:
 

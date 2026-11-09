@@ -25,9 +25,9 @@ def landmarks(rows):return [dict(world=w,pixel=p) for w,p in rows]
 
 def main():
     images={};balances={}
-    for n,roi,d in [('hall',(2660,1450,2720,1490),'Sunlit pale foundation stone; approximate neutral, not a gray-card calibration'),
-                    ('station-period',(600,510,660,550),'White-painted masonry adjacent to the apparatus door; approximate neutral'),
-                    ('hall-close',(1630,1180,1680,1270),'White-painted column shaft, diffuse shade; approximate neutral')]:
+    for n,roi,d in [('hall',(800,1555,860,1567),'Sunlit concrete walk in front of the hall; approximate neutral, not a gray card'),
+                    ('station-second',(1160,1290,1250,1305),'Concrete apron in front of the middle bay; approximate neutral'),
+                    ('hall-close',(900,1638,980,1645),'Concrete sidewalk below the hall; approximate neutral')]:
         images[n],balances[n]=balance(n,roi,d)
     sp=site(101);p=next(p for p in cases() if p['seed']==707);x,y,_=sp['building_at'];l=x-p['width']/2;r=x+p['width']/2;f=y-p['depth']/2;top=p['floor']+p['stories']*p['story_pitch']+.63
     definitions={}
@@ -37,11 +37,15 @@ def main():
           ((l,f,0),(164*2.5,611*2.5)),((r,f,0),(1093*2.5,621*2.5))]
     definitions['hall-street']=dict(seed=707,building_only=True,title='1938 town hall / larger generator envelope',photo=images['hall'],crop=(250,800,2850,1650),
         location=(24,-49,1.72),target=(-6,-8,4.8),lens=42,lens_bounds_mm=(25,65),camera_height_m=(1.72,.6),landmarks=landmarks(rows))
-    # One genuinely visible 1967 opening; no whole-station reconstruction claim.
+    # Clear native-resolution color photo of three brick apparatus bays. Fit
+    # all twelve opening corners, rather than four corners in a blurred crop.
     sp=site(202);p=sp['building'];x,y,_=sp['building_at'];cx=x-p['width']/2+.4572+p['bay_width']/2;f=y-p['depth']/2;z=p['floor'];w=h=4.2672
-    rows=[((cx-w/2,f,z+h),(800,581)),((cx+w/2,f,z+h),(953,608)),((cx-w/2,f,z),(800,757)),((cx+w/2,f,z),(954,751))]
-    definitions['station-bay']=dict(seed=202,title='1967 station / overhead opening from street',photo=images['station-period'],crop=(725,530,1020,820),
-        location=(cx-5,f-13,1.72),target=(cx,f,2.25),lens=42,lens_bounds_mm=(25,70),camera_height_m=(1.72,.5),landmarks=landmarks(rows))
+    rows=[]
+    for j,box in enumerate([(704,934,1026,1262),(1103,940,1428,1267),(1503,947,1828,1270)]):
+        xx=cx+j*p['bay_width'];l,t,r,b=box
+        rows += [((xx-w/2,f,z+h),(l,t)),((xx+w/2,f,z+h),(r,t)),((xx-w/2,f,z),(l,b)),((xx+w/2,f,z),(r,b))]
+    definitions['station-bay']=dict(seed=202,title='Brick station / three sectional bays and apron from the street',photo=images['station-second'],crop=(600,830,1940,1380),
+        location=(cx+p['bay_width']-1,f-30,1.72),target=(cx+p['bay_width'],f,2.25),lens=42,lens_bounds_mm=(25,90),camera_height_m=(1.72,.5),landmarks=landmarks(rows))
     # This second photo is tight on the real entablature and the two outer
     # column axes. Six versus four columns remains an explicit style difference.
     p=site(101)['building'];top=p['floor']+p['stories']*p['story_pitch'];f=-p['depth']/2-2.7;x=-6

@@ -45,10 +45,8 @@ def context(seed):
         for j,(pos,yaw) in enumerate([((-52,2,0),90),((55,4,0),-90),((-8,60,0),0),((-4,-62,0),180),((-8,110,0),0),((104,10,0),-90)]):
             place(town,'NeighboringDowntownBlock_'+str(j),pos,yaw,parent=a.root)
     else:
-        for j in range(-4,5):
-            place(LOCAL/'build/context/house.glb','AcrossStreetRanch_'+str(j),(j*23,-63,-.01),180,parent=a.root)
-            place(LOCAL/'build/context/house.glb','RearRanch_'+str(j),(j*24,57,-.01),0,parent=a.root)
-        place(town,'ArterialShops',(72,-3,0),-90,parent=a.root)
+        from neighborhood import build
+        build(a,sp)
     # Delivered oak/maple and boxwood only; street and distant rows close above views.
     for j in range(-9,10):
         for yy in (-52,52):

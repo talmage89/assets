@@ -17,7 +17,7 @@ def receipt(path):
         assert hashlib.sha256(source.read_bytes()).hexdigest()==row['sha256'],(path,'Stale exported subject',source)
     if data.get('context_recipe_sha256'):
         source=Path(__file__).parent
-        current=hashlib.sha256(b''.join((source/n).read_bytes() for n in ('town.py','actors.py','library.py','sites.py','geo.py'))).hexdigest()
+        current=hashlib.sha256(b''.join((source/n).read_bytes() for n in ('town.py','neighborhood.py','actors.py','library.py','sites.py','geo.py','turf.py'))).hexdigest()
         assert current==data['context_recipe_sha256'],(path,'Stale town/actor recipe')
     return sources
 
