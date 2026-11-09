@@ -528,7 +528,7 @@ The side-entry apron faces the outer end. The carport apron is an attachment
 datum 130 mm outside the slab edge. The grade origin centers the wall footprint;
 stoop, patio, gutters and splash blocks are attachments. Meters, Blender +Z up,
 −Y front; glTF axis conversion is the same as for the colonial. Engines add
-collision, navigation, distance LODs and interaction; none is silently included.
+collision, navigation, LOD selection and interaction; none is silently included.
 
 ### Rebuilding and evidence
 
