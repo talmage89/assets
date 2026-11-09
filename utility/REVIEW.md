@@ -860,4 +860,48 @@ physical construction, raw/imported delivery and render-input validation.
 All 103 frozen tool hashes match; all 18 newly built source files and all
 1206 pre-existing delivery/texture/docs files retain their hashes. Repository
 check and diff whitespace check pass. Utility has no lod/check-lod targets.
+
+## Fixed-region adoption — Tangent, 2026-11-09
+
+Tool freeze `cc6cfee`; literal source/recipe hashes are in
+`build/lod-uv/freeze.sha256`. The originals are already built here and match
+the recorded package counts; the original frozen-input `make check` passes
+before adoption (`build/lod-uv/utility-original-before.json`). Source, map and
+docs bytes are covered by `build/lod-uv/originals.json`.
+
+### Tangent critique 1 — region fix, support failure
+
+Opened all three native strips, both construction views and contact. Color
+and value agree with the dark source timber; shaft, braces, porcelain and
+cable loop retain coverage. The new .5-pixel trial has 2828 triangles versus
+the old 1620, a 1208-triangle cost. Its guarded-chart crossings fall from 34
+to zero. Generic checks and images pass, but the independently measured brand
+support gap reaches 2.204 mm, above 1 mm. Reject it. Exact config, payload,
+images and hashes: `build/lod-uv/archive/utility/tangent-support-failure/`.
+
+### Tangent critique 2 — retain support at the original switch
+
+Restored the previously successful .05-pixel surface bound. Opened all three
+new native strips, both construction views and contact, then revisited the
+shaft and small label at native size. Values, taper and dark underside agree;
+the cable loop and braces remain. The close view still exposes original
+low-sided fittings and coarse timber detail, not close-view equivalence.
+The level is 2852/3632 triangles at .25 / 36.315 m, missing 1453. It costs
+260 triangles over the old safe 2592 trial, and 1232 over the rejected 1620
+chart-crossing trial. The cheaper new 2828 trial is a support failure, not a
+visual waiver or a claimed mathematical minimum. Maximum measured brand gap
+is .4331 mm and crossings are zero. All original RGB/alpha/local/IoU gates,
+re-import, source-field and tangent checks pass. The achieved saving is modest
+(21.5%); it allocates .2243 MiB of mesh and no image. Actual per-level and
+stored costs are in the measured README table. No material or map changes.
+
+The post-build original `make check` passes, including all seven unit tests,
+physical construction and source/import checks. `make check-lod` now includes
+the independent atlas/support audit and passes. All 30 utility delivery/map/docs
+files match the immutable receipt; all frozen tool hashes match. Final per-kind
+payloads, images and simplification receipt are archived in
+`build/lod-uv/archive/utility/tangent-final/`. The report contact is
+`build/lod-uv/utility-report/contact.jpg`; native judgment uses
+`renders/lod/tangent/`, not its reduced index. This is rest/source-field and
+actual support-gap proof, not an engine timing or continuous-motion claim.
 Its two rejected trials have no runtime residency or placement recommendation.

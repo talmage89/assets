@@ -94,3 +94,13 @@ repeat: export
 clean: clean-family
 clean-family:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('textures','export')]"
+
+# Additional checked kinds only; the original delivery graph is unchanged.
+LOD_CONFIGS := src/lod-tangent.json
+include ../kit/lod_rules.mk
+.PHONY: check-lod-atlas
+check-lod: check-lod-atlas
+check-lod-atlas:
+	@set -e; for lod_config in $(LOD_CONFIGS); do \
+		$(BP) --threads $(LOD_THREADS) --python src/check_lod_atlas.py -- --config "$$lod_config"; \
+	done
