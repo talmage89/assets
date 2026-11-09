@@ -2680,3 +2680,178 @@ deliveries, maps and docs are protected by `build/lod-uv/originals.json`.
 
 Family adoptions require their own frozen-tool images and checks. This fixture
 does not approve a pole, signal or sign, or predict its retained triangle cost.
+
+## Factory paint adapter control, 2026-11-09
+
+`490b6e8` adds an explicit `factory_paint: true` path for the delivered
+`reference_plus_coverage_delta` convention. The new transfer is disabled by
+default; the ordinary proxy path is unchanged. The source paint/coat/lamp decode is evaluated
+before transfer. One additional linear atlas stores AO / tint coverage / clean
+metallic coverage; a one-material proxy retains the original tint and metallic
+tables. Its runtime metallic decode preserves the nonpaint reference response.
+Family helpers opt into that graph only for the new coverage tag.
+
+The independent GPU fixture builds its own paint, metallic trim, glass and lamp
+boxes, bakes a proxy and evaluates installed color/metal fields through Cycles
+after five fresh imports. Maximum measured linear component error is .001557;
+all three nonpaint probes have zero tint/metallic coverage. Both lamp states
+route. The fixture preserves source dependencies and measures one material/draw.
+One 512 map adds 349,552 compressed-mip bytes (.333 MiB); the car proxy uses
+eight 512 maps / 2.667 MiB altogether. No intermediate image is introduced.
+
+This is a contract proof, **not a passing car adoption**. The H120 source was
+rebuilt with its original family `make` before the control. All five presets
+execute on LOD0 and the proxy in ten fresh imports of the actual delivered
+decoder. The old control still raises `StopIteration` for every proxy preset.
+The unchanged old control also reproduces its recorded native RGB errors.
+
+Opened all six new native strips (three old-control and three adapter views),
+their differences, four construction views and both contacts. Color/value first:
+the reference-preset blue body remains recognizable, but the proxy loses the
+windshield's broad pale cabin band and changes front lamps and rear window/trim
+response. The adapter control uses 512 render samples, a fourfold bake filtered
+to 512, and no image-limit override. At .04 / 43.2px / 32.5845m its 2,498/2,500
+triangles meet the count, while means .060548/.033157/.031670 and p95
+.270588/.168627/.207843 fail .02/.08. Local patches also fail; coverage passes.
+Even the reference preset, with zero tint delta, fails. Tint coverage alone
+cannot repair those existing optical differences.
+
+Full `check-lod` returns 2 with only the rendered-difference error; the independent
+normal audit, topology, fresh-import and immutable-source checks pass. No new
+car chain is adopted. The brief's adapter gate stops the S240, X220 and full
+H120 adoptions and pickup re-adoption. Detailed two-pass critique and measured
+costs are in `cars/REVIEW.md` and `cars/README.md`. Native evidence is
+`cars/renders/lod/hatch-adapter/` and `hatch-proxy-control/`; generated reports
+are under `build/car-lod/adapter-report/` and `control-report/`.
+
+The literal pre-change kit archive matches `1d9d429`. The opt-in implementation's
+source/recipe freeze is `build/car-lod/freeze.sha256`; all recorded entries still
+match. All **35 kit test files pass** in one serial clean-fixture run, including
+the new factory fixture and existing GPU proxy/frame/transfer fixtures. The run
+took 1366 seconds; commands, exits and tested source hashes are in
+`build/car-lod/tests/results.json`. No runtime source changed afterwards.
+
+Opt-out byte proof is **incomplete**, not a blanket compatibility approval:
+
+- Cone: both full builds complete; every glTF/BIN/PNG matches byte for byte.
+  The manifest differs only in its honest tool hashes.
+- Maple: all ten payload files in the default 11,840/4,736/8-triangle chain match
+  byte for byte. Its default manifest matches after removing tool receipts and
+  optional alternatives. The optional camera-facing billboard fails strict byte
+  equality: one channel of one pixel differs by 1/255, inherited from sector 0
+  of the fresh capture. The fixed crossed atlas is byte-identical. The origin of
+  that single-pixel variation is not isolated, and it is not waived as a pass.
+- Pickup: the frozen cold build exceeded about one hour without completing
+  LOD1. It was stopped with SIGTERM under the car time budget, preserving genuine
+  completed reduction caches. No complete baseline/current pickup comparison is
+  claimed. The full baseline phase, including cone/maple, took 3785 seconds.
+
+Exact comparison receipts are `build/car-lod/optout-proof.json`,
+`tree-default-proof.json`, `tree-pixel-differences.json` and
+`pickup-regression-incomplete.json`. Every pre-existing delivery/map/image file
+in the 2,996-file ledger remains byte-identical. The original H120 `make check`
+passes after both controls, with explicit frozen inputs. Repository and diff
+checks pass. `build/car-lod/final-audit.json` deliberately reports
+`car_image_checks_passed: false`, `compatibility_proof_complete: false` and no
+car adoptions. These remaining failures prevent calling the adapter/adoptions
+complete; no new car delivery or documentation image is committed.
+
+## Maple repeat proof, 2026-11-09
+
+Four fresh 32-view camera-facing atlas builds isolate the optional maple
+variation: two with every archived Python source verified literally against
+`1d9d429`, then two with the accepted factory adapter. All four commands finish
+successfully, serially through the GPU lock, with four Blender threads. The
+source GLB SHA-256 is unchanged. Each output directory starts empty, so no
+capture cache can approve this comparison.
+
+The frozen pair differs in three pixels/channels, each by one 8-bit code;
+the current pair differs in two, also by one code. Frozen run 1 and current
+run 2 are byte-identical (atlas SHA-256 beginning `6f419578596f30c4`). Thus the
+frozen tool alone varies, and the previously reported one-code optional-atlas
+difference is a pre-existing bake variation, not evidence of an opt-out change.
+The fixed crossed maple payload and cone regression remain byte-identical,
+including manifest semantics except the required tool-source receipt. Literal
+optional atlas byte determinism is not claimed. The pickup's hour-long full
+baseline remains explicitly skipped at the lead's request.
+
+Commands, all four full atlas hashes, pairwise pixel counts and source hash:
+`build/car-lod/maple-proof/proof.json`; capture images and logs are alongside.
+No runtime or accepted delivery bytes changed for this proof.
+
+## Optional proxy glass partition — independent proof, 2026-11-09
+
+`50856ff` adds `separate_transmission: true`; `31fc324` retains a source glass
+coating when one exists. Both are opt-in. The second proxy material shares
+the atlas, carries source glass culling/IOR and switchable spatial emission,
+and receives only facets whose padded UV rectangle has zero paint tint and
+metallic derivatives. Mixed facets stay on the factory decoder material.
+Geometry, oriented corner fields and UVs remain exact across the partition.
+This adds one material/color-pass draw, no map or triangle; boundary vertex
+records and index/accessor packaging can add measured mesh bytes.
+
+The new test independently checks a mixed paint/glass facet, exact position,
+normal, UV and color data, source culling/IOR, and retained native coating.
+A real supersampled 128-square bake then measures 48 triangles, two materials,
+two draws and the same eight maps. Five fresh imports execute all paints and
+both lamp states; glass has no factory-delta graph. This is interface/field
+proof, not approval of a car's optical appearance or missing cabin geometry.
+Native car image gates remain unchanged and independently required.
+
+All **36** `kit/test_*.py` files pass serially from fresh fixture folders,
+including the new GPU test and the existing immutable-source proxy, source
+frame, factory paint, UV and material tests: 1,414.2 seconds in total.
+`build/car-lod/round2/tests/results.json` records every command, exit, timing
+and complete tested source hashes. Genuine pre-existing reduction caches were
+archived for the clean run and restored afterward; no cache bypasses a field,
+geometry or appearance check.
+
+Fresh current-tool opt-out builds match the saved literal `1d9d429` baseline:
+all seven cone game payloads and all ten fixed-maple game payloads are byte
+identical. Both default manifests match except the required tool receipts.
+The optional maple sector-0/camera-facing atlas retains the already isolated
+pre-existing one-code variation; it is not called byte deterministic. Full
+receipts: `build/car-lod/round2/optout/proof.json`. The full pickup baseline
+remains skipped as requested. No result here approves an unfinished car chain.
+
+## Fixed UV integration closeout, 2026-11-09
+
+The fixed-domain work adopts six utility pole kinds, three signal assemblies
+and eight sign kinds. Each has its own two-pass native review, immutable-source
+receipt and public config; uneconomic controls remain unwired. Measured kind
+tables and remaining holds are in the three family READMEs/reviews.
+
+During closeout, main advanced to `39a466d`. Its factory/optics implementation
+is retained literally; only the conflicting tool-digest list is combined with
+the UV-domain module. The original `cc6cfee` adoption freeze is retained as
+historical evidence. The integration freeze records 109 literal source/recipe
+hashes in `build/lod-uv/integration/freeze.sha256`; every entry matches after
+the complete proof. No runtime file changes after that freeze.
+
+All 37 kit test files pass serially from fresh fixture folders, including eight
+GPU test files through the shared lock: 1413.3 seconds. Per-command exits and
+timings are in `build/lod-uv/integration/all-tests.json`, with raw CPU/GPU logs
+alongside. Genuine production reduction caches are restored after testing.
+
+All 17 adopted chains plus cone, hydrant and bench rebuild under the combined
+tool. Every one of their 54 glTF/BIN/shipped-map payload files is byte-identical;
+all 20 complete manifests match except honest tool-source receipts. The earlier
+pre-fix/default comparison remains in `build/lod-uv/compatibility.json`.
+Integration receipt: `build/lod-uv/integration/comparison.json`.
+
+The 303 native proof files are accounted separately: 179 file hashes change,
+143 of those decode identically, and 23 raw renders change only one or two
+channels by one 8-bit code. Derived amplified differences/JPEGs also change.
+Affected native/close views are reopened and all unchanged image gates pass;
+literal render-file byte determinism is not claimed. All 20 full `check-lod`
+runs pass after generating the three legacy chains' locally missing renders.
+
+The three original frozen-input family checks pass again after integration
+(`build/lod-uv/integrated-originals.json`). Their source receipts match, as does
+the 1251-file original export/map/docs ledger. Repository check and the branch
+diff against main pass. The root README and incoming car/proxy files are left
+unchanged relative to main. Current reports/contacts are under
+`build/lod-uv/{utility,signals,street-signs}-final-report/`. Counts remain above
+their goals; this conservative lock is not a minimum-triangle or engine timing
+claim. Cabinet interaction still holds LOD0, and no phase-timing or flexible-wire
+simulation approval is inferred from rest images and state-field checks.

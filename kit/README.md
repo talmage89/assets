@@ -929,6 +929,12 @@ single blend/render-stamp behavior remains compatible with existing families.
 
 ## Additional LOD chains (opt-in)
 
+The optional [factory paint adapter](LOD.md#optional-factory-paint-transfer)
+retains coverage-delta presets and independent metallic/lamp routing on a
+one-draw proxy, using one extra linear map. Existing configs do not enable it.
+An independent `separate_transmission` opt-in adds a second material/draw for
+paint-free glass, sharing the same atlas and preserving source culling/IOR.
+
 The existing delivery is immutable LOD0. New levels use separate core glTF/BIN
 files and a manifest; `lod_rules.mk` adds opt-in `make lod` / `make check-lod`
 without changing any default build/check dependency graph. See [LOD.md](LOD.md)

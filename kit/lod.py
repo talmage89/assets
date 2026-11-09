@@ -20,9 +20,9 @@ from kit.lod_io import Document, digest, distance, residency, shared_material_bi
 
 
 def tool_digests():
-    names=('lod_shading.py','lod_constraints.py','lod_shared.py','lod_regions.py','lod_shells.py','lod.py','lod_io.py','lod_foliage.py','lod_mesh.py','lod_scene.py','lod_layout.py','lod_gpu.py','lod_atlas.py','lod_transfer.py','lod_impostor_fit.py','lod_impostor.py','lod_render.py','foliage.py',
+    names=('lod_factory.py','lod_shading.py','lod_constraints.py','lod_shared.py','lod_regions.py','lod_shells.py','lod.py','lod_io.py','lod_foliage.py','lod_mesh.py','lod_scene.py','lod_layout.py','lod_gpu.py','lod_atlas.py','lod_transfer.py','lod_impostor_fit.py','lod_impostor.py','lod_render.py','foliage.py',
            'detachable_textures.py','detachable_verify.py','image_io.py','downsample.py')
-    return {name:digest(ROOT/'kit'/name) for name in names}
+    return {name:digest(ROOT/'kit'/name) for name in ('lod_optics.py',*names)}
 
 
 def image_limits(cfg,level):
@@ -40,6 +40,9 @@ def image_limits(cfg,level):
 
 def configuration(path):
     path=Path(path).resolve();cfg=json.loads(path.read_text());root=path.parent.parent
+    for option in ('factory_paint','separate_transmission'):
+        if option in cfg and type(cfg[option]) is not bool:
+            raise ValueError(option+' must be an explicit boolean opt-in')
     levels=cfg['levels']
     if not levels or any(not 0<x['ratio']<1 or not 0<x['screen_height']<1 for x in levels):
         raise ValueError('Levels need positive ratios and screen heights below one')
@@ -209,6 +212,10 @@ def build(config):
             recipe=dict(input_dependencies=Document(temp).dependencies(),source_dependencies=Document(source).dependencies(),
                         shading_sha256=digest(ROOT/'kit/lod_shading.py'),baker_sha256=digest(ROOT/'kit/lod_atlas.py'),layout_sha256=digest(ROOT/'kit/lod_layout.py'),transfer_sha256=digest(ROOT/'kit/lod_transfer.py'),filter_sha256=digest(ROOT/'kit/downsample.py'),
                         proxy=bool(spec.get('proxy')),composite_alpha=bool(spec.get('static_shell')),size=spec.get('texture_size',2048),projection_m=max_error*2,atlas_sampling=spec.get('atlas_sampling'),supersample=spec.get('bake_supersample',1))
+            factory_paint=bool(cfg.get('factory_paint') and spec.get('proxy'))
+            if factory_paint:recipe.update(factory_paint=True,factory_sha256=digest(ROOT/'kit/lod_factory.py'))
+            separate_transmission=bool(cfg.get('separate_transmission') and spec.get('proxy'))
+            if separate_transmission:recipe.update(separate_transmission=True,optics_sha256=digest(ROOT/'kit/lod_optics.py'))
             valid=False
             if cache.exists() and path.exists():
                 old=json.loads(cache.read_text())
@@ -218,7 +225,7 @@ def build(config):
                 from kit.lod_atlas import bake as bake_atlas
                 baked=Document(temp)
                 with locked():bake_atlas(baked,source,path,spec.get('texture_size',2048),
-                    proxy=bool(spec.get('proxy')),projection_m=max_error*2,composite_alpha=bool(spec.get('static_shell')),atlas_sampling=spec.get('atlas_sampling'),supersample=spec.get('bake_supersample',1))
+                    proxy=bool(spec.get('proxy')),projection_m=max_error*2,composite_alpha=bool(spec.get('static_shell')),atlas_sampling=spec.get('atlas_sampling'),supersample=spec.get('bake_supersample',1),factory_paint=factory_paint,separate_transmission=separate_transmission)
                 baked.save(path)
                 report=json.loads(cache.read_text());report['recipe']=recipe;cache.write_text(json.dumps(report,indent=2)+'\n')
         else:

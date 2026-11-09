@@ -23,7 +23,7 @@ from kit.lod import configuration,image_limits
 from kit.lod_io import Document,digest
 
 
-def setup(source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=False,elevation=0,samples=None):
+def setup(source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=False,elevation=0,samples=None,factory_paint=False):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(source),import_pack_images=False)
     mesh_names={n.get('name') for n in Document(source).data['nodes'] if 'mesh' in n}
@@ -43,6 +43,9 @@ def setup(source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=
     if not foliage:
         from kit.lod_shading import restore
         shading_receipt=restore(Document(source))
+    if factory_paint:
+        from kit.lod_factory import apply
+        apply(lights=True)
     sc=bpy.context.scene;sc.render.engine='CYCLES'
     if not foliage:sc['lod_delivered_frame']=json.dumps(shading_receipt)
     from kit import gpu
@@ -92,8 +95,8 @@ def setup(source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=
     return sc
 
 
-def render(path, source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=False,elevation=0,samples=None):
-    sc=setup(source,bounds,azimuth,dist,size,include,foliage,elevation,samples)
+def render(path, source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=False,elevation=0,samples=None,factory_paint=False):
+    sc=setup(source,bounds,azimuth,dist,size,include,foliage,elevation,samples,factory_paint)
     sc.render.filepath=str(path);bpy.ops.render.render(write_still=True)
     return np.asarray(Image.open(path).convert('RGBA'),dtype=np.float32)/255
 
@@ -133,7 +136,7 @@ def main():
     close_extent=construction_extent(span)
     from functools import partial
     samples=cfg.get('render_samples',128 if foliage else 24)
-    draw=partial(render,samples=samples)
+    draw=partial(render,samples=samples,factory_paint=bool(cfg.get('factory_paint')))
     items=m['levels']+[a for r in m['levels'] for a in r.get('alternatives',[])]
     for row in items:
         path=out/row['path'];li=row['level']

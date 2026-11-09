@@ -201,7 +201,7 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=16384,*,cov
         layer=data.uv_layers.new(name='LOD_TransferBake');layer.data.foreach_set('uv',uv.astype(np.float32).ravel());data.uv_layers.active=layer;layer.active_render=True
         ob=bpy.data.objects.new('LOD nearest source patches',data);scene.collection.objects.link(ob);ob.select_set(True);ob.hide_render=False;bpy.context.view_layer.objects.active=ob
         result={}
-        for channel in (['Coverage'] if coverage else [])+[k for k in ('Alpha','BaseColor','ORM','Emission','Transmission','Clearcoat','CoatNormal','Normal') if k in arrays]:
+        for channel in (['Coverage'] if coverage else [])+[k for k in ('Alpha','BaseColor','ORM','Emission','Transmission','Clearcoat','CoatNormal','Normal','Factory') if k in arrays]:
             route(channel+'Field' if channel in ('Normal','CoatNormal') else channel)
             im=bpy.data.images.new('LOD nearest '+channel,width=patch_size,height=patch_size,alpha=True,float_buffer=True);im.colorspace_settings.name='Non-Color'
             for material,node,old in bake_nodes:node.image=im;material.node_tree.nodes.active=node
