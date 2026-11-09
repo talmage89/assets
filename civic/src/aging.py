@@ -45,14 +45,15 @@ def walls(a,p):
             ('east',(w/2+.003,-d/2,0),(0,1,0),12.192)]
     for face,origin,u,length in faces:
         phase=rng.uniform(0,6);vertical=(0,0,1)
-        # Splash occurs below 0.45m; the irregular edge does not make a band.
-        patch(a,'RainSplash_'+face,origin,u,vertical,length,.55,(.075,.063,.038),
-            lambda s,t:.55*max(0,1-t/(.45+.35*math.sin(s*19+phase)**2))*(.45+.55*math.sin(s*31+phase)**2),nx=round(length/.45),ny=5)
+        # Wet soil splashes onto the raised base; alternating dry/mossy areas
+        # terminate at different heights instead of drawing a horizontal band.
+        patch(a,'RainSplash_'+face,origin,u,vertical,length,.80,(.048,.043,.027),
+            lambda s,t:.79*max(0,1-t/(.52+.35*math.sin(s*19+phase)**2))*(.55+.45*math.sin(s*31+phase)**2),nx=round(length/.45),ny=5)
         if face!='front' or p['program']!='station':
             o=Vector(origin)+Vector((0,0,top-1.35))
-            leaks=[(rng.uniform(.025,.975),rng.uniform(.008,.027),rng.uniform(.24,.52),rng.uniform(.25,.65)) for _ in range(rng.randint(6,10))]
+            leaks=[(rng.uniform(.025,.975),rng.uniform(.010,.032),rng.uniform(.40,.76),rng.uniform(.16,.65)) for _ in range(rng.randint(6,10))]
             def runoff(s,t,leaks=leaks):
-                return .055*t**4+sum(strength*math.exp(-((s-center)/width)**2)*max(0,(t-end)/(1-end))**.55 for center,width,strength,end in leaks)
+                return (.16+.08*math.sin(s*17+phase)**2)*t**4+sum(strength*math.exp(-((s-center)/width)**2)*max(0,(t-end)/(1-end))**.55 for center,width,strength,end in leaks)
             patch(a,'CorniceShelterAndWash_'+face,o,u,vertical,length,1.35,(.050,.049,.036),
                 runoff,nx=round(length/.35),ny=8)
         # Damp masonry discharges salts in distinct low patches near drains.
@@ -69,7 +70,7 @@ def walls(a,p):
         angle=math.radians(ob['weather_yaw_degrees']);axis=Vector((math.cos(angle),math.sin(angle),0));normal=Vector((math.sin(angle),-math.cos(angle),0))
         for side in (-1,1):
             if rng.random()<.18:continue
-            length=rng.uniform(.55,1.10);width=rng.uniform(.22,.41);strength=rng.uniform(.34,.52)
+            length=rng.uniform(.75,1.55);width=rng.uniform(.25,.46);strength=rng.uniform(.49,.72)
             center=Vector(ob['weather_origin_m']);center.z-=length+.15
             o=center+axis*(side*(ob['weather_width_m']/2+width/2+.015)-width/2)+normal*.003
             patch(a,'SillRunoff_'+ob.name+str(side),o,axis,(0,0,1),width,length,(.083,.078,.050),
@@ -82,7 +83,7 @@ def walls(a,p):
         m=a.mesh('BlockWallScupper',kind='Scupper',trim_strip=2)
         m.box((xx+.16,yy,5.88),(.35,.32,.12),'Trim',(.22,.23,.20));m.finish()
         patch(a,'BlockScupperRunoff',(xx+.004,yy-.6,2.4),(0,1,0),(0,0,1),1.2,3.37,(.058,.067,.044),
-            lambda s,t:.45*math.exp(-((s-.5)/(.095+.16*(1-t)))**2)*t**.35,nx=8,ny=16)
+            lambda s,t:.76*math.exp(-((s-.5)/(.095+.16*(1-t)))**2)*t**.35,nx=8,ny=16)
     guard_openings(a)
 
 

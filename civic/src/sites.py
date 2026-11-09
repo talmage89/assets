@@ -36,7 +36,7 @@ def ground(a,name,rect,kind='Lawn',z=0,slope=None,grade=None):
     c=ob.data.color_attributes['Tint']
     for li,loop in enumerate(ob.data.loops):
         q=ob.data.vertices[loop.vertex_index].co
-        if kind=='Lawn':rgb=(.74,.78,.63);fac=.9+.1*math.sin(q.x*.34+q.y*.18)*math.sin(q.y*.63)
+        if kind=='Lawn':rgb=(.54,.62,.46);fac=.86+.14*math.sin(q.x*.34+q.y*.18)*math.sin(q.y*.63)
         elif kind=='Asphalt':rgb=(.72,.73,.72);fac=.97+.035*math.sin(q.x*.4+q.y*.25)
         else:rgb=(.91,.90,.86);fac=.965+.04*math.sin(math.floor(q.x/3.048)*2.1+math.floor(q.y/3.048)*3.8)
         c.data[li].color=(*(v*fac for v in rgb),1)

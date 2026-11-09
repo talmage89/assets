@@ -103,14 +103,17 @@ class Mesh(H.Mesh):
                     kind=self.props.get('kind')
                     if kind in ('TuscanColumn','Pilaster'):
                         base=self.props.get('uv_origin_z',0);height=top-base
-                        splash=.48*math.exp(-max(0,q.z-base)/.24)
-                        shelter=.19*math.exp(-abs(top-.15-q.z)/.14)
+                        splash=.68*math.exp(-max(0,q.z-base)/.38)
+                        shelter=.28*math.exp(-abs(top-.15-q.z)/.19)
                         chalk=.94+.045*math.cos(q.x*3+q.y*2)
                         factor=chalk*(1-splash-shelter)
                     elif role=='Concrete':
                         # Stone in sheltered molding returns retains soot;
                         # exposed upward ledges wash lighter under rainfall.
-                        factor*=.74 if f.normal.z<-.4 else .93
+                        factor*=.61 if f.normal.z<-.4 else .86
+                        # Rain-washed top edges stay brighter than sheltered
+                        # molding faces; grime remains within the stone hue.
+                        factor*=.89+.065*math.sin(q.x*.83+q.y*.47)**2
                 if role=='Veneer':
                     origin=self.props.get('uv_origin_z',0)
                     strip=self.props.get('brick_strip',0);k=math.floor((low-origin+1e-6)/1.2192)
@@ -150,8 +153,12 @@ def masonry_value(a,value):
         if not tint:continue
         for face in ob.data.polygons:
             if ob.data.materials[face.material_index].name!='Civic_Veneer':continue
+            # Different exposures and repair histories give each facade its
+            # own masonry value. This is reflectance, independent of sunlight.
+            n=face.normal
+            exposure=.93 if n.y<-.5 else .78 if n.y>.5 else .85 if n.x<0 else 1.0
             for li in face.loop_indices:
-                c=tint.data[li].color;tint.data[li].color=(c[0]*value,c[1]*value,c[2]*value,c[3])
+                c=tint.data[li].color;tint.data[li].color=(*(c[k]*value*exposure for k in range(3)),c[3])
 
 
 def orient(m,p,yaw):

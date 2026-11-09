@@ -26,10 +26,10 @@ def finish(a,sp,cuts):
             margin=min([min(abs(x-aa),abs(x-bb)) if cc<y<dd else 99 for aa,bb,cc,dd in cuts]+
                 [min(abs(y-cc),abs(y-dd)) if aa<x<bb else 99 for aa,bb,cc,dd in cuts])
             dry=min(.85,dry+.22*math.exp(-(margin/.38)**2)*(.55+.45*math.sin(x*.7+y*.9)**2))
-            moisture=.88+.08*math.sin(x*.21+y*.13+sp['seed'])+.04*math.sin(y*.51-x*.32)
-            shade=min(.42,sum(.25*math.exp(-((x-tx-1.7)**2+(y-ty-1.2)**2)/22) for tx,ty in trees))
+            moisture=.82+.13*math.sin(x*.21+y*.13+sp['seed'])+.05*math.sin(y*.51-x*.32)
+            shade=min(.56,sum(.38*math.exp(-((x-tx-1.7)**2+(y-ty-1.2)**2)/22) for tx,ty in trees))
             grain=.94+.04*math.sin(x*2.3+y*.77)+.02*math.sin(y*3.1-x*.9)
-            rgb=(.57*(1+dry*.44),.76*(1-dry*.42),.75*(1-dry*.36))
+            rgb=(.53*(1+dry*.44),.61*(1-dry*.48),.50*(1-dry*.42))
             attr.data[loop.index].color=(*(c*moisture*grain*(1-shade) for c in rgb),1)
         ob.data.update()
     def grass(x,y):
