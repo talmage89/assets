@@ -2454,3 +2454,42 @@ The original remains **24,816 triangles**, two materials/two draws, three
 and shipped-map hashes are in `build/oak-lod-continued/immutable-source.json`.
 This authorizes using the rebuilt original for LOD review; no historical byte
 identity, source-script edit or relaxed appearance gate is claimed.
+
+## Oak LOD critique pass 1 — reject the middle coverage jump
+
+The frozen tool is `87ff8bf`, recorded before the oak build with all 111
+literal tool/rule/recipe hashes. The initial config copies the maple's card
+handling, enlargement exponents, density allocation and 8% / 3.2% / 1.5%
+switches, using separate oak output/render folders. Branches simplify
+separately; no new intermediate image or shader is authored.
+
+`make -C trees SPECIES=oak lod LOD_THREADS=4` completes. Opened all 32 own
+capture views, five construction images and all twelve native three-azimuth
+strips with their original, preceding-level and amplified-difference panels.
+**Color/value first:** crown greens and shadow depth stay consistent with the
+immutable delivered LOD0 under identical lighting. This is an appearance
+transfer comparison, not a new photographic white-balance calibration.
+The construction views show larger cards at LOD2; the fixed impostor forms
+an obvious planar star from above. The camera-facing alternative is softer.
+These are distance representations, not close/elevated replacements.
+
+LOD1 is **12,408 / 12,408 triangles** and passes every gate at 8%.
+LOD2 is **4,962 / 4,963**, but fails the unchanged .05 alpha gate at 3.2%:
+front original/adjacent errors **.050888 / .052477**, side original **.050238**.
+Its integrated alpha is 1.98% / 2.62% / 3.15% above LOD0; the mismatch is
+slight excess coverage and changed fine gaps, not a missing crown.
+All middle RGB/local/silhouette gates pass. Both eight-triangle fixed and
+two-triangle camera-facing far versions pass at 1.5%, against LOD0 and LOD2.
+
+`make -C trees SPECIES=oak check-lod LOD_THREADS=4` returns **2**, solely for
+rendered differences. Topology, fresh import, original material/maps,
+source receipt and the independent exact leaf UV/bent-normal/Wind audit pass.
+No passing numeric near result is misreported as a complete chain.
+The failed config, complete source and level payloads, every native image,
+raw/normal reports and logs are archived with hashes in
+`build/oak-lod-continued/pass1/`. Its config remains directly inside the
+archived `trees/src/`, so the frozen tool can recheck the actual witness.
+
+Retain the passing 8% near and 1.5% far switches. Test only the middle switch
+at **3.0%**, retaining the same requested ratios, card policies and image
+limits. The old-distance failure is preserved before replacing its outputs.
