@@ -1,0 +1,32 @@
+{
+  "kind": "postwar Cape Cod seed 36: far proxy",
+  "source": "export/HearthfieldCape-36.gltf",
+  "output": "export/lod/cape-36-proxy",
+  "renders": "renders/lod/cape-36-proxy",
+  "readme_key": "cape-36",
+  "readme_title": "Additional LOD — Cape Cod seed 36",
+  "readme_level": 3,
+  "readme_before": "\n## Fourth type:",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 512,
+  "levels": [
+    {
+      "ratio": 0.05,
+      "screen_height": 0.03,
+      "proxy": true,
+      "target_triangles": 1800,
+      "texture_size": 512,
+      "min_projected_coverage": 0.97,
+      "atlas_sampling": {
+        "surface_texels_per_pixel": 1,
+        "graphic_texels_per_pixel": 4
+      },
+      "bake_supersample": 4,
+      "proxy_remesh": {
+        "voxel_pixels": 0.5,
+        "inflation_pixels": 0.3
+      }
+    }
+  ]
+}

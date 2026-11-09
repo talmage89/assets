@@ -2642,3 +2642,21 @@ The next control keeps 3% and changes only the public
 `min_projected_coverage` option to .97, testing whether envelope merging
 fills small window recesses. This is a geometry-control hypothesis, not a
 claim that the cause has been isolated or permission to change any image gate.
+
+### Cape LOD critique pass 3 — opening coverage is insufficient
+
+Opened the .97-coverage control's three native strips, six raw-PNG inspection
+pages, both construction views and contact. Color/value still fails at the
+front window/trim fields; the close view retains false pale window triangles.
+Front mean/p95/local are .033172/.133333/.089777; side
+.022863/.097093/.084838; rear .013498/.043137/.028039. Coverage improves
+slightly (maximum alpha .026345, IoU .029586), but that does not fix color.
+The count remains 1,800/1,800 and the complete check returns 2 only for images.
+
+Archived `src/lod-cape-coverage030-trial.json`, package, metrics, checks,
+maps and raw/native images under `build/houses-lod/cape-coverage030/`.
+Its failed measured report is `cape-coverage030-report/` alongside. No chain
+is adopted and no limit changes. The last bounded trial moves to 2% / 21.6px,
+keeps .97 coverage and uses a finer quarter-pixel grid with .15-pixel inflation.
+It tests a smaller far silhouette with less envelope expansion; a failure
+will end this type's attempt rather than authorize a general tool edit.
