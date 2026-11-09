@@ -2368,7 +2368,20 @@ Stopped at the brief's adapter gate. S240, X220 and the full H120 chain are
 not attempted; pickup re-adoption is deferred with them. The missing cabin
 band and changed optical response require more than carrying factory fields.
 Neither counts nor a mathematical decoder proof approves the proxy's look.
-Full kit/opt-out regression closeout is recorded separately after completion.
+All 35 kit test files subsequently pass from clean fixture folders; source
+hashes and exits are in `build/car-lod/tests/results.json`. The kit freeze still
+matches. Cone and the default fixed maple chain have byte-identical before/after
+payloads; only their tool receipts change. The optional maple camera-facing
+atlas differs in one channel of one pixel by 1/255, so its strict byte check
+fails. The pickup's frozen cold baseline exceeds about one hour while still in
+LOD1 and is stopped with SIGTERM under the car budget, with genuine caches
+preserved. Pickup byte compatibility is unproved. These are incomplete regression
+results, not a claim that every adopted chain rebuilds identically.
+
+All 2,996 pre-existing delivery/map/image files still match. Final receipts are
+`build/car-lod/final-audit.json`, `optout-proof.json`, `tree-default-proof.json`
+and `pickup-regression-incomplete.json`. No car is adopted and no source or docs
+image changes. All owned Blender jobs are drained before reporting.
 
 ## LOD rollout, 2026-11-09
 

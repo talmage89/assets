@@ -862,6 +862,11 @@ report is `build/car-lod/adapter-report/report.md`. This adds .333 MiB to the
 ordinary seven-map proxy policy, with one material/draw retained. GPU figures
 are compressed mip estimates before engine overhead, not driver measurements.
 
+All 35 kit tests pass, but full compatibility proof is also incomplete: cone
+and the fixed maple chain match byte for byte; the optional maple atlas differs
+by one pixel/channel code value, and the pickup cold baseline was stopped after
+about an hour before finishing LOD1. The adapter remains an experimental control.
+
 The H120 far-only control below is rejected. Its one-material proxy loses the
 factory-color decoder and paint-only binding; the existing delivery decoder
 cannot select any of the five presets on it. The original GLB still supports
