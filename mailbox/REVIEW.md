@@ -126,3 +126,43 @@ meets the original 506/190 count targets. Full original config, outputs,
 checks, hashes and every image are archived in `build/lod-rollout/mailbox/pass1/`.
 Next try more near silhouette geometry and a lower far request at the same
 switches; preserve the original goals and image gates. Door/Flag remain separate.
+
+### LOD critique 2: rest appearance passes, door sweep fails
+
+The next .6/.12 requests reach 766/202 triangles, still above 506/190.
+Opened all six new native strips, all three construction views and contact.
+The near crown now rounds more convincingly; coating, wood and flag values
+hold. The far close view exposes angular shell/flag shapes, but native switch
+coverage holds. Every generic image/raw/normal/UV check passes. A session ended
+with observed exit 143 during the first build; no own process remained, and
+the identical directly monitored retry completed with exit 0. Exact receipts
+are `build/lod-rollout/mailbox/pass2{,-retry}.json`.
+
+**Stop: no mailbox adoption.** The physical imported-LOD sweep fails:
+LOD1 DoorMesh penetrates LOD_Static .000247644m at 74 degrees; LOD2 penetrates
+.000893887m at 2 degrees. Both exceed the unchanged .00005m tolerance.
+Flag clears both levels. Each sweep tests the actual one moving mesh against
+two fixed meshes at 1-degree steps (106 door, 91 flag samples). The original
+imported-GLB sweep passes with measured zero penetration. Mere serialized
+pivot equality and separate meshes cannot approve these altered hinge surfaces.
+
+`src/check_lod_motion.py` includes every imported mesh: generic static
+consolidation does not carry the source asset_set tag onto LOD_Static, so
+reusing the source's tag filter unchanged would silently omit the shell.
+The checker asserts mesh ownership/count before calling the existing kit sweep.
+The first manual invocation used the repository working directory and failed
+to find its input; the corrected Make target runs in the family directory and
+records the actual physical failure, not a missing-file result. Full
+`make check-lod` now includes this physical audit and must fail. No geometry,
+tolerance, original source or frozen tool is patched to conceal the failure.
+
+Final proof: `final-check.json` records `make check-lod` exit 2 for motion;
+`pass2-check.json` separately records the generic check/normal audit exit 0.
+Original check before/after both exit 0 with the explicit frozen inputs above.
+Final trial is archived in `build/lod-rollout/mailbox/pass2/`, including
+physical motion JSON; original standalone PNGs are content-addressed copies
+with identical bytes. The reporter ran with `--write-readmes --allow-failed`,
+and its complete contact was opened; its generic PASS label does not audit
+physical motion. All 103 frozen hashes match. Repository check reports 2553
+files, zero errors. The session-wide immutable receipt still reports all
+1200 original files unchanged. No accepted source/map/docs or kit code changed.

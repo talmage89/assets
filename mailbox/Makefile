@@ -22,3 +22,7 @@ check-delivery-motion: export/$(ASSET).glb
 
 # Additive opt-in LODs; immutable delivery remains the default build.
 include ../kit/lod_rules.mk
+.PHONY: check-lod-motion
+check-lod: check-lod-motion
+check-lod-motion:
+	$(BP) --threads $(LOD_THREADS) --python src/check_lod_motion.py
