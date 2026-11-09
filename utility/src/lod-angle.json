@@ -1,0 +1,9 @@
+{
+  "kind": "standard prop: utility angle pole", "name": "Angle",
+  "source": "export/UtilityParts.gltf", "include_nodes": ["Angle"],
+  "output": "export/lod/angle", "renders": "renders/lod/angle",
+  "readme_key": "angle", "readme_title": "Angle pole LODs",
+  "screen_space": true, "feature_pixels": 1.5, "render_samples": 128,
+  "levels": [{"ratio": 0.15, "target_triangles": 1453, "screen_height": 0.25,
+              "surface_pixels": 0.05, "preserve_uv_regions": true}]
+}

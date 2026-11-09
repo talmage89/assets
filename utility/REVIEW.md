@@ -860,4 +860,298 @@ physical construction, raw/imported delivery and render-input validation.
 All 103 frozen tool hashes match; all 18 newly built source files and all
 1206 pre-existing delivery/texture/docs files retain their hashes. Repository
 check and diff whitespace check pass. Utility has no lod/check-lod targets.
+
+## Fixed-region adoption — Tangent, 2026-11-09
+
+Tool freeze `cc6cfee`; literal source/recipe hashes are in
+`build/lod-uv/freeze.sha256`. The originals are already built here and match
+the recorded package counts; the original frozen-input `make check` passes
+before adoption (`build/lod-uv/utility-original-before.json`). Source, map and
+docs bytes are covered by `build/lod-uv/originals.json`.
+
+### Tangent critique 1 — region fix, support failure
+
+Opened all three native strips, both construction views and contact. Color
+and value agree with the dark source timber; shaft, braces, porcelain and
+cable loop retain coverage. The new .5-pixel trial has 2828 triangles versus
+the old 1620, a 1208-triangle cost. Its guarded-chart crossings fall from 34
+to zero. Generic checks and images pass, but the independently measured brand
+support gap reaches 2.204 mm, above 1 mm. Reject it. Exact config, payload,
+images and hashes: `build/lod-uv/archive/utility/tangent-support-failure/`.
+
+### Tangent critique 2 — retain support at the original switch
+
+Restored the previously successful .05-pixel surface bound. Opened all three
+new native strips, both construction views and contact, then revisited the
+shaft and small label at native size. Values, taper and dark underside agree;
+the cable loop and braces remain. The close view still exposes original
+low-sided fittings and coarse timber detail, not close-view equivalence.
+The level is 2852/3632 triangles at .25 / 36.315 m, missing 1453. It costs
+260 triangles over the old safe 2592 trial, and 1232 over the rejected 1620
+chart-crossing trial. The cheaper new 2828 trial is a support failure, not a
+visual waiver or a claimed mathematical minimum. Maximum measured brand gap
+is .4331 mm and crossings are zero. All original RGB/alpha/local/IoU gates,
+re-import, source-field and tangent checks pass. The achieved saving is modest
+(21.5%); it allocates .2243 MiB of mesh and no image. Actual per-level and
+stored costs are in the measured README table. No material or map changes.
+
+The post-build original `make check` passes, including all seven unit tests,
+physical construction and source/import checks. `make check-lod` now includes
+the independent atlas/support audit and passes. All 30 utility delivery/map/docs
+files match the immutable receipt; all frozen tool hashes match. Final per-kind
+payloads, images and simplification receipt are archived in
+`build/lod-uv/archive/utility/tangent-final/`. The report contact is
+`build/lod-uv/utility-report/contact.jpg`; native judgment uses
+`renders/lod/tangent/`, not its reduced index. This is rest/source-field and
+actual support-gap proof, not an engine timing or continuous-motion claim.
+
+### Crossarm critique 1 — native field and coverage
+
+Opened all three native .09 / 9.228 m strips and their difference panes.
+Color/value, wood grain, porcelain and zinc agree; both thin braces and their
+lower joint remain. The trial is 1172/1248 triangles against 187. All image,
+field, topology, re-import and guarded-atlas checks pass; no new crossings.
+Worst mean .0000335, local .00104 and IoU loss .000123.
+
+### Crossarm critique 2 — reject an uneconomic extra row
+
+Opened both construction views and contact, then revisited native end hardware
+and the brace joint. No new unsupported piece or missing thin member appears;
+the old low-sided sheds and tiny bolt geometry remain coarse. The row retains
+93.91% of LOD0, saving only 76 triangles while adding 101592 mesh bytes.
+Keep the 1248-triangle original instead of another almost-complete buffer.
+This is a cost decision under the recipe's already-compact module rule, not a
+tool or image failure. Config stays unwired; payload/images/checks are archived
+in `build/lod-uv/archive/utility/crossarm-cost-rejected/`, removed from live
+export/lod. It has no runtime switch recommendation or residency increment.
+
+### Standalone transformer critique 1 — near construction
+
+Opened all three native .25 / 7.788 m strips, both construction views and
+contact. Gray paint, zinc, porcelain and black leads retain their values;
+the slack loops, mounting feet and rating plate remain. The 2890/3036 trial
+misses 1214, passing all image, field, re-import, atlas and support checks.
+Rating gaps remain .3694–.3996 mm. It saves only 146 triangles. Archived in
+`build/lod-uv/archive/utility/transformer-near-cost-trial/` before the far test.
+
+### Standalone transformer critique 2 — far cost decision
+
+Opened all three .09 / 21.633 m strips, both construction views and contact.
+The same dark leads and case highlight hold; the tiny rating print becomes
+subpixel without a new bright block. Original low-sided porcelain and folded
+mounting hardware remain evident close up. All independent checks pass with
+zero crossings and the same sub-millimeter rating support. The far row retains
+2824/3036 triangles (93.02%), versus 455 requested. Saving 212 triangles does
+not justify another almost-complete buffer. Keep this already coarse module
+at LOD0; no new runtime allocation or switch is recommended. Config is unwired;
+final evidence is `build/lod-uv/archive/utility/transformer-far-cost-rejected/`.
+
+### Transformer pole critique 1 — original switch
+
+Opened all three native strips, both construction views and contact at
+.25 / 36.315 m. Source timber, gray tank, porcelain and black lead values
+agree; the source coarse leads retain their sag/loops and connection points.
+5614/6668 triangles pass every generic image/field/re-import check and the
+independent atlas/support audit, with zero crossings and both labels supported.
+Archived before the density control in
+`build/lod-uv/archive/utility/transformer-pole-first-density/`.
+
+### Transformer pole critique 2 — lower request, same maps and switch
+
+A .15 request with the unchanged 2667 goal keeps 5604 triangles, saving 1064
+(15.96%). Opened every regenerated native strip, both construction views and
+contact, revisiting the can mounts, bushings, lead loops, cable case and shaft.
+Values/coverage remain consistent; the close view retains original coarse
+porcelain and fixture silhouettes. Both labels remain supported: Brand max
+.4008 mm, Rating max .39995 mm. All chart/area/tangent, re-import and original
+image gates pass. The goal is explicitly missed; this is the lowest tested
+protected count, not proof of a global minimum. Boundary protection and the
+original coarse can/lead geometry limit the saving. It adds one mesh buffer
+and no new image, retaining the full original container in stored accounting.
+
+Post-build original `make check` passes; all 30 immutable utility resources
+match. Final evidence is archived in
+`build/lod-uv/archive/utility/transformer-pole-final/`. This proves native
+appearance, source fields, serialized frames and measured label gaps, not
+engine performance or a new electrical/structural certification.
+
+### Street wires — retain actual coarse tubes
+
+The source layout wire groups measure 6744 / 4008 / 4680 / 8352 triangles for
+101/102/103/104, counted directly from their exported accessors. Source curve
+screens already use coarse 24–120-triangle tubes; connected junctions can form
+larger components. The complete per-group component inventory is
+`build/lod-uv/utility-wires.json`, separate from a simplifier estimate.
+
+The 101 control uses every original conductor group, requests .4 at .25 and
+holds .02 switch pixel to protect true thin-member widths. It retains all
+6744 triangles: no useful geometry reduction. Geometry/re-import and independent
+field checks pass. No new native images or visual-acceptance claim is made for
+this no-saving control. The source remains the delivery, with no extra buffer,
+switch or texture allocation. The other three layouts keep their original
+coarse wires too; they are not approved reductions by association. GuyAssembly
+remains 280 triangles for the same already-coarse reason. These preserve actual
+source diameters rather than pruning thin conductors to meet a ratio.
+Diagnostic config is unwired; the control is archived in
+`build/lod-uv/archive/utility/wires-101-no-saving/` and removed from live export.
 Its two rejected trials have no runtime residency or placement recommendation.
+
+
+### Angle pole LODs critique 1 — native values and coverage
+
+Opened all three native strips and difference panes. Timber and hardware
+values agree with LOD0; crossarm, braces, porcelain, shaft taper and lower cable loop remain.
+At 25% / 36.315 m, the protected level has
+2834/3632 triangles against 1453.
+Worst mean 0.0006771, local 0.002296 and silhouette loss
+0.002997 pass the unchanged gates. The goal is missed.
+
+### Angle pole LODs critique 2 — construction and independent checks
+
+Opened both construction views and contact, then revisited native details:
+the angled framing and brace seats; original low-sided fittings remain evident. No new missing support or thin member appears.
+Chart crossings are zero and maximum measured marking gap is 0.4003 mm.
+Re-import, UV area, tangent and source-field checks pass independently of images.
+The original family check passes after these variants; every original resource
+and frozen tool hash matches. Counts are the tested protected result, not a
+mathematical minimum. Original maps allocate no new image. Final evidence:
+`build/lod-uv/archive/utility/angle-final/`; native views:
+`renders/lod/angle/`. This proves rest appearance/data and measured gaps,
+not engine performance or continuous motion.
+
+
+### Dead-end pole LODs critique 1 — native values and coverage
+
+Opened all three native strips and difference panes. Timber and hardware
+values agree with LOD0; termination crossarm, braces, shaft, lower cable loop and dead-end fitting remain.
+At 25% / 36.315 m, the protected level has
+2266/3056 triangles against 1222.
+Worst mean 0.0006881, local 0.002592 and silhouette loss
+0.003240 pass the unchanged gates. The goal is missed.
+
+### Dead-end pole LODs critique 2 — construction and independent checks
+
+Opened both construction views and contact, then revisited native details:
+the termination hardware and brace joint; small original fittings remain coarse. No new missing support or thin member appears.
+Chart crossings are zero and maximum measured marking gap is 0.4003 mm.
+Re-import, UV area, tangent and source-field checks pass independently of images.
+The original family check passes after these variants; every original resource
+and frozen tool hash matches. Counts are the tested protected result, not a
+mathematical minimum. Original maps allocate no new image. Final evidence:
+`build/lod-uv/archive/utility/deadend-final/`; native views:
+`renders/lod/deadend/`. This proves rest appearance/data and measured gaps,
+not engine performance or continuous motion.
+
+
+### Riser pole LODs critique 1 — native values and coverage
+
+Opened all three native strips and difference panes. Timber and hardware
+values agree with LOD0; three vertical conduits, terminations, clipped leads and shaft remain.
+At 25% / 36.461 m, the protected level has
+3534/4356 triangles against 1742.
+Worst mean 0.0005111, local 0.002111 and silhouette loss
+0.001312 pass the unchanged gates. The goal is missed.
+
+### Riser pole LODs critique 2 — construction and independent checks
+
+Opened both construction views and contact, then revisited native details:
+the conduit seats and termination spacing; original polygonal elbows remain visible. No new missing support or thin member appears.
+Chart crossings are zero and maximum measured marking gap is 0.4008 mm.
+Re-import, UV area, tangent and source-field checks pass independently of images.
+The original family check passes after these variants; every original resource
+and frozen tool hash matches. Counts are the tested protected result, not a
+mathematical minimum. Original maps allocate no new image. Final evidence:
+`build/lod-uv/archive/utility/riser-final/`; native views:
+`renders/lod/riser/`. This proves rest appearance/data and measured gaps,
+not engine performance or continuous motion.
+
+
+### Light-bracket pole LODs critique 1 — native values and coverage
+
+Opened all three native strips and difference panes. Timber and hardware
+values agree with LOD0; light-bracket curve, its pole connection, shaft and lower cable loop remain.
+At 25% / 36.315 m, the protected level has
+3178/4024 triangles against 1610.
+Worst mean 0.0007665, local 0.004942 and silhouette loss
+0.003315 pass the unchanged gates. The goal is missed.
+
+### Light-bracket pole LODs critique 2 — construction and independent checks
+
+Opened both construction views and contact, then revisited native details:
+the bracket foot and tube width; the source excludes the separate light head. No new missing support or thin member appears.
+Chart crossings are zero and maximum measured marking gap is 0.4008 mm.
+Re-import, UV area, tangent and source-field checks pass independently of images.
+The original family check passes after these variants; every original resource
+and frozen tool hash matches. Counts are the tested protected result, not a
+mathematical minimum. Original maps allocate no new image. Final evidence:
+`build/lod-uv/archive/utility/streetlight-final/`; native views:
+`renders/lod/streetlight/`. This proves rest appearance/data and measured gaps,
+not engine performance or continuous motion.
+
+### Three-can pole critique 1 — source values, failed support
+
+Opened all three native strips, both construction views and contact. Tank,
+timber, porcelain and lead values agree, with no new thin-member loss; the
+7096-triangle .05-pixel trial passes images and zero chart crossings. Its
+brand-support gap is 2.927 mm, above 1 mm, so reject it despite the images.
+Exact evidence: `build/lod-uv/archive/utility/bank-support-failure/`.
+
+### Three-can pole critique 2 — support passes, cost does not
+
+The .002-pixel control retains 7546/8438 triangles, versus 3375 requested.
+Opened all regenerated native strips, both construction views and contact,
+then revisited can mounts, braces and lead loops. No new coverage or material
+fault appears; original coarse hardware remains apparent close up. All image,
+field, import and atlas checks pass. Brand max gap .4047 mm, Rating .3968 mm.
+Retaining 89.43% of the source for only 892 triangles saved is a weak extra
+row for this less frequent assembly. Keep it LOD0; no runtime row is adopted.
+Final control: `build/lod-uv/archive/utility/bank-cost-rejected/`.
+
+### Service mast critique 1 — actual repeated attachment
+
+Selected the original 101 House_1_0_ServiceMast with its placement and service/
+communication sockets. Opened all three native strips. Zinc and black hood
+values, true tube thickness and supported termination agree. The .25 request
+retains 1042/1088 triangles, against 435. All independent checks pass, zero
+crossings. Other placements are not claimed tested copies by this one result.
+
+### Service mast critique 2 — preserve an already coarse module
+
+Opened both construction views and contact and revisited the bracket/hood at
+native size. Source seams and coarse bends remain; there is no new visible
+fault. Saving only 46 triangles (4.23%) does not justify another full buffer.
+Keep the original shared-set 1088-triangle mast. This and the bank config stay
+unwired, with no new resident allocation or switch recommendation. Evidence:
+`build/lod-uv/archive/utility/service-mast-cost-rejected/`. Both live control
+outputs are removed from export/lod after archiving.
+
+The checked service-mast control is retained as an unwired source config for
+reproduction; its sockets and dimensions still belong to the original delivery.
+
+### Utility closeout
+
+Plain `make check-lod LOD_THREADS=4` passes all six adopted configs, including
+the separate atlas/support gates. The final original frozen-input `make check`
+passes afterwards (`build/lod-uv/utility-original-final.json`); all 30 original
+delivery/map/docs files and every literal tool hash match. Full six-chain
+tables/contact: `build/lod-uv/utility-final-report/` (opened after generation).
+
+Entire-family accounting additionally includes all five original containers,
+even the four streets without an HLOD: 223482 stored triangles, 13 per-container
+canonical material references, 120 stored primitive placements, 25217111
+distinct payload bytes. Active draws are 1 per adopted part level, and 9–27
+for original containers. Unique original maps allocate 16.0001 MiB once;
+new images zero. Full family residency is 30.0859 MiB versus 28.5235 MiB for
+originals, adding 1.5624 MiB in meshes. The measured union is
+`build/lod-uv/utility-full-costs.json`; the six-config reporter union counts
+only their shared Parts container, a deliberately narrower scope. All six
+triangle goals remain unmet. The guarded policy is conservative, not an
+optimality or engine frame-time claim. Every rejected/uneconomic config is
+unwired and has no live export. Original documentation images are unchanged.
+
+The subsequent `423011c` main integration rebuilds all six public chains with
+identical payload bytes and passes their atlas/support, field and image gates.
+Original `make check` passes again; the 30-file receipt is unchanged. Current
+109-file tool freeze and the complete 37-test proof are recorded in
+[the kit integration closeout](../kit/LOD_REVIEW.md#fixed-uv-integration-closeout-2026-11-09).
+The earlier per-trial archives retain their original `cc6cfee` freeze.

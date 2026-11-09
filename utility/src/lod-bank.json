@@ -1,0 +1,9 @@
+{
+  "kind": "standard prop: three-can utility pole", "name": "TransformerBank",
+  "source": "export/UtilityStreet-103.gltf", "include_nodes": ["P3"],
+  "output": "export/lod/bank", "renders": "renders/lod/bank",
+  "readme_key": "bank", "readme_title": "Three-can pole LODs",
+  "screen_space": true, "feature_pixels": 1.5, "render_samples": 128,
+  "levels": [{"ratio": 0.15, "target_triangles": 3375, "screen_height": 0.25,
+              "surface_pixels": 0.002, "preserve_uv_regions": true}]
+}

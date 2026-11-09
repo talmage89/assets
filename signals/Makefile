@@ -113,3 +113,13 @@ finals: review renders/final/gallery/.stamp $(GALLERY_OUTPUTS) renders/final/sca
 	$(PYTHON) src/final_crops.py
 docs: finals
 	$(PYTHON) src/finals.py --docs
+
+# Only independently checked, adopted kinds enter the opt-in targets.
+LOD_CONFIGS := src/lod-cabinet.json src/lod-mast-arm.json src/lod-span-set.json
+include ../kit/lod_rules.mk
+.PHONY: check-lod-state
+check-lod: check-lod-state
+check-lod-state:
+	@set -e; for lod_config in $(LOD_CONFIGS); do \
+		$(PYTHON) src/check_lod_state.py --config "$$lod_config"; \
+	done

@@ -972,3 +972,113 @@ Whole default chain:
 Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 25 to 27 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
 
 <!-- LOD checkpoint span-set: end -->
+
+## Fixed-region adoptions, 2026-11-09
+
+Frozen tool `cc6cfee`, literal hashes in `build/lod-uv/freeze.sha256`.
+All original deliveries already exist here. The original frozen-input
+`make check` passes before work (`build/lod-uv/signals-original-before.json`).
+The immutable ledger covers all 52 original signal delivery/map/docs files.
+These proofs compare unchanged delivered LOD0 under identical lighting; no
+photographic balance or new realism approval is inferred.
+
+### Cabinet critique 1 — native color and small powered fixture
+
+Opened all three .09 / 19.362 m native strips and their difference panes.
+Cabinet gray, zinc, dark vent slots and the separate service-light center
+retain their source values. The new row is 2676/2964 triangles against 445,
+1194 more than the rejected 1482 trial. Worst mean .0000983, local .00404,
+alpha .000913 and silhouette loss .000986 pass unchanged limits. No new
+intermediate image is referenced. The saving is modest: 288 triangles.
+
+### Cabinet critique 2 — held doors, original trim-domain gate
+
+Opened both construction views and contact, revisiting door rims, hinges,
+the access aperture, louvers and lamp at native size. Source panel construction
+and values agree; small original bevels remain visibly coarse close up. Both
+door mesh hierarchies and canonical pivots survive. The independent source-field,
+UV-area, tangent and re-import checks pass. Most importantly the family's own
+unchanged `make check` includes `export/lod/cabinet/Cabinet_LOD1.gltf` and now
+passes: the old 12 trim crossings and outside-domain vertex are gone. Every
+original byte remains unchanged. This frequent part's small extra .1594 MiB
+buffer buys a 9.72% triangle saving without a private atlas; the 445 goal is
+explicitly missed and no optimality or engine timing claim is made. Rest checks
+and original sampled motion are separate; keep LOD0 during door interaction.
+Final native evidence: `renders/lod/cabinet/`; archived proof:
+`build/lod-uv/archive/signals/cabinet-final/`.
+
+### Mast arm critique 1 — native values and coverage
+
+Opened all three native .25 / 27.151 m strips, both construction views and
+contact. Yellow cases, dark visors, red indications, gray support and green
+street-name values agree with LOD0. Arm/pole width, three head coverage and
+letter shapes hold. The source coarse fasteners and head construction remain
+visible close up. This row is 7196/8174 triangles against 3270, adding 3997
+triangles over the rejected 3199 trial. All original image gates pass; no
+palette, image, powered-surface or acceptance setting changes.
+
+### Mast arm critique 2 — original trim gate and state routing
+
+Revisited the native arm/head joints, street name and lens outlines after
+the field audit. No new seam, missing member or changed indication appears.
+The family's own `make check` now includes both new files and passes its
+unchanged manufacturing-cell/domain/UV-area checks: the old 30 crossings and
+four out-of-domain vertices are gone. Re-import, normals and tangents pass too.
+The asset state audit measures ten original lens nodes, preserving every
+state flag, lit/off material name and world frame; receipt is
+`build/lod-mast-arm-state.json`. It is now part of public `check-lod`.
+Saving 978 triangles is modest (11.96%); the 3270 goal remains unmet. Fields,
+names and rest appearance are proved, not flexible-cable motion or engine
+phase timing. Original 52-file receipt is unchanged. Final evidence:
+`build/lod-uv/archive/signals/mast-arm-final/`, native `renders/lod/mast-arm/`.
+
+### Span set critique 1 — native color, wires and indications
+
+Opened all three .25 / 31.177 m native strips, construction views and contact;
+reopened the wide 0/55-degree strips at original pixel size. Yellow cases,
+red/green indications and gray supports retain source values. The six heads,
+upper span and lower tether remain; the 145-degree view is nearly end-on and
+cannot prove the whole span. The 13754/17456 result misses 6982, costing 8062
+more triangles than the rejected 5692 trial. All unchanged image gates pass.
+Two independent native-image samplings address thin members: top-wire alpha
+coverage ratios are 1.00026/1.00009; 1298/2082 thin-run bands including the
+lower tether give .99847/.99854. Raw source/level pixel samples are in
+`build/lod-uv/signals-span-{wire-coverage,all-thin-bands}.json`. These measure
+sampled image coverage, not every diameter or continuous cable motion.
+
+### Span set critique 2 — trim domains and state routing
+
+Revisited the hanging joints and head outlines against the unchanged source.
+Close-up construction retains the source's coarse macro detail; no new exposed
+trim patch or missing hanger appears. The family's own `make check` includes
+the new span file and passes: the old 121 crossings and outside-domain vertex
+are gone. Serialized boundary, UV-area, tangent, normals and re-import gates
+pass. The state audit measures 18 source lens nodes with identical flags,
+material memberships and world frames (`build/lod-span-set-state.json`).
+This does not certify engine phase timing or flexible-wire deflection.
+The saving is 3702 triangles (21.21%), with 25 active primitive placements
+instead of 27 and no new texture. The original 52-file receipt is unchanged.
+Final native evidence: `renders/lod/span-set/`; archived recipe and checks:
+`build/lod-uv/archive/signals/span-set-final/`.
+
+### Signal family closeout
+
+Public `make check-lod LOD_THREADS=4` passes all three chains and state audits
+(`build/lod-uv/signals-public-final.json`). The original frozen-input check
+passes after the span trial; all 52 original files are byte-identical.
+Full 15-container accounting, including every unadopted part/town, is in
+`build/lod-uv/signals-full-costs.json`: 233196 stored triangles, 43 canonical
+per-container material references, 973 stored placements and 15838625 distinct
+payload bytes. Maps remain 17.5001 MiB; new meshes add 1.1049 MiB, taking full
+family residency from 27.1526 to 28.2575 MiB. Original town containers draw up
+to 228 primitives; adopted cabinet/mast/span draw 3/15/25, with only one level
+active per instance. Stored placements are not simultaneous draws.
+The combined report/contact is `build/lod-uv/signals-final-report/`.
+
+The subsequent `423011c` main integration rebuilds all three public chains with
+identical payload bytes and passes their field, image and state-routing gates.
+Original `make check` passes again, including the reduced trim domains; the
+52-file receipt is unchanged. Current 109-file tool freeze and the complete
+37-test proof are recorded in
+[the kit integration closeout](../kit/LOD_REVIEW.md#fixed-uv-integration-closeout-2026-11-09).
+The earlier per-trial archives retain their original `cc6cfee` freeze.

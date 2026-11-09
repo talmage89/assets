@@ -1,0 +1,17 @@
+{
+  "kind": "standard prop: standalone utility transformer",
+  "name": "Transformer50kVA",
+  "source": "export/UtilityParts.gltf",
+  "include_nodes": ["Transformer50kVA"],
+  "output": "export/lod/transformer",
+  "renders": "renders/lod/transformer",
+  "readme_key": "transformer",
+  "readme_title": "Standalone transformer LODs",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "levels": [
+    {"ratio": 0.15, "screen_height": 0.09, "surface_pixels": 0.05,
+     "preserve_uv_regions": true}
+  ]
+}

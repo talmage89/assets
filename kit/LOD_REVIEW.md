@@ -2654,6 +2654,33 @@ needs installing or input from the lead. Future kit work should focus on
 powered proxy optical transfer and source-layer ordering before attempting
 further reductions of those failed controls. The checkpoint stops here.
 
+## Fixed UV domains — reduction regression, 2026-11-09
+
+`preserve_uv_regions` is a per-level opt-in for shared-map reductions. It pins
+source chart/material boundaries, UV folds and inherited flat-UV triangles,
+vetoes unmatched-wedge extrapolation and checks orientation/area after FLOAT
+storage. Normal-only splits do not create regions. Component and exported-file
+audits compare boundary records; a deliberate changed exported UV is rejected.
+No proxy baker, renderer, transfer code, original material or image changes.
+
+The concave, holed, two-layer atlas-seam fixture reduces 62 to 34 triangles;
+the old reducer reaches 11 but changes its domain boundary. The 23-triangle
+increment is the measured cost of this conservative fixture policy, not a claim
+of optimality. Fold, FLOAT-flattening, tangent, cache isolation, public-option
+validation and exception-reset cases are covered by `test_lod_regions.py`.
+
+All 35 kit test files pass serially from fresh fixtures, including six GPU
+files under the shared lock. The final fold refinement is additionally rerun
+in the region fixture. Logs: `build/lod-uv/tests/{cpu-passed,gpu}.json` and
+`build/lod-uv/regions-final.log`. The default cone (626/436), hydrant (3524)
+and bench (2360) rebuild byte-identical glTF/BIN/PNG payloads. Their complete
+manifest measurements match too; only tool provenance hashes necessarily
+change. Comparison receipt: `build/lod-uv/compatibility.json`. Existing source
+deliveries, maps and docs are protected by `build/lod-uv/originals.json`.
+
+Family adoptions require their own frozen-tool images and checks. This fixture
+does not approve a pole, signal or sign, or predict its retained triangle cost.
+
 ## Factory paint adapter control, 2026-11-09
 
 `490b6e8` adds an explicit `factory_paint: true` path for the delivered
@@ -2786,3 +2813,45 @@ The optional maple sector-0/camera-facing atlas retains the already isolated
 pre-existing one-code variation; it is not called byte deterministic. Full
 receipts: `build/car-lod/round2/optout/proof.json`. The full pickup baseline
 remains skipped as requested. No result here approves an unfinished car chain.
+
+## Fixed UV integration closeout, 2026-11-09
+
+The fixed-domain work adopts six utility pole kinds, three signal assemblies
+and eight sign kinds. Each has its own two-pass native review, immutable-source
+receipt and public config; uneconomic controls remain unwired. Measured kind
+tables and remaining holds are in the three family READMEs/reviews.
+
+During closeout, main advanced to `39a466d`. Its factory/optics implementation
+is retained literally; only the conflicting tool-digest list is combined with
+the UV-domain module. The original `cc6cfee` adoption freeze is retained as
+historical evidence. The integration freeze records 109 literal source/recipe
+hashes in `build/lod-uv/integration/freeze.sha256`; every entry matches after
+the complete proof. No runtime file changes after that freeze.
+
+All 37 kit test files pass serially from fresh fixture folders, including eight
+GPU test files through the shared lock: 1413.3 seconds. Per-command exits and
+timings are in `build/lod-uv/integration/all-tests.json`, with raw CPU/GPU logs
+alongside. Genuine production reduction caches are restored after testing.
+
+All 17 adopted chains plus cone, hydrant and bench rebuild under the combined
+tool. Every one of their 54 glTF/BIN/shipped-map payload files is byte-identical;
+all 20 complete manifests match except honest tool-source receipts. The earlier
+pre-fix/default comparison remains in `build/lod-uv/compatibility.json`.
+Integration receipt: `build/lod-uv/integration/comparison.json`.
+
+The 303 native proof files are accounted separately: 179 file hashes change,
+143 of those decode identically, and 23 raw renders change only one or two
+channels by one 8-bit code. Derived amplified differences/JPEGs also change.
+Affected native/close views are reopened and all unchanged image gates pass;
+literal render-file byte determinism is not claimed. All 20 full `check-lod`
+runs pass after generating the three legacy chains' locally missing renders.
+
+The three original frozen-input family checks pass again after integration
+(`build/lod-uv/integrated-originals.json`). Their source receipts match, as does
+the 1251-file original export/map/docs ledger. Repository check and the branch
+diff against main pass. The root README and incoming car/proxy files are left
+unchanged relative to main. Current reports/contacts are under
+`build/lod-uv/{utility,signals,street-signs}-final-report/`. Counts remain above
+their goals; this conservative lock is not a minimum-triangle or engine timing
+claim. Cabinet interaction still holds LOD0, and no phase-timing or flexible-wire
+simulation approval is inferred from rest images and state-field checks.

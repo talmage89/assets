@@ -381,5 +381,239 @@ TIMBER, RILL ELECTRIC and RV IDs use installed DejaVu Sans, resolved through
 `kit/fonts.py` (open Bitstream Vera/DejaVu license). Neighboring family scripts
 supply presentation context without changing their source or delivery paths.
 
-No LOD chain yet. Reduced geometry can sample the wrong material where atlas regions meet.
+Whole-street containers remain LOD0; the reviewed part chains switch independently.
 See [the LOD review](REVIEW.md).
+
+The 1,248-triangle crossarm stays at LOD0: its safe far trial saves only 76
+triangles while allocating another nearly full mesh. See [REVIEW.md](REVIEW.md).
+
+The standalone 3,036-triangle transformer stays at LOD0: its safe far trial
+saves only 212 triangles. See [REVIEW.md](REVIEW.md).
+
+Street wires and the 280-triangle guy/guard stay at their coarse LOD0 geometry.
+The strict wire trial saves no triangles. See [REVIEW.md](REVIEW.md).
+
+The 8,438-triangle three-can pole and 1,088-triangle service mast stay at LOD0:
+their checked trials retain nearly all their geometry. See [REVIEW.md](REVIEW.md).
+
+<!-- LOD checkpoint tangent: begin -->
+## Tangent pole LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/tangent/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 3,632 / — | 1 / 1 | 2,268,943 | 10,052,349 | 12,321,292 | 16.000 + 2.1319 | near |
+| LOD1 | 2,852 / 1,453 | 1 / 1 | 261,001 | 10,052,349 | 10,313,350 | 16.000 + 0.2243 | 25.0% / 36.31 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **18.356 MiB**, versus LOD0 alone **18.132 MiB**. Unique textures 16.000 MiB = 16.000 MiB original + 0.000 MiB proxy/impostor; all meshes 2.3562 MiB. Increase over LOD0 0.224 MiB = 0.000 MiB far maps + 0.2243 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/tangent/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/tangent/check.json` and `export/lod/tangent/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod-uv/archive/utility/tangent-final/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048.
+
+Selected placement roots: `Tangent`. LOD0 triangles, materials and draws describe those modules; its load bytes, maps and mesh allocation describe the complete unchanged original container. Extraction savings are separate from reduction. Retain child transforms when replacing a selected root placement.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 32,784 | 1 | 10 | 12,582,293 | 18.3562 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 1 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint tangent: end -->
+
+<!-- LOD checkpoint transformer-pole: begin -->
+## Transformer pole LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/transformer-pole/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 6,668 / — | 1 / 1 | 2,268,943 | 10,052,349 | 12,321,292 | 16.000 + 2.1319 | near |
+| LOD1 | 5,604 / 2,667 | 1 / 1 | 473,660 | 10,052,349 | 10,526,009 | 16.000 + 0.4271 | 25.0% / 36.31 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **18.559 MiB**, versus LOD0 alone **18.132 MiB**. Unique textures 16.000 MiB = 16.000 MiB original + 0.000 MiB proxy/impostor; all meshes 2.5589 MiB. Increase over LOD0 0.427 MiB = 0.000 MiB far maps + 0.4271 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/transformer-pole/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/transformer-pole/check.json` and `export/lod/transformer-pole/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod-uv/archive/utility/transformer-pole-final/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048.
+
+Selected placement roots: `Transformer`. LOD0 triangles, materials and draws describe those modules; its load bytes, maps and mesh allocation describe the complete unchanged original container. Extraction savings are separate from reduction. Retain child transforms when replacing a selected root placement.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 35,536 | 1 | 10 | 12,794,952 | 18.5590 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 1 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint transformer-pole: end -->
+
+<!-- LOD checkpoint angle: begin -->
+## Angle pole LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/angle/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 3,632 / — | 1 / 1 | 2,268,943 | 10,052,349 | 12,321,292 | 16.000 + 2.1319 | near |
+| LOD1 | 2,834 / 1,453 | 1 / 1 | 260,164 | 10,052,349 | 10,312,513 | 16.000 + 0.2235 | 25.0% / 36.31 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **18.355 MiB**, versus LOD0 alone **18.132 MiB**. Unique textures 16.000 MiB = 16.000 MiB original + 0.000 MiB proxy/impostor; all meshes 2.3554 MiB. Increase over LOD0 0.223 MiB = 0.000 MiB far maps + 0.2235 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/angle/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/angle/check.json` and `export/lod/angle/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod-uv/archive/utility/angle-final/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048.
+
+Selected placement roots: `Angle`. LOD0 triangles, materials and draws describe those modules; its load bytes, maps and mesh allocation describe the complete unchanged original container. Extraction savings are separate from reduction. Retain child transforms when replacing a selected root placement.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 32,766 | 1 | 10 | 12,581,456 | 18.3554 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 1 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint angle: end -->
+
+<!-- LOD checkpoint deadend: begin -->
+## Dead-end pole LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/deadend/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 3,056 / — | 1 / 1 | 2,268,943 | 10,052,349 | 12,321,292 | 16.000 + 2.1319 | near |
+| LOD1 | 2,266 / 1,222 | 1 / 1 | 209,005 | 10,052,349 | 10,261,354 | 16.000 + 0.1747 | 25.0% / 36.31 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **18.307 MiB**, versus LOD0 alone **18.132 MiB**. Unique textures 16.000 MiB = 16.000 MiB original + 0.000 MiB proxy/impostor; all meshes 2.3066 MiB. Increase over LOD0 0.175 MiB = 0.000 MiB far maps + 0.1747 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/deadend/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/deadend/check.json` and `export/lod/deadend/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod-uv/archive/utility/deadend-final/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048.
+
+Selected placement roots: `Deadend`. LOD0 triangles, materials and draws describe those modules; its load bytes, maps and mesh allocation describe the complete unchanged original container. Extraction savings are separate from reduction. Retain child transforms when replacing a selected root placement.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 32,198 | 1 | 10 | 12,530,297 | 18.3066 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 1 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint deadend: end -->
+
+<!-- LOD checkpoint riser: begin -->
+## Riser pole LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/riser/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 4,356 / — | 1 / 1 | 2,268,943 | 10,052,349 | 12,321,292 | 16.000 + 2.1319 | near |
+| LOD1 | 3,534 / 1,742 | 1 / 1 | 304,064 | 10,052,349 | 10,356,413 | 16.000 + 0.2654 | 25.0% / 36.46 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **18.397 MiB**, versus LOD0 alone **18.132 MiB**. Unique textures 16.000 MiB = 16.000 MiB original + 0.000 MiB proxy/impostor; all meshes 2.3972 MiB. Increase over LOD0 0.265 MiB = 0.000 MiB far maps + 0.2654 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/riser/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/riser/check.json` and `export/lod/riser/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod-uv/archive/utility/riser-final/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048.
+
+Selected placement roots: `Riser`. LOD0 triangles, materials and draws describe those modules; its load bytes, maps and mesh allocation describe the complete unchanged original container. Extraction savings are separate from reduction. Retain child transforms when replacing a selected root placement.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 33,466 | 1 | 10 | 12,625,356 | 18.3973 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 1 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint riser: end -->
+
+<!-- LOD checkpoint streetlight: begin -->
+## Light-bracket pole LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/streetlight/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 4,024 / — | 1 / 1 | 2,268,943 | 10,052,349 | 12,321,292 | 16.000 + 2.1319 | near |
+| LOD1 | 3,178 / 1,610 | 1 / 1 | 285,385 | 10,052,349 | 10,337,734 | 16.000 + 0.2475 | 25.0% / 36.31 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **18.379 MiB**, versus LOD0 alone **18.132 MiB**. Unique textures 16.000 MiB = 16.000 MiB original + 0.000 MiB proxy/impostor; all meshes 2.3794 MiB. Increase over LOD0 0.248 MiB = 0.000 MiB far maps + 0.2475 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/streetlight/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/streetlight/check.json` and `export/lod/streetlight/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod-uv/archive/utility/streetlight-final/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048.
+
+Selected placement roots: `Streetlight`. LOD0 triangles, materials and draws describe those modules; its load bytes, maps and mesh allocation describe the complete unchanged original container. Extraction savings are separate from reduction. Retain child transforms when replacing a selected root placement.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 33,110 | 1 | 10 | 12,606,677 | 18.3795 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 1 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint streetlight: end -->

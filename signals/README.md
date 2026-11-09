@@ -250,5 +250,118 @@ Graphics use installed DejaVu Sans (Bitstream Vera/DejaVu licenses). The shared
 kit and the local procedural rifle establish the build/bake/export workflow.
 No kit code or canonical neighboring delivery is changed by this family.
 
-No LOD chain yet. Reduced meshes cross material regions in the shared texture atlas.
+Other signal kinds retain LOD0 pending their own comparisons and checks.
 See [the LOD review](REVIEW.md).
+
+<!-- LOD checkpoint cabinet: begin -->
+## Controller cabinet LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/cabinet/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 2,964 / — | 1 / 3 | 180,579 | 3,539,302 | 3,719,881 | 16.000 + 0.1681 | near |
+| LOD1 | 2,676 / 445 | 1 / 3 | 171,389 | 3,539,302 | 3,710,691 | 16.000 + 0.1594 | 9.0% / 19.36 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **16.328 MiB**, versus LOD0 alone **16.168 MiB**. Unique textures 16.000 MiB = 16.000 MiB original + 0.000 MiB proxy/impostor; all meshes 0.3275 MiB. Increase over LOD0 0.159 MiB = 0.000 MiB far maps + 0.1594 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/cabinet/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/cabinet/check.json` and `export/lod/cabinet/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod-uv/archive/signals/cabinet-final/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048.
+
+LOD1 separate moving meshes: `Controller__Door__Fixed`, `Controller__PoliceDoor__Fixed`.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 5,640 | 1 | 6 | 3,891,270 | 16.3276 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 3 to 3 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint cabinet: end -->
+
+Keep LOD0 during cabinet-door interaction; the new cabinet comparison proves its closed rest pose.
+
+<!-- LOD checkpoint mast-arm: begin -->
+## Mast arm LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/mast-arm/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 8,174 / — | 4 / 15 | 411,715 | 3,633,325 | 4,045,040 | 17.500 + 0.3765 | near |
+| LOD1 | 7,196 / 3,270 | 4 / 15 | 378,068 | 3,633,325 | 4,011,393 | 17.500 + 0.3437 | 25.0% / 27.15 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **18.220 MiB**, versus LOD0 alone **17.877 MiB**. Unique textures 17.500 MiB = 17.500 MiB original + 0.000 MiB proxy/impostor; all meshes 0.7202 MiB. Increase over LOD0 0.344 MiB = 0.000 MiB far maps + 0.3437 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/mast-arm/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/mast-arm/check.json` and `export/lod/mast-arm/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod-uv/archive/signals/mast-arm-final/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 1 × 512×256, 1 × 1024×1024, 3 × 2048×2048; LOD1: 1 × 512×256, 1 × 1024×1024, 3 × 2048×2048.
+
+LOD1 separate moving meshes: `Mast_0__Head0__Fixed`, `Mast_0__Head0__S00_red`, `Mast_0__Head0__S01_yellow`, `Mast_0__Head0__S02_green`, `Mast_0__Head1__Fixed`, `Mast_0__Head1__S00_red`, `Mast_0__Head1__S01_yellow`, `Mast_0__Head1__S02_green`, `Mast_0__Head2__Fixed`, `Mast_0__Head2__S00_red_arrow`, `Mast_0__Head2__S01_yellow_arrow`, `Mast_0__Head2__S02_yellow_arrow`, `Mast_0__Head2__S03_green_arrow`.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 15,370 | 4 | 30 | 4,423,108 | 18.2203 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 15 to 15 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint mast-arm: end -->
+
+<!-- LOD checkpoint span-set: begin -->
+## Span wire assembly LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/span-set/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 17,456 / — | 3 / 27 | 770,206 | 3,595,708 | 4,365,914 | 17.333 + 0.7065 | near |
+| LOD1 | 13,754 / 6,982 | 3 / 25 | 660,634 | 3,595,708 | 4,256,342 | 17.333 + 0.6018 | 25.0% / 31.18 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **18.642 MiB**, versus LOD0 alone **18.040 MiB**. Unique textures 17.333 MiB = 17.333 MiB original + 0.000 MiB proxy/impostor; all meshes 1.3083 MiB. Increase over LOD0 0.602 MiB = 0.000 MiB far maps + 0.6018 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/span-set/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/span-set/check.json` and `export/lod/span-set/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod-uv/archive/signals/span-set-final/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 1 × 1024×1024, 3 × 2048×2048; LOD1: 1 × 1024×1024, 3 × 2048×2048.
+
+LOD1 separate moving meshes: `SpanWire__Head0__Fixed`, `SpanWire__Head0__S00_red`, `SpanWire__Head0__S01_yellow`, `SpanWire__Head0__S02_green`, `SpanWire__Head1__Fixed`, `SpanWire__Head1__S00_red`, `SpanWire__Head1__S01_yellow`, `SpanWire__Head1__S02_green`, `SpanWire__Head2__Fixed`, `SpanWire__Head2__S00_red`, `SpanWire__Head2__S01_yellow`, `SpanWire__Head2__S02_green`, `SpanWire__Head3__Fixed`, `SpanWire__Head3__S00_red`, `SpanWire__Head3__S01_yellow`, `SpanWire__Head3__S02_green`, `SpanWire__Head4__Fixed`, `SpanWire__Head4__S00_red`, `SpanWire__Head4__S01_yellow`, `SpanWire__Head4__S02_green`, `SpanWire__Head5__Fixed`, `SpanWire__Head5__S00_red`, `SpanWire__Head5__S01_yellow`, `SpanWire__Head5__S02_green`.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 31,210 | 3 | 52 | 5,026,548 | 18.6417 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 25 to 27 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint span-set: end -->

@@ -1,0 +1,17 @@
+{
+  "kind": "shared-set small prop: pedestrian crossing assembly",
+  "name": "Pedestrian",
+  "source": "export/set/RoadSign_pedestrian.gltf",
+  "shared_textures": "export/lod",
+  "output": "export/lod/pedestrian",
+  "renders": "renders/lod/pedestrian",
+  "readme_key": "pedestrian",
+  "readme_title": "Pedestrian crossing LODs",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "levels": [
+    {"ratio": 0.4, "screen_height": 0.25, "preserve_uv_regions": true},
+    {"ratio": 0.15, "screen_height": 0.09, "preserve_uv_regions": true}
+  ]
+}

@@ -162,6 +162,10 @@ def audit(config):
             layer_limits={k:float(v.max())+1e-6 for k,v in face_limits.items()}
             uv_limits.append(dict(mesh=mi,primitive=pi,normalized_tolerance=uv_limit,layers=layer_limits))
             after=topology(attrs,triangles)[0];before=topology(src,faces)[0]
+            if cfg['levels'][row['level']-1].get('preserve_uv_regions'):
+                from kit.lod_regions import audit as audit_regions
+                regions=audit_regions(src,faces,attrs,triangles,allow_removed=True)
+                if not regions['passed']:errors.append(f'LOD{row["level"]}: UV region boundary changed in {mi}/{pi}')
             uv_degenerate+=after['degenerate_uv']
             if any(n>before['degenerate_uv_by_layer'].get(k,0) for k,n in after['degenerate_uv_by_layer'].items()):
                 errors.append(f'LOD{row["level"]}: new zero-area UV triangles')

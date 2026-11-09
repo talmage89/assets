@@ -9,6 +9,7 @@ import heapq
 import hashlib
 from pathlib import Path
 import numpy as np
+from kit import lod_regions
 
 # Capture the implementation at import, rather than hashing live source during
 # a build. marshal's object/reference encoding differs between freshly compiled
@@ -86,7 +87,8 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
     data_tolerance=(.02 if seam_sliding else .01) if data_tolerance is None else data_tolerance
     # Exported Mikk tangents can differ at otherwise continuous corners.
     # Those numerical splits are not UV seams; retain one original record.
-    signature=np.column_stack([np.round(v,3 if k=='TANGENT' else 6) for k,v in attrs.items()])
+    strict=lod_regions.enabled()
+    signature=np.column_stack([v if strict else np.round(v,3 if k=='TANGENT' else 6) for k,v in attrs.items()])
     _,first,remap=np.unique(signature,axis=0,return_index=True,return_inverse=True)
     attrs={k:v[first] for k,v in attrs.items()};faces=remap[faces].astype(np.uint32)
     tree=None
@@ -96,7 +98,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
         from kit.lod_mesh import barycentric
         tree=BVHTree.FromPolygons([Vector(p) for p in attrs['POSITION']],faces.tolist(),all_triangles=True)
     pos=attrs['POSITION'].astype(float)
-    _,first,geo=np.unique(np.round(pos,6 if seam_sliding else 8),axis=0,return_index=True,return_inverse=True)
+    _,first,geo=np.unique(pos if strict else np.round(pos,6 if seam_sliding else 8),axis=0,return_index=True,return_inverse=True)
     reference_pos=pos.copy()
     points=pos[first];clusters=[{i} for i in range(len(points))];scale=max(float(np.linalg.norm(np.ptp(pos,axis=0))),1e-8)
     center=points.mean(axis=0)
@@ -149,6 +151,8 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
     # Screen-aware path slides boundary vertices along their own source edge.
     # Legacy calls retain their historical exact boundary behavior.
     fixed=set(boundary) if max_error is None or not seam_sliding else set()
+    region_pins=lod_regions.pins(attrs,faces,geo) if strict else set()
+    fixed.update(region_pins)
     if '_LOD_KEEP' in attrs:fixed.update(int(geo[v]) for v in np.flatnonzero(attrs['_LOD_KEEP'][:,0]))
     current={k:v.astype(float).copy() for k,v in attrs.items()}
     original_points=points.copy()
@@ -194,6 +198,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
                 if 'TANGENT' in current and current['TANGENT'][wb,3]!=current['TANGENT'][other,3]:continue
                 pair[wb]=wa;unmatched.remove(wb);break
         if unmatched:
+            if strict:return None
             if max_error is None or (not seam_sliding and np.linalg.norm(points[a]-points[b])>max_error*.75):return None
             pair.update({wb:wb for wb in unmatched})
         boundary_b={g for g in neighbors(b) if len(incident[b]&incident[g])==1}
@@ -347,6 +352,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
             old=tri[fi];new=np.array([pairs.get(int(v),int(v)) for v in old],np.uint32)
             p0=pos[old];p1=pos[new].copy();p1[np.isin(geo[old],[a,b])]=point
             cv={k:np.array([fields[int(v)][k] if int(v) in fields else current[k][v] for v in new]) for k in attrs if k!='POSITION'}
+            if strict and not lod_regions.valid_face({k:v[old] for k,v in current.items()},cv):valid=False;break
             n0=np.cross(p0[1]-p0[0],p0[2]-p0[0]);n1=np.cross(p1[1]-p1[0],p1[2]-p1[0]);length=np.linalg.norm(n1)
             longest=max(np.sum((p1[i]-p1[j])**2) for i,j in ((0,1),(1,2),(2,0)))
             if length<1e-14 or length/max(longest,1e-30)<1e-5 or n0@n1<=.1*np.linalg.norm(n0)*length or n1@cv['NORMAL'].sum(axis=0)<-1e-10:valid=False;break
@@ -411,8 +417,10 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
         for x,y in sorted(update):offer(x,y);offer(y,x)
     used,remap=np.unique(tri[alive],return_inverse=True)
     output={k:v[used].astype(attrs[k].dtype) for k,v in current.items()};output['POSITION']=pos[used].astype(np.float32)
-    return output,remap.reshape(-1,3).astype(np.uint32),dict(method='split-wedge attribute QEM',uv_weight=uv_weight,normal_weight=normal_weight,color_wind_tolerance=data_tolerance,
+    report=dict(method='split-wedge attribute QEM',uv_weight=uv_weight,normal_weight=normal_weight,color_wind_tolerance=data_tolerance,
         triangles=remaining,constraints=constraints,collapses=accepted,vertex_updates=updated,progressive_area_error_fraction=total_excess/max(source_area+target_area,1e-30),rejected_orientation_or_field=rejected,seams='synchronized wedges, separate shader membership, bounded subpixel junction transport')
+    if strict:report['uv_region_pins']=len(region_pins)
+    return output,remap.reshape(-1,3).astype(np.uint32),report
 
 
 def transport_frames(source,faces,candidate,triangles,limits,radius,data_tolerance=.01,*,meters_per_pixel=None):
@@ -520,6 +528,12 @@ def _component(aa,ff,ratio,meters_per_pixel,uv_limit,uv_weight,normal_weight,sur
             order=np.argsort(samples);cumulative=np.array(sample_weights)[order].cumsum()
             p95=float(np.array(samples)[order][min(len(order)-1,int(np.searchsorted(cumulative,cumulative[-1]*.95)))])
             after=topology(candidate,cf)[0];reasons=[]
+            if lod_regions.enabled():
+                row['uv_regions']=lod_regions.audit(aa,ff,candidate,cf)
+                if not row['uv_regions']['passed']:reasons.append('UV region boundary changed')
+                if 'TANGENT' in candidate:
+                    tangent=candidate['TANGENT'][:,:3]
+                    if np.any(np.linalg.norm(tangent,axis=1)<.9998):reasons.append('invalid tangent length')
             if distance>meters_per_pixel*surface_pixels*(2/.75) or p95>meters_per_pixel*surface_pixels:reasons.append('surface distance')
             if uv_error>1.:reasons.append('UV/normal/tangent correspondence')
             if field_error>data_tolerance:reasons.append('color/Wind interpolation')
@@ -540,6 +554,7 @@ def _cached_component(aa,ff,ratio,meters_per_pixel,uv_limit,uv_weight,normal_wei
     args=(ratio,meters_per_pixel,uv_limit,uv_weight,normal_weight,surface_pixels,texture_size,seam_sliding)
     h=hashlib.sha256(json.dumps(dict(args=args,runtime=(list(bpy.app.version),np.__version__)),sort_keys=True).encode())
     h.update(_CACHE_IMPLEMENTATION.encode())
+    if lod_regions.enabled():h.update(b'preserve_uv_regions');h.update(digest(Path(lod_regions.__file__)).encode())
     for name in ('lod_mesh.py','lod_constraints.py'):h.update(digest(Path(__file__).with_name(name)).encode())
     for k,v in sorted({**aa,'indices':ff}.items()):
         h.update(k.encode());h.update(str(v.dtype).encode());h.update(str(v.shape).encode());h.update(np.ascontiguousarray(v).tobytes())
@@ -582,6 +597,7 @@ def reduce(attrs,faces,ratio,meters_per_pixel,uv_limit,uv_weight=10.,normal_weig
                 runtime=dict(blender=list(bpy.app.version),numpy=np.__version__),
                 tool=_CACHE_IMPLEMENTATION,mesh_tool=digest(Path(__file__).with_name('lod_mesh.py')),constraints_tool=digest(Path(__file__).with_name('lod_constraints.py')))
     h=hashlib.sha256(json.dumps(recipe,sort_keys=True).encode())
+    if lod_regions.enabled():h.update(b'preserve_uv_regions');h.update(digest(Path(lod_regions.__file__)).encode())
     for k,v in sorted({**attrs,'indices':faces}.items()):
         h.update(k.encode());h.update(str(v.dtype).encode());h.update(str(v.shape).encode());h.update(np.ascontiguousarray(v).tobytes())
     folder=Path(__file__).resolve().parents[1]/'build/lod-shared-cache';folder.mkdir(parents=True,exist_ok=True)

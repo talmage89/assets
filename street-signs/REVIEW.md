@@ -174,3 +174,273 @@ Whole default chain:
 Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 2 to 2 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
 
 <!-- LOD checkpoint school-speed: end -->
+
+## Fixed-region adoptions, 2026-11-09
+
+Frozen tool `cc6cfee`, literal hashes in `build/lod-uv/freeze.sha256`.
+All accepted originals exist; the frozen-input original `make check set-check`
+passes before work, command in `build/lod-uv/street-signs-original-before.json`.
+The preservation receipt covers 71 original delivery/map/docs files. These
+comparisons judge unchanged delivered values under identical lights, not a new
+photographic realism approval. All new levels opt into fixed UV regions.
+
+### School speed critique 1 — native values and lettering
+
+Opened all six native strips, each with source/previous/new/difference, then
+all three construction views and contact. White and yellow-green sheeting,
+black printing, zinc and backing values agree with source. SCHOOL and 20 stay
+readable at .25 / 11.966 m. At .09 / 33.240 m the 20 remains readable; small
+words and the time legend are already subpixel in LOD0. No loss of source
+legibility is accepted. Counts are 1016/944 against 560/210, costing 294/432
+more than the rejected 722/512. All unchanged image gates pass: worst mean
+.000187, local .00590, alpha and silhouette loss zero. No new image is used.
+
+### School speed critique 2 — actual UV faces and construction
+
+Revisited blank rims, bolt apertures, spacers and square post. Close LOD2
+exposes simplified blank/backing edges and fewer small fittings; this is
+acceptable only at its switch, not as close-view equivalence. Unlike the old
+trial, the printed primitive retains all 114 triangles with zero flat UVs at
+both levels; exact face/attribute records independently find zero new flat UV
+faces and zero new invalid tangent records. Raw accessors are measured in
+`build/lod-uv/sign-fields-school-speed.json`. Source unprinted metal contains
+flat UVs and invalid tangents; surviving defects are byte-exact inherited data,
+not newly created or silently repaired. The independent region/source-field,
+normals, tangent and re-import checks pass. Original `make check set-check`
+passes afterwards; all 71 original files match. Both targets remain unmet.
+The 5.333 MiB canonical 2048 image stays shared; new mesh buffers add .1517 MiB.
+Final native evidence: `renders/lod/school-speed/`; frozen recipe/payload/checks:
+`build/lod-uv/archive/street-signs/school-speed-final/`.
+
+
+### speed30 critique 1 — native values and face coverage
+
+Opened every 0/55/145-degree native strip at both switches, with source,
+preceding, new and difference panes. Values agree for white sheeting, black 30 and SPEED LIMIT, gray back and zinc tube.
+Measured LOD1 648/259 at 25% / 10.031 m, LOD2 496/97 at 9% / 27.863 m, from 648 source triangles.
+Worst mean 0.0001127, local 0.001286, silhouette loss
+0.000026 pass the unchanged gates. Targets remain unmet.
+
+### speed30 critique 2 — construction and independent fields
+
+Opened all close views and contact, then revisited the square perforated post, blank rim and two fasteners; 30 retains source legibility at the tested switch.
+Tiny source print remains limited by original texel/mip resolution; no new
+lettering loss or detached member appears at the switches. Coarse small
+fittings remain visible up close; no close-view equivalence is claimed.
+Exact accessor records find zero new flat UV faces and zero new invalid
+tangent records, while identifying inherited unprinted-metal defects separately
+(`build/lod-uv/sign-fields-speed30.json`). Serialized domains, normals,
+source fields and re-import pass. Original `make check set-check` passes
+afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
+additional mesh buffers total 0.0913 MiB.
+Final native evidence: `renders/lod/speed30/`; archived recipe and proof:
+`build/lod-uv/archive/street-signs/speed30-final/`.
+
+
+### speed30 critique 1 — native values and face coverage
+
+Opened every 0/55/145-degree native strip at each retained switch, with source,
+preceding, new and difference panes. Values agree for white sheeting, black 30 and SPEED LIMIT, gray back and zinc tube.
+Measured LOD1 496/97 at 9% / 27.863 m, from 648 source triangles.
+Worst mean 0.0001127, local 0.001286, silhouette loss
+0.000026 pass the unchanged gates. Targets remain unmet.
+
+### speed30 critique 2 — construction and independent fields
+
+Opened all close views and contact, then revisited the square perforated post, blank rim and two fasteners; 30 retains source legibility at the tested switch.
+Tiny source print remains limited by original texel/mip resolution; no new
+lettering loss or detached member appears at the switches. Coarse small
+fittings remain visible up close; no close-view equivalence is claimed.
+Exact accessor records find zero new flat UV faces and zero new invalid
+tangent records, while identifying inherited unprinted-metal defects separately
+(`build/lod-uv/sign-fields-speed30.json`). Serialized domains, normals,
+source fields and re-import pass. Original `make check set-check` passes
+afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
+additional mesh buffers total 0.0405 MiB.
+Final native evidence: `renders/lod/speed30/`; archived recipe and proof:
+`build/lod-uv/archive/street-signs/speed30-far-final/`.
+
+
+### speed25 critique 1 — native values and face coverage
+
+Opened every 0/55/145-degree native strip at each retained switch, with source,
+preceding, new and difference panes. Values agree for white sheeting, black 25 and SPEED LIMIT, gray back and zinc U post.
+Measured LOD1 428/94 at 9% / 27.964 m, from 628 source triangles.
+Worst mean 0.0001674, local 0.001488, silhouette loss
+0.000146 pass the unchanged gates. Targets remain unmet.
+
+### speed25 critique 2 — construction and independent fields
+
+Opened all close views and contact, then revisited the impact-bent U post, blank rim and fasteners; 25 reads at its switch.
+Tiny source print remains limited by original texel/mip resolution; no new
+lettering loss or detached member appears at the switches. Coarse small
+fittings remain visible up close; no close-view equivalence is claimed.
+Exact accessor records find zero new flat UV faces and zero new invalid
+tangent records, while identifying inherited unprinted-metal defects separately
+(`build/lod-uv/sign-fields-speed25.json`). Serialized domains, normals,
+source fields and re-import pass. Original `make check set-check` passes
+afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
+additional mesh buffers total 0.0367 MiB.
+Final native evidence: `renders/lod/speed25/`; archived recipe and proof:
+`build/lod-uv/archive/street-signs/speed25-final/`.
+
+
+### no-parking-both critique 1 — native values and face coverage
+
+Opened every 0/55/145-degree native strip at each retained switch, with source,
+preceding, new and difference panes. Values agree for white sheeting, red no-parking print and both arrow heads, gray backing and zinc post.
+Measured LOD1 500/94 at 9% / 24.930 m, from 628 source triangles.
+Worst mean 0.0001016, local 0.000429, silhouette loss
+0.000000 pass the unchanged gates. Targets remain unmet.
+
+### no-parking-both critique 2 — construction and independent fields
+
+Opened all close views and contact, then revisited the two arrow tips, rectangular rim and mounting seats; large red print and arrow direction survive.
+Tiny source print remains limited by original texel/mip resolution; no new
+lettering loss or detached member appears at the switches. Coarse small
+fittings remain visible up close; no close-view equivalence is claimed.
+Exact accessor records find zero new flat UV faces and zero new invalid
+tangent records, while identifying inherited unprinted-metal defects separately
+(`build/lod-uv/sign-fields-no-parking-both.json`). Serialized domains, normals,
+source fields and re-import pass. Original `make check set-check` passes
+afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
+additional mesh buffers total 0.0409 MiB.
+Final native evidence: `renders/lod/no-parking-both/`; archived recipe and proof:
+`build/lod-uv/archive/street-signs/no-parking-both-final/`.
+
+
+### oneway-r critique 1 — native values and face coverage
+
+Opened every 0/55/145-degree native strip at each retained switch, with source,
+preceding, new and difference panes. Values agree for white arrow and ONE WAY, dark field, gray back and zinc support.
+Measured LOD1 490/93 at 9% / 23.464 m, from 618 source triangles.
+Worst mean 0.0001096, local 0.001123, silhouette loss
+0.000000 pass the unchanged gates. Targets remain unmet.
+
+### oneway-r critique 2 — construction and independent fields
+
+Opened all close views and contact, then revisited the right arrow point, thin horizontal blank and mounting seats; arrow and ONE WAY retain source legibility.
+Tiny source print remains limited by original texel/mip resolution; no new
+lettering loss or detached member appears at the switches. Coarse small
+fittings remain visible up close; no close-view equivalence is claimed.
+Exact accessor records find zero new flat UV faces and zero new invalid
+tangent records, while identifying inherited unprinted-metal defects separately
+(`build/lod-uv/sign-fields-oneway-r.json`). Serialized domains, normals,
+source fields and re-import pass. Original `make check set-check` passes
+afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
+additional mesh buffers total 0.0399 MiB.
+Final native evidence: `renders/lod/oneway-r/`; archived recipe and proof:
+`build/lod-uv/archive/street-signs/oneway-r-final/`.
+
+
+### yield critique 1 — native values and face coverage
+
+Opened every 0/55/145-degree native strip at each retained switch, with source,
+preceding, new and difference panes. Values agree for red border, pale center, dark YIELD, gray back and zinc post.
+Measured LOD1 414/92 at 9% / 28.151 m, from 614 source triangles.
+Worst mean 0.0001434, local 0.000854, silhouette loss
+0.000171 pass the unchanged gates. Targets remain unmet.
+
+### yield critique 2 — construction and independent fields
+
+Opened all close views and contact, then revisited the triangular tips, rolled U section and fastening seats; the triangular form and YIELD retain source legibility.
+Tiny source print remains limited by original texel/mip resolution; no new
+lettering loss or detached member appears at the switches. Coarse small
+fittings remain visible up close; no close-view equivalence is claimed.
+Exact accessor records find zero new flat UV faces and zero new invalid
+tangent records, while identifying inherited unprinted-metal defects separately
+(`build/lod-uv/sign-fields-yield.json`). Serialized domains, normals,
+source fields and re-import pass. Original `make check set-check` passes
+afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
+additional mesh buffers total 0.0348 MiB.
+Final native evidence: `renders/lod/yield/`; archived recipe and proof:
+`build/lod-uv/archive/street-signs/yield-final/`.
+
+
+### pedestrian critique 1 — native values and face coverage
+
+Opened every 0/55/145-degree native strip at each retained switch, with source,
+preceding, new and difference panes. Values agree for yellow-green sheeting, dark walking figure and arrow plaque, gray back and zinc support.
+Measured LOD1 738/398 at 25% / 12.282 m, LOD2 594/149 at 9% / 34.116 m, from 994 source triangles.
+Worst mean 0.0001860, local 0.003166, silhouette loss
+0.000241 pass the unchanged gates. Targets remain unmet.
+
+### pedestrian critique 2 — construction and independent fields
+
+Opened all close views and contact, then revisited the walking figure, diamond corners and separate arrow plaque; figure/arrow coverage holds.
+Tiny source print remains limited by original texel/mip resolution; no new
+lettering loss or detached member appears at the switches. Coarse small
+fittings remain visible up close; no close-view equivalence is claimed.
+Exact accessor records find zero new flat UV faces and zero new invalid
+tangent records, while identifying inherited unprinted-metal defects separately
+(`build/lod-uv/sign-fields-pedestrian.json`). Serialized domains, normals,
+source fields and re-import pass. Original `make check set-check` passes
+afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
+additional mesh buffers total 0.1058 MiB.
+Final native evidence: `renders/lod/pedestrian/`; archived recipe and proof:
+`build/lod-uv/archive/street-signs/pedestrian-final/`.
+
+
+### school-crossing critique 1 — native values and face coverage
+
+Opened every 0/55/145-degree native strip at each retained switch, with source,
+preceding, new and difference panes. Values agree for yellow-green sheeting, dark paired figures and arrow plaque, gray back and zinc support.
+Measured LOD1 744/400 at 25% / 11.702 m, LOD2 600/150 at 9% / 32.505 m, from 1000 source triangles.
+Worst mean 0.0001643, local 0.003697, silhouette loss
+0.000209 pass the unchanged gates. Targets remain unmet.
+
+### school-crossing critique 2 — construction and independent fields
+
+Opened all close views and contact, then revisited the two figures, pentagonal corners and arrow plaque; both figures/arrow retain their source shapes.
+Tiny source print remains limited by original texel/mip resolution; no new
+lettering loss or detached member appears at the switches. Coarse small
+fittings remain visible up close; no close-view equivalence is claimed.
+Exact accessor records find zero new flat UV faces and zero new invalid
+tangent records, while identifying inherited unprinted-metal defects separately
+(`build/lod-uv/sign-fields-school-crossing.json`). Serialized domains, normals,
+source fields and re-import pass. Original `make check set-check` passes
+afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
+additional mesh buffers total 0.1059 MiB.
+Final native evidence: `renders/lod/school-crossing/`; archived recipe and proof:
+`build/lod-uv/archive/street-signs/school-crossing-final/`.
+
+### Sign family closeout and omitted levels
+
+The 30 mph two-level control saved zero triangles at .25 (648/648), so that
+duplicate level is omitted. Its checked payload and native images remain in
+`build/lod-uv/archive/street-signs/speed30-final/`; the adopted single .09
+level is independently rebuilt/reviewed in `speed30-far-final/`. The other
+single-blank kinds start with the useful far request; no untested near saving
+is inferred. School speed and the two crossing assemblies have useful distinct
+near/far counts. All goals are explicitly missed, and all eight kinds retain
+original map/material routing with no private atlas.
+
+Legacy STOP/name variants stay at their original 568 triangles. The 446-triangle
+curve, left no-parking, left one-way, timed-parking, no-turn-red and plain speed
+kinds remain coarse controls. The other original kinds are deferred pending
+their own comparisons; this proof does not approve aliases, alternate sheeting
+grades or the band bracket. Every one remains in the full-container costs.
+
+Public `make check-lod LOD_THREADS=4` passes all eight configurations
+(`build/lod-uv/street-signs-public-final.json`). Original `make check set-check`
+passes after every kind; the immutable receipt covers 71 unchanged files.
+Independent raw records show zero new flat UV faces or invalid tangent records
+on every level; surviving source defects are explicitly identified. Construction
+views viewed over white as well as transparency confirm the complete crossing
+pictograms; the neutral-backed native strips establish switch appearance.
+
+Full 31-container costs (`build/lod-uv/street-signs-full-costs.json`) include the
+inspection library and legacy variants once per actual file: 42036 stored
+triangles, 57 per-container canonical material references, 125 stored placements
+and 8477655 distinct payload bytes. Textures are 9.3334 MiB for both original
+sets together; new mesh buffers add .5560 MiB. Family residency is 11.8872 →
+12.4432 MiB, excluding engine overhead. Adopted signs draw two primitives per
+active level; the inspection library's 49 draws are separate. Combined measured
+tables/contact are `build/lod-uv/street-signs-final-report/`.
+
+The subsequent `423011c` main integration rebuilds all eight public chains with
+identical payload bytes and passes their field and image gates. Original
+`make check set-check` passes again; the 71-file receipt is unchanged. Current
+109-file tool freeze and the complete 37-test proof are recorded in
+[the kit integration closeout](../kit/LOD_REVIEW.md#fixed-uv-integration-closeout-2026-11-09).
+The earlier per-trial archives retain their original `cc6cfee` freeze.
