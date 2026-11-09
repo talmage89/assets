@@ -974,4 +974,24 @@ match. Final evidence is archived in
 `build/lod-uv/archive/utility/transformer-pole-final/`. This proves native
 appearance, source fields, serialized frames and measured label gaps, not
 engine performance or a new electrical/structural certification.
+
+### Street wires — retain actual coarse tubes
+
+The source layout wire groups measure 6744 / 4008 / 4680 / 8352 triangles for
+101/102/103/104, counted directly from their exported accessors. Source curve
+screens already use coarse 24–120-triangle tubes; connected junctions can form
+larger components. The complete per-group component inventory is
+`build/lod-uv/utility-wires.json`, separate from a simplifier estimate.
+
+The 101 control uses every original conductor group, requests .4 at .25 and
+holds .02 switch pixel to protect true thin-member widths. It retains all
+6744 triangles: no useful geometry reduction. Geometry/re-import and independent
+field checks pass. No new native images or visual-acceptance claim is made for
+this no-saving control. The source remains the delivery, with no extra buffer,
+switch or texture allocation. The other three layouts keep their original
+coarse wires too; they are not approved reductions by association. GuyAssembly
+remains 280 triangles for the same already-coarse reason. These preserve actual
+source diameters rather than pruning thin conductors to meet a ratio.
+Diagnostic config is unwired; the control is archived in
+`build/lod-uv/archive/utility/wires-101-no-saving/` and removed from live export.
 Its two rejected trials have no runtime residency or placement recommendation.

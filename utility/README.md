@@ -390,6 +390,9 @@ triangles while allocating another nearly full mesh. See [REVIEW.md](REVIEW.md).
 The standalone 3,036-triangle transformer stays at LOD0: its safe far trial
 saves only 212 triangles. See [REVIEW.md](REVIEW.md).
 
+Street wires and the 280-triangle guy/guard stay at their coarse LOD0 geometry.
+The strict wire trial saves no triangles. See [REVIEW.md](REVIEW.md).
+
 <!-- LOD checkpoint tangent: begin -->
 ## Tangent pole LODs
 
