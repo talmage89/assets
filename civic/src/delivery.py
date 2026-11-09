@@ -10,7 +10,7 @@ def counts(obs):
     bpy.context.view_layer.update();rows=[];lo=np.full(3,np.inf);hi=-lo;materials=set();unique={};image_cache={};all_images={}
     def images_for(names):
         images={}
-        for name in names:
+        for name in sorted(names):
             material=bpy.data.materials[name]
             if not material.use_nodes:continue
             for node in material.node_tree.nodes:
@@ -30,7 +30,8 @@ def counts(obs):
         used={ob.material_slots[f.material_index].material.name for f in me.polygons if ob.material_slots}
         images=images_for(used);all_images.update(images)
         materials.update(used);rows.append(dict(name=ob.name,kind=ob.get('module_kind','context'),triangles=n,materials=len(used),material_names=sorted(used),image_gpu_mib=sum(v['gpu_mib'] for v in images.values())))
-    return dict(triangles=sum(r['triangles'] for r in rows),unique_triangles=sum(unique.values()),materials=len(materials),material_names=sorted(materials),bounds_min=lo.tolist(),bounds_max=hi.tolist(),size_m=(hi-lo).tolist(),image_gpu_mib=sum(v['gpu_mib'] for v in all_images.values()),images=list(all_images.values()),pieces=rows)
+    ordered=[v for _,v in sorted(all_images.items())]
+    return dict(triangles=sum(r['triangles'] for r in rows),unique_triangles=sum(unique.values()),materials=len(materials),material_names=sorted(materials),bounds_min=lo.tolist(),bounds_max=hi.tolist(),size_m=(hi-lo).tolist(),image_gpu_mib=sum(v['gpu_mib'] for v in ordered),images=ordered,pieces=rows)
 
 
 def consolidate(assembly):
