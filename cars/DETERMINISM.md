@@ -28,3 +28,23 @@ sampled skin points and changes tolerance-sensitive clipping/gauge allocation.
 Both authored charts are regular integer grids; their five subdivision levels
 have an exact **1/32** parameter lattice. This is an internal construction
 chart, separate from the delivery's later atlas unwrap.
+
+### Source-workaround trials
+
+An experimental lattice restoration removes the varying subdivision values.
+The isolated modifier probe produces one canonical UV hash from three different
+native UV hashes. Restoring the exact lattice also exposes existing sensitivity
+in subsequent construction; it is not yet an adopted delivery fix.
+
+The first X220 trial has 63,690 form triangles: a rejected rear gauge patch
+causes the entire panel's back reduction to be discarded. Preserving that
+patch's boundary when retrying the reduction, using 180 mm rear gauge cells,
+keeps the mesh closed and the complete exposed triangle soup unchanged. Three
+fresh four-thread form builds then finish at **62,916** triangles. The depth
+and manifold checks retain their original limits.
+
+The H120 trial stops at the existing aperture-coverage gate: one rear fascia
+fragment has a **0.0000229806634 m** gap against the unchanged **0.000020 m**
+limit. Log: `build/cars-determinism/fixed2-hatch-0/build.log`. These trial results
+do not establish a valid export, a surface-tolerance pass, or cold baked-map
+identity. Accepted exports, maps and documentation images remain untouched.
