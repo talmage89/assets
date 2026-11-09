@@ -281,3 +281,18 @@ pass at zero; placement errors are .000119 mm. The interaction hold therefore
 cannot approve these *rest* geometries. Archive all payloads, hashes, native
 views and motion results under build/lod-round2/mailbox/target-pass1/. Retry
 the conservative .6/.12 chain with the same switches, goals and hold policy.
+
+### Round 2 critique 2 — conservative rest clearance still fails
+
+Opened all refreshed switch strips and construction views. Color/value holds;
+the near crown rounds properly, and far coverage remains recognizable. Native
+image checks pass. However the 766/202 trial still measures .174/.234 mm of
+closed-door penetration, above .05 mm. Every flag sweep and the original door
+again pass at zero. Archive this separate failure under pass2/; neither this
+result nor round 1's open-door failure approves a reduced closed door.
+
+Use the kit's existing source_geometry_nodes option to retain the original
+Door and Flag geometry, as well as their pivots and material routing. Try one
+.09 level: retaining these already small moving surfaces makes a weak near
+reduction poor value. Keep the original far goal of 190, so any necessary
+exception remains measurable. No source geometry or kit code is modified.
