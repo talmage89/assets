@@ -108,6 +108,15 @@ def share_geometry(d,binary):
 def sha(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def presentation_recipe():
+    paths=('river/src/render.py','river/src/views.py','river/src/materials.py','freeway/src/foliage_adapter.py')
+    return {p:sha(REPO/p) for p in paths}
+
+
+def camera_signature(definition):
+    return {k:definition[k] for k in ('location','target','lens','roll','aspect') if k in definition}
+
+
 def externalize(source,dest):
     from kit.gltf import GLB
     g=GLB(Path(source));d=copy.deepcopy(g.json);dest=Path(dest);dest.parent.mkdir(parents=True,exist_ok=True)

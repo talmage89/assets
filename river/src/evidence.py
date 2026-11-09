@@ -7,7 +7,7 @@ import numpy as np
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from kit.fonts import find_font
-from package import bundle
+from package import bundle,camera_signature
 
 
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -17,12 +17,13 @@ def main():
     folder=Path('renders/fixes');folder.mkdir(parents=True,exist_ok=True);rows=[]
     font=ImageFont.truetype(find_font('DejaVu Sans','Book'),21)
     for seed in (101,202):
-        for name in ('hero','above','under','bearings','pier','abutment','riffle','bar','driver','scale'):
+        from views import views
+        for name in views(seed):
             before=folder/'before'/str(seed)/(name+'.png')
             current=Path('renders/checkpoint')/str(seed)/(name+'.png')
             old=json.loads(before.with_suffix('.json').read_text());now=json.loads(current.with_suffix('.json').read_text())
             after=current
-            assert old['camera']==now['camera'],('Comparison camera changed',seed,name)
+            assert camera_signature(old['camera'])==camera_signature(now['camera']),('Comparison camera changed',seed,name)
             assert now['bundle_sha256']==bundle(now['source']),('Stale comparison',after)
             a=Image.open(before).convert('RGB');b=Image.open(after).convert('RGB')
             assert a.size==b.size and a.width>=800,(before,a.size,b.size)

@@ -7,7 +7,7 @@ import json
 import numpy as np
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from kit.fonts import find_font
-from package import bundle
+from package import bundle,presentation_recipe,sha
 from plan import Plan
 from views import views
 
@@ -33,9 +33,13 @@ def main():
         calibration=json.loads(Path('build/photo-calibration.json').read_text())
         expected=[a.folder/str(seed)/(name+'.png') for seed in (101,202) for name in views(seed)]
         expected += [a.folder/'modules.png']+[Path('renders/checkpoint-matches')/(name+'.png') for name in calibration]
+        expected += [a.folder/str(seed)/'eevee.png' for seed in (101,202)]
         assert all(p.is_file() for p in expected),('Missing required view',[str(p) for p in expected if not p.is_file()])
         for p in files+sorted(Path('renders/checkpoint-matches').glob('*.png')):
             meta=json.loads(p.with_suffix('.json').read_text());source=meta['source']
+            assert meta.get('recipe_sha256')==presentation_recipe(),('Stale light/shader recipe',p)
+            assert meta.get('image_sha256')==sha(p),('Changed render pixels',p)
+            assert not meta.get('source_fields_sha256'),('Source fields mixed into delivery views',p)
             if source not in cache:cache[source]=bundle(source)
             assert meta['bundle_sha256']==cache[source],('Stale export view',p)
             if p.parent.name in ('101','202'):
@@ -43,7 +47,7 @@ def main():
                 if seed not in plans:
                     doc=json.loads(Path(source).read_text())
                     plans[seed]=Plan(**next(n['extras']['plan'] for n in doc['nodes'] if n['name']==f'Crossing_{seed}'))
-                camera=views(seed,plans[seed])[p.stem]
+                camera=views(seed,plans[seed])['hero' if p.stem=='eevee' else p.stem]
                 assert meta['camera']==json.loads(json.dumps(camera)),('Stale view camera',p)
             elif p.parent.name=='checkpoint-matches':
                 assert meta['camera']==calibration[p.stem]['shot'],('Stale photo camera',p)

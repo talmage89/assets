@@ -16,7 +16,7 @@ def views(seed,plan=None):
     bearing_target_x=-p.length/2+.40 if rural else -p.length/2+p.span
     rural_abutment_x=p.water_edges(-13)[0]-2.0
     abutment_x=p.water_edges(-7.6)[0]-1.2;abutment_z=p.bed(abutment_x,-7.6)+1.65
-    return dict(
+    result=dict(
         hero=dict(location=(x,y,hero_z),target=(2,0,2.25),lens=40),
         above=dict(location=(-110,-140,142),target=(0,10,0),lens=35),
         under=dict(location=(ux,-7,uz),target=(0,1,3.4),lens=26,exposure=.3),
@@ -27,3 +27,14 @@ def views(seed,plan=None):
         riffle=dict(location=(rx,ry,rz),target=(p.center(p.riffle_y),p.riffle_y,.0),lens=42),
         bar=dict(location=(bx,by,bz),target=(p.center(p.bar_y)+inner*p.width*.27,p.bar_y,.0),lens=42),
         scale=dict(location=(-p.length/2-12,-10,p.deck_z+1.65),target=(-p.length/2-3,0,p.deck_z+.8),lens=40))
+    if rural:
+        # The high trail eye sits above the bottom flange. A lower bank eye
+        # resolves the actual I-section without changing the accepted deck
+        # overhang. Retain the handoff camera as an additional control.
+        result['retained_hero']=dict(result['hero'])
+        bank_x=p.water_edges(y)[0]-.85
+        result['hero']=dict(location=(bank_x,y,p.bed(bank_x,y)+1.65),target=(2,0,2.25),lens=40)
+    if not rural:
+        wy=-99;wx=p.center(wy)-p.halfwidth(wy)-2.5
+        result['floodwall']=dict(location=(wx,wy,2.30),target=(p.center(-81)-p.halfwidth(-81)-3.7,-81,2.2),lens=40)
+    return result

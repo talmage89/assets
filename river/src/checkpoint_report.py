@@ -16,19 +16,19 @@ def main():
     costs=json.loads(Path('build/costs.json').read_text())
     check=json.loads(Path('build/check.json').read_text())
     fits=json.loads(Path('build/photo-calibration.json').read_text())
-    lines=['# River revision checkpoint','',
-           'Both places use freshly imported external-image glTF. No docs images or README gallery are added.',
+    lines=['# River / current export evidence','',
+           'Both places use freshly imported external-image glTF and shared shipped PBR images.',
            'The generator interface, section, module counts, canonical shared images and path/socket names remain.',
            '', '| Fix | Export views |','| --- | --- |',
-           f'| Riverfront buildings, working alleys and continuing town | {shots("hero","above",seeds=(101,))} |',
+           f'| Varied native footprints, alleys and parking; poured wall bays, access and stains | {shots("hero","above","floodwall",seeds=(101,))} |',
            f'| Riparian strip, agriculture, occupied road frontage | {shots("hero","above",seeds=(202,))} |',
            f'| Girder silhouette, seats, laminated pads, sole plates, anchors and keepers | {shots("under","bearings")} |',
            f'| Stem, wingwalls, approach and armored slope | {shots("abutment")} |',
            f'| Cutbank/sod/roots, point bar, bankfull wrack and broken riffle | {shots("bar","riffle")} |',
            f'| Warm raking light, depth/flow water, caused age and bank plants | {shots("hero","pier","driver")} |',
            '', 'Before/after: '+comparisons('hero','above','bearings','abutment','riffle','bar','pier','under','driver','scale')+'.',
-           '', 'All twenty comparisons are in `renders/fixes/`, 1280 pixels per side, with identical cameras.',
-           'Changed inspection cameras use the reconstructed accepted `9b1c8bc` export and lighting.',
+           '', 'All twenty-two comparisons are in `renders/fixes/`, 1280 pixels per side, with identical cameras.',
+           'The baseline is the reconstructed accepted `4f09582` export and lighting.',
            'The unchanged cameras retain the original handoff frames. Receipts: `build/fix-evidence.json`.',
            '', '| Photo pair | RMS px |','| --- | ---: |']
     for name in ('urban','bank','under'):
@@ -59,12 +59,19 @@ def main():
                   f'glTF + BIN **{r["gltf_bytes"]+r["bin_bytes"]:,} bytes**; shared images **{r["shared_image_mib"]:.2f} MiB**.','']
     lines += [f'Both crossings’ image union: **{costs["texture_mib_bc8_mips"]:.2f} MiB**. Native cars/buildings/botany remain separate costs.',
               'The instanced context needs engine batching/culling/LOD; no frame-rate claim is made.',
-              '', 'Proof: `make`, `make check`, `make repeat`, independent photo projection verification and exact five-image regeneration.',
+              '', 'Construction, storage, image regeneration, repeat and appearance receipts are separate; missing receipts remain pending.',
               f'Preservation: **{check["preserved_files"]}** existing delivery files. Kit and top-level README are unchanged.',
               'Receipts: `build/check.json`, `resources.json`, `repeat.json`, `texture-repeat.json`, `render-check.json` and `fix-evidence.json`.',
               '', '[Full frame contact](../renders/checkpoint/contact.jpg); [photo contact](../renders/checkpoint-matches/contact.jpg).',
               'The module sheet and 1.8m human/car scale shots are in the same checkpoint folder.',
               'Visual criticism and remaining CG cues are recorded in the last pass of [REVIEW.md](../REVIEW.md).','']
+    for name in ('check','storage-check','repeat','texture-repeat','render-check','fix-evidence'):
+        path=Path('build')/(name+'.json')
+        status='present' if path.exists() else 'pending'
+        if path.exists():
+            data=json.loads(path.read_text())
+            if 'passed' in data:status='passed' if data['passed'] else 'FAILED'
+        lines.append(f'- `{path}`: {status}')
     Path('build/checkpoint-report.md').write_text('\n'.join(lines))
 
 

@@ -245,12 +245,15 @@ def construction(seed):
     from plan import Plan
     cameras=views(seed,Plan(**meta['plan']));camera_clearance={}
     rock_tree=bvh(next(o for o in obs if o.name=='BarCobbleAndScourRiprap'))
-    for name in ('bearings','abutment'):
+    camera_names=['bearings','abutment','hero']+(['retained_hero'] if seed==202 else [])
+    public_floor=bvh(next(o for o in obs if o.name=='FloodwallTrailAndAccess'))
+    for name in camera_names:
         point=Vector(cameras[name]['location']);heights=[]
-        for soil in (tree,rock_tree):
+        for soil in (tree,rock_tree,public_floor):
             hit=soil.ray_cast(point+Vector((0,0,100)),Vector((0,0,-1)),200)[0]
             if hit is not None:heights.append(point.z-hit.z)
         assert heights and min(heights)>.65,('Inspection camera buried/too low',name,heights)
+        if name in ('hero','retained_hero'):assert 1.50<min(heights)<1.85,('Hero is not at a standing eye',name,heights)
         camera_clearance[name]=min(heights)
     photo_camera={}
     calibration=Path('build/photo-calibration.json')
@@ -289,7 +292,9 @@ def main():
     assert np.allclose(section['vertical_stations_m'],[0,.01905,.1778,.3683,.8509,.9652,1.143],atol=2e-5)
     for key,target in [('depth_m',1.143),('top_width_m',.4064),('bottom_width_m',.5588),('web_width_m',.1778)]:
         assert abs(section[key]-target)<2e-5,(key,section[key],target)
-    report=dict(passed=True,crossings=results,modules=modules,preserved_files=preserved(),
+    from kit.photo_match import verify
+    verify('build/photo-calibration.json')
+    report=dict(passed=True,independent_photo_projection_passed=True,crossings=results,modules=modules,preserved_files=preserved(),
         measured_girder_end_section=section,scope='form, raw normals/finite tiling UV/density, flow, actual bearing contacts and serialization')
     Path('build/check.json').write_text(json.dumps(report,indent=2)+'\n');print('RIVER_CHECK_PASS')
 

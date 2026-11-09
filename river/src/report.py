@@ -50,6 +50,23 @@ def main():
         c=r['categories'];lines.append('| '+str(r['seed'])+' | '+' | '.join(f'{c.get(k,0):,}' for k in ('bridge','reach','water','site','vegetation','cars','context'))+f' | {r["total"]:,} |')
     lines+=['','| Seed | glTF + BIN bytes | Material states / unbatched placed draws |','| --- | ---: | ---: |']
     for r in rows:lines.append(f'| {r["seed"]} | {r["gltf_bytes"]+r["bin_bytes"]:,} | {r["material_states"]} / {r["placed_draws"]} |')
+    resources=json.loads(Path('build/resources.json').read_text())
+    lines += ['', '| Seed | Shared external PNG bytes | Scene + standalone copies of shared PNG bytes |',
+              '| --- | ---: | ---: |']
+    for seed in (101,202):
+        r=resources[f'RiverCrossing-{seed}']
+        lines.append(f'| {seed} | {r["external_png_bytes"]:,} | {r["standalone_copy_bytes"]:,} |')
+    lines += ['', 'The 120 MB scene target uses the same glTF + BIN accounting as the original 367 MB measurement. Canonical library PNGs remain external, shared and byte-identical. A fully copied standalone folder costs the additional bytes above.']
+    lines += ['','| Seed / category | Placed triangles | Unique triangles | Geometry bytes | Shared image MiB |',
+              '| --- | ---: | ---: | ---: | ---: |']
+    for seed in (101,202):
+        for category,r in resources[f'RiverCrossing-{seed}']['categories'].items():
+            lines.append(f'| {seed} / {category} | {r["placed_triangles"]:,} | {r["unique_triangles"]:,} | {r["geometry_buffer_bytes"]:,} | {r["shared_image_mib"]:.2f} |')
+    lines += ['', 'Geometry bytes and image allocations are deduplicated within each row; shared rows are not additive.',
+              '', '| Module | glTF + BIN bytes | Shared image MiB |','| --- | ---: | ---: |']
+    for module in manifest['modules']:
+        r=resources[module['name']]
+        lines.append(f'| {module["name"]} | {r["gltf_bytes"]+r["bin_bytes"]:,} | {r["shared_image_mib"]:.2f} |')
     lines+=['',f'Both crossings share {len(images)} unique image payloads, estimated **{costs["texture_mib_bc8_mips"]:.2f} MiB** at 8bpp with full mips. PNG dependency bytes and uncompressed residency differ. These totals include native context; the new river-only allocation is listed above.','']
     path=Path('README.md');s=path.read_text();a='<!-- measured-costs:start -->';b='<!-- measured-costs:end -->'
     path.write_text(s[:s.index(a)+len(a)]+'\n'+'\n'.join(lines)+s[s.index(b):])

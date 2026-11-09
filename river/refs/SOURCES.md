@@ -35,3 +35,9 @@ Online primary references, viewed:
 
 Local pair products remain ignored. Cropping, assumed-neutral balancing and
 estimated cameras are logged with the comparisons; original photos stay intact.
+
+Rendering reference: Blender Foundation, [Cycles object caustics](https://docs.blender.org/manual/en/5.1/render/cycles/object_settings/object_data.html#caustics),
+public manual, underlying rights retained; viewed 2026-11-08. Its stated MNEE
+limits exclude volumetric materials and bump/normal maps. Used to distinguish
+shadow-interface illumination of a turbid medium from a caustic-focusing claim.
+No manual code or images are downloaded or incorporated.

@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
 DEST=ROOT/'river/build/accepted-rebuild'
-REVISION='9b1c8bc'
+REVISION='4f09582'
 
 
 def prepare():
@@ -36,6 +36,9 @@ def prepare():
 
 def build():
     local=DEST/'river'
+    with (local/'build/town.log').open('w') as log:
+        subprocess.run(['blender','-t','1','-b','--factory-startup','--python-exit-code','1',
+                        '--python','src/native_town.py'],cwd=local,stdout=log,stderr=subprocess.STDOUT,check=True)
     with (local/'build/model.log').open('w') as log:
         subprocess.run(['blender','-t','1','-b','--factory-startup','--python-exit-code','1',
                         '--python','src/build.py','--','--out','build/river.blend'],cwd=local,

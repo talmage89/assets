@@ -698,3 +698,82 @@ the complete set; no partial or stale frame is accepted and no job survives.
 Per-piece and per-category costs are regenerated in `build/checkpoint-report.md`.
 This is the requested checkpoint, with the appearance limits above retained.
 No kit change, docs images, README gallery or top-level index edit is included.
+
+## Pass 17 — light and storage controls
+
+Color/value first: opened the seven specified handoff frames at native size,
+then two 1280px light studies and four 1000px directional controls. Compared
+Raisin's concrete parapet and FHWA's cap as assumed photographic neutrals;
+the retained bank pair uses gray dock decking (no concrete in that frame).
+The original glossy-ray sky was 8.6 times darker than the diffuse sky. It
+made reflected water nearly black independently of its physical depth.
+The first correction restores the real sky to reflected rays. Stronger
+16-degree downstream-side sunlight separates the deck lip, web and flange,
+and casts rail shadows on the walk. Foreground shade remains too dominant,
+and the water's fine even ripple still reads as an analytic pattern. Reject
+these as finals; revise the wave trains, depth response and surface hierarchy.
+
+The storage control preserves all triangle indices and structural positions.
+Exact sharing alone is insufficient because the distinct native buildings
+dominate the downtown package. Bounded context position storage, normalized
+normal/color attributes, decoded native UVs and omitted regenerable tangents
+reduce the trial packages to 118.1 / 22.9 MB without reducing geometry. The
+maximum position half-step is .362mm. The first fresh-import images expose
+rectangular native leaves: the thin-leaf adapter ignores decoded UV transforms.
+Reject that control and retain exact UVs for all vegetation materials. This
+is a serialization/shader compatibility finding, not a visual acceptance.
+
+The first complete geometry revision serialized at 111,687,574 / 22,839,068
+bytes. Correspondence tested 5,500,602 / 930,971 original attribute vertices:
+maximum context position errors .363 / .099mm, normal angles .382 / .387
+degrees, color errors below .002 and UV errors below .000418. Every original
+triangle index and structural position is exact. These prove storage only.
+The civil audit rejects downtown at 161,307 triangles: capped tubes for tiny
+form ties consume about 10k. Replace them with recess charts in the existing
+sheet, and concentrate water tessellation at the shoal. Do not relax 150k.
+The subsequent model process ended in SIGTERM without a Blender diagnostic;
+no process remained. Restart serially with one worker and require fresh checks.
+
+## Pass 18 — complete correction control, water rejected
+
+Color/value first: opened all thirteen 1280px revision-three frames. Balanced
+Raisin's parapet and Morrison's bank-bridge face on concrete; retained the
+accepted Huron pair's dock neutral. Concrete samples are about .61/.58/.53
+and .62/.60/.55 display RGB, with zero near-clipped hero pixels. Deep underside
+shade is retained. The western sun still leaves the near walk and wall in
+flat shade, so test the eastern side of the frame with slightly more sky fill.
+
+The lower rural bank eye exposes the web, flange and overhang more clearly.
+Retain the original high-trail camera as an extra comparison. Downtown depths,
+heights, gaps and setbacks now break the former roof grid; native rear details
+remain. Wall joints, tie recesses, weeps, ladder, stairs and lamps are visible.
+The wall still lacks runoff from its coping joints. Narrow cap runs replace
+the broad repair masks, but the white mineral edges need to sit in front of
+the dark decal, not behind it.
+
+Reject the water and quarry stones. Water reads as pebbled silver metal;
+the bed barely shows at the bar, and ribbon foam sinks through the sampled
+wave surface. The riffle is a zipper rather than broken standing water.
+The new dark triangular stones replace cubes with pointed polyhedra. Rebuild
+them from independent fracture planes, lighten their mineral albedo and drive
+wetness/algae from each actual corner's height. Lengthen the wind ripples,
+seat foam against the actual exported surface and test direct sunlight through
+the water interface. This pass is not accepted for documentation. No gallery
+has been created.
+
+## Pass 19 — side-light control, excessive water chroma
+
+Color/value first: inspected hero, overhead, underside and bearings at 1280px.
+The eastern 16-degree sun finally lights the walk and wall, throws parapet
+shadows down the exposed webs and retains deep cavities. Concrete stays gray
+with warm highlights. The illuminated water, however, is excessively yellow
+green beneath the bridge, and the overhead lacks convincing shallow-bed
+transmission. Reject this water for final documentation. Reduce the medium's
+scattering and chroma while retaining the new direct-light interface treatment.
+
+The bridge's lip, web and bottom flange now separate; the overhead town's
+varied depths and gaps survive. The four frames are archived in the worktree's
+`build/river-review-history/pass19/`; earlier controls are in its `revision3/`.
+The render process again ended with SIGTERM without a Blender diagnostic.
+No worker remains. Use bounded serial workers with verified image receipts
+under one GPU-lock acquisition, then rejudge every frame. No docs are approved.

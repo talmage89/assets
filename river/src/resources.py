@@ -40,8 +40,11 @@ def measure(path):
             row['images'][digest]=info;all_images[digest]=info
         row['unique_meshes']=len(row.pop('mesh_indices'));row['material_states']=len(row.pop('materials'))
         row['shared_image_mib']=sum(v['bc8_full_mips_mib'] for v in row['images'].values())
+    scene_bytes=path.stat().st_size+path.with_suffix('.bin').stat().st_size
+    png_bytes=sum(v['png_bytes'] for v in all_images.values())
     return dict(categories=categories,unique_images=all_images,shared_image_mib=sum(v['bc8_full_mips_mib'] for v in all_images.values()),
-                gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size)
+                gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,
+                external_png_bytes=png_bytes,standalone_copy_bytes=scene_bytes+png_bytes)
 
 
 def bearing_units(path):
