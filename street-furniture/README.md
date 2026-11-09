@@ -194,7 +194,7 @@ Stock glTF does not reproduce headlight retroreflection for the separate signs.
 
 Bike racks stay LOD0: 1,020 triangles per U, or 4,080 for the row; their pipe geometry is already minimal.
 Receptacles and news/collection boxes have no LOD chain yet; their hinges need clearance corrections.
-The shelters and bus-stop sign await their own LOD checks. See [the review](REVIEW.md).
+The missing-pane shelter and bus-stop sign await their own LOD checks. See [the review](REVIEW.md).
 
 <!-- LOD checkpoint bench: begin -->
 ## Bench LODs
@@ -265,3 +265,26 @@ Use the listed screen-height switches with hysteresis in the engine LOD controll
 
 Stored placements count the resident alternatives; active draw calls are in the level table. [Verification and target witnesses](REVIEW.md). [Engine setup](../kit/LOD.md).
 <!-- LOD checkpoint meter-twin: end -->
+
+<!-- LOD checkpoint shelter: begin -->
+## Transit shelter LODs
+
+Optional glTF/BIN levels live in `export/lod/shelter/`. `make lod LOD_THREADS=4` builds all adopted kinds; `make check-lod` verifies them.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 7,730 / — | 2 / 2 | 767,665 | 9,526,421 | 10,294,086 | 17.333 + 0.7254 | near |
+| LOD1 | 5,958 / 1,160 | 2 / 2 | 602,374 | 9,526,421 | 10,128,795 | 17.333 + 0.5695 | 9.0% / 26.38 m |
+
+Place the Shelter root at the slab underside and retain child transforms. Its modest 23% triangle saving preserves the rails, columns, bench and foot contacts; cheaper geometry visibly damages them.
+
+The levels share the original 3 × 2048² + 1 × 1024² maps, about 17.333 MiB. They add no image content. The whole chain costs 18.6284 MiB, versus 18.0588 MiB for LOD0 alone. Reuse the original material and image resources.
+
+Use the listed screen-height switches with hysteresis in the engine LOD controller. Distances assume 60° vertical FOV and 1080p. Only one level draws per instance.
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 13,688 | 2 | 4 | 10,896,460 | 18.6284 |
+
+Stored placements count the resident alternatives; active draw calls are in the level table. [Verification and target witnesses](REVIEW.md). [Engine setup](../kit/LOD.md).
+<!-- LOD checkpoint shelter: end -->

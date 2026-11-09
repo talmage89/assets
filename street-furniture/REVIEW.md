@@ -671,3 +671,36 @@ and roof segmentation; this is not new look development. But 23% savings is a
 weak extra level. Archive this complete proof in shelter-pass1/ and try a
 cheaper .05 request with the normal .75-pixel allowance, retaining the 1160
 goal, original maps, original switches and all physical/image gates.
+
+### Intact shelter critique 2 — reject pointed seating and detached pads
+
+The cheaper .05 request / .75-pixel trial reaches 4008 triangles. Opened all
+three native strips, both close views and contact. Color/value first: the
+seat/back slats turn into bright pointed blades; thin roof-rib highlights also
+change. Local means .09332/.08889/.08329 exceed .08 at all three views.
+The actual support audit independently finds three pads separated from the
+slab, worst 12.717 mm, versus .5 mm tolerance. All six original pads meet it.
+The audit now records every measured bad gap before failing, rather than leave
+a stale previous success report behind. No tolerance or geometry is altered.
+
+Archive the complete negative trial in shelter-pass2/. The public physical
+prerequisite fails before raw/normal recipes execute; any older raw report in
+that archive belongs to its recorded previous manifest and cannot approve this
+trial. Its native image and actual-support failures already reject delivery.
+
+Retain the lowest passing tested level: 5958 triangles, goal 1160 still false,
+at .09 / 26.385 m. Restore its exact archived config, payload and comparisons;
+do not regenerate or reinterpret the failed mesh. This is a modest 23% saving,
+reported plainly, with no image content added. It keeps every thin frame member,
+the recognizable bench and all six real pad/column contacts. A middle preset
+could improve the saving, but is not approved or claimed within this session's
+family time budget. Public check-lod for every adopted kind passes after the
+restore, including current support, pane, placement, UV/frame and normal audits.
+
+Intact-shelter closing proof: original make check passes after the final
+selection; all original/accepted payload and 103 tool hashes still match.
+Measured tables come from the reporter, with the modest saving retained in the
+buyer notes. This one instance draws two primitives and 7730 or 5958 triangles;
+its full stored costs are in report-shelter/ and the README. The failed trial's
+stale raw/normal reports are explicitly renamed and marked in its STATUS.json.
+No failed export is presented as an extra delivered level.

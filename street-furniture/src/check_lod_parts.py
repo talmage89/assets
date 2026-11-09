@@ -62,14 +62,15 @@ def shelter_supports(meshes, opaque_name, intact):
             insertion.append(float(hit.z-point[2]))
         gap = max(map(abs, gaps))
         depth = float(pad['hi'][2]-pad['lo'][2])
-        assert gap<=.0005 and min(insertion)>=-.0005 and max(insertion)<=depth+.0005
         rows.append(dict(center_xy_m=center[:2].tolist(), pad_samples=len(gaps),
             max_pad_slab_gap_m=gap, column_samples=len(insertion),
-            column_insertion_range_m=[min(insertion),max(insertion)]))
+            column_insertion_range_m=[min(insertion),max(insertion)],
+            passed=gap<=.0005 and min(insertion)>=-.0005 and max(insertion)<=depth+.0005))
     tree = BVHTree.FromPolygons(all_vertices, all_faces, all_triangles=True)
     hit = tree.ray_cast(Vector((1.2,.3,1.31)),Vector((0,1,0)),.6)[0]
-    assert (hit is not None) == intact, 'Rear-right pane presence changed'
-    return dict(passed=True, supports=rows, rear_right_pane_hit_m=list(hit) if hit else None)
+    pane_ok = (hit is not None) == intact
+    return dict(passed=pane_ok and all(r['passed'] for r in rows), supports=rows,
+        tolerance_m=.0005, pane_passed=pane_ok, rear_right_pane_hit_m=list(hit) if hit else None)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config', required=True)
@@ -135,6 +136,8 @@ for level, path in enumerate(paths):
             range=[0, 0] if level else list(pivot['range_degrees']),
             tolerance_m=.0005, allow=[]))
     result = sweep(dict(MOTIONS=specs)) if specs else dict(passed=True, motions=[])
+    if supports:
+        result['passed'] &= supports['passed']
     result.update(level=level, sha256=digest(path), path=str(path.relative_to(ROOT)),
         placement_error_m=error, ground_minimum_m=minimum, physical_meshes=physical,
         non_solid_graphics_excluded=excluded, shelter_supports=supports)

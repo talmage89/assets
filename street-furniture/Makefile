@@ -91,7 +91,7 @@ clean:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('build','textures','export','renders')]"
 
 # Independently placed kinds require their own additive proof.
-LOD_CONFIGS := src/lod-bench.json src/lod-meter-single.json src/lod-meter-twin.json
+LOD_CONFIGS := src/lod-bench.json src/lod-meter-single.json src/lod-meter-twin.json src/lod-shelter.json
 include ../kit/lod_rules.mk
 .PHONY: check-lod-parts
 check-lod: check-lod-parts
