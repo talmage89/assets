@@ -2288,6 +2288,23 @@ retain all 454 source meshes, 150 GLB accessors, maps and graph; the complete
 11,530,736-byte GLB retains SHA-256
 `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
 
+## Car LOD round 2 — regression closeout
+
+Merged `main` first (already up to date through `39b835c`). The accepted factory
+adapter stays. Four fresh optional maple atlases now isolate the earlier
+one-code variation: the literal `1d9d429` tool varies by three pixels/channels
+between its two runs; the current tool varies by two. Every difference is one
+8-bit code, and frozen run 1 equals current run 2 byte for byte. This is
+pre-existing bake variation. Commands, hashes and all comparisons are in
+`build/car-lod/maple-proof/proof.json`. Opened all four 32-view atlases: color,
+branch/crown coverage and the dark cavity mass agree visually. No accepted
+tree output is replaced. Cone and fixed-maple payload equality from round 1
+still holds. The pickup's full baseline is skipped at the lead's request.
+
+The round-2 freeze and original-file ledger are in `build/car-lod/round2/`.
+Original deliveries, referenced images and documentation images remain
+immutable. Generated car modeling scenes may be rebuilt independently.
+
 ## Factory proxy adapter, 2026-11-09
 
 The adapter closes factory routing, but does not close the native appearance
