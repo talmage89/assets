@@ -1087,3 +1087,40 @@ mathematical minimum. Original maps allocate no new image. Final evidence:
 `build/lod-uv/archive/utility/streetlight-final/`; native views:
 `renders/lod/streetlight/`. This proves rest appearance/data and measured gaps,
 not engine performance or continuous motion.
+
+### Three-can pole critique 1 — source values, failed support
+
+Opened all three native strips, both construction views and contact. Tank,
+timber, porcelain and lead values agree, with no new thin-member loss; the
+7096-triangle .05-pixel trial passes images and zero chart crossings. Its
+brand-support gap is 2.927 mm, above 1 mm, so reject it despite the images.
+Exact evidence: `build/lod-uv/archive/utility/bank-support-failure/`.
+
+### Three-can pole critique 2 — support passes, cost does not
+
+The .002-pixel control retains 7546/8438 triangles, versus 3375 requested.
+Opened all regenerated native strips, both construction views and contact,
+then revisited can mounts, braces and lead loops. No new coverage or material
+fault appears; original coarse hardware remains apparent close up. All image,
+field, import and atlas checks pass. Brand max gap .4047 mm, Rating .3968 mm.
+Retaining 89.43% of the source for only 892 triangles saved is a weak extra
+row for this less frequent assembly. Keep it LOD0; no runtime row is adopted.
+Final control: `build/lod-uv/archive/utility/bank-cost-rejected/`.
+
+### Service mast critique 1 — actual repeated attachment
+
+Selected the original 101 House_1_0_ServiceMast with its placement and service/
+communication sockets. Opened all three native strips. Zinc and black hood
+values, true tube thickness and supported termination agree. The .25 request
+retains 1042/1088 triangles, against 435. All independent checks pass, zero
+crossings. Other placements are not claimed tested copies by this one result.
+
+### Service mast critique 2 — preserve an already coarse module
+
+Opened both construction views and contact and revisited the bracket/hood at
+native size. Source seams and coarse bends remain; there is no new visible
+fault. Saving only 46 triangles (4.23%) does not justify another full buffer.
+Keep the original shared-set 1088-triangle mast. This and the bank config stay
+unwired, with no new resident allocation or switch recommendation. Evidence:
+`build/lod-uv/archive/utility/service-mast-cost-rejected/`. Both live control
+outputs are removed from export/lod after archiving.

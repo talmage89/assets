@@ -381,8 +381,8 @@ TIMBER, RILL ELECTRIC and RV IDs use installed DejaVu Sans, resolved through
 `kit/fonts.py` (open Bitstream Vera/DejaVu license). Neighboring family scripts
 supply presentation context without changing their source or delivery paths.
 
-The other utility kinds have no additional chain yet; they await their own
-geometry, support and switch-distance checks. See [the LOD review](REVIEW.md).
+Whole-street containers remain LOD0; the reviewed part chains switch independently.
+See [the LOD review](REVIEW.md).
 
 The 1,248-triangle crossarm stays at LOD0: its safe far trial saves only 76
 triangles while allocating another nearly full mesh. See [REVIEW.md](REVIEW.md).
@@ -392,6 +392,9 @@ saves only 212 triangles. See [REVIEW.md](REVIEW.md).
 
 Street wires and the 280-triangle guy/guard stay at their coarse LOD0 geometry.
 The strict wire trial saves no triangles. See [REVIEW.md](REVIEW.md).
+
+The 8,438-triangle three-can pole and 1,088-triangle service mast stay at LOD0:
+their checked trials retain nearly all their geometry. See [REVIEW.md](REVIEW.md).
 
 <!-- LOD checkpoint tangent: begin -->
 ## Tangent pole LODs
