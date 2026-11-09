@@ -1064,3 +1064,26 @@ mathematical minimum. Original maps allocate no new image. Final evidence:
 `build/lod-uv/archive/utility/riser-final/`; native views:
 `renders/lod/riser/`. This proves rest appearance/data and measured gaps,
 not engine performance or continuous motion.
+
+
+### Light-bracket pole LODs critique 1 — native values and coverage
+
+Opened all three native strips and difference panes. Timber and hardware
+values agree with LOD0; light-bracket curve, its pole connection, shaft and lower cable loop remain.
+At 25% / 36.315 m, the protected level has
+3178/4024 triangles against 1610.
+Worst mean 0.0007665, local 0.004942 and silhouette loss
+0.003315 pass the unchanged gates. The goal is missed.
+
+### Light-bracket pole LODs critique 2 — construction and independent checks
+
+Opened both construction views and contact, then revisited native details:
+the bracket foot and tube width; the source excludes the separate light head. No new missing support or thin member appears.
+Chart crossings are zero and maximum measured marking gap is 0.4008 mm.
+Re-import, UV area, tangent and source-field checks pass independently of images.
+The original family check passes after these variants; every original resource
+and frozen tool hash matches. Counts are the tested protected result, not a
+mathematical minimum. Original maps allocate no new image. Final evidence:
+`build/lod-uv/archive/utility/streetlight-final/`; native views:
+`renders/lod/streetlight/`. This proves rest appearance/data and measured gaps,
+not engine performance or continuous motion.
