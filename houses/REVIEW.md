@@ -2861,7 +2861,7 @@ colonial chain. One selected level draws per instance; the active original
 draw counts are ranch 10, Cape 8 and split 12, or one for the ranch proxy.
 
 Remaining work needs separate general tool proofs: economical reduction
-within tiled/trim regions without new float-serialized degenerate faces,
+within tiled/trim regions without new degenerate faces in the export,
 and far transfer that preserves pale siding and window/trim response.
 The retained ranch proxy still loses close masonry/shingle detail and has
 an entry-roof crease; it is approved only at its tested 4.5% switch and
