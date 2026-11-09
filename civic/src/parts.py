@@ -57,17 +57,29 @@ def cornice(a,name,p,length,yaw=0,plain=False):
 
 
 def column(a,name,p,height=5.0292,diameter=.6096,pilaster=False):
-    m=a.mesh(name,kind='Pilaster' if pilaster else 'TuscanColumn',stone_strip=0)
+    m=a.mesh(name,kind='Pilaster' if pilaster else 'TuscanColumn',stone_strip=0,weather=True,top=p[2]+height)
     if pilaster:m.box((0,0,height/2),(diameter,.24,height),'Concrete')
     else:
-        levels=[(0,.62),(.10,.62),(.16,.54),(.22,.50),(.30,.49),(.38,.48),(.55,.465),(height*.35,.458),(height*.65,.422),(height-.36,.385),(height-.28,.385),(height-.23,.44),(height-.16,.47),(height-.10,.48)]
+        # Tuscan order: square plinth, torus/scotia base, fillet, entasis,
+        # astragal and neck, quarter-round echinus, square abacus. Radii are
+        # relative to the measured lower shaft diameter, not a straight cone.
+        base=.48*diameter;cap=.47*diameter
+        levels=[(.14*diameter,.64),(.18*diameter,.64),(.22*diameter,.60),
+            (.26*diameter,.57),(.30*diameter,.55),(.34*diameter,.57),
+            (.39*diameter,.57),(base,.50)]
+        for t in (0,.18,.34,.52,.72,1):
+            levels.append((base+(height-base-cap)*t,.50-.085*t+.019*math.sin(t*math.pi)))
+        levels += [(height-cap+.025*diameter,.415),(height-.40*diameter,.46),
+            (height-.36*diameter,.46),(height-.33*diameter,.42),
+            (height-.28*diameter,.44),(height-.23*diameter,.49),
+            (height-.18*diameter,.565),(height-.15*diameter,.58)]
         vs=[];n=24
         for z,r in levels:
             for j in range(n):vs.append((math.cos(j*math.tau/n)*r*diameter,math.sin(j*math.tau/n)*r*diameter,z))
         fs=[tuple(reversed(range(n))),tuple(range(len(vs)-n,len(vs)))]
         fs += [(j*n+i,j*n+(i+1)%n,(j+1)*n+(i+1)%n,(j+1)*n+i) for j in range(len(levels)-1) for i in range(n)]
         m.geom(vs,fs,'Concrete')
-    for z in (.05,height-.05):m.box((0,0,z),(diameter*1.3,diameter*1.3,.10),'Concrete',r=.004)
+    for z in (.07*diameter,height-.075*diameter):m.box((0,0,z),(diameter*1.38,diameter*1.38,.14*diameter),'Concrete',r=.004)
     orient(m,p,0);ob=m.finish()
     if not pilaster:
         for f in ob.data.polygons:

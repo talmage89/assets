@@ -76,11 +76,8 @@ def hall(p):
         projection=3.1 if p['order']=='columns' else .50
         for j,x in enumerate((-3.9,-1.3,1.3,3.9)):
             column(a,'EntryOrder_'+str(j),(x,-d/2-(2.7 if p['order']=='columns' else .12),floor),ch,diam,p['order']=='pilasters')
-        m=a.mesh('PorticoEntablature',kind='PorticoRoof')
-        m.box((0,-d/2-projection/2,top-.18),(9.2,projection,.90),'Concrete')
-        m.box((0,-d/2-projection/2,top+.34),(9.65,projection+.20,.18),'Concrete');m.finish()
-        cornice(a,'EntryCrowningCornice',(0,-d/2-projection,top+.15),9.65)
-        text(a,'CivicInscription',p['name'],(0,-d/2-projection-.016,top-.40),.335)
+        from order import entablature
+        entablature(a,p,top,projection)
         deck=a.mesh('PorticoLanding',kind='EntryLanding');deck.box((0,-d/2-projection/2,floor/2),(9.3,projection+.70,floor),'Concrete');deck.finish()
     else:text(a,'CivicInscription',p['name'],(0,-d/2-.025,top-.60),.30,(.66,.64,.55))
     if floor>.20:steps(a,(0,-d/2-(3.45 if p['order']=='columns' else .85),0),8.6,count=round(floor/.1524))
