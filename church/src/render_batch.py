@@ -1,5 +1,5 @@
 """One GPU-lock acquisition per serial export review set."""
-import argparse,hashlib,json,struct,subprocess,sys
+import argparse,hashlib,json,signal,struct,subprocess,sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE),str(HERE.parents[1])]
 import render as renderer
@@ -48,12 +48,22 @@ def main(argv=None):
         # processes release Blender/Cycles allocations between the two sites
         # and the independent details; no child is detached.
         import bpy
+        active=None
+        def stop(signum,frame):
+            if active is not None and active.poll() is None:
+                active.terminate()
+                try:active.wait(timeout=25)
+                except subprocess.TimeoutExpired:active.kill();active.wait()
+            raise SystemExit(128+signum)
+        signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
         for seeds in ('101','202',''):
             command=[bpy.app.binary_path,'-b','-t','4','--factory-startup','--python-exit-code','1',
                      '--python',str(Path(__file__).resolve()),'--','--full','--worker','--seeds',seeds,
                      '--out',str(a.out),'--width',str(a.width),'--samples',str(a.samples)]
             if a.resume:command.append('--resume')
-            subprocess.run(command,check=True)
+            active=subprocess.Popen(command,pass_fds=(9,))
+            code=active.wait()
+            if code:raise subprocess.CalledProcessError(code,command)
         return
     global RESUME
     RESUME=a.resume;renderer.render_file=render_file
