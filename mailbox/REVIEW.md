@@ -166,3 +166,10 @@ and its complete contact was opened; its generic PASS label does not audit
 physical motion. All 103 frozen hashes match. Repository check reports 2553
 files, zero errors. The session-wide immutable receipt still reports all
 1200 original files unchanged. No accepted source/map/docs or kit code changed.
+
+Mesh-count receipt follow-up: the physical wrapper now rejects any
+boundary-excluded fixture and records counts computed from actual imported
+ownership instead of a fixed count field. `final-count-check.json` still exits
+2 with the same door depths. Each motion measures one moving and two fixed
+meshes; no previously omitted surface or new geometry is involved. The rejected
+status, maps and payloads remain unchanged.

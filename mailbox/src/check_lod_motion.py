@@ -23,17 +23,21 @@ def run():
         bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
         meshes = [o for o in bpy.context.scene.objects if o.type == 'MESH']
         assert len(meshes) == 3, 'Expected fixed shell, door and flag'
+        assert not any(ob.get('allow_boundary', False) for ob in meshes)
         # Consolidation retains provenance but does not copy asset_set onto
         # LOD_Static. Include every imported mesh in this physical audit.
         for ob in meshes:
             ob['asset_set'] = 'Mailbox'
+        counts = []
         for spec in config['MOTIONS']:
             pivot = bpy.data.objects[spec['node']]
-            assert sum(owned(ob, pivot) for ob in meshes) == 1
+            moving = sum(owned(ob, pivot) for ob in meshes)
+            assert moving == 1
+            counts.append(dict(node=spec['node'], moving=moving, fixed=len(meshes)-moving))
         result = sweep(config)
         result.update(level=level, source_sha256=digest(source),
                       meshes=[ob.name for ob in meshes],
-                      fixed_meshes_per_motion=2,
+                      mesh_counts=counts,
                       scope='Actual imported LOD surfaces; sampled physical motion')
         rows.append(result)
     report = dict(passed=all(r['passed'] for r in rows), levels=rows)
