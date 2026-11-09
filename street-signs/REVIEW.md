@@ -283,3 +283,27 @@ afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
 additional mesh buffers total 0.0367 MiB.
 Final native evidence: `renders/lod/speed25/`; archived recipe and proof:
 `build/lod-uv/archive/street-signs/speed25-final/`.
+
+
+### no-parking-both critique 1 — native values and face coverage
+
+Opened every 0/55/145-degree native strip at each retained switch, with source,
+preceding, new and difference panes. Values agree for white sheeting, red no-parking print and both arrow heads, gray backing and zinc post.
+Measured LOD1 500/94 at 9% / 24.930 m, from 628 source triangles.
+Worst mean 0.0001016, local 0.000429, silhouette loss
+0.000000 pass the unchanged gates. Targets remain unmet.
+
+### no-parking-both critique 2 — construction and independent fields
+
+Opened all close views and contact, then revisited the two arrow tips, rectangular rim and mounting seats; large red print and arrow direction survive.
+Tiny source print remains limited by original texel/mip resolution; no new
+lettering loss or detached member appears at the switches. Coarse small
+fittings remain visible up close; no close-view equivalence is claimed.
+Exact accessor records find zero new flat UV faces and zero new invalid
+tangent records, while identifying inherited unprinted-metal defects separately
+(`build/lod-uv/sign-fields-no-parking-both.json`). Serialized domains, normals,
+source fields and re-import pass. Original `make check set-check` passes
+afterwards and all 71 original files match. Maps stay shared at 5.333 MiB;
+additional mesh buffers total 0.0409 MiB.
+Final native evidence: `renders/lod/no-parking-both/`; archived recipe and proof:
+`build/lod-uv/archive/street-signs/no-parking-both-final/`.
