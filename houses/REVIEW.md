@@ -2355,3 +2355,40 @@ previous image in the original portfolio commit, so only one street JPG blob
 remains in this branch's history. All other accepted docs, delivered split
 files and shared maps retain their bytes. All four types' make checks and
 the repository/privacy checks pass again for this correction. No kit changes.
+
+## LOD adoption — ranch immutable original, 2026-11-09
+
+The LOD reference is the accepted delivery, not a new source look. Main was
+merged before work (already current at `1c38664`). The tool/recipe freeze is
+`build/lod-freeze-revision.txt` and `build/lod-freeze.sha256`. No kit code is
+changed. `build/houses-lod/originals.json` protects all 136 existing house
+delivery, image and docs files; no digest is refreshed during adoption.
+
+To avoid publishing a newer exporter label over the accepted original, copied
+the family scripts, generated inputs and maps to the ignored
+`build/houses-lod/original-build/houses/`, with the current kit read-only.
+Ran `make TYPE=ranch export -W src/ranch_sweep.py` there: exit 0, 81.13 s.
+This freshly rebuilds the six procedural sources and deliveries. All six BINs
+and metadata files match exactly. Each glTF differs only in its generator
+label v5.2.40 to v5.2.41; after removing that single field its entire JSON
+matches. The scratch build did not publish to the accepted directory. Counts and
+geometry sizes match the existing six-seed README table. Full commands, hashes
+and comparisons: `build/houses-lod/ranch-original-{build,comparison}.json`.
+
+One representative chain is attempted for seed 12: the ranch is an unbounded
+seeded generator, not six cosmetic copies with identical routing. Seed 12
+includes the broad eave, picture glazing, chimney, garage, front/service leaves
+and rear slider. No result is inferred for another seed or roof/material
+choice. Source glTF SHA-256:
+`0beefce72801255d7209147d098f0935fb414e1bdb84592c1c902227fcea237c`;
+BIN: `af84399a8d1698badd2ac59b0772be75ef4dc5c41099e6e7a4a2af6c9f2f3b25`.
+The LOD builder additionally freezes every canonical source-image dependency.
+
+The first original-check attempt exposed a GNU make trap: `-o` is not inherited
+by recursive make. The ranch check passed, but its recursive colonial check
+began rebuilding/republication. Stopped it and restored all sixteen changed
+original files from verified exact backups; the 136-file ledger then passed.
+No digest was refreshed. `interrupted-original-check.json` lists those files.
+The corrected command passes the same explicit frozen-input list through
+`MAKE` as well as the outer invocation; its full argv is retained in the
+original-check receipt. This is an interrupted validation, not a passing one.
