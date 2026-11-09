@@ -84,6 +84,18 @@ def services(parent,p):
     m.finish()
 
 
+def rear_steps(parent,p):
+    y=p['length']/2;f=p['floor'];count=round(f/.1524)
+    rt=G.root('Rear exit landing',parent=parent,module_kind='RearSteps')
+    m=G.Mesh('Rear exit filled landing and treads',rt)
+    m.box((0,y+.90,(f-.12)/2),(3.20,1.80,f+.12),'concrete')
+    for i in range(count):
+        z=(count-i)*.1524;m.box((0,y+1.8+(i+.5)*.3302,(z-.12)/2),(3.20,.3302,z+.12),'concrete')
+    m.finish()
+    if count>1:
+        for s in (-1,1):rail('Rear stair rail',rt,(s*1.45,y+1.6,f),(s*1.45,y+1.8+count*.3302,.1524),True)
+
+
 def build(p):
     G.STYLE=p['style']
     rt=G.root('Church_'+str(p['seed']),asset_set='Church',static_root=True,seed=p['seed'],style=p['style'])
@@ -114,7 +126,7 @@ def build(p):
             if p['style']!='chapel':
                 for i in range(p['bays']+1):buttress(rt,p,(s*w/2,-l/2+i*p['bay'],0),s*90)
         pierced_gable(rt,p,-l/2);pierced_gable(rt,p,l/2-p['wall'],True)
-    roof(rt,p);tower(rt,p);services(rt,p)
+    roof(rt,p);tower(rt,p);services(rt,p);rear_steps(rt,p)
     if not modern:entrance(rt,p)
     from modern import additions
     additions(rt,p)

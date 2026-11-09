@@ -44,6 +44,8 @@ def paving(p,parent):
         pad('Corner apron return',(-19.7892,-16.7412,-23.38,-22),.005)
         pad('Rear pedestrian way',(-14.4,17.7,19.1,21.2),0)
         pad('Accessible rear lot approach',(5.55,7.35,21.2,23),0)
+        pad('Rear exit to lot walk',(-1.6,1.6,p['length']/2+1.8+4*.3302,19.1),0)
+        pad('Parish hall door landing',(p['width']/2+3.3,p['width']/2+6.7,0,1.12),.1524)
         pad('Ramp to rear route',(17.7,19.7,0,21.2),0)
         pad('Ramp lower landing return',(p['width']/2+3.43,19.7,-1.8288,0),0)
         p['dropoff_curve']=[]
