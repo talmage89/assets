@@ -10,7 +10,7 @@ def main():
     with log.open('w') as out:
         subprocess.run([sys.executable,str(HERE/'textures.py')],cwd=stage,stdout=out,stderr=subprocess.STDOUT,check=True)
         subprocess.run([sys.executable,str(HERE/'dependencies.py')],cwd=stage,stdout=out,stderr=subprocess.STDOUT,check=True)
-        subprocess.run(['blender','-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(HERE/'build.py')],cwd=stage,stdout=out,stderr=subprocess.STDOUT,check=True)
+        subprocess.run(['blender','-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(HERE/'build.py'),'--'],cwd=stage,stdout=out,stderr=subprocess.STDOUT,check=True)
         # Photographic preparation/calibration is deterministic too. References
         # stay local; this link does not copy them into another delivery.
         (stage/'refs').symlink_to(ASSET/'refs',target_is_directory=True)
