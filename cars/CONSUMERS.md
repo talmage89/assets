@@ -30,10 +30,10 @@ guards and three-attempt limit remain in place.
 
 ## Canonical car Make consumers
 
-These invoke the cars' own Makefile for missing canonical deliveries. Its
-modeling command already appends `-t 1`, including when a caller supplies a
-`BLENDER` value with a different thread flag. Their car generation needs no
-second override:
+These invoke the cars' own Makefile for missing canonical deliveries. X220,
+H120 and S240 already append `-t 1`; round two adds the same override to the
+pickup's command. This also overrides a caller's inherited thread flag. Their
+car generation needs no second override:
 
 - `apartments/src/dependencies.py`
 - `commercial/src/context.py`
@@ -43,6 +43,14 @@ second override:
 - `coffee-shop/Makefile`
 - `minigolf/Makefile` (pickup and sedan)
 - `trailer-park/src/dependencies.py` (private source archive when absent)
+
+The pickup override is checked against an independent native one-thread
+source build: all 472 objects / 454 meshes match the accepted source exactly
+in transforms, hierarchy, vertices, faces, split normals and material names.
+Its accepted GLB stays at 59,838 triangles with receipt
+`f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+The source comparison is `round2/utility-1/pickup-preservation.json` under
+`build/cars-determinism/`.
 
 Church, civic and other presentation adapters import existing canonical car
 deliveries rather than generating native car source. River's school-context

@@ -87,5 +87,16 @@ class ConsumerThreads(unittest.TestCase):
         self.assertNotIn('blender_command.py --threads',tree)
         self.assertIn('-t 4',tree)
 
+    def test_canonical_cars_override_inherited_threads(self):
+        targets={'pickup':'build/game-audit.blend','suv':'build/suv/game.blend',
+                 'hatch':'build/hatch/game.blend','sedan':'build/sedan/game.blend'}
+        for body,target in targets.items():
+            result=subprocess.check_output(['make','-C',str(ROOT/'cars'),'-n',
+                'BODY='+body,'BLENDER=blender -t 4','-W','src/build.py',target],text=True)
+            launch=next(line for line in reversed(result.splitlines()) if '--python src/' in line)
+            before=launch.split(' -- ')[0].split()
+            counts=[before[i+1] for i,arg in enumerate(before) if arg=='-t']
+            self.assertEqual(counts[-1],'1',body)
+
 
 if __name__=='__main__':unittest.main()
