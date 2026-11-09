@@ -148,10 +148,12 @@ def shot(sc,cam,definition,path,source,width,samples):
     cam.data.lens=definition['lens'];sc.render.resolution_x=width;sc.render.resolution_y=round(width/definition.get('aspect',1.5))
     sc.render.filepath=str(path.resolve());sc.render.image_settings.file_format='PNG';path.parent.mkdir(parents=True,exist_ok=True)
     bpy.ops.render.render(write_still=True)
+    sun=bpy.data.objects['Low raking sun']
+    direction=(sun.matrix_world.to_3x3()@Vector((0,0,1))).normalized()
     path.with_suffix('.json').write_text(json.dumps(dict(source=str(source),bundle_sha256=bundle(source),
         stage='bank manufacture source fields on imported export' if sc.get('bank_source_fields') else 'fresh external glTF import / shared shipped PBR images',recipe_sha256=RECIPE,image_sha256=sha(path),source_fields_sha256=fields,camera=definition,
         engine=sc.render.engine,samples=samples,width=width,water='imported normal, interpolated _FLOW response and uniform absorption extras',
-        sun_elevation_degrees=16,sun_direction=[.45,-.849,.276],
+        sun_elevation_degrees=math.degrees(math.asin(direction.z)),sun_direction=list(direction),sun_energy=sun.data.energy,
         photographic_light_estimate=photo_light,exposure=sc.view_settings.exposure),indent=2)+'\n')
 
 

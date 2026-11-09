@@ -51,7 +51,8 @@ def run(args):
     for seed in (101,202):
         source=Path(f'export/RiverCrossing-{seed}.gltf')
         plan=Plan(**json.loads(Path(f'build/RiverCrossing-{seed}.json').read_text())['plan']);definitions=views(seed,plan)
-        names=[n for n,camera in definitions.items() if not current(out/str(seed)/(n+'.png'),source,camera)]
+        order=list(dict.fromkeys(['hero','abutment','riffle','bar',*definitions]))
+        names=[n for n in order if n in definitions and not current(out/str(seed)/(n+'.png'),source,definitions[n])]
         for i in range(0,len(names),3):jobs.append(['--seeds',str(seed),'--shots',*names[i:i+3]])
         if not current(out/str(seed)/'eevee.png',source,definitions['hero'],'BLENDER_EEVEE'):
             jobs.append(['--seeds',str(seed),'--shots','_none','--eevee'])
@@ -67,6 +68,14 @@ def run(args):
         if not current(Path(f'renders/source-matches/{name}.png'),source,row['shot'],fields=fields):
             jobs.append(['--auxiliary-only','--matches','--match-names',name,'--source-fields',
                          '--match-out','renders/source-matches'])
+    # Resolve both crossings' remaining appearance risks first. Baselines
+    # reuse the original light and can wait until the new views are judged.
+    def priority(job):
+        if '--with-baseline' in job:return 4
+        if '--auxiliary-only' in job:return 3
+        if '--eevee' in job:return 2
+        return 0 if 'hero' in job else 1
+    jobs.sort(key=priority)
     if not jobs:
         print('RENDER_BATCH_CURRENT');(out/'.stamp').touch();return
     if args.plan:
