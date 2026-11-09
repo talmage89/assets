@@ -42,12 +42,11 @@ def additions(parent,p):
         if 'hall' in p['wings']:wing(parent,'Fellowship hall',(w/2+10.5,l/2+8.0,0),(21.0,12.2,4.25))
         if 'education' in p['wings']:wing(parent,'Education wing',(w/2+21.8,3.3,0),(8.53,27.0,3.5))
         m=G.Mesh('Covered courtyard connection',parent,module_kind='Canopy')
-        y=-l/2+5.0
-        m.box((26,y,3.20),(20.0,3.66,.27),'stone',(.75,.79,.77))
+        y=-13.70
+        m.box((26,y,3.20),(20.0,6.70,.27),'stone',(.75,.79,.77))
         for x in (17.0,25.6,33.8):
-            for yy in (y-1.52,y+1.52):
-                if x>26 and yy>y:continue
-                m.box((x,yy,1.52),(.15,.15,3.04),'iron');m.box((x,yy,.10),(.50,.50,.20),'concrete')
+            for yy in (y-3.0,y+3.0):
+                m.box((x,yy,1.533),(.15,.15,3.066),'iron');m.box((x,yy,.10),(.50,.50,.20),'concrete')
         m.finish()
         m=G.Mesh('Garden memorial bench',parent,module_kind='Bench')
         for x in (w/2+5,w/2+10):
@@ -56,5 +55,7 @@ def additions(parent,p):
     elif 'hall' in p['wings']:
         wing(parent,'1958 parish hall',(w/2+5.0,l/2-4,0),(10.0,14.63,4.12),False)
         m=G.Mesh('Hall connecting hyphen',parent,module_kind='Hyphen');m.box((w/2+1.0,l/2-10.5,1.55),(2.0,2.5,3.1),'brick');m.box((w/2+1.0,l/2-10.5,3.17),(2.3,2.8,.14),'asphalt');m.finish()
+    if p['style']!='aframe' and 'education' in p['wings']:
+        wing(parent,'Later education wing',(w/2+5,l/2+(13.315 if 'hall' in p['wings'] else 0),0),(10,20,4.12),False)
     if 'transepts' in p['wings']:
         for s in (-1,1):wing(parent,'Transept '+str(s),(s*(w/2+3),l/2-6,0),(6,8.53,6.5),False)

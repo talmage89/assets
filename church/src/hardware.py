@@ -101,6 +101,6 @@ def sign(parent,point,name,lines):
         for j,c in enumerate(text):
             if c==' ':continue
             x=(j-(len(text)-1)/2)*.137;z=2.06-row*.25
-            letter=G.root(f'Letter_{row}_{j}_{c}',(x,-.185,z),rt,socket_kind='sign_letter',character=c,row=row,column=j)
+            letter=G.root(f'Letter_{row}_{j}_{c}',(x,-.1615,z),rt,socket_kind='sign_letter',character=c,row=row,column=j)
             m=G.Mesh('Replaceable letter',letter,sheet=True);m.panel(0,0,0,.13,.225,'letters',layout[c]);m.finish()
     return rt

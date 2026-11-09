@@ -135,7 +135,7 @@ def tower(parent,p):
             for s in (-1,1):m.box((s*1.24,w/2+.16,1.5),(.24,.40,3.0),'brick')
             m.box((0,w/2+.16,3.10),(2.72,.40,.20),'stone');m.finish()
     cap=G.Mesh('Tower top',rt)
-    if p['top']=='spire' and not modern:
+    if p['top']=='spire':
         rings=[]
         for z,r in ((height,w*.75),(height+.65,w*.67),(height+9.1,.04)):
             rings.append([(r*math.cos(k*math.tau/8+math.pi/8),r*math.sin(k*math.tau/8+math.pi/8),z) for k in range(8)])

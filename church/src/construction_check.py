@@ -30,7 +30,31 @@ def routes(seed):
                 direction=d.normalized();hit=tree.ray_cast(aa+direction*.02,direction,length-.04)
                 assert hit[0] is None,('Walk crosses church construction',seed,route.name,a,b,list(hit[0]) if hit[0] else None)
                 tested+=1
-    return dict(passed=True,segments_at_two_heights=tested,method='BVH rays along exported centerlines at +1.1/+1.7 m; excludes site actors and is not a full navigation-volume test')
+    result=dict(passed=True,segments_at_two_heights=tested,method='BVH rays along exported centerlines at +1.1/+1.7 m; excludes site actors and is not a full navigation-volume test')
+    vertices=[];faces=[]
+    for ob in bpy.context.scene.objects:
+        if ob.type!='MESH' or 'Curb_DrivewayCut_concrete' not in ob.name:continue
+        base=len(vertices);vertices.extend(ob.matrix_world@v.co for v in ob.data.vertices)
+        faces.extend(tuple(base+i for i in f.vertices) for f in ob.data.polygons)
+    curb=BVHTree.FromPolygons(vertices,faces);drive_x=12.2148 if seed==202 else -18.2652
+    hit=curb.ray_cast(Vector((drive_x,(-47 if seed==202 else -31)+4.15,2)),Vector((0,0,-1)))[0]
+    assert hit is not None and hit.z<-.10,('Driveway has no depressed parcel-side curb',seed,hit)
+    result['street_drive_curb_center_z_m']=hit.z
+    if seed==202:
+        canopy=next(o for o in body.children_recursive if o.get('module_kind')=='Canopy')
+        stone=[];iron=[]
+        for f in canopy.data.polygons:
+            name=canopy.data.materials[f.material_index].name
+            dest=stone if 'stone' in name else iron if 'iron' in name else None
+            if dest is not None:dest.extend((canopy.matrix_world@canopy.data.vertices[i].co).z for i in f.vertices)
+        seat=min(stone)-max(iron);assert -.003<seat<.001,('Canopy post/roof gap',seat)
+        ramp=next(o for o in bpy.context.scene.objects if o.name.startswith('Accessible canopy curb ramp'))
+        rt=surface(ramp)['tree'];hits=[rt.ray_cast(Vector((28.216,y,3)),Vector((0,0,-1)))[0] for y in (-14.19,-12.21)]
+        assert all(h is not None for h in hits)
+        slope=(hits[1].z-hits[0].z)/(hits[1].y-hits[0].y);assert 0<slope<=1/12
+        result['canopy_post_roof_seat_m']=seat;result['canopy_clearance_m']=min(stone)-.005
+        result['curb_ramp_ratio']=1/slope
+    return result
 
 
 def run():
@@ -60,6 +84,8 @@ def run():
                 assert hit[0] is not None,(seed,dy);hits.append(list(hit[0]))
             grade=abs((hits[1][2]-hits[0][2])/(hits[1][1]-hits[0][1]));rise=hits[2][2]-hits[3][2]
             assert grade<=1/12+.00001 and abs(rise-.6096)<.0001,(grade,rise)
+            start_bottom=min((ob.matrix_world@v.co).z for v in ob.data.vertices if abs((ob.matrix_world@v.co).y-start)<.001)
+            assert start_bottom<=0,('Ramp floats above grade at upper end',start_bottom)
             rails=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.parent and o.parent.name.startswith('Ramp handrail')]
             sides=[]
             for ob in rails:
@@ -67,7 +93,7 @@ def run():
                 grasp=[q.x for q in pts if .5<q.y-start<run-.5 and q.z-(.6096-(q.y-start)*grade)>.87]
                 sides.append((min(grasp),max(grasp)))
             sides.sort();clear=sides[1][0]-sides[0][1];assert clear>=1.524-.0001,clear
-            result['ramp']=dict(method='Downward BVH rays on imported solids; rail width from actual grasp-height vertices',rise_m=rise,slope=grade,ratio=1/grade,clear_handrail_m=clear,landing_z_m=[hits[2][2],hits[3][2]])
+            result['ramp']=dict(method='Downward BVH rays on imported solids; rail width from actual grasp-height vertices',rise_m=rise,slope=grade,ratio=1/grade,clear_handrail_m=clear,landing_z_m=[hits[2][2],hits[3][2]],upper_end_base_z_m=start_bottom)
         motions=[]
         for pivot in bpy.context.scene.objects:
             if not pivot.get('moving') or pivot.get('socket_kind'):continue

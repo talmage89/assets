@@ -46,8 +46,8 @@ def entrance(parent,p):
     x=p['width']/2+2.6;start=-p['length']/2+.5*p['bay']+.9144;end=start+p['ramp']['run'];w=1.66
     rt=G.root('1996 accessible ramp',(x,start,0),parent,module_kind='Ramp')
     m=G.Mesh('Retrofit ramp and edge curbs',rt)
-    m.prism([(-w/2,0,.6096),(w/2,0,.6096),(w/2,p['ramp']['run'],0),(-w/2,p['ramp']['run'],0)],(0,0,-.16),'concrete')
-    m.box((0,-.9144,.5296),(w,1.8288,.16),'concrete');m.box((0,p['ramp']['run']+.9144,-.08),(w,1.8288,.16),'concrete')
+    m.prism([(-w/2,0,.6096),(-w/2,p['ramp']['run'],0),(-w/2,p['ramp']['run'],-.16),(-w/2,0,-.16)],(w,0,0),'concrete')
+    m.box((0,-.9144,.2248),(w,1.8288,.7696),'concrete');m.box((0,p['ramp']['run']+.9144,-.08),(w,1.8288,.16),'concrete')
     for s in (-1,1):
         m.beam((s*w/2,0,.66),(s*w/2,p['ramp']['run'],.05),.075,.10,'concrete')
     # New concrete bridge meets a proper door aperture on the later hall.
@@ -57,17 +57,18 @@ def entrance(parent,p):
 
 
 def services(parent,p):
-    w=p['width'];l=p['length'];h=p['eave'];m=G.Mesh('Rainwater goods and splash blocks',parent,module_kind='Drainage')
+    w=p['width'];l=p['length'];h=p['eave'];over=.61 if p['style']=='aframe' else .36
+    edge_h=h-over*math.tan(math.radians(p['pitch']));m=G.Mesh('Rainwater goods and splash blocks',parent,module_kind='Drainage')
     for s in (-1,1):
-        xx=s*(w/2+.22)
+        xx=s*(w/2+over+.04)
         # Open U trough, hemmed outside lip, outlet and supported offset pipe.
-        m.box((xx,0,h-.17),(.18,l+.5,.035),'bronze')
-        for sx in (-.09,.09):m.box((xx+sx,0,h-.10),(.025,l+.5,.15),'bronze')
+        m.box((xx,0,edge_h-.17),(.18,l+.5,.035),'bronze')
+        for sx in (-.09,.09):m.box((xx+sx,0,edge_h-.10),(.025,l+.5,.15),'bronze')
         for yy in (-l/2+.4,l/2-.4):
-            xp=s*(w/2+.10);pts=[(xx,yy,h-.17),(xx,yy,h-.54),(xp,yy,h-.76),(xp,yy,.32),(xp+s*.2,yy,.16)]
+            xp=s*(w/2+.10);pts=[(xx,yy,edge_h-.17),(xx,yy,edge_h-.54),(xp,yy,edge_h-.76),(xp,yy,.32),(xp+s*.2,yy,.16)]
             m.tube(pts,.058,'bronze',10)
             for z in (1.0,3.5,6.3):
-                if z<h-.6:m.box((xp,yy,z),(.13,.15,.045),'iron')
+                if z<edge_h-.6:m.box((xp,yy,z),(.13,.15,.045),'iron')
             m.box((xp+s*.12,yy,.05),(.64,.40,.10),'concrete')
     m.finish();m=G.Mesh('Rear meters conduit and condensers',parent,module_kind='Services')
     face=l/2+(.125 if p['style']=='aframe' else 0);yy=face+.10

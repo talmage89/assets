@@ -6,51 +6,54 @@ from hardware import sign
 
 
 def slab(name,rect,z,role,parent,thick=.12):
-    a,b,c,d=rect;m=G.Mesh(name,parent,actor_kind='site');m.box(((a+b)/2,(c+d)/2,z-thick/2),(b-a,d-c,thick),role);return m.finish()
+    a,b,c,d=rect;thick=max(thick,z+.10);m=G.Mesh(name,parent,actor_kind='site');m.box(((a+b)/2,(c+d)/2,z-thick/2),(b-a,d-c,thick),role);return m.finish()
 
 
 def paving(p,parent):
     modern=p['style']=='aframe';cuts=[]
     def pad(name,rect,z=0,role='concrete'):
         cuts.append(rect);return slab(name,rect,z,role,parent)
-    lot=(12,57,-43,-22) if modern else (-18,13,23,44)
+    lot=(12,70,-39,-18) if modern else (-18,13,23,44)
     pad('Sealed parking lot',lot,.005,'asphalt')
     if modern:
+        pad('Arterial driveway connection',(10.6908,13.7388,-39.38,-33),.005,'asphalt')
         pad('Canopy drop-off lane',(14,45,-18,-11),.005,'asphalt')
         pad('East lot connection',(40,50,-27,-11),.005,'asphalt')
         pad('Drop-off exit throat',(14,24,-27,-17),.005,'asphalt')
-        pad('Canopy walk',(14,36,-11,-7.0),.1524)
+        pad('Canopy walk',(14,26.30,-12.2,-7.0),.1524)
+        pad('Classroom arrival walk',(26.30,36,-12.2,-10.36),.1524)
         pad('Church entry plaza',(-4.2,10,-22,-14.5),.1524)
         pad('Street to entrance walk',(-1.0,1.0,-40,-22),0)
         m=G.Mesh('Accessible plaza approach',parent,actor_kind='site')
         m.prism([(-1,-23.9812,0),(1,-23.9812,0),(1,-22,.1524),(-1,-22,.1524)],(0,0,-.10),'concrete');m.finish()
         pad('Memorial garden walk',(9.0,25.8,-6.8,-4.5),0)
         pad('Memorial garden crosswalk',(13.2,15.1,-4.5,10.2),0)
-        pad('Education route',(23.8,25.8,-7.0,17.0),.1524)
-        pad('Accessible lot approach',(27.3,29.1,-24,-18),.005)
+        pad('Education route',(23.8,25.8,-7.0,16.5),.1524)
+        pad('Accessible lot approach',(27.3,29.1,-23.65,-18),.009)
         from surfaces import paint_material
         paint_material();m=G.Mesh('Accessible canopy curb ramp',parent,actor_kind='site')
-        m.prism([(27.3,-13,.005),(29.1,-13,.005),(29.1,-11,.1524),(27.3,-11,.1524)],(0,0,-.10),'concrete');m.finish()
+        m.prism([(27.3,-14.2,.005),(29.1,-14.2,.005),(29.1,-12.2,.1524),(27.3,-12.2,.1524)],(0,0,-.10),'concrete');m.finish()
         m=G.Mesh('Drop-off pedestrian crossing',parent,actor_kind='site',sheet=True)
-        for j in range(8):
+        for j in range(6):
             yy=-18+j*.6;m.geom([(27.3,yy,.012),(29.1,yy,.012),(29.1,yy+.30,.012),(27.3,yy+.30,.012)],[(0,1,2,3)],'paint',uv=[[(.005,.755),(.12,.755),(.12,.995),(.005,.995)]])
         m.finish()
         p['dropoff_curve']=[(46.5,-29,.005),(46.5,-21,.005),(45,-16.5,.005),(40.5,-14.5,.005),(23,-14.5,.005),(18.5,-16,.005),(16.5,-20.5,.005),(18,-29,.005)]
     else:
         pad('Front approach',(-2.16,2.16,-23,-16.4),0)
-        pad('Rear lot drive',(-20.5,-14.4,-22,44),.005,'asphalt')
+        pad('Rear lot drive',(-21.3132,-15.2172,-22,44),.005,'asphalt')
+        pad('Corner apron return',(-19.7892,-16.7412,-23.38,-22),.005)
         pad('Rear pedestrian way',(-14.4,17.7,19.1,21.2),0)
         pad('Accessible rear lot approach',(5.55,7.35,21.2,23),0)
         pad('Ramp to rear route',(17.7,19.7,0,21.2),0)
         pad('Ramp lower landing return',(p['width']/2+3.43,19.7,-1.8288,0),0)
         p['dropoff_curve']=[]
-    p['paths']=[dict(name='Street_to_front',points=[(0,-40 if modern else -23,0),(0,-22 if modern else -17,0),(0,-p['length']/2-.40,p['floor'])]),dict(name='Lot_to_door',points=[(28.216,-24.9,.005),(28.216,-18,.005),(28.216,-13,.005),(28.216,-11,.1524),(30.6392,-11,.1524),(30.6392,-10.75,.1524)] if modern else [(6.4456,25.9,.005),(6.4456,20.1,0),(18.7,20.1,0),(18.7,-.9144,0),(9.1532,-.9144,0),(9.1532,-1.8288,0),(9.1532,-9.7536,.6096),(9.1532,-10.668,.6096),(6.9,-10.668,.6096)])]
+    p['paths']=[dict(name='Street_to_front',points=[(0,-40 if modern else -23,0),(0,-22 if modern else -17,0),(0,-p['length']/2-.40,p['floor'])]),dict(name='Lot_to_door',points=[(28.216,-20.9,.009),(28.216,-18,.009),(28.216,-14.2,.005),(28.216,-12.2,.1524),(30.6392,-12.2,.1524),(30.6392,-10.75,.1524)] if modern else [(6.4456,25.9,.005),(6.4456,20.1,0),(18.7,20.1,0),(18.7,-.9144,0),(9.1532,-.9144,0),(9.1532,-1.8288,0),(9.1532,-9.7536,.6096),(9.1532,-10.668,.6096),(6.9,-10.668,.6096)])]
     # Rectangular turf clipping includes construction footprints, so lawns
     # meet paving and foundations without grass polygons through the lot.
     w=p['width'];l=p['length'];cuts.append((-w/2,w/2,-l/2,l/2))
     if modern:cuts += [(w/2,w/2+21,l/2+1.9,l/2+14.1),(w/2+17.535,w/2+26.065,-10.2,16.8)]
     else:cuts.append((w/2,w/2+10,l/2-11.315,l/2+3.315))
-    bounds=(-22.2,60,-39.4,47) if modern else (-22.2,30,-23.4,47)
+    bounds=(-22.2,73,-39.4,47) if modern else (-22.2,30,-23.4,47)
     xs=sorted({bounds[0],bounds[1],*[max(bounds[0],min(bounds[1],q)) for r in cuts for q in r[:2]],*[x for x in range(math.ceil(bounds[0]),math.floor(bounds[1]),2)]})
     ys=sorted({bounds[2],bounds[3],*[max(bounds[2],min(bounds[3],q)) for r in cuts for q in r[2:]],*[y for y in range(math.ceil(bounds[2]),math.floor(bounds[3]),2)]})
     m=G.Mesh('Parcel turf',parent,actor_kind='site')
@@ -64,7 +67,7 @@ def paving(p,parent):
 
 def parking(p,parent,rect):
     from surfaces import paint_material
-    paint_material();a,b,c,d=rect;modern=p['style']=='aframe';n=14 if modern else 10;start=a+2.5;pitch=2.7432
+    paint_material();a,b,c,d=rect;modern=p['style']=='aframe';n=20 if modern else 10;start=a+2.5;pitch=2.7432
     m=G.Mesh('Parking stripes wheel stops and drains',parent,actor_kind='site');rng=random.Random(p['seed']+62)
     for row,y in enumerate((c+2.9,d-2.9)):
         for j in range(n):
@@ -115,7 +118,7 @@ def streets(parent,modern):
                 for j in range(2):
                     yy=8.6868+i*6.096+(j+.5)*3.048
                     # A driveway aperture spans both curb modules.
-                    drive=arm==3 and side==1 and i==(5 if modern else 3)
+                    drive=arm==3 and side==-1 and i==(5 if modern else 0)
                     if drive:
                         if j:continue
                         yy=station

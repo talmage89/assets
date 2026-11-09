@@ -22,6 +22,7 @@ def church(seed=101,style=None,bays=None,width=None,pitch=None,tower=None,top=No
     eave=2.7432 if modern else 4.8768 if frame else 8.2296
     floor=.1524 if modern else .6096
     wings=list(wings if wings is not None else ['education','hall'] if modern else [] if frame else ['hall'])
+    if set(wings)-{'hall','education','transepts'}:raise ValueError('Unknown wing type')
     p=dict(seed=seed,style=style,bays=bays,width=width,length=length,bay=bay,wall=wall,
            pitch=pitch,eave=eave,ridge=eave+width/2*math.tan(math.radians(pitch)),
            floor=floor,tower=tower,top=top,wings=wings,

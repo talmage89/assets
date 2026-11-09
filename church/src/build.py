@@ -11,11 +11,11 @@ from package import counts,objects,canonical,publish,save_scene
 
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--out',default='build/family.blend');ap.add_argument('--seeds',default='101,202');ap.add_argument('--no-sites',action='store_true');ap.add_argument('--no-modules',action='store_true');ap.add_argument('--style');ap.add_argument('--bays',type=int);ap.add_argument('--width',type=float);ap.add_argument('--pitch',type=float);ap.add_argument('--tower');ap.add_argument('--top');args=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+    ap=argparse.ArgumentParser();ap.add_argument('--out',default='build/family.blend');ap.add_argument('--seeds',default='101,202');ap.add_argument('--no-sites',action='store_true');ap.add_argument('--no-modules',action='store_true');ap.add_argument('--style');ap.add_argument('--bays',type=int);ap.add_argument('--width',type=float);ap.add_argument('--pitch',type=float);ap.add_argument('--tower');ap.add_argument('--top');ap.add_argument('--wings',help='Comma-separated hall,education,transepts; empty for none');args=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
     report={};known=canonical();modules={}
     for seed in map(int,args.seeds.split(',')):
         bpy.ops.wm.read_factory_settings(use_empty=True);G.MATS.clear();palette()
-        p=church(seed,args.style,args.bays,args.width,args.pitch,args.tower,args.top);rt=build(p)
+        p=church(seed,args.style,args.bays,args.width,args.pitch,args.tower,args.top,None if args.wings is None else list(filter(None,args.wings.split(','))));rt=build(p)
         save_scene(f'build/church-{seed}.blend');report[f'Church-{seed}']=publish(rt,f'Church-{seed}',known)
         if not args.no_modules:
             for part in list(rt.children_recursive):
