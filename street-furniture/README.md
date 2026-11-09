@@ -191,3 +191,74 @@ low-cost circular silhouettes can facet at extreme close range. The mechanical
 dial internals and hardware are authored estimates. Photo camera fits remain
 comparisons between different original products, with their residuals reported.
 Stock glTF does not reproduce headlight retroreflection for the separate signs.
+
+## LOD rollout scope: bench only
+
+Only Bench has an adopted opt-in chain in this checkpoint. `make lod
+LOD_THREADS=4` builds it; `make check-lod` checks it. Default builds remain
+unchanged. The other fourteen delivered kinds remain LOD0 and deferred at the
+long-session stop, not approved by the bench proof; their measured costs remain
+in the delivered-module table above. This includes both shelters, bus stop,
+rack/row, news boxes/row, collection box, meters and receptacles.
+
+Bench selects 2360 triangles at .09 screen height / 7.75m, versus 3436 at LOD0
+and the unchanged 515 goal. Four cheaper/near trials are preserved in
+`build/lod-rollout/street-furniture/bench-pass1`–`pass4/`; they fail native
+highlight or thin-boundary coverage gates. The selected export also fails
+the old .25 switch's side highlight gate and passes at .09. See [all five
+critiques, controls and target exception](REVIEW.md). No threshold is relaxed.
+
+Bench retains one material/draw and the original shared three 2048 maps;
+new images 0. Its canonical Bench frame owns all reduced geometry and original
+sidewalk/anchor sockets. Actual foot surfaces measure at grade at all four
+anchor regions, and every mesh vertex follows a translated Bench root with
+zero measured error. Raw proof: `build/lod-rollout/street-furniture/bench-contact.json`.
+Native comparisons: `renders/lod/bench/`; exact old-distance controls:
+`build/lod-rollout/street-furniture/bench-original-switch/`; measured contact:
+`build/lod-rollout/street-furniture/report/contact.jpg`.
+
+Full available-container accounting includes all sixteen original containers
+(inspection library and standalone alternatives) plus this bench level:
+89434 stored triangles, 29 source-specific material resources, 115 primitive
+placements, 17622047 physical bytes and 24.837 MiB resident. Original images
+occupy 17.3334 MiB once; added mesh buffers .1990 MiB. Stored placements are
+alternatives, not simultaneous draws. A selected bench draws 3436 or 2360
+triangles with one draw; active draws across all original containers range
+1–57. Detailed union: `build/lod-rollout/street-furniture/full-family-costs.json`.
+
+<!-- LOD checkpoint bench: begin -->
+## Bench LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/bench/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 3,436 / — | 1 / 1 | 320,858 | 9,181,551 | 9,502,409 | 16.000 + 0.3023 | near |
+| LOD1 | 2,360 / 515 | 1 / 1 | 211,684 | 9,181,551 | 9,393,235 | 16.000 + 0.1990 | 9.0% / 7.75 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **16.501 MiB**, versus LOD0 alone **16.302 MiB**. Unique textures 16.000 MiB = 16.000 MiB original + 0.000 MiB proxy/impostor; all meshes 0.5013 MiB. Increase over LOD0 0.199 MiB = 0.000 MiB far maps + 0.1990 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/bench/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/bench/check.json` and `export/lod/bench/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048.
+
+Selected placement roots: `Bench`. LOD0 triangles, materials and draws describe those modules; its load bytes, maps and mesh allocation describe the complete unchanged original container. Extraction savings are separate from reduction. Retain child transforms when replacing a selected root placement.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 5,796 | 1 | 2 | 9,714,093 | 16.5014 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 1 to 1 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint bench: end -->

@@ -462,3 +462,44 @@ images, with raw/normal/UV audit passing. Archive: `bench-pass4/`.
 One final trial tightens the geometry surface allowance from .75 to .25 switch
 pixels; it does not alter the image gate, target or switch. The other furniture
 kinds remain unbuilt and receive no approval from these bench trials.
+
+### LOD critique 5: select the tighter far bench
+
+The .25-pixel geometry allowance yields 2360/3436 triangles at .09 / 7.75m,
+against the unchanged 515 goal. Opened all three native strips, both construction
+views and contact. Dark paint values, strap gaps, arm rails, supports and feet
+hold. Worst mean .004133, p95 .019608, local .017097, alpha .022631 and
+silhouette loss .031105 pass unchanged gates; independent raw/field audits pass.
+Close slat tips and support curvature remain coarser than LOD0. The 1908
+same-distance control remains a cheaper native visible/coverage failure.
+Keep `target_met: false`: 2360 is the lowest reviewed passing count, not a
+global geometric minimum.
+
+Rendered this exact export at the old .25 / 2.79m switch without editing its
+geometry. Opened all three wide controls and all six unscaled pages in
+`bench-native-old/`. Side local error .08603 fails .08, with repeated strap-tip
+highlight changes; front/rear pass. `bench-original-switch/receipt.json`
+hashes that unchanged candidate. These failed old-distance comparisons and
+passing new-distance strips justify the farther switch, rather than the earlier
+different meshes or a lowered limit.
+
+Independent `bench-contact.json` measures actual vertices around all four
+source anchor regions: source and selected foot minima are each 0m at grade.
+Every mesh node belongs to the canonical Bench subtree. Moving that root by
+1m moves every measured mesh vertex by 1m with maximum error 0m. This proves
+placement/contact on actual surfaces, separate from serialization. Bench has
+no moving mechanisms. Stop this long-session checkpoint after the bench;
+the other fourteen delivered kinds stay unbuilt/L0, without a minimality claim
+or inherited approval. Their existing motion/glazing limitations are unchanged.
+
+Final receipts: `bench-pass5-check.json` records `check-lod` exit 0, including
+the independent field audit; original before/after checks both exit 0 with
+their complete frozen-input commands recorded. All 103 literal tool hashes
+match revision `6bea63c`. `lod_report.py --write-readmes` generated the measured
+bench table and `report/contact.jpg`, which was opened. Full-container costs
+include all sixteen original containers plus this level: 89434 stored triangles,
+29 source-specific materials, 115 primitive placements, 17622047 physical bytes,
+24.8369 MiB resident; added images 0, added mesh .1990 MiB. Active draw range
+is 1–57 across these alternatives; a bench draws one primitive. Repository
+check: 2603 files, zero errors; diff check passes. No kit, accepted delivery,
+map or original docs image changed.
