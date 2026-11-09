@@ -94,7 +94,15 @@ class Mesh:
         for f,role,col,uv,sm in zip(self.f,self.role,self.colors,self.uv,self.smooth):
             points=[self.v[i] for i in f]
             refine=self.name.startswith(('Front rose gable','Pierced tower shaft','Low brick sidewall'))
-            for pp,tt in ([(points,uv)] if uv else charts(points,role,weather_grid=refine)):
+            pieces=[points]
+            if role=='timber' and ('Laminated bent' in self.name or self.props.get('door')):
+                from surfaces import D
+                for level in (.30,.65,1.0,1.35,1.8):
+                    pieces=[q for poly in pieces for q in
+                            ([D.clip_height(poly,level,True),D.clip_height(poly,level,False)]
+                             if min(p[2] for p in poly)+1e-7<level<max(p[2] for p in poly)-1e-7 else [poly]) if len(q)>=3]
+            mapped=[(points,uv)] if uv else [pair for poly in pieces for pair in charts(poly,role,weather_grid=refine)]
+            for pp,tt in mapped:
                 n=len(vs);vs.extend(pp);fs.append(tuple(range(n,n+len(pp))));uvs.append(tt)
                 normal=(Vector(pp[1])-Vector(pp[0])).cross(Vector(pp[2])-Vector(pp[0])).normalized()
                 props=dict(self.props,name=self.name,normal_z=normal.z,

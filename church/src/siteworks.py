@@ -69,6 +69,7 @@ def paving(p,parent):
     bounds=(-22.2,73,-39.4,47) if modern else (-22.2,30,-23.4,47)
     xs=sorted({bounds[0],bounds[1],*[max(bounds[0],min(bounds[1],q)) for r in cuts for q in r[:2]],*[x for x in range(math.ceil(bounds[0]),math.floor(bounds[1]),2)]})
     ys=sorted({bounds[2],bounds[3],*[max(bounds[2],min(bounds[3],q)) for r in cuts for q in r[2:]],*[y for y in range(math.ceil(bounds[2]),math.floor(bounds[3]),2)]})
+    turf.CUTS=cuts
     m=G.Mesh('Parcel turf',parent,actor_kind='site')
     for a,b in zip(xs,xs[1:]):
         for c,d in zip(ys,ys[1:]):

@@ -117,7 +117,11 @@ def tint(p,role,col,props):
     if role=='iron':col=tuple(v*.037 for v in col)
     if role=='stone':col=tuple(v*g for v,g in zip(col,(.38,.345,.285)))
     if role=='copper':col=tuple(v*g for v,g in zip(col,(.28,1.30,1.08)))
-    if role=='timber' and props.get('door'):col=tuple(v*.15 for v in col)
+    if role=='timber' and props.get('door'):
+        pull=math.exp(-((abs(x)-.86)/.17)**2-((z-1.07)/.27)**4)
+        kick=math.exp(-((z-.14)/.16)**2)*(.65+.35*math.sin(x*21)**2)
+        worn=min(1,pull+kick*.8)
+        col=tuple(v*.15*(1+worn*g) for v,g in zip(col,(.7,1.3,2.0)))
     if role=='brick':
         col=tuple(v*g for v,g in zip(col,(.80,.74,1.05)))
         floor=props.get('floor',.6096);zz=max(0,z-floor)

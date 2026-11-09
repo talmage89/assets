@@ -38,7 +38,7 @@ def entrance(parent,p):
     count=round(f/.1524)
     for i in range(count):
         z=(count-i)*.1524;yy=y-2.34-(i+.5)*.3302
-        m.box((0,yy,z/2),(4.30,.3302,z),'stone')
+        worn_tread(m,yy,z,i)
     m.finish()
     for s in (-1,1):rail('Front stair rail',parent,(s*1.98,y-2.55,f),(s*1.98,y-2.34-count*.3302,.1524),True)
     # Side retrofit: top landing at the entry, run parallel to nave, generous
@@ -54,6 +54,27 @@ def entrance(parent,p):
     m.box((-1.7,-.9144,.5296),(1.9,1.8288,.16),'concrete');m.finish()
     for s in (-1,1):rail('Ramp handrail',rt,(s*.795,0,.6096),(s*.795,p['ramp']['run'],0),True)
     return rt
+
+
+def worn_tread(m,yy,z,index):
+    """Closed stone tread with a shallow footfall hollow and chipped nosing."""
+    xs=[-2.15,-1.6,-1.0,-.6,0,.6,1.0,1.6,2.15];ys=[yy-.1651,yy,yy+.1651]
+    grid=[]
+    for j,y in enumerate(ys):
+        row=[]
+        for k,x in enumerate(xs):
+            wear=math.exp(-(x/.92)**4)
+            chip=.009 if j==0 and (k+index*3)%7==2 else 0
+            row.append((x,y,z-.014*wear*(1,.8,.15)[j]-chip))
+        grid.append(row)
+    for j in range(2):
+        for k in range(8):
+            x=(xs[k]+xs[k+1])/2;wear=math.exp(-(x/1.05)**4)
+            m.geom([grid[j][k],grid[j][k+1],grid[j+1][k+1],grid[j+1][k]],[(0,1,2,3)],'stone',color=(1-wear*.38,)*3)
+    rim=[*grid[0],grid[1][-1],*reversed(grid[2]),grid[1][0]]
+    for a,b in zip(rim,rim[1:]+rim[:1]):
+        m.geom([a,(a[0],a[1],0),(b[0],b[1],0),b],[(0,1,2,3)],'stone')
+    m.geom([(x,y,0) for x,y,_ in reversed(rim)],[tuple(range(len(rim)))],'stone')
 
 
 def services(parent,p):

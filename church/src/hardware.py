@@ -50,6 +50,9 @@ def rail(name,parent,a,b,guard=False):
     for i in range(count+1):
         x,y,z=at(i/count);m.box((x,y,z+height/2),(.038,.038,height),'iron')
         m.box((x,y,z+.025),(.11,.11,.012),'iron')
+        # Exposed loss at the anchor shoes, using the existing bronze chart
+        # as rough oxidized substrate rather than allocating a rust texture.
+        m.box((x,y,z+.055),(.040,.040,.085),'bronze',(.65,.27,.10))
     aa=at(0);bb=at(1);d=[(bb[k]-aa[k])/dist for k in range(3)]
     pts=[(aa[0]-.3048*d[0],aa[1]-.3048*d[1],aa[2]+height-.12),
          (aa[0]-.3048*d[0],aa[1]-.3048*d[1],aa[2]+height),
