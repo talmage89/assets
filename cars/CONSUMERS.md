@@ -190,3 +190,33 @@ and UV layers. The receipt is
 expected detail operations and zero unexpected changes. The modified detail
 objects remain included in every complete native GLB repeat above. Utility's
 three full C150 sources also match the accepted source, as recorded earlier.
+
+## Validation and preservation
+
+- `python3 cars/src/test_consumers.py`: six launch/cache tests pass.
+- Every `kit/test_*.py`: **38 files pass**, from fresh fixture folders,
+  separate Blender processes, serial GPU locking; results and logs are in
+  `build/cars-determinism/round2/kit-tests/`.
+- Pickup and H120 `make check`: pass with accepted model/map/export stages
+  frozen and check receipts forced. Exact `-B` / `-o` argument lists are in
+  `round2/{pickup,hatch}-check-argv.json`; this checks accepted geometry,
+  normals, UVs, motions, repeat arrays and re-import without a GPU rebake.
+- S240 and X220: direct `kit/verify.py` delivery checks pass.
+- Repository check: **2,647 source files, zero errors**; `git diff --check`
+  passes. Full-site `make check` / `make repeat` were not run in this session.
+
+The final 819-file delivery/map/docs snapshot differs only at
+`cars/export/AlderH120.glb`. All 35 existing car texture PNGs and 19 car docs
+images retain their bytes. No committed docs image, `houses/`, `kit/lod*` or
+top-level README changed. No asset render was made. Preservation receipts are
+in `build/cars-determinism/round2/preservation-final.json`.
+
+| Accepted delivery | Triangles | Bytes | SHA-256 |
+| --- | ---: | ---: | --- |
+| C150, unchanged | 59,838 | 11,530,736 | `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65` |
+| S240, unchanged | 69,658 | 10,140,724 | `3b907074594759b4247e379b1535a4700f3ecdbcfcd67cd1b967390c2fe1ebfa` |
+| X220, unchanged | 64,933 | 9,061,700 | `75fc9507347fbc96ae0af8204a59168f63098eeee8a9dd43362ad350a75c1e82` |
+| H120, metadata only | 59,852 | 7,892,160 | `4cdbafe2a1436f031eb58caf8fbd3a80b6a4e2eed65842fe0c293e2ff62baeb9` |
+
+Each retains four materials and three embedded 2048-square PNG maps. The
+accepted geometry and texture budgets are unchanged.
