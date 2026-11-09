@@ -1074,3 +1074,11 @@ family residency from 27.1526 to 28.2575 MiB. Original town containers draw up
 to 228 primitives; adopted cabinet/mast/span draw 3/15/25, with only one level
 active per instance. Stored placements are not simultaneous draws.
 The combined report/contact is `build/lod-uv/signals-final-report/`.
+
+The subsequent `423011c` main integration rebuilds all three public chains with
+identical payload bytes and passes their field, image and state-routing gates.
+Original `make check` passes again, including the reduced trim domains; the
+52-file receipt is unchanged. Current 109-file tool freeze and the complete
+37-test proof are recorded in
+[the kit integration closeout](../kit/LOD_REVIEW.md#fixed-uv-integration-closeout-2026-11-09).
+The earlier per-trial archives retain their original `cc6cfee` freeze.

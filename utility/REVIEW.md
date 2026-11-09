@@ -1148,3 +1148,10 @@ only their shared Parts container, a deliberately narrower scope. All six
 triangle goals remain unmet. The guarded policy is conservative, not an
 optimality or engine frame-time claim. Every rejected/uneconomic config is
 unwired and has no live export. Original documentation images are unchanged.
+
+The subsequent `423011c` main integration rebuilds all six public chains with
+identical payload bytes and passes their atlas/support, field and image gates.
+Original `make check` passes again; the 30-file receipt is unchanged. Current
+109-file tool freeze and the complete 37-test proof are recorded in
+[the kit integration closeout](../kit/LOD_REVIEW.md#fixed-uv-integration-closeout-2026-11-09).
+The earlier per-trial archives retain their original `cc6cfee` freeze.

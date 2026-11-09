@@ -437,3 +437,10 @@ sets together; new mesh buffers add .5560 MiB. Family residency is 11.8872 →
 12.4432 MiB, excluding engine overhead. Adopted signs draw two primitives per
 active level; the inspection library's 49 draws are separate. Combined measured
 tables/contact are `build/lod-uv/street-signs-final-report/`.
+
+The subsequent `423011c` main integration rebuilds all eight public chains with
+identical payload bytes and passes their field and image gates. Original
+`make check set-check` passes again; the 71-file receipt is unchanged. Current
+109-file tool freeze and the complete 37-test proof are recorded in
+[the kit integration closeout](../kit/LOD_REVIEW.md#fixed-uv-integration-closeout-2026-11-09).
+The earlier per-trial archives retain their original `cc6cfee` freeze.
