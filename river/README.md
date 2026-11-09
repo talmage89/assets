@@ -205,80 +205,81 @@ houses and trees remain separately removable presentation objects.
 | Piece | Triangles |
 | --- | ---: |
 | TypeIII_Girder18 | 696 |
-| DeckPanel6 | 260 |
+| DeckPanel6 | 254 |
 | Parapet6 | 52 |
-| PierColumns | 712 |
-| PierWall | 226 |
-| Abutment | 112 |
+| PierColumns | 4,608 |
+| PierWall | 2,676 |
+| Abutment | 4,960 |
 | GuardrailTerminal | 404 |
 
 Flat panels intentionally stay below 300 triangles; no subdivisions are added for a minimum.
 
 | Assembled mesh type | Downtown count × max triangles | Edge count × max triangles |
 | --- | ---: | ---: |
-| Abutment | 2 × 112 | 2 × 112 |
+| Abutment | 2 × 2,464 | 2 × 2,336 |
 | ApproachRail | 4 × 404 | 4 × 404 |
 | ApproachSlab | 2 × 12 | 2 × 12 |
 | BearingStation | 4 × 3,636 | 3 × 3,636 |
+| ConcreteFormEvidence | 1 × 10,994 | 1 × 5,994 |
 | DateAndNamePlaques | 1 × 14 | 1 × 14 |
-| Deck | 9 × 285 | 6 × 264 |
+| Deck | 9 × 282 | 6 × 257 |
 | Girder | 15 × 696 | 10 × 696 |
 | Parapet | 36 × 28 | 24 × 28 |
 | ParapetLightPedestals | 1 × 48 | — |
-| Pier | 4 × 676 | 1 × 226 |
+| Pier | 4 × 3,268 | 1 × 1,564 |
 | Span DiaphragmsHaunches | 3 × 204 | 2 × 204 |
 | Span DrainConduit | 3 × 1,024 | 2 × 1,024 |
 | TextureDrivenBridgeAge | 1 × 1,272 | 1 × 520 |
 
 | Seed | Bridge | Bed / banks | Water | Site | Vegetation | Cars | Town / people | Total |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 101 | 32,573 | 57,106 | 29,958 | 60,656 | 5,711,514 | 820,534 | 2,322,176 | 9,034,517 |
-| 202 | 21,228 | 53,981 | 29,793 | 798 | 14,928,480 | 388,674 | 1,074,960 | 16,497,914 |
+| 101 | 53,713 | 52,095 | 31,798 | 64,548 | 5,711,998 | 820,534 | 2,322,176 | 9,056,862 |
+| 202 | 32,980 | 48,058 | 31,391 | 798 | 14,928,948 | 388,674 | 1,074,960 | 16,505,809 |
 
 | Seed | glTF + BIN bytes | Material states / unbatched placed draws |
 | --- | ---: | ---: |
-| 101 | 111,004,676 | 972 / 8200 |
-| 202 | 22,419,164 | 53 / 21241 |
+| 101 | 113,285,721 | 974 / 8205 |
+| 202 | 22,735,261 | 55 / 21246 |
 
 | Seed | Scene + river-owned PNG bytes | All referenced PNG bytes | Scene + standalone copies of all PNGs |
 | --- | ---: | ---: | ---: |
-| 101 | 113,617,088 | 94,851,123 | 205,855,799 |
-| 202 | 25,031,576 | 88,260,557 | 110,679,721 |
+| 101 | 117,722,293 | 89,274,150 | 202,559,871 |
+| 202 | 27,171,833 | 82,683,584 | 105,418,845 |
 
 The original 367 MB measurement counted glTF + BIN. Both scenes also remain below 120 MB including their river-owned PNGs. Canonical library PNGs remain external, shared and byte-identical. Copying every shared dependency into a standalone folder costs the larger total above.
 
-Shared full-mip image residency per crossing, including native context: 101: **152.67 MiB** / 202: **130.00 MiB**. The two totals overlap and are not additive.
+Shared full-mip image residency per crossing, including native context: 101: **136.67 MiB** / 202: **114.00 MiB**. The two totals overlap and are not additive.
 
 | Seed / category | Placed triangles | Unique triangles | Geometry bytes | Shared image MiB |
 | --- | ---: | ---: | ---: | ---: |
-| 101 / site | 60,656 | 60,656 | 2,399,080 | 48.33 |
-| 101 / vegetation | 5,711,514 | 23,728 | 1,738,660 | 16.33 |
-| 101 / bridge | 32,573 | 19,823 | 789,746 | 40.33 |
+| 101 / site | 64,548 | 64,548 | 3,611,160 | 48.33 |
+| 101 / vegetation | 5,711,998 | 24,212 | 1,766,428 | 16.33 |
+| 101 / bridge | 53,713 | 53,305 | 2,283,694 | 40.33 |
 | 101 / context | 2,322,176 | 2,300,278 | 95,073,936 | 116.00 |
-| 101 / reach | 57,106 | 57,106 | 3,784,164 | 36.00 |
-| 101 / water | 29,958 | 29,958 | 839,800 | 0.67 |
+| 101 / reach | 52,095 | 52,095 | 3,190,888 | 36.00 |
+| 101 / water | 31,798 | 31,798 | 956,832 | 0.67 |
 | 101 / cars | 820,534 | 224,796 | 895,488 | 0.00 |
-| 202 / site | 798 | 798 | 40,324 | 52.00 |
-| 202 / vegetation | 14,928,480 | 54,180 | 3,904,188 | 36.33 |
-| 202 / bridge | 21,228 | 13,652 | 549,904 | 40.33 |
+| 202 / site | 798 | 798 | 64,980 | 52.00 |
+| 202 / vegetation | 14,928,948 | 54,648 | 3,930,900 | 36.33 |
+| 202 / bridge | 32,980 | 32,716 | 1,476,686 | 40.33 |
 | 202 / context | 1,074,960 | 102,280 | 3,739,516 | 57.33 |
-| 202 / reach | 53,981 | 53,981 | 3,409,476 | 36.00 |
-| 202 / water | 29,793 | 29,793 | 835,410 | 0.67 |
+| 202 / reach | 48,058 | 48,058 | 2,631,836 | 36.00 |
+| 202 / water | 31,391 | 31,391 | 936,438 | 0.67 |
 | 202 / cars | 388,674 | 188,474 | 895,488 | 0.00 |
 
 Geometry bytes and image allocations are deduplicated within each row; shared rows are not additive.
 
 | Module | glTF + BIN bytes | Shared image MiB |
 | --- | ---: | ---: |
-| TypeIII_Girder18 | 42,066 | 16.00 |
-| DeckPanel6 | 15,384 | 32.00 |
-| Parapet6 | 6,262 | 16.00 |
-| PierColumns | 35,570 | 16.00 |
-| PierWall | 11,481 | 16.00 |
-| Abutment | 8,692 | 16.00 |
+| TypeIII_Girder18 | 57,576 | 16.00 |
+| DeckPanel6 | 25,062 | 32.00 |
+| Parapet6 | 7,133 | 16.00 |
+| PierColumns | 277,721 | 16.33 |
+| PierWall | 157,098 | 16.33 |
+| Abutment | 280,546 | 16.33 |
 | GuardrailTerminal | 23,931 | 4.00 |
 
-Both crossings share 44 unique image payloads, estimated **172.67 MiB** at 8bpp with full mips. PNG dependency bytes and uncompressed residency differ. These totals include native context; the new river-only allocation is listed above.
+Both crossings share 41 unique image payloads, estimated **156.67 MiB** at 8bpp with full mips. PNG dependency bytes and uncompressed residency differ. These totals include native context; the new river-only allocation is listed above.
 <!-- measured-costs:end -->
 
 ## Rebuild and evidence
@@ -309,8 +310,9 @@ finite UVs and density are measured, not a unique lightmap/atlas certification.
 `build/repeat.json` records the exact deterministic rebuild comparison.
 `make repeat` regenerates the native town, authored fields, geometry, glTF,
 manifests and camera calibration, comparing file sets and SHA-256 hashes.
-When a gallery exists it also re-encodes its JPGs. Blend containers and Cycles
-view sampling are excluded. `make check-texture-repeat` independently rebakes
+When a gallery exists it also re-encodes its JPGs and regenerates the 21 latest
+fixed-camera comparison panels and receipt. Blend containers and Cycles view
+sampling are excluded. `make check-texture-repeat` independently rebakes
 the three bank maps at 4096 and filters them to 1024; its gate is at most one
 byte difference and RMS below .02 byte. Plants/maintenance/foam and the water
 normal must regenerate byte for byte. Its receipt is `build/texture-repeat.json`.
@@ -318,9 +320,14 @@ The critique log is [REVIEW.md](REVIEW.md). No kit or top-level index change.
 `build/delivery.json` records the 30 final export frames and five gallery
 hashes/sizes. Every frame was inspected at native size before gallery creation.
 The previous 56cce73 delivery passed a clean build, a 486-file exact repeat and
-an independent texture rebake. Current last-round verification is recorded in
+an independent texture rebake. This last round passed a clean model/texture/render
+rebuild, `make`, `make check`, and a **509-file exact repeat**, including all five
+gallery JPGs and the latest comparison evidence. The independent texture rebake
+is exact except ORM's maximum one-byte / .001381-byte RMS difference, within its
+declared tolerance. The repository check reports 2,496 source files and zero
+errors; 638 other-family delivery inputs remain unchanged. Receipts are
 `build/check.json`, `repeat.json`, `texture-repeat.json`, `render-check.json`
-and `last-evidence.json`; the final REVIEW entry records their results.
+and `last-evidence.json`; [REVIEW.md](REVIEW.md) records the visual limitations.
 The regenerated [checkpoint report](build/checkpoint-report.md) links every
 requested fix to its views and lists per-piece/category memory and mesh reuse.
 Imported `_GROUND_TIP` attributes mark all buried rail-post ends for actual
@@ -402,11 +409,14 @@ street-sign and vehicle factories/images remain unchanged.
   no true depth; the girder webs and brightly exposed bearing seats remain
   smoother and more uniform than forty-year-old photographed concrete.
   Bearing rust, salt and leakage still rely on simplified atlas marks.
+  Coarse color interpolation can reveal diagonal patches in wall macros.
 - **Riprap — partial.** Placement is substantially denser and keyed into the
   slope, with darker contact hollows. Large planar fractures, limited chinking
   and residual placement rhythm still read as low-poly CG, especially in the
   abutment macro. The coverage audit measures exposed stone, not a filter-bed
-  engineering specification or proof that every gap is filled.
+  engineering specification or proof that every gap is filled. In the final
+  exports, 56.2–57.5% of the sampled apron rays expose stone above the bed;
+  the rest hit soil/fines, so the continuous-blanket request is incomplete.
 - **Bar — partial.** The bed is gravel rather than mud with chips, but the
   rounded tile can read as flat repeated discs close up. Sorting is coarse,
   and the lee is finer gravel rather than a complete sand/silt transition.
@@ -415,7 +425,8 @@ street-sign and vehicle factories/images remain unchanged.
 - **Riffle — partial.** Roughening and foam cover more of the width. Their
   analytic rows and fixed porous streaks remain orderly, and the center/right
   can still look too calm at bank distance. It is not convincingly turbulent
-  across the entire river in every view.
+  across the entire river in every view. The elevated bank comparison also
+  exposes an overly straight transverse foam band.
 - **Drift snag — partial.** Taper, roots, broken ends, submerged darkening and
   upstream twigs improve its construction. The trunk still lacks a dedicated
   bark normal field; root forks, branch cuts and the wrack mat remain too stiff
@@ -430,6 +441,8 @@ Fine bank cards can reveal their 512px edges in macros. Quarry silhouettes
 retain a small number of hard fracture facets. Native context uses simplified
 presentation materials and needs engine LOD/culling.
 Eevee controls show paler transmission and less underside occlusion than
-the Cycles look targets. The photographic fits
+the Cycles look targets. The dense Eevee context also fills the renderer's
+shadow buffer, which can omit shadow pages; the Cycles finals are unaffected.
+The photographic fits
 certify selected landmarks, not the photographs' complete structures, seasons
 or interiors. Remaining visual criticism belongs in [REVIEW.md](REVIEW.md).

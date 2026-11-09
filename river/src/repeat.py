@@ -15,6 +15,8 @@ def hashes():
     paths += [Path('build/photo-calibration.json')]+sorted(Path('build/photo-balanced').glob('*.png'))
     if Path('build/delivery.json').exists():
         paths += [Path('build/delivery.json')]+sorted(Path('docs').glob('*.jpg'))
+    if Path('build/last-evidence.json').exists():
+        paths += [Path('build/last-evidence.json')]+sorted(Path('renders/last-fixes').glob('*.jpg'))
     return {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths if p.is_file()}
 
 
@@ -29,6 +31,8 @@ def main():
             '--python','src/build.py','--','--out','build/repeat.blend'],stdout=f,stderr=subprocess.STDOUT,check=True)
         if Path('build/delivery.json').exists():
             subprocess.run(['python3','src/delivery.py'],stdout=f,stderr=subprocess.STDOUT,check=True)
+        if Path('build/last-evidence.json').exists():
+            subprocess.run(['python3','src/last_evidence.py'],stdout=f,stderr=subprocess.STDOUT,check=True)
     after=hashes();changed=[p for p in sorted(set(before)|set(after)) if after.get(p)!=before.get(p)]
     Path('build/repeat.json').write_text(json.dumps(dict(passed=not changed,files=len(before),changed=changed),indent=2)+'\n')
     if changed:raise ValueError(('Repeat mismatch',changed))

@@ -1032,3 +1032,61 @@ not attempted. Deliver all five as partial fixes and name their CG cues.
 The six previews, earlier concrete controls and their receipts are retained
 under `../build/river-last-round/probes/` through the clean build. Finals must
 come from fresh complete exports and be judged separately before docs commit.
+
+## Pass 31 — complete clean exports and final-round comparisons
+
+Color/value first: inspected all 57 clean checkpoint, photographic, source-field,
+historical-control and wall-detail PNGs at native 1280px width. Opened all six
+export/source photographic pairs, and the 56cce73 comparisons for the pier,
+abutment, bearings, floodwall, outfall, bar, snag and both bank-level riffles.
+The concrete-balanced urban and underside photographs remain the value controls.
+Neutral gray improves the poured supports and wall; the sunlit bearing seats,
+girders and outfall trim remain too pale and uniform for forty-year concrete.
+Paste grain and pores survive export, but the shallow alpha pores do not provide
+true cavities. Salt and bearing rust are still weaker than the photographs.
+Coarse interpolated color patches can also reveal diagonal bands in wall macros.
+
+The armor is denser and darker, with water-height algae and buried chinking.
+Independent rays measure only 56.2–57.5% exposed-stone coverage over the sampled
+aprons: it is not a complete blanket. Facets, residual row rhythm and exposed
+soil still read as CG. The bar is a continuous lighter gravel field, but its
+flat repeated rounded discs, sparse generic seedlings and incomplete fine lee
+do not match a naturally sorted cobble/sand deposit or willow establishment.
+
+Both riffles have broader standing-wave trains and longer downstream streaks.
+Their bank views still leave too much calm surface, and the elevated bank pair
+reveals an overly straight transverse foam band. The snag now has a tapered
+trunk, torn roots and trapped twigs, but its polygonal silhouette, stiff root
+and branch anatomy and lack of dedicated bark relief remain conspicuous.
+These five fixes are partial. The source-field controls show the same principal
+defects, so bake loss is not an adequate explanation. Town roof/block rhythm
+and riverwalk paving were not changed. Eevee additionally reports a full shadow
+buffer and retains pale water/weak occlusion; its labelled controls disclose it.
+
+All 21 latest comparisons pass identical camera and light checks, including sun
+direction. The earlier 24 comparison panels remain available. Both hero tonal
+audits measure zero near-clipped pixels; the accepted lighting, water and views
+remain intact. Fresh checks pass budgets, contacts, serialization and preservation
+of 638 other-family files. Civil geometry is 148,441 / 80,247 triangles; scene
+plus owned images is 117,722,293 / 27,171,833 bytes. The independent texture rebake
+is exact except ORM's maximum one-byte / 0.001381-byte RMS variation, within its
+declared tolerance. Final delivery encoding and the full exact repeat follow.
+
+Opened all five final gallery JPGs and both exported/checkpoint contact sheets
+at native size. Their encoded values retain the low-sun fascia, dark cavities
+and reflective green-brown water. The construction and water sheets visibly
+retain the concrete, fractured-stone, gravel and snag shortcomings listed
+above. No appearance approval beyond that partial result is claimed. The
+gallery is 1280–1600px wide, 177,035–195,696 bytes per image, and accompanies
+30 current exported frames plus the three photographic comparison panels.
+
+Final verification: the clean model, texture and render rebuild completed;
+`make`, final `make check`, `make repeat` and `make check-texture-repeat` pass.
+The repeat matches all 509 files byte for byte, including the five gallery
+JPGs, native town, authored fields, exports and the latest comparison panels
+and receipt. No native car-cache tolerance was needed. The texture tolerance
+and measured residual are stated above. Fresh import/contact/scale/budget,
+storage and 638-file preservation checks pass. The repository check reports
+2,496 source files and zero errors. Current frame, image and export-bundle
+receipts validate after the final model rebuild. The top-level README and kit
+match merged main. No Blender worker or GPU lease remains from this round.

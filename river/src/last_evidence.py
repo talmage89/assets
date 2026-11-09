@@ -20,6 +20,7 @@ def main():
         assert camera_signature(old['camera'])==camera_signature(new['camera']),(seed,name,'Camera changed')
         for key in ('exposure','sun_energy','engine','width','samples'):
             assert old.get(key)==new.get(key),(seed,name,'Accepted presentation changed',key)
+        assert max(abs(a-b) for a,b in zip(old['sun_direction'],new['sun_direction']))<1e-6
         assert new['bundle_sha256']==bundle(new['source']),('Stale last-round frame',after)
         a=Image.open(before).convert('RGB');b=Image.open(after).convert('RGB')
         assert a.size==b.size and a.width>=800
