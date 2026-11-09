@@ -394,3 +394,38 @@ Whole default chain:
 Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 2 to 2 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
 
 <!-- LOD checkpoint oneway-r: end -->
+
+<!-- LOD checkpoint yield: begin -->
+## Yield assembly LODs
+
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/yield/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 614 / — | 2 / 2 | 55,748 | 674,885 | 730,633 | 5.333 + 0.0489 | near |
+| LOD1 | 414 / 92 | 2 / 2 | 39,647 | 674,885 | 714,532 | 5.333 + 0.0348 | 9.0% / 28.15 m |
+
+Chain check: True; image check: True; normal check: True.
+
+
+Whole-chain resident GPU estimate: **5.417 MiB**, versus LOD0 alone **5.382 MiB**. Unique textures 5.333 MiB = 5.333 MiB original + 0.000 MiB proxy/impostor; all meshes 0.0837 MiB. Increase over LOD0 0.035 MiB = 0.000 MiB far maps + 0.0348 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. Intermediate levels allocate no additional images.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/yield/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/yield/check.json` and `export/lod/yield/normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod-uv/archive/street-signs/yield-final/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 1 × 2048×2048; LOD1: 1 × 2048×2048.
+
+Whole default chain:
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 1,028 | 2 | 4 | 770,280 | 5.4171 |
+
+Stored counts include the full immutable source container once and every default level; optional impostor alternatives are excluded. Near materials use their canonical source bindings. Physical payload files are counted once by path. Only one level is drawn per instance: active draw calls range from 2 to 2 across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.
+
+<!-- LOD checkpoint yield: end -->

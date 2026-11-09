@@ -1,0 +1,16 @@
+{
+  "kind": "shared-set small prop: yield assembly",
+  "name": "Yield",
+  "source": "export/set/RoadSign_yield.gltf",
+  "shared_textures": "export/lod",
+  "output": "export/lod/yield",
+  "renders": "renders/lod/yield",
+  "readme_key": "yield",
+  "readme_title": "Yield assembly LODs",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "levels": [
+    {"ratio": 0.15, "screen_height": 0.09, "preserve_uv_regions": true}
+  ]
+}
