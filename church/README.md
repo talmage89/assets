@@ -369,8 +369,11 @@ bounded gallery JPGs above are the only committed images.
   across-street heroes, oblique parcels, doors/steps, day/dusk glass, towers
   from below, education wings/lots, street signs and 1.8m human/car scale.
 - [Historic hero](renders/final/101/hero.png) and
-  [mid-century hero](renders/final/202/hero.png): exported external-image
-  glTF, Cycles, 35/38mm, camera height 1.72m, clear procedural sky, low sun
+  [mid-century hero](renders/final/202/hero.png): Cycles imports the embedded
+  export mirrors under `build/glb/`, carrying the exact geometry and PNG
+  payloads externalized into the delivered glTF. Receipts fingerprint both
+  packages and the actual imported GLB. Lenses are 35/38mm, camera height
+  1.72m, clear procedural sky, low sun
   raking the fronts. The A-frame's sun comes from the opposite side to the
   downtown hero, under a deeper sky. No HDRI. The rear-wing inspection uses light from its
   viewed side and records that direction in its receipt.
@@ -440,11 +443,13 @@ pack was downloaded or adapted.
   mulch beds are dark geometric strips.
 - **Entry age is partial.** Treads have shallow center hollows and darker
   traffic zones, chipped nosings, door touch/kick wear and rust at anchor
-  shoes. The stone is still too precisely manufactured, and patch repairs
+  shoes. Center wear exposes faceted rectangular bands, and oxidation at
+  the feet resembles a collar. The stone is still too precisely manufactured, and patch repairs
   and irregular door-finish loss are weaker than decades of real use.
 - Beam ends are grayer, but checks and fascia paint loss remain simplified.
   Cross rust and fine bird/ledge deposits under-read. Memorial glass is
   deliberately simple; it does not approach historical pictorial craft.
+  The sign case's inherited edge pattern repeats visibly in its close-up.
   Native reduced neighboring roofs are coarse from above; the district
   beyond the authored blocks is sparse. Eevee reflections differ from Cycles.
 
