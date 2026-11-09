@@ -5,22 +5,83 @@ import sys
 from pathlib import Path
 
 import bpy
+import numpy as np
 from mathutils import Matrix, Vector
+from mathutils.bvhtree import BVHTree
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from kit.lod import configuration
 from kit.lod_io import Document, digest
 from kit.motion import owned, sweep
+from kit.lod_scene import construction_components
+
+
+def shelter_supports(meshes, opaque_name, intact):
+    """Separate actual construction shells, then ray-test every pad and column."""
+    vertices, faces, all_vertices, all_faces = [], [], [], []
+    for ob in meshes:
+        points = [ob.matrix_world@v.co for v in ob.data.vertices]
+        offset = len(all_vertices)
+        all_vertices.extend(points)
+        all_faces.extend(tuple(offset+i for i in p.vertices) for p in ob.data.polygons)
+        offset = len(vertices)
+        vertices.extend(points)
+        faces.extend(tuple(offset+i for i in p.vertices) for p in ob.data.polygons
+                     if ob.material_slots[p.material_index].material.name == opaque_name)
+    xyz, triangles = np.array(vertices), np.array(faces)
+    parts = []
+    for ids in construction_components({'POSITION': xyz}, triangles):
+        tris = xyz[triangles[ids]]
+        points = tris.reshape(-1, 3)
+        normal = np.cross(tris[:, 1]-tris[:, 0], tris[:, 2]-tris[:, 0])
+        normal /= np.maximum(np.linalg.norm(normal, axis=1, keepdims=True), 1e-20)
+        parts.append(dict(lo=points.min(0), hi=points.max(0), tris=tris,
+            bottom=tris[normal[:, 2]<-.99].reshape(-1, 3),
+            tree=BVHTree.FromPolygons(points, np.arange(len(points)).reshape(-1, 3), all_triangles=True)))
+    slabs = [p for p in parts if (p['hi']-p['lo'])[0]>4 and (p['hi']-p['lo'])[1]>1.7]
+    assert len(slabs) == 1
+    slab = slabs[0]
+    pads = [p for p in parts if np.all(np.abs((p['hi']-p['lo'])-np.array((.16,.16,.02)))<.006)]
+    columns = [p for p in parts if 2.29<(p['hi']-p['lo'])[2]<2.31
+               and np.all(np.abs((p['hi']-p['lo'])[:2]-.0635)<.006)]
+    assert len(pads) == len(columns) == 6, ('Lost support shells', len(pads), len(columns))
+    rows = []
+    for column in columns:
+        center = (column['lo']+column['hi'])/2
+        pad = min(pads, key=lambda p: np.linalg.norm(((p['lo']+p['hi'])/2-center)[:2]))
+        gaps, insertion = [], []
+        assert len(pad['bottom']) and len(column['bottom'])
+        for point in pad['bottom']:
+            hit = slab['tree'].ray_cast(Vector(point)+Vector((0,0,1)), Vector((0,0,-1)), 2)[0]
+            assert hit is not None
+            gaps.append(float(point[2]-hit.z))
+        for point in column['bottom']:
+            hit = pad['tree'].ray_cast(Vector(point)+Vector((0,0,1)), Vector((0,0,-1)), 2)[0]
+            assert hit is not None
+            insertion.append(float(hit.z-point[2]))
+        gap = max(map(abs, gaps))
+        depth = float(pad['hi'][2]-pad['lo'][2])
+        assert gap<=.0005 and min(insertion)>=-.0005 and max(insertion)<=depth+.0005
+        rows.append(dict(center_xy_m=center[:2].tolist(), pad_samples=len(gaps),
+            max_pad_slab_gap_m=gap, column_samples=len(insertion),
+            column_insertion_range_m=[min(insertion),max(insertion)]))
+    tree = BVHTree.FromPolygons(all_vertices, all_faces, all_triangles=True)
+    hit = tree.ray_cast(Vector((1.2,.3,1.31)),Vector((0,1,0)),.6)[0]
+    assert (hit is not None) == intact, 'Rear-right pane presence changed'
+    return dict(passed=True, supports=rows, rear_right_pane_hit_m=list(hit) if hit else None)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config', required=True)
+parser.add_argument('--source-only', action='store_true')
 args = parser.parse_args(sys.argv[sys.argv.index('--')+1:])
 cfg, family, source, output = configuration(Path(args.config))
-manifest = json.loads((output/'manifest.json').read_text())
-assert Document(source).dependencies() == manifest['baseline']
 opaque_name = Document(source).data['materials'][0]['name']
-paths = [source]+[output/r['path'] for r in manifest['levels'][1:]]
+paths = [source]
+if not args.source_only:
+    manifest = json.loads((output/'manifest.json').read_text())
+    assert Document(source).dependencies() == manifest['baseline']
+    paths += [output/r['path'] for r in manifest['levels'][1:]]
 rows = []
 for level, path in enumerate(paths):
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -39,6 +100,8 @@ for level, path in enumerate(paths):
     assert error < 1e-6, 'A mesh no longer follows its module root'
     root.matrix_world = rest
     bpy.context.view_layer.update()
+    supports = (shelter_supports(meshes, opaque_name, cfg['name']=='Shelter')
+                if cfg['name'].startswith('Shelter') else None)
 
     pivots = [ob for ob in root.children_recursive if 'pivot_axis' in ob]
     specs, physical, excluded = [], [], []
@@ -74,12 +137,14 @@ for level, path in enumerate(paths):
     result = sweep(dict(MOTIONS=specs)) if specs else dict(passed=True, motions=[])
     result.update(level=level, sha256=digest(path), path=str(path.relative_to(ROOT)),
         placement_error_m=error, ground_minimum_m=minimum, physical_meshes=physical,
-        non_solid_graphics_excluded=excluded)
+        non_solid_graphics_excluded=excluded, shelter_supports=supports)
     rows.append(result)
 report = dict(passed=all(r['passed'] for r in rows), levels=rows,
+    source_only=args.source_only,
     config_sha256=digest(Path(args.config)), script_sha256=digest(Path(__file__)),
     policy='Hold LOD0 while any coin door differs from rest; no moving/fixed pair exemptions',
     scope='All imported meshes for placement/ground; opaque actual surfaces for meter motion, matching original solid tags')
-dest = family/'build'/('lod-'+cfg['readme_key']+'-parts.json')
+suffix = '-source-parts.json' if args.source_only else '-parts.json'
+dest = family/'build'/('lod-'+cfg['readme_key']+suffix)
 dest.write_text(json.dumps(report, indent=2)+'\n')
 assert report['passed'], str(dest)

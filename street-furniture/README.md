@@ -194,7 +194,7 @@ Stock glTF does not reproduce headlight retroreflection for the separate signs.
 
 Bike racks stay LOD0: 1,020 triangles per U, or 4,080 for the row; their pipe geometry is already minimal.
 Receptacles and news/collection boxes have no LOD chain yet; their hinges need clearance corrections.
-The twin meter, shelters and bus-stop sign await their own LOD checks. See [the review](REVIEW.md).
+The shelters and bus-stop sign await their own LOD checks. See [the review](REVIEW.md).
 
 <!-- LOD checkpoint bench: begin -->
 ## Bench LODs
@@ -241,3 +241,27 @@ Use the listed screen-height switches with hysteresis in the engine LOD controll
 
 Stored placements count the resident alternatives; active draw calls are in the level table. [Verification and target witnesses](REVIEW.md). [Engine setup](../kit/LOD.md).
 <!-- LOD checkpoint meter-single: end -->
+
+<!-- LOD checkpoint meter-twin: begin -->
+## Twin parking meter LODs
+
+Optional glTF/BIN levels live in `export/lod/meter-twin/`. `make lod LOD_THREADS=4` builds all adopted kinds; `make check-lod` verifies them.
+
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 2,916 / — | 2 / 4 | 230,300 | 9,526,421 | 9,756,721 | 17.333 + 0.2110 | near |
+| LOD1 | 1,935 / 1,166 | 2 / 4 | 171,628 | 9,526,421 | 9,698,049 | 17.333 + 0.1575 | 25.0% / 5.39 m |
+| LOD2 | 1,363 / 437 | 2 / 4 | 129,826 | 9,526,421 | 9,656,247 | 17.333 + 0.1176 | 9.0% / 14.96 m |
+
+Both heads, their dial states, yoke and post remain at the switch. **Select LOD0 before opening either coin door, and hold it until both are fully closed.**
+
+The levels share the original 3 × 2048² + 1 × 1024² maps, about 17.333 MiB. They add no image content. The whole chain costs 17.8195 MiB, versus 17.5444 MiB for LOD0 alone. Reuse the original material and image resources.
+
+Use the listed screen-height switches with hysteresis in the engine LOD controller. Distances assume 60° vertical FOV and 1080p. Only one level draws per instance.
+
+| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 6,214 | 2 | 12 | 10,058,175 | 17.8195 |
+
+Stored placements count the resident alternatives; active draw calls are in the level table. [Verification and target witnesses](REVIEW.md). [Engine setup](../kit/LOD.md).
+<!-- LOD checkpoint meter-twin: end -->

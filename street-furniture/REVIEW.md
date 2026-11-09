@@ -599,3 +599,57 @@ placements and 9716845 distinct payload bytes; it draws 1449 or 911 triangles
 in three calls. Original maps remain 17.333 MiB with no new images; whole-chain
 residency is 17.5030 MiB. All 38 original/accepted-bench payload hashes and all
 103 tool hashes match. Repository and whitespace checks pass.
+
+### Twin meter critique 1 — two heads require their own coverage proof
+
+Opened all six native strips and three close views. Color/value first: both
+cast housings, zinc post/yoke and distinct paid/expired dial states retain their
+palette. The near 1935-triangle level keeps both crowns, lens seats and vaults
+at .25 / 5.39 m; its image gates pass. The 1156-triangle far level has obvious
+angular crowns in the close view and front silhouette loss .06251 at .09,
+above .05. Reject that level. Its raw check fails only the image comparison;
+normal/UV/topology and permitted-pose/placement checks pass independently.
+Both original coin doors are sampled at 5 degrees; reduced doors at rest only.
+
+Archive all first-trial payloads, config, native images, checks and hashes in
+meter-twin-pass1/. Test that 1156-triangle mesh against the original at the
+near switch as a witness to the 1166 near goal. A first witness-driver run
+stopped at its dependency-symlink assertion; no picture or passing claim was
+produced. Correct only the ignored driver's lexical-path handling, preserving
+the delivered maps and archived payloads, then rerun. Tighten the far trial's
+surface allowance to .35 rather than borrow the single meter's .15 result.
+
+### Twin meter critique 2 — own near witness and accepted far retune
+
+Opened all three near-goal strips. The 1156-triangle witness, just below the
+1166 near goal, visibly flattens both crowns and separates the lens seats and
+vault silhouettes; every near view fails the unchanged image limits. Its exact
+driver, candidate, maps, chosen payload hashes and metrics remain in
+meter-twin-near-goal/. This is this twin's evidence, not the single's witness.
+
+The .35-pixel far retune measures 1935/1363 triangles, goals 1166/437, at
+.25/.09 (5.387/14.963 m). Opened all six native strips and all three construction
+views. Color/value and both dial states hold; both heads, yoke, post and footing
+keep their coverage. Far construction views remain faceted, but the native
+97-pixel comparisons no longer show the cheaper level's broken outlines.
+All original RGB/alpha/local gates pass, without a new atlas or changed limits.
+
+The first retune's runner was observed exiting 143 without a closing receipt,
+although its child had finished writing the images. Verified that no own job
+remained, recorded that run as interrupted, and repeated the exact command
+under foreground monitoring. The retry exits 0. Its native JPGs are byte-
+identical to those inspected; PNG file hashes include changing render metadata.
+Reopened the final close views and complete contact. Final public check-lod
+passes for bench and both meters, including actual permitted-pose/placement
+audits. The two source coin doors each receive 20 samples; reduced doors draw
+only at rest, all measured penetration zero. Hold LOD0 for either open door.
+Normal, UV, frame and topology audits pass independently. Original make check,
+immutable-source and frozen-tool checks close this kind before shelter work.
+
+Twin closing results: original make check and public check-lod pass; source
+receipt and all 103 frozen tool hashes match. The reporter-generated table
+stores 6214 triangles, two material resources, twelve primitive placements,
+10058175 distinct payload bytes and 17.8195 MiB resident. One instance draws
+2916, 1935 or 1363 triangles in four calls. Texture residency remains the
+original shared 17.333 MiB; new images zero, added mesh buffers 288444 bytes.
+No existing package, accepted bench/meter geometry, map or docs JPG changed.
