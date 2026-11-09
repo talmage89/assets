@@ -20,7 +20,7 @@ partial fixes named in **Known flaws** below.
 
 Seed 101 has a six-bay nave, corner bell tower and spire, rose, deep paired
 portal, later brick hall and a 1996 side ramp. Its rear lot is full for Sunday
-morning, with ten more cars along its curbs. Seed 202 has seven A bents,
+morning, with ten more cars along its curbs. Seed 202 has seven bays and eight A bents,
 low masonry walls, glazed ends, steel campanile, fellowship/education wings,
 garden, covered drop-off and a lightly occupied weekday lot. Their plans,
 circulation and neighbors differ. There is no playable interior.
