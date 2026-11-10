@@ -3234,3 +3234,36 @@ Colonial seeds 8 and 14 cannot fit another full build/proof in the remaining
 two-hour budget and remain unattempted, with unchanged LOD0s. The required
 seed-27 prerequisite used 4,108 s plus its independent review/check. The
 remaining window is reserved for ranch 16 and the final family checks.
+
+### Ranch seed 16 — critique pass 1, adopted at the representative switch
+
+Opened both construction views, all six native source/new and preceding/
+6x-difference pages, the native contact and the measured report contact.
+Color/value first: neutral gray siding, warm gray shingles, red-brown brick
+and deep porch/window cavities remain stable at 4.5%. The garage, porch steps,
+chimney, hip/gable silhouette and opening rhythm remain legible in all three
+views. Close views lose shingle, brick and garage-panel relief; trim edges and
+roof joints soften. This shell is suitable at its checked distance, not close.
+
+`make lod LOD_CONFIG=src/lod-ranch-16.json LOD_THREADS=4` returns 0 in
+238.11 s. The cloned ranch recipe changes only source and labels/locations.
+LOD1 is 1,800/1,800 triangles at 4.5% (113.73 m at the recorded camera), one
+draw and one material, with four 512-square maps. All three original/adjacent
+image gates pass: maximum mean .016535, p95 .062895, local .065686,
+alpha .016472 and IoU loss .017790. No farther switch or dropped level.
+
+`check-lod` for this config returns 0 in 3.95 s: raw geometry, fresh re-import,
+canonical frames/materials and independent UV/normal audit pass. This proves
+rest data/serialization; the final original-family check separately covers
+construction and motion. LOD0 stays 53,037 triangles/10 draws. Stored chain:
+54,837 triangles, seven material resources, eleven primitive placements,
+12,504,917 distinct bytes, 33.249754 MiB estimated resident versus 31.824 MiB
+original. Proxy package is 504,633 bytes (100,823 geometry bytes).
+
+All 594 pre-existing files and 63 rebuilt prerequisite files match their
+receipts, as do the five source dependency receipts and literal kit/config
+freezes. The original recipes and both representative tables are unchanged.
+Only after these checks, add the config to both family check lists and update
+the existing ranch-16 table row. Full measured report/contact is local at
+`build/houses-lod-3/reports/ranch-16/`; native views are local at
+`houses/renders/lod/ranch-16/`. No ignored-path hyperlinks are added.
