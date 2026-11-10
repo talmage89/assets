@@ -2263,3 +2263,302 @@ from the accepted delivery remain unchanged.
 - `python3 -m py_compile trees/src/*.py`, `git diff --check`, repository rules:
   passed. No `kit/` file changed, so no kit regression suite was required. Nothing
   is needed from the lead; no tool installation or contract change is requested.
+
+# Pin oak / LOD adoption preflight, 2026-11-09
+
+Historical stop: the following brief clarified that the hold covers committed
+files and maple, and authorized rebuilding stale oak artifacts. The accepted
+delivery rebuild below supersedes this preflight's blocker.
+
+The requested maple-style oak adoption stops at the original-delivery prerequisite
+in `kit/LOD.md`, before introducing an oak config or Make hook. Main was already
+merged at `93ad3e8`; the tool/recipe freeze covers 111 files in
+`build/lod-freeze.sha256`, with the revision in `build/lod-freeze-revision.txt`.
+The tree's original GLBs, texture files and five docs JPGs were hashed before
+any work: 23 files in `build/oak-lod/immutable-source.json`.
+
+The existing local oak is an older generated delivery, not the accepted bark
+polish described above. Its SHA-256 is
+`0a554a3dfb3eff604712c794c43d3feeb4353ff6642e2da9ff6a0a12504b23d1`,
+10,822,788 bytes, versus the accepted 11,702,192-byte
+`49ffc243d9888dc82825b8d35f1a208ad795221b48626b9ff2a8258f421ebab3`.
+The actual accessor count is nevertheless the current **24,816 triangles**:
+10,536 wood / 14,280 foliage. Two materials and two color-pass draws share
+three 2048-square maps. Raw mesh allocation is 2,901,792 bytes; compressed
+full-mip texture allocation is 16,777,296 bytes, total **18.7674 MiB**.
+These are LOD0 costs, not an adopted chain or target-count result.
+
+The family's Make rebuilt both native oak source scenes from the unchanged
+scripts, each reporting 24,816 triangles and 7,140 cards. Explicit old targets
+held existing UVs, bake, maps, export, final renders and docs immutable:
+
+```sh
+make -C trees SPECIES=oak all -o docs \
+  -o build/oak/uv-source.blend -o build/oak/finalized.blend \
+  -o build/oak/baked.stamp -o build/oak/textures.stamp \
+  -o export/PinOak.glb -o export/RedMaple.glb -o renders/oak-final/.stamp
+make -C trees SPECIES=oak check \
+  -o build/oak/uv-source.blend -o build/oak/finalized.blend \
+  -o build/oak/baked.stamp -o build/oak/textures.stamp \
+  -o export/PinOak.glb -o export/RedMaple.glb -o renders/oak-final/.stamp
+```
+
+Both commands fail at `oak_final_review.py`'s unchanged bark-population gate;
+the explicit check returns 2. GLB verification and botanical serialization
+pass first: zero UV overlap, position and Wind errors, and normal vector error
+below 8.5e-5. The native-source construction checks later in the Make recipe
+are not reached; rebuilding those scenes alone is not a complete original
+pipeline rebuild or acceptance proof. Full logs are
+`build/oak-lod/original-make.log` and `original-check.log`.
+
+**Color/value first:** opened the inherited exported bark/photo pair and 1 m
+raking image. The local bark has smooth, low-contrast gray faces and thin dark
+lines, missing the accepted bright ridge tops and recessed brown channels.
+Measured ridge / fissure / dark share are **.44085 / .32461 / 2.4626%**,
+versus the reference's **.51788 / .25047 / 11.4266%**. All three differences
+exceed the existing .03 limits. Median .40779 and warm hue still pass; those
+do not excuse the missing relief contrast. Evidence is the existing
+`renders/oak-final/bark-pair.jpg`, `bark_raking.png`, and the freshly evaluated
+`color-value-evidence.json`; `renders/oak-final/contact.jpg` indexes the old
+presentation. No new oak render or LOD critique pass is claimed.
+
+The request holds every existing delivery byte-identical. Replacing this
+package, its maps or its final presentation would break that hold; reducing
+it despite its failed original check would break the adoption recipe. No oak
+level, switch, target result or additional resident/stored cost is claimed.
+No rejected chain is wired to `make lod` or `make check-lod`. Resuming adoption
+requires resolving the stale original delivery under that preservation hold;
+it does not require a new simplification method or relaxed image gates.
+
+## Maple regression and final preservation
+
+The existing maple recipe, Makefiles and README LOD block are unchanged from
+main. No generated maple LOD package existed locally at session start. Its
+unchanged config was built to provide an independent regression while oak
+adoption was held. The first `make -C trees SPECIES=maple lod check-lod
+LOD_THREADS=4` completed mesh/impostor generation, then received SIGTERM during
+rendering (exit 143); that partial render is not a passing check.
+The serial retry `make -C trees SPECIES=maple lod-render check-lod LOD_THREADS=4`
+returns **0**, including raw re-import and independent normal-field checks.
+Logs: `build/oak-lod/maple-lod.log` and `maple-lod-retry.log`.
+
+Opened all 32 capture views at native size, all twelve native comparison strips
+with their original/preceding/difference panels, five construction views and
+the contact. Color/value and crown coverage remain consistent at the existing
+switches. Enlarged cards remain visible close up, and the elevated fixed
+impostor exposes its planar star; the camera-facing alternative is softer and
+retains its controller/frozen-light/wind limitations. All twelve image gates
+pass unchanged. Maximum original/adjacent mean / p95 / local / alpha / IoU loss
+are **.019545 / .066667 / .048660 / .048864 / .069287**.
+
+Maple retains **11,840 / 4,736 / 8 triangles** at **8.0% / 3.2% / 1.5%**,
+plus the optional two-triangle card at 1.5%; all targets are met. Near levels
+retain two materials/two draws; each far alternative has one material/one draw.
+The fixed chain stores **40,264 triangles, three material resources, seven
+primitive placements and 15,769,144 payload bytes**. Texture residency is
+**16.333 MiB**, with zero new intermediate images; every mesh brings total
+residency to **21.2044 MiB**, versus LOD0's 18.5496 MiB. Substituting the optional
+camera-facing card gives **23.537 MiB**. Measured tables and contacts are in
+`build/oak-lod/maple-report/`; native evidence is `renders/lod/`.
+
+All **13 generated payload files** match the first completed local mesh build
+byte for byte after the retry, including both far alternatives. Receipt:
+`build/oak-lod/maple-repeat.json`. This proves local repeat preservation, not
+equality with an unavailable pre-session LOD payload. The existing maple GLB,
+maps and docs retain their original receipt hashes throughout.
+
+Post-LOD original regression returns **0** (`build/oak-lod/maple-original-check.log`):
+
+```sh
+make -C trees SPECIES=maple check \
+  -o build/lookdev.blend -o build/game-audit.blend -o build/finalized.blend \
+  -o build/baked.stamp -o build/textures.stamp -o export/RedMaple.glb \
+  -o renders/final/.matched -o renders/final/.stamp
+```
+
+Final preservation verifies **23/23 original files** and **111/111 literal
+tool/recipe hashes** (`sha256sum -c build/lod-freeze.sha256`). Repository and
+diff checks pass. No kit, Makefile, tree generator, top-level README, house or
+original docs image changed. Oak `check-lod` and its two LOD critique passes
+are skipped because no oak chain can be adopted before its original check
+passes. No detached Blender/GPU job remains at handoff.
+
+# Pin oak / accepted delivery rebuild, 2026-11-09
+
+The continued brief authorizes rebuilding ignored oak outputs from the
+committed scripts while preserving committed docs and all maple resources.
+No modeling, material, UV or kit source changed. Main was already up to date.
+Before rebuilding, `build/oak-lod-continued/preserve.json` froze 65 existing
+maple export/chain/map and family docs files; every hash still matches.
+
+```sh
+make -C trees SPECIES=oak clean
+make -C trees SPECIES=oak -o docs all
+make -C trees SPECIES=oak -o docs \
+  OAK_FINAL_SHOTS=lower_pins,crown_up,scale,root_flare,family all
+make -C trees SPECIES=oak check -o renders/oak-final/.stamp
+```
+
+The first full build regenerated native scenes, UVs, 4096 bake, 2048 maps and
+GLB, then received SIGTERM after nine presentation views (exit 143). Its
+completed per-view provenance was retained. The third command resumes only
+the five remaining presentation views, then runs both photo cameras, Eevee
+and every original check; **exit 0**. The explicit check also returns **0**.
+Only its already verified render stamp is held old, to avoid restarting the
+entire presentation because the resume changed the shot-list cache parameter.
+All stale UV, bake, texture and export targets were actually rebuilt; none
+were held old. Logs: `original-make.log`, `original-resume.log` and
+`original-check.log` under `build/oak-lod-continued/`.
+
+The newly frozen original is **11,702,200 bytes**, SHA-256
+`b14f6ce08d6c8057a83e7203951543314b7d37d38c6c222be96e58483cea2e3e`.
+It does **not** match the historical accepted 11,702,192-byte `49ffc243…`
+receipt. Current PNG bytes are **2,522,476 / 4,264,598 / 2,008,760**:
+accepted-size differences **+10 / −4 / +4 bytes**, with packaging alignment
+accounting for the eight-byte whole-file difference. All twelve accessor
+buffers match the preserved original exactly, including tangent rounding;
+the accepted bark-only polish preserved those same buffers. Nodes, mesh
+membership, material settings, samplers, every leaf-region pixel and complete
+alpha also remain exact. `rebuilt-receipt.json` records the measured scope.
+
+An independent 4096 GPU bake/composite/2048 filter into a scratch directory
+passes the existing repeat comparator (maximum 2 byte steps, RMSE .02).
+Only **8 / 12 / 19 RGB channels** differ, each by **one** byte step; RMSE is
+**.000797 / .000977 / .001229**. Foliage and alpha remain exact. The current
+maps also pass the stricter existing family rule from `compare_maple.py`:
+maximum one step and fewer than 100 changed channels per map.
+The scripts' GPU last-bit variation is measured, rather than inferred solely
+from compressed file lengths. The historical accepted PNG payloads are not
+available here, so an exact historical per-texel delta is not claimed.
+Commands and results: `repeat-commands.json`, `repeat/comparison.json`.
+A scratch export of those repeat maps additionally changes one tangent
+component by .000099994, the previously documented exporter-rounding issue;
+that scratch GLB is not adopted. The frozen `b14f6ce0…` source directly retains
+all twelve original accessors, without any restoration.
+
+**Color/value first:** opened all regenerated presentation views, the two
+photo pairs, bark pair, raking image, Eevee hero and contact. Bark median /
+ridge / fissure / dark share are **.414810 / .506710 / .268591 / 13.2240%**,
+reproducing the accepted polish's recorded populations within rounding.
+The warm gray faces and recessed brown channels return; fine photographic
+grain remains richer and the normal-mapped silhouette remains smooth.
+Every existing foliage, bark, retained-median and engine-response gate passes.
+All **16 Cycles + one Eevee** views reference the new GLB; the family view
+references the unchanged maple hash. Source/game geometry digests agree;
+camera projection, topology, bounds, UV, bake coverage, fresh GLB import and
+botanical position/normal/Wind checks all pass.
+
+The original remains **24,816 triangles**, two materials/two draws, three
+2048-square maps and **18.7674 MiB** estimated residency. New immutable source
+and shipped-map hashes are in `build/oak-lod-continued/immutable-source.json`.
+This authorizes using the rebuilt original for LOD review; no historical byte
+identity, source-script edit or relaxed appearance gate is claimed.
+
+## Oak LOD critique pass 1 — reject the middle coverage jump
+
+The frozen tool is `87ff8bf`, recorded before the oak build with all 111
+literal tool/rule/recipe hashes. The initial config copies the maple's card
+handling, enlargement exponents, density allocation and 8% / 3.2% / 1.5%
+switches, using separate oak output/render folders. Branches simplify
+separately; no new intermediate image or shader is authored.
+
+`make -C trees SPECIES=oak lod LOD_THREADS=4` completes. Opened all 32 own
+capture views, five construction images and all twelve native three-azimuth
+strips with their original, preceding-level and amplified-difference panels.
+**Color/value first:** crown greens and shadow depth stay consistent with the
+immutable delivered LOD0 under identical lighting. This is an appearance
+transfer comparison, not a new photographic white-balance calibration.
+The construction views show larger cards at LOD2; the fixed impostor forms
+an obvious planar star from above. The camera-facing alternative is softer.
+These are distance representations, not close/elevated replacements.
+
+LOD1 is **12,408 / 12,408 triangles** and passes every gate at 8%.
+LOD2 is **4,962 / 4,963**, but fails the unchanged .05 alpha gate at 3.2%:
+front original/adjacent errors **.050888 / .052477**, side original **.050238**.
+Its integrated alpha is 1.98% / 2.62% / 3.15% above LOD0; the mismatch is
+slight excess coverage and changed fine gaps, not a missing crown.
+All middle RGB/local/silhouette gates pass. Both eight-triangle fixed and
+two-triangle camera-facing far versions pass at 1.5%, against LOD0 and LOD2.
+
+`make -C trees SPECIES=oak check-lod LOD_THREADS=4` returns **2**, solely for
+rendered differences. Topology, fresh import, original material/maps,
+source receipt and the independent exact leaf UV/bent-normal/Wind audit pass.
+No passing numeric near result is misreported as a complete chain.
+The failed config, complete source and level payloads, every native image,
+raw/normal reports and logs are archived with hashes in
+`build/oak-lod-continued/pass1/`. Its config remains directly inside the
+archived `trees/src/`, so the frozen tool can recheck the actual witness.
+
+Retain the passing 8% near and 1.5% far switches. Test only the middle switch
+at **3.0%**, retaining the same requested ratios, card policies and image
+limits. The old-distance failure is preserved before replacing its outputs.
+
+## Oak LOD critique pass 2 — adopt the complete chain
+
+The second trial changes only the middle screen-height switch to **3.0%**:
+32.4 pixels / **489.14 m** at 60-degree vertical FOV and 1080p. The 8% near
+and 1.5% far switches, original materials/maps, ratios and card policies stay.
+The renderer completes all twelve comparisons with current manifest/evidence
+hashes and `passed: true`. Its Make wrapper subsequently receives SIGTERM
+(exit 143 after `LOD RENDER True` and Blender quit); completion is established
+by the fresh independent checks below, not inferred from that interrupted
+wrapper's exit or reused stale metrics. Log: `lod-pass2.log`.
+
+Reopened all twelve final native strips, each original/preceding/difference
+panel, five construction views and contact. **Color/value first:** source
+greens, warm wood and deep crown shadows remain consistent. The middle level
+changes small gaps and leaf-edge highlights slightly, without washing out the
+canopy or losing a branch mass at its actual switch size. Its original alpha
+errors are **.048946 / .048757 / .044999**; adjacent errors are
+**.048938 / .045945 / .044037**, all below the unchanged .05 gate.
+Every original/adjacent RGB, local, alpha and silhouette gate passes. No
+per-level image-limit exception is present. Close views still expose larger
+cards/coarser branches; the fixed far star remains unsuitable overhead.
+The two-triangle alternative remains soft close up and needs its controller.
+
+Final achieved/target triangles: **12,408/12,408**, **4,962/4,963**, **8/8**,
+with **2/2** for the optional camera-facing choice. All targets are met.
+LOD1 keeps **4,963 cards**, scale **1.1524**, with **2,482 wood triangles**;
+LOD2 keeps **1,985 cards**, scale **1.6687**, with **992 wood triangles**.
+The independent serialized audit matches **19,852 / 7,940** leaf vertices'
+UV, bent-normal and Wind records exactly. All near Wind channels are finite
+and bounded in [0,1]. Wood is simplified separately on the original maps;
+no exact-source-field or runtime wind-animation claim is made for that wood.
+Both far versions have one material and one color-pass draw, frozen wind and
+prelit illumination. Source shader/wind integration still belongs to the engine.
+
+Fresh final commands all return **0**, serially, with exact argv/logs in
+`build/oak-lod-continued/final-checks.json`:
+
+- `make -C trees check-lod LOD_THREADS=4`: both species' topology, maps,
+  source immutability, fresh imports, image gates and independent field audits.
+- `make -C trees SPECIES=oak check -o renders/oak-final/.stamp`: every original
+  check, including the actual bark populations and all 17 render-source hashes.
+- The maple's original `make check`, holding its eight accepted native/export/
+  presentation inputs old exactly as recorded in that JSON: all original gates.
+
+Measured oak table: `build/oak-lod-continued/oak-report/report.md`; final native
+images/contact: `trees/renders/lod-oak/`. Fixed-chain residency is
+**21.5334 MiB**, versus **18.7674 MiB** for LOD0. Original maps allocate
+**16.0001 MiB** once; only the fixed atlas adds **.3334 MiB**. Every mesh adds
+up to **5.1999 MiB**, including **2.4326 MiB** additional buffers. Zero new
+intermediate images. The optional camera-facing substitution gives **23.866
+MiB**. Default storage is **42,194 triangles, three material resources, seven
+primitive placements, 23,282,265 physical payload bytes**; active draws are
+two near and one far. These are stored alternatives, not simultaneous draws.
+
+The two-species union is measured separately in
+`build/oak-lod-continued/family-report/`: **82,458 stored triangles, six
+material resources, fourteen placements, 39,051,409 payload bytes**, and
+**42.7378 MiB** resident. Original containers and canonical images count once;
+optional alternatives are excluded. Instancing/resource binding is required
+in the engine; no engine allocation or frame-rate benchmark is claimed.
+
+The first failed middle switch remains archived and unwired. The full accepted
+chain uses `src/lod-oak.json`, with isolated `export/lod/oak/` and
+`renders/lod-oak/`; default opt-in family LOD targets cover both species,
+while `SPECIES=oak` selects oak. Default original build/check graphs stay intact.
+No kit or original generator changed, so no kit-source regression rerun is
+required. All 111 literal freeze entries, the four newly immutable oak source/
+map files and 65 held maple/export/chain/map/docs files match at handoff.
+The maple config and README LOD block remain byte-identical to main.

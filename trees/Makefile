@@ -66,7 +66,10 @@ check: check-bark
 
 endif
 
-# Optional red-maple LOD pilot.
-ifeq ($(SPECIES),maple)
-include ../kit/lod_rules.mk
+# Optional species LODs, independent of the original build/check graph.
+ifeq ($(SPECIES),oak)
+LOD_CONFIG ?= src/lod-oak.json
+else
+LOD_CONFIGS := src/lod.json src/lod-oak.json
 endif
+include ../kit/lod_rules.mk
