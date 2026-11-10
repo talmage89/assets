@@ -2874,8 +2874,8 @@ Branch `wp/houses-lod-2` starts from `02487b8`; merging `main` reports
 already up to date. All ten requested originals are present, so no source
 rebuild or rebake is needed. The pre-use source dependencies are recorded
 individually in `build/houses-lod-2/<type>-<seed>-source.json`.
-`immutable.json` freezes 360 pre-existing export, image, docs and LOD-evidence
-files, plus the top-level README. The previous 136-file ledger also matches.
+`immutable.json` freezes 360 pre-existing files: exports, images, docs,
+LOD evidence and the top-level README. The previous 136-file ledger also matches.
 `freeze.sha256` and the revision receipt cover the literal kit, recipe and
 both representative configs before use; each seed additionally freezes its
 own config. No kit, gate or target is changed. Blender runs serially with
@@ -2927,3 +2927,42 @@ retain the original canonical maps. Full measured tables/contact:
 `houses/renders/lod/colonial-2/`. Commands and checks are alongside the
 source/freeze receipts. The config is the representative unchanged except
 for source and names/output locations.
+
+### Colonial seed 3 — critique pass 1, adopted at the original switches
+
+Opened eighteen unscaled native source/new and preceding/difference pages,
+four construction views and the contact. Color/value first: pale cool siding,
+red brick band, warm shingles and dark shutters/cavities remain consistent
+near; the garage panels do not gain dark streaks. Roof joins, porch columns,
+window rhythm, downspouts and the rear chimney chase retain their coverage.
+The far front changes small trim/window values but retains the house's
+read at 4.5%; near views preserve the original material response. The close
+proxy loses lap/shingle/masonry relief, window depth and garage definition,
+with a coarser roof junction. No close equivalence is claimed for that shell.
+
+`make lod LOD_CONFIG=src/lod-colonial-3.json LOD_THREADS=4` returns 0 in
+4,127.54 s. LOD1 is 28,786/32,027 at 30%; LOD2 is 18,638/14,558 at 12%
+(`target_met: false`); the proxy is 1,800/1,800 at 4.5%. No switch moves or
+level drops. Far original/adjacent mean/p95/local maxima are
+.025430/.109804/.087990; alpha/IoU maxima .010775/.011492. Every unchanged
+image gate passes. `check-lod` returns 0 in 62.79 s, including raw topology,
+fresh import, pivots/resources and the independent UV/normal field audit.
+These are rest/serialization checks, separate from the original family check.
+The 360-file immutable ledger and literal seed/tool freeze also pass.
+
+Whole storage is 106,596 triangles, seven materials, 31 placements,
+26,315,229 distinct bytes and 48.6766 MiB resident; active draws are
+10/10/10/1. Near maps are canonical originals, with no new images; only the
+proxy adds four 512-square maps. Full tables/contact:
+`build/houses-lod-2/reports/colonial-3/`; native evidence:
+`houses/renders/lod/colonial-3/`. Both representative README blocks and
+recipes remain byte-identical at this point.
+
+### Time-box decision after the colonial proofs
+
+The two full builds/renders each take about 69–70 minutes, primarily serial
+CPU reduction, before their independent checks and review. Another complete
+colonial chain cannot fit the remaining time in the approximately three-hour
+brief. Colonial seeds 6, 8 and 14 are therefore skipped, retaining only their
+unchanged LOD0s. No unproved config or partial level is wired for them.
+The remaining time goes to ranch proxies, following the colonial work.
