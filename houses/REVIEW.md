@@ -2867,3 +2867,297 @@ The retained ranch proxy still loses close masonry/shingle detail and has
 an entry-roof crease; it is approved only at its tested 4.5% switch and
 cannot replace an interacting door hierarchy. No engine frame-time or
 continuous motion-clearance claim is made by these LOD checks.
+
+## Delivered-seed LOD repetition — immutable inputs, 2026-11-09
+
+Branch `wp/houses-lod-2` starts from `02487b8`; merging `main` reports
+already up to date. All ten requested originals are present, so no source
+rebuild or rebake is needed. The pre-use source dependencies are recorded
+individually in `build/houses-lod-2/<type>-<seed>-source.json`.
+`immutable.json` freezes 360 pre-existing files: exports, images, docs,
+LOD evidence and the top-level README. The previous 136-file ledger also matches.
+`freeze.sha256` and the revision receipt cover the literal kit, recipe and
+both representative configs before use; each seed additionally freezes its
+own config. No kit, gate or target is changed. Blender runs serially with
+`LOD_THREADS=4`, using the inherited shared GPU lock for bakes and renders.
+
+The colonial representative's generated root manifest/payload and renders
+are absent in this checkout before work. Its accepted recipe and README
+numbers remain unchanged; no replacement representative build is inferred
+or published. The ranch representative's existing payload/evidence is frozen.
+A read-only archive was requested while the new seeds proceed.
+
+Full per-seed generated reports live in `build/houses-lod-2/reports/`;
+new exports/native comparisons use `houses/{export,renders}/lod/<type>-<seed>/`.
+Color/value comparisons below use immutable exported LOD0 under the same
+procedural lights, rather than new photographic measurements or white balance.
+
+### Colonial seed 2 — critique pass 1, adopted at the original switches
+
+Opened all eighteen unscaled source/new and preceding/difference pages,
+all four construction views and the native contact. Color/value first:
+muted green siding, warm gray shingles, white trim, red entry and dark
+window/eave cavities remain consistent near. At 30%/12%, window rhythm,
+garage-panel shading, gutters, deck/rail coverage and roof joins remain.
+No new dark window-to-wall streak appears. The 4.5% shell changes individual
+trim/window and rear-wall values slightly but keeps the footprint, roof and
+opening pattern at native size. Close-up it loses lap/shingle relief,
+window-frame depth and garage-panel definition; it is approved only at its
+far switch, with the original interaction hold policy.
+
+`make lod LOD_CONFIG=src/lod-colonial-2.json LOD_THREADS=4` returns 0,
+about 70 minutes from baseline to rendered evidence, predominantly CPU
+reduction. LOD1 is 29,239/32,027 at 30%; LOD2 is 17,743/14,558 at 12%
+(`target_met: false`); the proxy is 1,800/1,800 at 4.5%. No switch moves
+and no level is dropped. Original and adjacent mean/p95/local maxima across
+the far views are .025754/.101961/.073529; alpha/IoU maxima are
+.010737/.011512, within the representative's unchanged limits.
+
+`check-lod` returns 0 in 63.50 s: raw topology, fresh import, canonical
+pivots/resources, images and independent UV/normal fields pass. These are
+rest/serialization checks; the original family's construction/motion proof
+is rerun separately after the batch. The source receipt, 360-file ledger
+and literal seed/tool freeze check pass.
+
+The chain stores 107,174 triangles, six material resources, 28 placements,
+26,184,602 distinct payload bytes and 47.9307 MiB resident. Active draws by
+level are 9/9/9/1. Only the proxy adds four 512-square maps; near levels
+retain the original canonical maps. Full measured tables/contact:
+`build/houses-lod-2/reports/colonial-2/`; native strips and close views:
+`houses/renders/lod/colonial-2/`. Commands and checks are alongside the
+source/freeze receipts. The config is the representative unchanged except
+for source and names/output locations.
+
+### Colonial seed 3 — critique pass 1, adopted at the original switches
+
+Opened eighteen unscaled native source/new and preceding/difference pages,
+four construction views and the contact. Color/value first: pale cool siding,
+red brick band, warm shingles and dark shutters/cavities remain consistent
+near; the garage panels do not gain dark streaks. Roof joins, porch columns,
+window rhythm, downspouts and the rear chimney chase retain their coverage.
+The far front changes small trim/window values but retains the house's
+read at 4.5%; near views preserve the original material response. The close
+proxy loses lap/shingle/masonry relief, window depth and garage definition,
+with a coarser roof junction. No close equivalence is claimed for that shell.
+
+`make lod LOD_CONFIG=src/lod-colonial-3.json LOD_THREADS=4` returns 0 in
+4,127.54 s. LOD1 is 28,786/32,027 at 30%; LOD2 is 18,638/14,558 at 12%
+(`target_met: false`); the proxy is 1,800/1,800 at 4.5%. No switch moves or
+level drops. Far original/adjacent mean/p95/local maxima are
+.025430/.109804/.087990; alpha/IoU maxima .010775/.011492. Every unchanged
+image gate passes. `check-lod` returns 0 in 62.79 s, including raw topology,
+fresh import, pivots/resources and the independent UV/normal field audit.
+These are rest/serialization checks, separate from the original family check.
+The 360-file immutable ledger and literal seed/tool freeze also pass.
+
+Whole storage is 106,596 triangles, seven materials, 31 placements,
+26,315,229 distinct bytes and 48.6766 MiB resident; active draws are
+10/10/10/1. Near maps are canonical originals, with no new images; only the
+proxy adds four 512-square maps. Full tables/contact:
+`build/houses-lod-2/reports/colonial-3/`; native evidence:
+`houses/renders/lod/colonial-3/`. Both representative README blocks and
+recipes remain byte-identical at this point.
+
+### Time-box decision after the colonial proofs
+
+The two full builds/renders each take about 69–70 minutes, primarily serial
+CPU reduction, before their independent checks and review. Another complete
+colonial chain cannot fit the remaining time in the approximately three-hour
+brief. Colonial seeds 6, 8 and 14 are therefore skipped, retaining only their
+unchanged LOD0s. No unproved config or partial level is wired for them.
+The remaining time goes to ranch proxies, following the colonial work.
+
+### Ranch seed 11 — critique pass 1, original switch adopted
+
+Opened all six unscaled native source/new and preceding/difference pages,
+both construction views and the contact. Color/value first: brown masonry and roof values and the deep eave band remain coherent at the
+native switch. Picture-window frames become brighter and some service-window
+highlights change; they remain within the window fields rather than spreading
+across the wall. The broad gables, garage, entry hood and low footprint retain
+their coverage. Close-up the proxy blurs masonry/shingles, has a coarse roof
+junction and loses the thin entry supports/fittings. These are real close-view
+limitations; it is accepted only at its native 4.5% distance.
+
+The unchanged representative recipe builds/renders with
+`make lod LOD_CONFIG=src/lod-ranch-11.json LOD_THREADS=4`: exit 0 in
+209.19 s. The proxy is 1,800/1,800 triangles
+at 4.5%, one material/draw; target met: True.
+Original/adjacent mean/p95/local maxima are
+0.016316/0.071596/0.076838;
+alpha/IoU maxima 0.011370/0.011978.
+All unchanged image gates pass. No switch move or dropped level.
+
+`check-lod` with the same override returns 0 in 4.23 s, including
+raw topology, fresh import, placement metadata and independent normal audit.
+These are rest/data checks; retain LOD0 for interaction. The 360-file source/
+existing-delivery ledger and literal seed/tool freeze check pass.
+
+Stored costs: 61,595 triangles, 7 material resources,
+11 primitive placements, 13,344,390 distinct payload bytes,
+34.0856 MiB resident. Active draws: 10 or one.
+Only four new 512-square proxy maps are added; no intermediate image or mesh.
+Full measured report/contact: `build/houses-lod-2/reports/ranch-11/`;
+native evidence: `houses/renders/lod/ranch-11/`.
+
+### Ranch seed 13 — critique pass 1, 4.5% rejected
+
+Opened all six native comparison/difference pages, both construction views
+and the contact. Color/value first: roof and masonry values broadly hold,
+but window frames brighten, including the rear service/window field. The
+close proxy also loses masonry/shingle detail, small entry supports and a
+clean hood junction. It is not approved through the numeric failure.
+
+The 1,798/1,800-triangle one-draw proxy meets its target. Front/side gates
+pass; rear local mean reaches .101838, above the unchanged .08 limit
+(mean .013542, p95 .066667). `check-lod` returns 2 only for images; raw
+geometry, fresh import and normal audit pass. No gate or target changes.
+The exact config, source/package dependencies, native images, checks and
+literal freeze are mirrored in `build/houses-lod-2/trials/ranch-13-045/`;
+the literal archived freeze passes. Failed measured report/contact:
+`build/houses-lod-2/reports/ranch-13-045-trial/`.
+
+The sole farther test changes only screen height from 4.5% to 3%. It keeps
+the 1,800 target, 512 maps, sampling, remesh recipe and all original gates.
+Its active-config receipt is recorded before use; the initial source/tool
+receipt and exact rejected config remain archived and unchanged.
+
+### Ranch seed 13 — critique pass 2, accept the single farther switch
+
+Opened all six fresh native pages, both fresh construction views and the
+contact. Color/value first: the brown roof/masonry and deep eave remain;
+window/trim highlights still change, but at the native 3% switch they do not
+form a broad bright wall patch. Roof/chimney, garage and low footprint keep
+their coverage. Close-up the shell is coarse and blurred, with lost small
+entry supports and a rough hood/roof junction; it is approved only at 3%.
+
+The sole farther trial builds/renders in 257.12 s and `check-lod` returns 0
+in 4.32 s. It is 1,800/1,800 triangles, one material/draw. Mean/p95/local
+maxima are .016836/.075243/.057333; alpha/IoU .029193/.032500. All original
+gates pass, including the formerly failing rear local region (.054596).
+Topology, re-import, independent normals, original bytes and the active
+literal freeze pass. No target, method or other recipe setting changes.
+The 4.5% failure remains archived and wired to no target.
+
+Stored costs: 61,376 triangles, seven material resources, eleven placements,
+13,519,911 distinct payload bytes and 34.1734 MiB resident. Active draws are
+ten or one; only four new 512-square maps are added. Full measured report/
+contact: `build/houses-lod-2/reports/ranch-13/`; native evidence:
+`houses/renders/lod/ranch-13/`. The only adopted difference from the
+representative beyond source/names is the justified 4.5% → 3% switch.
+
+### Ranch seed 14 — critique pass 1, original switch adopted
+
+Opened all six unscaled native source/new and preceding/difference pages,
+both construction views and the contact. Color/value first: red-brown brick, brown hip roof, pale rear siding and the dark eave band stay
+consistent at native size. Some window/door highlights shift without spreading
+across the facade. The hip silhouette, chimney/cap, substantial entry columns,
+garage and window rhythm retain coverage. Close-up the proxy blurs mortar,
+shingles, garage relief and small roof/hood joints; only the 4.5% distance is
+approved, with LOD0 held for interaction.
+
+The unchanged representative recipe builds/renders with
+`make lod LOD_CONFIG=src/lod-ranch-14.json LOD_THREADS=4`: exit 0 in
+211.92 s. The proxy is 1,800/1,800 triangles
+at 4.5%, one material/draw; target met: True.
+Original/adjacent mean/p95/local maxima are
+0.012290/0.054902/0.070282;
+alpha/IoU maxima 0.014650/0.015689.
+All unchanged image gates pass. No switch move or dropped level.
+
+`check-lod` with the same override returns 0 in 3.90 s, including
+raw topology, fresh import, placement metadata and independent normal audit.
+These are rest/data checks; retain LOD0 for interaction. The 360-file source/
+existing-delivery ledger and literal seed/tool freeze check pass.
+
+Stored costs: 52,424 triangles, 7 material resources,
+11 primitive placements, 12,377,219 distinct payload bytes,
+33.1613 MiB resident. Active draws: 10 or one.
+Only four new 512-square proxy maps are added; no intermediate image or mesh.
+Full measured report/contact: `build/houses-lod-2/reports/ranch-14/`;
+native evidence: `houses/renders/lod/ranch-14/`.
+
+### Ranch seed 15 — critique pass 1, 4.5% rejected
+
+Opened all six native pages, both construction views and the contact.
+Color/value first: brown brick and roof retain their broad values and the
+carport remains open, but window frames and the rear slider brighten.
+The rear local region fails at .119346 against .08 (mean .013942, p95
+.058824); front and side gates pass. The close shell loses small entry
+supports, material relief and a clean hood edge, while retaining the
+structural carport post/void. `check-lod` returns 2 only for images; geometry,
+fresh import and independent normals pass. Count: 1,800/1,800, one draw.
+
+Exact config/dependencies, payload/native images, checks and literal freeze:
+`build/houses-lod-2/trials/ranch-15-045/`, with a passing archive freeze check.
+Failed measured report: `build/houses-lod-2/reports/ranch-15-045-trial/`.
+The sole farther test changes only the switch to 3%; no target, gate,
+texture, sampling or remesh option changes. Its pre-use active-config
+receipt is separate from the archived, unchanged 4.5% recipe/evidence.
+
+### Ranch seed 15 — critique pass 2, proxy dropped
+
+Opened all six fresh native pages, both construction views and the contact.
+Color/value first: the main roof/masonry and open carport retain their broad
+read, but bright window/slider fields remain visible in side and rear
+comparisons. Close-up the shell loses entry supports, brick/shingle relief
+and clean hood/roof edges. The farther switch does not cure the local changes.
+
+At 3%, side/rear local errors are .111908/.091203, above the unchanged .08
+limit; mean/p95 maxima .016149/.066667 and alpha/IoU .026849/.029742 pass.
+The 1,798/1,800 one-draw shell meets its count. `check-lod` returns 2 only for
+images; geometry, re-import and independent normals pass. This second build
+returns 0 in 277.74 s; the full failed check takes 4.17 s. No further switch
+or option is tried. **Drop seed 15's proxy: local image gates fail at both
+4.5% and the one allowed farther 3% switch.** It remains LOD0-only.
+
+Exact second config, dependencies, maps, native evidence, checks and passing
+literal freeze are mirrored in `build/houses-lod-2/trials/ranch-15-030/`.
+Measured failed tables/contact: `build/houses-lod-2/reports/ranch-15-030-trial/`.
+The first trial remains alongside. No failed config is committed or wired;
+only accepted chains enter the Make hooks and stored-cost totals.
+
+Ranch seed 16 is skipped for the time box: the two required failed seed-15
+passes consume the remaining build window, and final family/source checks
+still need to finish. Its delivery stays unchanged and LOD0-only.
+
+## Delivered-seed repetition — final proof and handoff
+
+Final `make check-lod LOD_THREADS=4 -j1` returns 2 in 145.69 s solely
+because the pre-existing colonial-27 root manifest/payload was absent on
+entry. Both initial exceptions name `houses/export/lod/manifest.json`.
+Every available active chain has passing raw geometry/re-import and normal
+checks, including all five new adoptions and unchanged ranch 12. Nothing
+is waived to turn this incomplete local family target green.
+
+Final `make TYPE=ranch check MAKE=make -j1`, with the explicit accepted-input
+`-o` list propagated through recursive make, returns 0 in 69.16 s. This
+includes the colonial family check. Complete outer argv, nested argv and
+logs: `build/houses-lod-2/ranch-original-check.json`, `nested-make.jsonl`
+and the corresponding log. No original is rebuilt or republished.
+
+`final-audit.json` passes: all 360 pre-existing files and the prior 136-file
+ledger match; all ten individual source dependency receipts match; all six
+active/global literal freeze receipts and three rejected-trial literal
+freezes pass. Both representative README tables/totals, both original
+recipes and the top-level README remain byte-identical. The final checker
+rewrites the ranch-12 JSON reports identically: zero restorations needed.
+`python3 kit/repo_check.py` passes 2,663 sources; `git diff --check` passes.
+No kit or original modeling/material/source/delivery script changes.
+
+New accepted coverage: colonial 2/3 at 30%, 12%, 4.5%; ranch 11/14 at
+4.5%, ranch 13 at 3%. Both colonial LOD2 count targets remain explicitly
+missed; every accepted image/data gate passes. Ranch 15 is LOD0-only after
+both failed trials. Colonial 6/8/14 and ranch 16 are unattempted time-box
+skips. Every accepted seed and the proved rejection have separate commits.
+The remaining close-range proxy blur/coarse joints and missing subpixel
+fittings are documented per seed; these shells are distance/rest-only.
+
+Final new-adoption measured report/contact:
+`build/houses-lod-2/final-new-adoptions/{report.md,report.json,contact.jpg}`.
+This union covers the five new adoptions only. Individual report links and
+stored/drawn costs are in the two compact README tables; full native views
+are `houses/renders/lod/<type>-<seed>/`. Rejected configs/packages/images stay
+ignored in `build/houses-lod-2/trials/`, with no failed config on the branch.
+No own Blender/make job remains (`remaining-jobs.json`: empty). The lead
+needs the existing colonial-27 byte-exact generated chain to make the local
+whole-family LOD check complete; its accepted config/table is preserved.
