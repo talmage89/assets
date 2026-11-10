@@ -3119,3 +3119,45 @@ only accepted chains enter the Make hooks and stored-cost totals.
 Ranch seed 16 is skipped for the time box: the two required failed seed-15
 passes consume the remaining build window, and final family/source checks
 still need to finish. Its delivery stays unchanged and LOD0-only.
+
+## Delivered-seed repetition — final proof and handoff
+
+Final `make check-lod LOD_THREADS=4 -j1` returns 2 in 145.69 s solely
+because the pre-existing colonial-27 root manifest/payload was absent on
+entry. Both initial exceptions name `houses/export/lod/manifest.json`.
+Every available active chain has passing raw geometry/re-import and normal
+checks, including all five new adoptions and unchanged ranch 12. Nothing
+is waived to turn this incomplete local family target green.
+
+Final `make TYPE=ranch check MAKE=make -j1`, with the explicit accepted-input
+`-o` list propagated through recursive make, returns 0 in 69.16 s. This
+includes the colonial family check. Complete outer argv, nested argv and
+logs: `build/houses-lod-2/ranch-original-check.json`, `nested-make.jsonl`
+and the corresponding log. No original is rebuilt or republished.
+
+`final-audit.json` passes: all 360 pre-existing files and the prior 136-file
+ledger match; all ten individual source dependency receipts match; all six
+active/global literal freeze receipts and three rejected-trial literal
+freezes pass. Both representative README tables/totals, both original
+recipes and the top-level README remain byte-identical. The final checker
+rewrites the ranch-12 JSON reports identically: zero restorations needed.
+`python3 kit/repo_check.py` passes 2,663 sources; `git diff --check` passes.
+No kit or original modeling/material/source/delivery script changes.
+
+New accepted coverage: colonial 2/3 at 30%, 12%, 4.5%; ranch 11/14 at
+4.5%, ranch 13 at 3%. Both colonial LOD2 count targets remain explicitly
+missed; every accepted image/data gate passes. Ranch 15 is LOD0-only after
+both failed trials. Colonial 6/8/14 and ranch 16 are unattempted time-box
+skips. Every accepted seed and the proved rejection have separate commits.
+The remaining close-range proxy blur/coarse joints and missing subpixel
+fittings are documented per seed; these shells are distance/rest-only.
+
+Final new-adoption measured report/contact:
+`build/houses-lod-2/final-new-adoptions/{report.md,report.json,contact.jpg}`.
+This union covers the five new adoptions only. Individual report links and
+stored/drawn costs are in the two compact README tables; full native views
+are `houses/renders/lod/<type>-<seed>/`. Rejected configs/packages/images stay
+ignored in `build/houses-lod-2/trials/`, with no failed config on the branch.
+No own Blender/make job remains (`remaining-jobs.json`: empty). The lead
+needs the existing colonial-27 byte-exact generated chain to make the local
+whole-family LOD check complete; its accepted config/table is preserved.
