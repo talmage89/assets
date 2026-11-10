@@ -2867,3 +2867,63 @@ The retained ranch proxy still loses close masonry/shingle detail and has
 an entry-roof crease; it is approved only at its tested 4.5% switch and
 cannot replace an interacting door hierarchy. No engine frame-time or
 continuous motion-clearance claim is made by these LOD checks.
+
+## Delivered-seed LOD repetition — immutable inputs, 2026-11-09
+
+Branch `wp/houses-lod-2` starts from `02487b8`; merging `main` reports
+already up to date. All ten requested originals are present, so no source
+rebuild or rebake is needed. The pre-use source dependencies are recorded
+individually in `build/houses-lod-2/<type>-<seed>-source.json`.
+`immutable.json` freezes 360 pre-existing export, image, docs and LOD-evidence
+files, plus the top-level README. The previous 136-file ledger also matches.
+`freeze.sha256` and the revision receipt cover the literal kit, recipe and
+both representative configs before use; each seed additionally freezes its
+own config. No kit, gate or target is changed. Blender runs serially with
+`LOD_THREADS=4`, using the inherited shared GPU lock for bakes and renders.
+
+The colonial representative's generated root manifest/payload and renders
+are absent in this checkout before work. Its accepted recipe and README
+numbers remain unchanged; no replacement representative build is inferred
+or published. The ranch representative's existing payload/evidence is frozen.
+A read-only archive was requested while the new seeds proceed.
+
+Full per-seed generated reports live in `build/houses-lod-2/reports/`;
+new exports/native comparisons use `houses/{export,renders}/lod/<type>-<seed>/`.
+Color/value comparisons below use immutable exported LOD0 under the same
+procedural lights, rather than new photographic measurements or white balance.
+
+### Colonial seed 2 — critique pass 1, adopted at the original switches
+
+Opened all eighteen unscaled source/new and preceding/difference pages,
+all four construction views and the native contact. Color/value first:
+muted green siding, warm gray shingles, white trim, red entry and dark
+window/eave cavities remain consistent near. At 30%/12%, window rhythm,
+garage-panel shading, gutters, deck/rail coverage and roof joins remain.
+No new dark window-to-wall streak appears. The 4.5% shell changes individual
+trim/window and rear-wall values slightly but keeps the footprint, roof and
+opening pattern at native size. Close-up it loses lap/shingle relief,
+window-frame depth and garage-panel definition; it is approved only at its
+far switch, with the original interaction hold policy.
+
+`make lod LOD_CONFIG=src/lod-colonial-2.json LOD_THREADS=4` returns 0,
+about 70 minutes from baseline to rendered evidence, predominantly CPU
+reduction. LOD1 is 29,239/32,027 at 30%; LOD2 is 17,743/14,558 at 12%
+(`target_met: false`); the proxy is 1,800/1,800 at 4.5%. No switch moves
+and no level is dropped. Original and adjacent mean/p95/local maxima across
+the far views are .025754/.101961/.073529; alpha/IoU maxima are
+.010737/.011512, within the representative's unchanged limits.
+
+`check-lod` returns 0 in 63.50 s: raw topology, fresh import, canonical
+pivots/resources, images and independent UV/normal fields pass. These are
+rest/serialization checks; the original family's construction/motion proof
+is rerun separately after the batch. The source receipt, 360-file ledger
+and literal seed/tool freeze check pass.
+
+The chain stores 107,174 triangles, six material resources, 28 placements,
+26,184,602 distinct payload bytes and 47.9307 MiB resident. Active draws by
+level are 9/9/9/1. Only the proxy adds four 512-square maps; near levels
+retain the original canonical maps. Full measured tables/contact:
+`build/houses-lod-2/reports/colonial-2/`; native strips and close views:
+`houses/renders/lod/colonial-2/`. Commands and checks are alongside the
+source/freeze receipts. The config is the representative unchanged except
+for source and names/output locations.
