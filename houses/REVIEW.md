@@ -3044,3 +3044,34 @@ ten or one; only four new 512-square maps are added. Full measured report/
 contact: `build/houses-lod-2/reports/ranch-13/`; native evidence:
 `houses/renders/lod/ranch-13/`. The only adopted difference from the
 representative beyond source/names is the justified 4.5% → 3% switch.
+
+### Ranch seed 14 — critique pass 1, original switch adopted
+
+Opened all six unscaled native source/new and preceding/difference pages,
+both construction views and the contact. Color/value first: red-brown brick, brown hip roof, pale rear siding and the dark eave band stay
+consistent at native size. Some window/door highlights shift without spreading
+across the facade. The hip silhouette, chimney/cap, substantial entry columns,
+garage and window rhythm retain coverage. Close-up the proxy blurs mortar,
+shingles, garage relief and small roof/hood joints; only the 4.5% distance is
+approved, with LOD0 held for interaction.
+
+The unchanged representative recipe builds/renders with
+`make lod LOD_CONFIG=src/lod-ranch-14.json LOD_THREADS=4`: exit 0 in
+211.92 s. The proxy is 1,800/1,800 triangles
+at 4.5%, one material/draw; target met: True.
+Original/adjacent mean/p95/local maxima are
+0.012290/0.054902/0.070282;
+alpha/IoU maxima 0.014650/0.015689.
+All unchanged image gates pass. No switch move or dropped level.
+
+`check-lod` with the same override returns 0 in 3.90 s, including
+raw topology, fresh import, placement metadata and independent normal audit.
+These are rest/data checks; retain LOD0 for interaction. The 360-file source/
+existing-delivery ledger and literal seed/tool freeze check pass.
+
+Stored costs: 52,424 triangles, 7 material resources,
+11 primitive placements, 12,377,219 distinct payload bytes,
+33.1613 MiB resident. Active draws: 10 or one.
+Only four new 512-square proxy maps are added; no intermediate image or mesh.
+Full measured report/contact: `build/houses-lod-2/reports/ranch-14/`;
+native evidence: `houses/renders/lod/ranch-14/`.
