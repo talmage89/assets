@@ -3267,3 +3267,46 @@ Only after these checks, add the config to both family check lists and update
 the existing ranch-16 table row. Full measured report/contact is local at
 `build/houses-lod-3/reports/ranch-16/`; native views are local at
 `houses/renders/lod/ranch-16/`. No ignored-path hyperlinks are added.
+
+### Continuation final proof and remaining scope
+
+After the last seed commit, `make -C houses check-lod LOD_THREADS=4 -j1`
+returns 0 in 209.79 s for all eight adopted configs, including the now rebuilt
+colonial-27 chain and new ranch-16 proxy. Every raw/re-import and independent
+normal/UV check passes. `make -C houses TYPE=ranch check MAKE=make -j1`,
+with explicit accepted-input `-o` flags, returns 0 in 68.31 s; its recursive
+`TYPE=builder_colonial check` also passes. This includes all six original
+ranch and colonial deliveries, mesh/construction and motion checks, camera
+verification, and the 1,000-plan sweep with six negative controls. The complete
+outer command is in `build/houses-lod-3/ranch-original-check.json`; the
+recursive command is in `nested-make.jsonl` there. A separate audit confirms
+all 367 frozen paths are passed explicitly through the recursive invocation.
+The optional MeshOptimizer library warning does not prevent the uncompressed
+re-import/check path from passing.
+
+`final-audit.json` passes: 594 pre-existing files unchanged, 63 rebuilt
+prerequisite files unchanged since proof, five original dependency receipts
+unchanged, literal global/active recipe freezes and the unfinished seed-6
+archive's literal freeze all pass. The final check rewrites the old check
+reports byte-identically; zero restorations. Both representative tables,
+all prior chains/deliveries, kit and top-level README are unchanged.
+`python3 kit/repo_check.py` passes 2,664 source files; `git diff --check`
+passes. The committed README/review contain zero ignored-path hyperlinks.
+
+New accepted seed: ranch 16, 1,800/1,800 at 4.5%, one draw, with one logged
+critique and no moved switch/dropped level. The required colonial-27 rebuild
+reproduces its counts/switches: 28,698 at 30% (target met), 18,427 at 12%
+(target missed), 1,798 at 4.5% (target met); every acceptance gate passes.
+Fresh bake bytes are recorded above without changing published representative
+tables. Its build/proof consumed about 70 minutes. Colonial 6 used another
+30-minute build window and remains unfinished/unaccepted; 8/14 were not
+started. All three keep their immutable LOD0s. These time-box skips are the
+remaining work; no unproved adoption is checked in.
+
+Full local measured reports/contacts:
+`build/houses-lod-3/reports/colonial-27/` and
+`build/houses-lod-3/reports/ranch-16/`; native comparison/construction images:
+`houses/renders/lod/` and `houses/renders/lod/ranch-16/`. The partial seed-6
+checkpoint and content-checked component cache are retained locally for a
+resume. No own Blender/make/build-helper job remains (`remaining-jobs.json`
+is empty). No kit feature or target/gate change is needed from the lead.
