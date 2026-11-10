@@ -694,8 +694,8 @@ open the full generated reports; native evidence is under `renders/lod/`.
 | [12](../build/houses-lod-2/reports/ranch-12/report.md) | L0 55,228; L1 1,800 @ 4.5% | 57,028 / 7 / 11 | 12,685,804 / 33.423 | 10 / 1 |
 | [13](../build/houses-lod-2/reports/ranch-13/report.md) | L0 59,576; L1 1,800 @ 3.0% | 61,376 / 7 / 11 | 13,519,911 / 34.173 | 10 / 1 |
 | [14](../build/houses-lod-2/reports/ranch-14/report.md) | L0 50,624; L1 1,800 @ 4.5% | 52,424 / 7 / 11 | 12,377,219 / 33.161 | 10 / 1 |
-| 15 | L0 54,998; extension not yet attempted | 54,998 / 6 / 9 | 12,276,081 / 32.081 | 9 |
-| 16 | L0 53,037; extension not yet attempted | 53,037 / 6 / 10 | 12,000,284 / 31.824 | 10 |
+| [15](../build/houses-lod-2/reports/ranch-15-030-trial/report.md) | L0 54,998; proxy dropped: image gates fail at 4.5% and 3% | 54,998 / 6 / 9 | 12,276,081 / 32.081 | 9 |
+| 16 | L0 53,037; skipped: time box | 53,037 / 6 / 10 | 12,000,284 / 31.824 | 10 |
 
 <!-- RANCH_SEED_LODS_END -->
 

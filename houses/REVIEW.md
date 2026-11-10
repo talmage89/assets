@@ -3075,3 +3075,47 @@ Stored costs: 52,424 triangles, 7 material resources,
 Only four new 512-square proxy maps are added; no intermediate image or mesh.
 Full measured report/contact: `build/houses-lod-2/reports/ranch-14/`;
 native evidence: `houses/renders/lod/ranch-14/`.
+
+### Ranch seed 15 — critique pass 1, 4.5% rejected
+
+Opened all six native pages, both construction views and the contact.
+Color/value first: brown brick and roof retain their broad values and the
+carport remains open, but window frames and the rear slider brighten.
+The rear local region fails at .119346 against .08 (mean .013942, p95
+.058824); front and side gates pass. The close shell loses small entry
+supports, material relief and a clean hood edge, while retaining the
+structural carport post/void. `check-lod` returns 2 only for images; geometry,
+fresh import and independent normals pass. Count: 1,800/1,800, one draw.
+
+Exact config/dependencies, payload/native images, checks and literal freeze:
+`build/houses-lod-2/trials/ranch-15-045/`, with a passing archive freeze check.
+Failed measured report: `build/houses-lod-2/reports/ranch-15-045-trial/`.
+The sole farther test changes only the switch to 3%; no target, gate,
+texture, sampling or remesh option changes. Its pre-use active-config
+receipt is separate from the archived, unchanged 4.5% recipe/evidence.
+
+### Ranch seed 15 — critique pass 2, proxy dropped
+
+Opened all six fresh native pages, both construction views and the contact.
+Color/value first: the main roof/masonry and open carport retain their broad
+read, but bright window/slider fields remain visible in side and rear
+comparisons. Close-up the shell loses entry supports, brick/shingle relief
+and clean hood/roof edges. The farther switch does not cure the local changes.
+
+At 3%, side/rear local errors are .111908/.091203, above the unchanged .08
+limit; mean/p95 maxima .016149/.066667 and alpha/IoU .026849/.029742 pass.
+The 1,798/1,800 one-draw shell meets its count. `check-lod` returns 2 only for
+images; geometry, re-import and independent normals pass. This second build
+returns 0 in 277.74 s; the full failed check takes 4.17 s. No further switch
+or option is tried. **Drop seed 15's proxy: local image gates fail at both
+4.5% and the one allowed farther 3% switch.** It remains LOD0-only.
+
+Exact second config, dependencies, maps, native evidence, checks and passing
+literal freeze are mirrored in `build/houses-lod-2/trials/ranch-15-030/`.
+Measured failed tables/contact: `build/houses-lod-2/reports/ranch-15-030-trial/`.
+The first trial remains alongside. No failed config is committed or wired;
+only accepted chains enter the Make hooks and stored-cost totals.
+
+Ranch seed 16 is skipped for the time box: the two required failed seed-15
+passes consume the remaining build window, and final family/source checks
+still need to finish. Its delivery stays unchanged and LOD0-only.
