@@ -368,9 +368,9 @@ open the full generated reports; native evidence is under `renders/lod/`.
 | [27](#additional-lods) | L0 58,232; L1 28,698 @ 30.0%; L2 18,427† @ 12.0%; L3 1,798 @ 4.5% | 107,155 / 7 / 31 | 26,420,271 / 48.795 | 10 / 10 / 10 / 1 |
 | [2](../build/houses-lod-2/reports/colonial-2/report.md) | L0 58,392; L1 29,239 @ 30.0%; L2 17,743† @ 12.0%; L3 1,800 @ 4.5% | 107,174 / 6 / 28 | 26,184,602 / 47.931 | 9 / 9 / 9 / 1 |
 | [3](../build/houses-lod-2/reports/colonial-3/report.md) | L0 57,372; L1 28,786 @ 30.0%; L2 18,638† @ 12.0%; L3 1,800 @ 4.5% | 106,596 / 7 / 31 | 26,315,229 / 48.677 | 10 / 10 / 10 / 1 |
-| 6 | L0 59,526; extension not yet attempted | 59,526 / 6 / 10 | 21,314,995 / 42.986 | 10 |
-| 8 | L0 58,092; extension not yet attempted | 58,092 / 5 / 9 | 20,789,003 / 41.854 | 9 |
-| 14 | L0 58,766; extension not yet attempted | 58,766 / 6 / 10 | 21,264,351 / 42.938 | 10 |
+| 6 | L0 59,526; skipped: time box | 59,526 / 6 / 10 | 21,314,995 / 42.986 | 10 |
+| 8 | L0 58,092; skipped: time box | 58,092 / 5 / 9 | 20,789,003 / 41.854 | 9 |
+| 14 | L0 58,766; skipped: time box | 58,766 / 6 / 10 | 21,264,351 / 42.938 | 10 |
 
 <!-- COLONIAL_SEED_LODS_END -->
 
@@ -626,8 +626,9 @@ photograph is committed or sampled into an asset.
 ### Additional LOD — ranch seed 12
 
 `make TYPE=ranch lod` builds a far replacement under `export/lod/ranch-12-proxy/`;
-`make TYPE=ranch check-lod` checks it. Only representative seed 12 has this
-authored chain. Default `make` and `make check` retain their original graph.
+`make TYPE=ranch check-lod` checks the adopted ranch proxies. The table below
+describes representative seed 12; delivered-seed coverage follows it.
+Default `make` and `make check` retain their original graph.
 The requested 30%/12% levels are deferred: fixed UV domains leave only about
 2% triangle savings and larger buffers. [Review and measured trial](REVIEW.md).
 
@@ -689,7 +690,7 @@ open the full generated reports; native evidence is under `renders/lod/`.
 
 | Seed | Triangles by level @ switch height | Stored triangles / materials / placements | Distinct payload B / resident MiB | Draws by level |
 | --- | --- | ---: | ---: | --- |
-| 11 | L0 59,795; extension not yet attempted | 59,795 / 6 / 10 | 12,882,941 / 32.658 | 10 |
+| [11](../build/houses-lod-2/reports/ranch-11/report.md) | L0 59,795; L1 1,800 @ 4.5% | 61,595 / 7 / 11 | 13,344,390 / 34.086 | 10 / 1 |
 | [12](../build/houses-lod-2/reports/ranch-12/report.md) | L0 55,228; L1 1,800 @ 4.5% | 57,028 / 7 / 11 | 12,685,804 / 33.423 | 10 / 1 |
 | 13 | L0 59,576; extension not yet attempted | 59,576 / 6 / 10 | 12,989,182 / 32.750 | 10 |
 | 14 | L0 50,624; extension not yet attempted | 50,624 / 6 / 10 | 11,900,937 / 31.739 | 10 |

@@ -2966,3 +2966,35 @@ colonial chain cannot fit the remaining time in the approximately three-hour
 brief. Colonial seeds 6, 8 and 14 are therefore skipped, retaining only their
 unchanged LOD0s. No unproved config or partial level is wired for them.
 The remaining time goes to ranch proxies, following the colonial work.
+
+### Ranch seed 11 — critique pass 1, original switch adopted
+
+Opened all six unscaled native source/new and preceding/difference pages,
+both construction views and the contact. Color/value first: brown masonry and roof values and the deep eave band remain coherent at the
+native switch. Picture-window frames become brighter and some service-window
+highlights change; they remain within the window fields rather than spreading
+across the wall. The broad gables, garage, entry hood and low footprint retain
+their coverage. Close-up the proxy blurs masonry/shingles, has a coarse roof
+junction and loses the thin entry supports/fittings. These are real close-view
+limitations; it is accepted only at its native 4.5% distance.
+
+The unchanged representative recipe builds/renders with
+`make lod LOD_CONFIG=src/lod-ranch-11.json LOD_THREADS=4`: exit 0 in
+209.19 s. The proxy is 1,800/1,800 triangles
+at 4.5%, one material/draw; target met: True.
+Original/adjacent mean/p95/local maxima are
+0.016316/0.071596/0.076838;
+alpha/IoU maxima 0.011370/0.011978.
+All unchanged image gates pass. No switch move or dropped level.
+
+`check-lod` with the same override returns 0 in 4.23 s, including
+raw topology, fresh import, placement metadata and independent normal audit.
+These are rest/data checks; retain LOD0 for interaction. The 360-file source/
+existing-delivery ledger and literal seed/tool freeze check pass.
+
+Stored costs: 61,595 triangles, 7 material resources,
+11 primitive placements, 13,344,390 distinct payload bytes,
+34.0856 MiB resident. Active draws: 10 or one.
+Only four new 512-square proxy maps are added; no intermediate image or mesh.
+Full measured report/contact: `build/houses-lod-2/reports/ranch-11/`;
+native evidence: `houses/renders/lod/ranch-11/`.
