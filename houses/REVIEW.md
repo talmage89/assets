@@ -3212,3 +3212,25 @@ recipe freeze match. The rebuilt files are separately frozen in
 Full measured report/contact: `build/houses-lod-3/reports/colonial-27/`.
 Native images: `houses/renders/lod/`; actual checked payload:
 `houses/export/lod/`. The previously missing prerequisite is now complete.
+
+### Colonial seed 6 — unfinished build, no adopted levels
+
+Ran the exact cloned three-level recipe with only source and names/output
+locations changed. After 1,802.76 s it exported a measured 29,209-triangle
+LOD1 against 32,027, but the full chain, native renders and independent
+checks were unfinished. Stop only this worktree's selected Blender at the
+continuation's build-window cutoff; make returns 2 from that deliberate
+termination, not a failed acceptance gate. No visual or normal pass is claimed.
+
+The exact unaccepted config, original dependencies, partial output, command/
+stop receipts and literal tool/config freeze are retained under
+`build/houses-lod-3/incomplete/colonial-6/`; its literal freeze passes. The
+content-checked component cache is retained for a resume. The active untracked
+config is removed, no Make hook is added, and seed 6 remains LOD0-only.
+No new model or texture is committed. This is an unfinished attempt, not
+permission to drop untested levels from the recipe.
+
+Colonial seeds 8 and 14 cannot fit another full build/proof in the remaining
+two-hour budget and remain unattempted, with unchanged LOD0s. The required
+seed-27 prerequisite used 4,108 s plus its independent review/check. The
+remaining window is reserved for ranch 16 and the final family checks.
