@@ -154,4 +154,4 @@ Toolkit
 - [Levels of detail](kit/LOD.md): opt-in `make lod` chains that reuse each asset's own maps, piloted on the pickup,
   colonial, gas station, grill, cone and maple and adopted by the street light, fences, hydrant, metal trash can,
   mailbox, trash carts, bench, parking meters, bus shelter, utility poles, traffic signals, street signs,
-  the pin oak, two more colonial seeds and far proxies for four ranch seeds.
+  the pin oak, two more colonial seeds and far proxies for five ranch seeds.
