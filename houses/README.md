@@ -360,14 +360,14 @@ Stored counts include the full immutable source container once and every default
 The same representative recipe is checked independently per seed. † marks an
 unchanged triangle target missed; image and geometry acceptance still pass.
 Stored costs include all alternatives; one level draws per instance. GPU MiB
-use the compression estimate above and exclude engine overhead. Seed links
-open the full generated reports; native evidence is under `renders/lod/`.
+use the compression estimate above and exclude engine overhead. `make lod`
+writes each seed's full report; native evidence is under `renders/lod/`.
 
 | Seed | Triangles by level @ switch height | Stored triangles / materials / placements | Distinct payload B / resident MiB | Draws by level |
 | --- | --- | ---: | ---: | --- |
 | [27](#additional-lods) | L0 58,232; L1 28,698 @ 30.0%; L2 18,427† @ 12.0%; L3 1,798 @ 4.5% | 107,155 / 7 / 31 | 26,420,271 / 48.795 | 10 / 10 / 10 / 1 |
-| [2](../build/houses-lod-2/reports/colonial-2/report.md) | L0 58,392; L1 29,239 @ 30.0%; L2 17,743† @ 12.0%; L3 1,800 @ 4.5% | 107,174 / 6 / 28 | 26,184,602 / 47.931 | 9 / 9 / 9 / 1 |
-| [3](../build/houses-lod-2/reports/colonial-3/report.md) | L0 57,372; L1 28,786 @ 30.0%; L2 18,638† @ 12.0%; L3 1,800 @ 4.5% | 106,596 / 7 / 31 | 26,315,229 / 48.677 | 10 / 10 / 10 / 1 |
+| 2 | L0 58,392; L1 29,239 @ 30.0%; L2 17,743† @ 12.0%; L3 1,800 @ 4.5% | 107,174 / 6 / 28 | 26,184,602 / 47.931 | 9 / 9 / 9 / 1 |
+| 3 | L0 57,372; L1 28,786 @ 30.0%; L2 18,638† @ 12.0%; L3 1,800 @ 4.5% | 106,596 / 7 / 31 | 26,315,229 / 48.677 | 10 / 10 / 10 / 1 |
 | 6 | L0 59,526; skipped: time box | 59,526 / 6 / 10 | 21,314,995 / 42.986 | 10 |
 | 8 | L0 58,092; skipped: time box | 58,092 / 5 / 9 | 20,789,003 / 41.854 | 9 |
 | 14 | L0 58,766; skipped: time box | 58,766 / 6 / 10 | 21,264,351 / 42.938 | 10 |
@@ -685,16 +685,16 @@ seed 12 reuse these same resources. These are stored costs, not a frame-time cla
 The same representative recipe is checked independently per seed. † marks an
 unchanged triangle target missed; image and geometry acceptance still pass.
 Stored costs include all alternatives; one level draws per instance. GPU MiB
-use the compression estimate above and exclude engine overhead. Seed links
-open the full generated reports; native evidence is under `renders/lod/`.
+use the compression estimate above and exclude engine overhead. `make lod`
+writes each seed's full report; native evidence is under `renders/lod/`.
 
 | Seed | Triangles by level @ switch height | Stored triangles / materials / placements | Distinct payload B / resident MiB | Draws by level |
 | --- | --- | ---: | ---: | --- |
-| [11](../build/houses-lod-2/reports/ranch-11/report.md) | L0 59,795; L1 1,800 @ 4.5% | 61,595 / 7 / 11 | 13,344,390 / 34.086 | 10 / 1 |
-| [12](../build/houses-lod-2/reports/ranch-12/report.md) | L0 55,228; L1 1,800 @ 4.5% | 57,028 / 7 / 11 | 12,685,804 / 33.423 | 10 / 1 |
-| [13](../build/houses-lod-2/reports/ranch-13/report.md) | L0 59,576; L1 1,800 @ 3.0% | 61,376 / 7 / 11 | 13,519,911 / 34.173 | 10 / 1 |
-| [14](../build/houses-lod-2/reports/ranch-14/report.md) | L0 50,624; L1 1,800 @ 4.5% | 52,424 / 7 / 11 | 12,377,219 / 33.161 | 10 / 1 |
-| [15](../build/houses-lod-2/reports/ranch-15-030-trial/report.md) | L0 54,998; proxy dropped: image gates fail at 4.5% and 3% | 54,998 / 6 / 9 | 12,276,081 / 32.081 | 9 |
+| 11 | L0 59,795; L1 1,800 @ 4.5% | 61,595 / 7 / 11 | 13,344,390 / 34.086 | 10 / 1 |
+| 12 | L0 55,228; L1 1,800 @ 4.5% | 57,028 / 7 / 11 | 12,685,804 / 33.423 | 10 / 1 |
+| 13 | L0 59,576; L1 1,800 @ 3.0% | 61,376 / 7 / 11 | 13,519,911 / 34.173 | 10 / 1 |
+| 14 | L0 50,624; L1 1,800 @ 4.5% | 52,424 / 7 / 11 | 12,377,219 / 33.161 | 10 / 1 |
+| 15 | L0 54,998; proxy dropped: image gates fail at 4.5% and 3% | 54,998 / 6 / 9 | 12,276,081 / 32.081 | 9 |
 | 16 | L0 53,037; skipped: time box | 53,037 / 6 / 10 | 12,000,284 / 31.824 | 10 |
 
 <!-- RANCH_SEED_LODS_END -->
