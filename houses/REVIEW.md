@@ -3161,3 +3161,54 @@ ignored in `build/houses-lod-2/trials/`, with no failed config on the branch.
 No own Blender/make job remains (`remaining-jobs.json`: empty). The lead
 needs the existing colonial-27 byte-exact generated chain to make the local
 whole-family LOD check complete; its accepted config/table is preserved.
+
+## House LOD continuation — frozen inputs and prerequisite, 2026-11-09
+
+Branch `wp/houses-lod-3` starts at merge `e6c51d0`; merging `main` reports
+already up to date. The source/export dependencies for colonial 27/6/8/14
+and ranch 16 are present, so no LOD0 rebuild is needed. Pre-use receipts,
+tool revision and literal kit/recipe hashes are under `build/houses-lod-3/`.
+The immutable ledger freezes 594 pre-existing export, image, docs and LOD
+files plus the top-level README within that total. Exact backups are saved
+before any checker can rewrite its own JSON output. Source receipts are
+never refreshed. Existing representative configs and tables are held fixed.
+
+The colonial-27 generated chain is still absent on entry. Per the continuation
+brief, first run `make lod LOD_CONFIG=src/lod.json LOD_THREADS=4` to rebuild
+that prerequisite from the immutable original; do not leave a missing-input
+exception as the final family-check result. No option, target, gate or kit
+method changes. Blender runs serially, with the shared GPU lock and at most
+four threads. The new seed tables retain plain seed numbers, with no links
+to ignored generated evidence. Local evidence paths below are plain text.
+
+### Colonial 27 prerequisite — critique pass 1, complete rebuilt proof
+
+Opened all eighteen native source/new and preceding/difference pages, all
+four construction views and the contact. Color/value first: warm neutral
+siding, red brick, muted shingles, green shutters and dark window/eave cavities
+hold near. Roof/porch joins, window rhythm, columns and garage-panel shading
+remain coherent at the switches. The far shell blurs laps/shingles, window
+and garage relief, with a coarse dark roof junction in the deliberately close
+view. At native 4.5% it retains the footprint, roof forms and opening pattern.
+
+`make lod LOD_CONFIG=src/lod.json LOD_THREADS=4` returns 0 in 4,108.20 s.
+Counts reproduce the accepted representative: 28,698/32,027 at 30%,
+18,427/14,558 at 12% (target still missed), 1,798/1,800 at 4.5%. All nine
+original/adjacent image gates pass. Far mean/p95/local maxima are
+.026514/.109804/.071865; alpha/IoU maxima .012536/.013329. No switch or
+recipe changes. `check-lod` returns 0 in 61.15 s: raw geometry, fresh
+re-import, canonical frames/materials and independent UV/normal audit pass.
+This is rest/serialization proof, distinct from original-family motion checks.
+
+The rebuilt chain stores 107,155 triangles, seven material resources and
+31 placements, drawing 10/10/10/1. Resident estimate is 48.7951 MiB; only the
+proxy adds four 512-square maps. Fresh distinct payload is 26,420,556 bytes,
+including 382,190 proxy PNG bytes. The existing representative tables retain
+their published byte figures; no byte identity to the absent old GPU bake is
+claimed. All 594 pre-existing files, the immutable original and literal tool/
+recipe freeze match. The rebuilt files are separately frozen in
+`build/houses-lod-3/restored-27.json` before new seed work.
+
+Full measured report/contact: `build/houses-lod-3/reports/colonial-27/`.
+Native images: `houses/renders/lod/`; actual checked payload:
+`houses/export/lod/`. The previously missing prerequisite is now complete.
