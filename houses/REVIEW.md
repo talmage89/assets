@@ -2998,3 +2998,49 @@ Stored costs: 61,595 triangles, 7 material resources,
 Only four new 512-square proxy maps are added; no intermediate image or mesh.
 Full measured report/contact: `build/houses-lod-2/reports/ranch-11/`;
 native evidence: `houses/renders/lod/ranch-11/`.
+
+### Ranch seed 13 — critique pass 1, 4.5% rejected
+
+Opened all six native comparison/difference pages, both construction views
+and the contact. Color/value first: roof and masonry values broadly hold,
+but window frames brighten, including the rear service/window field. The
+close proxy also loses masonry/shingle detail, small entry supports and a
+clean hood junction. It is not approved through the numeric failure.
+
+The 1,798/1,800-triangle one-draw proxy meets its target. Front/side gates
+pass; rear local mean reaches .101838, above the unchanged .08 limit
+(mean .013542, p95 .066667). `check-lod` returns 2 only for images; raw
+geometry, fresh import and normal audit pass. No gate or target changes.
+The exact config, source/package dependencies, native images, checks and
+literal freeze are mirrored in `build/houses-lod-2/trials/ranch-13-045/`;
+the literal archived freeze passes. Failed measured report/contact:
+`build/houses-lod-2/reports/ranch-13-045-trial/`.
+
+The sole farther test changes only screen height from 4.5% to 3%. It keeps
+the 1,800 target, 512 maps, sampling, remesh recipe and all original gates.
+Its active-config receipt is recorded before use; the initial source/tool
+receipt and exact rejected config remain archived and unchanged.
+
+### Ranch seed 13 — critique pass 2, accept the single farther switch
+
+Opened all six fresh native pages, both fresh construction views and the
+contact. Color/value first: the brown roof/masonry and deep eave remain;
+window/trim highlights still change, but at the native 3% switch they do not
+form a broad bright wall patch. Roof/chimney, garage and low footprint keep
+their coverage. Close-up the shell is coarse and blurred, with lost small
+entry supports and a rough hood/roof junction; it is approved only at 3%.
+
+The sole farther trial builds/renders in 257.12 s and `check-lod` returns 0
+in 4.32 s. It is 1,800/1,800 triangles, one material/draw. Mean/p95/local
+maxima are .016836/.075243/.057333; alpha/IoU .029193/.032500. All original
+gates pass, including the formerly failing rear local region (.054596).
+Topology, re-import, independent normals, original bytes and the active
+literal freeze pass. No target, method or other recipe setting changes.
+The 4.5% failure remains archived and wired to no target.
+
+Stored costs: 61,376 triangles, seven material resources, eleven placements,
+13,519,911 distinct payload bytes and 34.1734 MiB resident. Active draws are
+ten or one; only four new 512-square maps are added. Full measured report/
+contact: `build/houses-lod-2/reports/ranch-13/`; native evidence:
+`houses/renders/lod/ranch-13/`. The only adopted difference from the
+representative beyond source/names is the justified 4.5% → 3% switch.

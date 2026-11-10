@@ -143,10 +143,10 @@ include src/split_rules.mk
 
 # Optional checked chains. Explicit LOD_CONFIG still selects one chain.
 ifeq ($(TYPE),builder_colonial)
-LOD_CONFIGS := src/lod.json src/lod-colonial-2.json src/lod-colonial-3.json src/lod-ranch.json src/lod-ranch-11.json
+LOD_CONFIGS := src/lod.json src/lod-colonial-2.json src/lod-colonial-3.json src/lod-ranch.json src/lod-ranch-11.json src/lod-ranch-13.json
 include ../kit/lod_rules.mk
 else ifeq ($(TYPE),ranch)
 LOD_CONFIG ?= src/lod-ranch.json
-LOD_CONFIGS := src/lod-ranch.json src/lod-ranch-11.json
+LOD_CONFIGS := src/lod-ranch.json src/lod-ranch-11.json src/lod-ranch-13.json
 include ../kit/lod_rules.mk
 endif
